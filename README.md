@@ -1,4 +1,4 @@
-# AI Learning Platform
+# Smart Learning Platform
 
 ## Overview
 
