@@ -1,0 +1,16 @@
+spring.application.name=system
+
+server.port=8081
+
+spring.datasource.url=
+spring.datasource.username=
+spring.datasource.password=
+spring.datasource.driver-class-name=
+spring.jpa.database-platform=
+
+spring.jpa.hibernate.ddl-auto=update
+spring.jpa.properties.hibernate.default_schema=
+spring.jpa.defer-datasource-initialization=true
+spring.sql.init.mode=always
+spring.jpa.show-sql=true
+spring.jpa.properties.hibernate.format_sql=true

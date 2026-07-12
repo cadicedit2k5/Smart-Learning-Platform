@@ -1,4 +1,4 @@
-package com.smartlearning.system.user.pojo;
+package com.smartlearning.system.user.entity;
 
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -27,10 +27,14 @@ public class User {
     @Column(name = "avatar")
     private String avatar;
 
-    @Column(name = "created_at", nullable = false, updatable = false)
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "role_id")
+    private Role role;
+
+    @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
 
-    @Column(name = "updated_at", nullable = false)
+    @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
     @PrePersist
@@ -38,10 +42,12 @@ public class User {
         LocalDateTime now = LocalDateTime.now();
         this.createdAt = now;
         this.updatedAt = now;
+        this.email = this.email.trim().toLowerCase();
     }
 
     @PreUpdate
     public void preUpdate() {
         this.updatedAt = LocalDateTime.now();
+        this.email = this.email.trim().toLowerCase();
     }
 }
