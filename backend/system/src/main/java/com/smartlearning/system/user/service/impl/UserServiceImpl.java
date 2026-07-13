@@ -37,16 +37,12 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public User handleUpdateUser(Long id, User updateUserInfo) {
-        Optional<User> u = this.userRepository.findById(id);
-        if (u.isPresent()) {
-            User updatedUser = u.get();
-            updatedUser.setEmail(updateUserInfo.getEmail());
-            updatedUser.setFullName(updateUserInfo.getFullName());
-            updatedUser.setPassword(updateUserInfo.getPassword());
-            return this.userRepository.save(updatedUser);
+    public User handleUpdateUser(User user) {
+        final Long id = user.getId();
+        if (userRepository.existsById(id)) {
+            return userRepository.save(user);
         }
-        return null;
+        throw new RuntimeException("User không tồn tại!!");
     }
 
     @Override

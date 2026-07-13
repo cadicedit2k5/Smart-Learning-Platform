@@ -8,7 +8,7 @@ public interface UserService {
     List<User> handleGetUsers();
 
     User handleAddUser(User user);
-    User handleUpdateUser(Long id, User updateUserInfo);
+    User handleUpdateUser(User user);
     void handleDeleteUser(Long id);
 
 }

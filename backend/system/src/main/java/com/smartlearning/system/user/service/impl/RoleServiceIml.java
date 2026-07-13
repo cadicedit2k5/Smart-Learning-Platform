@@ -15,7 +15,7 @@ public class RoleServiceIml implements RoleService {
     public Role handleGetRoleByCode(String code) {
         return this.roleRepository.findByCode(code)
                 .orElseThrow(() -> new IllegalStateException(
-                        "Role STUDENT chưa được khởi tạo"
+                        String.format("Role %s chưa được khởi tạo", code)
                 ));
     }
 }
