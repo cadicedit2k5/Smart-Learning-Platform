@@ -3,15 +3,13 @@ package com.smartlearning.system.user.service.impl;
 import com.smartlearning.system.user.entity.Role;
 import com.smartlearning.system.user.repository.RoleRepository;
 import com.smartlearning.system.user.service.RoleService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 @Service
+@RequiredArgsConstructor
 public class RoleServiceIml implements RoleService {
     private RoleRepository roleRepository;
-
-    public RoleServiceIml(RoleRepository roleRepository) {
-        this.roleRepository = roleRepository;
-    }
 
     @Override
     public Role handleGetRoleByCode(String code) {

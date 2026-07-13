@@ -2,6 +2,7 @@ package com.smartlearning.system.user.controller;
 
 import com.smartlearning.system.user.entity.User;
 import com.smartlearning.system.user.service.UserService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -12,13 +13,10 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/users")
+@RequiredArgsConstructor
 public class UserController {
 
     private UserService userService;
-
-    public UserController(UserService userService) {
-        this.userService = userService;
-    }
 
     @GetMapping
     public ResponseEntity<List<User>> getUsers() {
