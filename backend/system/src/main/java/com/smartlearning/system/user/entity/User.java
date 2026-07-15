@@ -1,5 +1,6 @@
 package com.smartlearning.system.user.entity;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.smartlearning.common.entity.BaseEntity;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -13,6 +14,7 @@ public class User extends BaseEntity {
     @Column(nullable = false, unique = true, length = 100)
     private String email;
 
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     @Column(name = "password", nullable = false)
     private String password;
 

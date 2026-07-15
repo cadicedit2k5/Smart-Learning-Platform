@@ -2,6 +2,7 @@ package com.smartlearning.system.user.service.impl;
 
 import com.smartlearning.common.dto.response.pagination.PagingResponse;
 import com.smartlearning.system.user.dto.request.UserFilterRequest;
+import com.smartlearning.system.user.dto.response.UserResponse;
 import com.smartlearning.system.user.entity.Role;
 import com.smartlearning.system.user.entity.User;
 import com.smartlearning.system.user.repository.UserRepository;
@@ -24,27 +25,28 @@ public class UserServiceImpl implements UserService {
     private final PasswordEncoder passwordEncoder;
     private final RoleService roleService;
 
-    public PagingResponse<User> handleGetUsers(UserFilterRequest filter) {
-        Page<User> pages = userRepository.findAll(filter.specification(), filter.pageable());
+    public PagingResponse<UserResponse> handleGetUsers(UserFilterRequest filter) {
+        Page<UserResponse> pages = userRepository.findAll(filter.specification(), filter.pageable())
+                .map(UserResponse::from);
         return PagingResponse.from(pages);
     }
 
     @Override
-    public User handleAddUser(User user) {
+    public UserResponse handleAddUser(User user) {
         // Hash password before save in schema
         user.setPassword(passwordEncoder.encode(user.getPassword()));
 
         // Set user default role
         Role studentRole = this.roleService.handleGetRoleByCode("STUDENT");
         user.setRole(studentRole);
-        return this.userRepository.save(user);
+        return UserResponse.from(this.userRepository.save(user));
     }
 
     @Override
-    public User handleUpdateUser(User user) {
+    public UserResponse handleUpdateUser(User user) {
         final Long id = user.getId();
         if (userRepository.existsById(id)) {
-            return userRepository.save(user);
+            return UserResponse.from(userRepository.save(user));
         }
         throw new RuntimeException("User không tồn tại!!");
     }
