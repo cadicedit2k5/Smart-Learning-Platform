@@ -1,5 +1,6 @@
 package com.smartlearning.system.user.service.impl;
 
+import com.smartlearning.common.dto.response.pagging.PageResponse;
 import com.smartlearning.system.user.entity.Role;
 import com.smartlearning.system.user.entity.User;
 import com.smartlearning.system.user.repository.UserRepository;
@@ -7,6 +8,10 @@ import com.smartlearning.system.user.service.RoleService;
 import com.smartlearning.system.user.service.UserService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -21,8 +26,10 @@ public class UserServiceImpl implements UserService {
     private final PasswordEncoder passwordEncoder;
     private final RoleService roleService;
 
-    public List<User> handleGetUsers() {
-        return this.userRepository.findAll();
+    public PageResponse<User> handleGetUsers() {
+        Pageable pageable = PageRequest.of(0, 10, Sort.by("fullName").descending());
+        Page<User> pages = userRepository.findAll(pageable);
+        return PageResponse.from(pages);
     }
 
     @Override
