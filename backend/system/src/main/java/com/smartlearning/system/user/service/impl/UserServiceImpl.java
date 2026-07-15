@@ -1,6 +1,7 @@
 package com.smartlearning.system.user.service.impl;
 
-import com.smartlearning.common.dto.response.pagination.PageResponse;
+import com.smartlearning.common.dto.response.pagination.PagingResponse;
+import com.smartlearning.system.user.dto.request.UserFilterRequest;
 import com.smartlearning.system.user.entity.Role;
 import com.smartlearning.system.user.entity.User;
 import com.smartlearning.system.user.repository.UserRepository;
@@ -23,10 +24,9 @@ public class UserServiceImpl implements UserService {
     private final PasswordEncoder passwordEncoder;
     private final RoleService roleService;
 
-    public PageResponse<User> handleGetUsers() {
-        Pageable pageable = PageRequest.of(0, 10, Sort.by("fullName").descending());
-        Page<User> pages = userRepository.findAll(pageable);
-        return PageResponse.from(pages);
+    public PagingResponse<User> handleGetUsers(UserFilterRequest filter) {
+        Page<User> pages = userRepository.findAll(filter.specification(), filter.pageable());
+        return PagingResponse.from(pages);
     }
 
     @Override

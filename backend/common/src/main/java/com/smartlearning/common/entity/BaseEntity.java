@@ -3,8 +3,9 @@ package com.smartlearning.common.entity;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
+import org.springframework.format.annotation.DateTimeFormat;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 
 @Getter
 @Setter
@@ -16,20 +17,22 @@ public abstract class BaseEntity {
     protected Long id;
 
     @Column(name = "created_at", nullable = false, updatable = false)
-    protected LocalDateTime createdAt;
+    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
+    protected Instant createdAt;
 
     @Column(name = "updated_at", nullable = false)
-    protected LocalDateTime updatedAt;
+    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
+    protected Instant updatedAt;
 
     @PrePersist
     protected void prePersist() {
-        LocalDateTime now = LocalDateTime.now();
+        Instant now = Instant.now();
         this.createdAt = now;
         this.updatedAt = now;
     }
 
     @PreUpdate
     protected void preUpdate() {
-        this.updatedAt = LocalDateTime.now();
+        this.updatedAt = Instant.now();
     }
 }

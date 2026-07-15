@@ -14,15 +14,15 @@ import java.util.List;
         level = AccessLevel.PRIVATE,
         makeFinal = true
 )
-public class PageResponse<T> {
+public class PagingResponse<T> {
 
     @Builder.Default
     List<T> content = List.of();
     PageableData pageable;
 
-    public static <T> PageResponse<T> from(Page<T> page) {
+    public static <T> PagingResponse<T> from(Page<T> page) {
 
-        return PageResponse.<T>builder()
+        return PagingResponse.<T>builder()
                 .content(List.copyOf(page.getContent()))
                 .pageable(PageableData.from(page))
                 .build();

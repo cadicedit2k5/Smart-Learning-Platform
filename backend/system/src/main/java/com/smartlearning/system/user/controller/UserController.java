@@ -2,7 +2,8 @@ package com.smartlearning.system.user.controller;
 
 import com.smartlearning.common.dto.response.ApiResponse;
 import com.smartlearning.common.dto.response.ApiResponses;
-import com.smartlearning.common.dto.response.pagination.PageResponse;
+import com.smartlearning.common.dto.response.pagination.PagingResponse;
+import com.smartlearning.system.user.dto.request.UserFilterRequest;
 import com.smartlearning.system.user.entity.User;
 import com.smartlearning.system.user.service.UserService;
 import lombok.RequiredArgsConstructor;
@@ -19,8 +20,8 @@ public class UserController {
     private final UserService userService;
 
     @GetMapping
-    public ResponseEntity<ApiResponse<PageResponse<User>>> getUsers() {
-        PageResponse<User> users = this.userService.handleGetUsers();
+    public ResponseEntity<ApiResponse<PagingResponse<User>>> getUsers(@ModelAttribute UserFilterRequest filter) {
+        PagingResponse<User> users = this.userService.handleGetUsers(filter);
         return ApiResponses.ok(users);
     }
 
