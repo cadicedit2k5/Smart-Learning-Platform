@@ -17,23 +17,26 @@ public class ApiResponse<T> {
 
     public static <T> ApiResponse<T> success(
             HttpStatus httpStatus,
-            T data
+            T data,
+            String message
     ) {
         return ApiResponse.<T>builder()
-                .status(ResponseStatus.success(httpStatus.value()))
+                .status(ResponseStatus.success(httpStatus.value(), message))
                 .data(data)
                 .build();
     }
 
     public static ApiResponse<Void> failure(
             HttpStatus httpStatus,
-            List<ApiError> errors
+            List<ApiError> errors,
+            String message
     ) {
         return ApiResponse.<Void>builder()
                 .status(
                         ResponseStatus.failure(
                                 httpStatus.value(),
-                                errors
+                                errors,
+                                message
                         )
                 )
                 .data(null)

@@ -1,4 +1,4 @@
-package com.smartlearning.common.dto.response.pagging;
+package com.smartlearning.common.dto.response.pagination;
 
 import lombok.AccessLevel;
 import lombok.Builder;

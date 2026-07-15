@@ -2,17 +2,14 @@ package com.smartlearning.system.user.controller;
 
 import com.smartlearning.common.dto.response.ApiResponse;
 import com.smartlearning.common.dto.response.ApiResponses;
-import com.smartlearning.common.dto.response.pagging.PageResponse;
+import com.smartlearning.common.dto.response.pagination.PageResponse;
 import com.smartlearning.system.user.entity.User;
 import com.smartlearning.system.user.service.UserService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/users")

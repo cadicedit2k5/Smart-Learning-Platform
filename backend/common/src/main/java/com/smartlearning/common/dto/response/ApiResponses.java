@@ -27,7 +27,8 @@ public final class ApiResponses {
                 .created(location)
                 .body(ApiResponse.success(
                         HttpStatus.CREATED,
-                        data
+                        data,
+                        "Created Successfully!"
                 ));
     }
 
@@ -41,25 +42,28 @@ public final class ApiResponses {
     ) {
         return ResponseEntity
                 .status(httpStatus)
-                .body(ApiResponse.success(httpStatus, data));
+                .body(ApiResponse.success(httpStatus, data, "Success"));
     }
 
     public static ResponseEntity<ApiResponse<Void>> fail(
             HttpStatus httpStatus,
-            ApiError error
+            ApiError error,
+            String message
     ) {
-        return fail(httpStatus, List.of(error));
+        return fail(httpStatus, List.of(error), message);
     }
 
     public static ResponseEntity<ApiResponse<Void>> fail(
             HttpStatus httpStatus,
-            List<ApiError> errors
+            List<ApiError> errors,
+            String message
     ) {
         return ResponseEntity
                 .status(httpStatus)
                 .body(ApiResponse.failure(
                         httpStatus,
-                        errors
+                        errors,
+                        message
                 ));
     }
 

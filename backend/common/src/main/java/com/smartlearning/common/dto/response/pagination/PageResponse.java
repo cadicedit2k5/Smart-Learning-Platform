@@ -1,9 +1,8 @@
-package com.smartlearning.common.dto.response.pagging;
+package com.smartlearning.common.dto.response.pagination;
 
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
-import lombok.NonNull;
 import lombok.experimental.FieldDefaults;
 import org.springframework.data.domain.Page;
 

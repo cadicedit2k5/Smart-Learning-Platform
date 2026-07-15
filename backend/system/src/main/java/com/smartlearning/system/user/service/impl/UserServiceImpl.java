@@ -1,6 +1,6 @@
 package com.smartlearning.system.user.service.impl;
 
-import com.smartlearning.common.dto.response.pagging.PageResponse;
+import com.smartlearning.common.dto.response.pagination.PageResponse;
 import com.smartlearning.system.user.entity.Role;
 import com.smartlearning.system.user.entity.User;
 import com.smartlearning.system.user.repository.UserRepository;
@@ -14,9 +14,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
-import java.util.Optional;
 
 @Service
 @Transactional
