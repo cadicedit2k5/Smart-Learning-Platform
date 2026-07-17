@@ -3,6 +3,7 @@ package com.smartlearning.system.user.service.impl;
 import com.smartlearning.common.dto.response.pagination.PagingResponse;
 import com.smartlearning.system.user.dto.request.UserCreateRequest;
 import com.smartlearning.system.user.dto.request.UserFilterRequest;
+import com.smartlearning.system.user.dto.request.UserUpdateRequest;
 import com.smartlearning.system.user.dto.response.UserResponse;
 import com.smartlearning.system.user.entity.Role;
 import com.smartlearning.system.user.entity.User;
@@ -18,6 +19,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
 @Service
 @Transactional
@@ -51,17 +53,30 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public UserResponse handleUpdateUser(User user) {
-        final Long id = user.getId();
-        if (userRepository.existsById(id)) {
-            return UserResponse.from(userRepository.save(user));
+    public UserResponse handleUpdateUser(Long id, UserUpdateRequest request) {
+        User user = userRepository.findById(id).orElseThrow(
+                        () -> new RuntimeException("User không tồn tại"));
+
+        userMapper.partialUpdate(request, user);
+
+        if (StringUtils.hasText(request.getPassword())) {
+            user.setPassword(
+                    passwordEncoder.encode(
+                            request.getPassword()
+                    )
+            );
         }
-        throw new RuntimeException("User không tồn tại!!");
+
+        User savedUser = userRepository.save(user);
+        return userMapper.toResponse(savedUser);
     }
 
     @Override
     public void handleDeleteUser(Long id) {
-        System.out.println("chua lam");
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("User không tồn tại"));
+
+        userRepository.delete(user);
     }
 
 }

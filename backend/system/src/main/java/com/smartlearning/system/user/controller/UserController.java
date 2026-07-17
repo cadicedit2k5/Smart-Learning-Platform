@@ -5,6 +5,7 @@ import com.smartlearning.common.dto.response.ApiResponses;
 import com.smartlearning.common.dto.response.pagination.PagingResponse;
 import com.smartlearning.system.user.dto.request.UserCreateRequest;
 import com.smartlearning.system.user.dto.request.UserFilterRequest;
+import com.smartlearning.system.user.dto.request.UserUpdateRequest;
 import com.smartlearning.system.user.dto.response.UserResponse;
 import com.smartlearning.system.user.entity.User;
 import com.smartlearning.system.user.service.UserService;
@@ -37,4 +38,23 @@ public class UserController {
         return ApiResponses.created(createdUser);
     }
 
+    @PatchMapping("/{id}")
+    public ResponseEntity<ApiResponse<UserResponse>> updateUser(
+            @PathVariable Long id,
+            @Valid @RequestBody UserUpdateRequest request
+    ) {
+        UserResponse updatedUser =
+                userService.handleUpdateUser(id, request);
+
+        return ApiResponses.ok(updatedUser);
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteUser(
+            @PathVariable Long id
+    ) {
+        userService.handleDeleteUser(id);
+
+        return ApiResponses.noContent();
+    }
 }

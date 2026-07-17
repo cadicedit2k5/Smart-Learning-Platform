@@ -5,11 +5,18 @@ import com.smartlearning.common.entity.BaseEntity;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
+import org.hibernate.annotations.SoftDelete;
+import org.hibernate.annotations.SoftDeleteType;
 
-@Entity
-@Table(name = "user", schema = "system")
+
 @Getter
 @Setter
+@Entity
+@Table(name = "user", schema = "system")
+@SoftDelete(
+        strategy = SoftDeleteType.DELETED,
+        columnName = "deleted"
+)
 public class User extends BaseEntity {
     @Column(nullable = false, unique = true, length = 100)
     private String email;
