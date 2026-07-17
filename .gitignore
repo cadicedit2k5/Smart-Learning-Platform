@@ -1,3 +1,19 @@
+.idea/
+
+target/
+
+node_modules/
+
+.env
+
+logs/
+
+*.iml
+
+# Spring boot
+*.properties
+
+
 # Compiled class file
 *.class
 
