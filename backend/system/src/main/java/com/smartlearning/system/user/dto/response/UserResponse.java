@@ -4,9 +4,10 @@ import com.smartlearning.system.user.entity.Role;
 import com.smartlearning.system.user.entity.User;
 
 import java.time.Instant;
+import java.util.UUID;
 
 public record UserResponse(
-        Long id,
+        UUID id,
         String email,
         String fullName,
         String avatar,

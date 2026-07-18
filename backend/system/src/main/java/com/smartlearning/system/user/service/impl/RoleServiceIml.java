@@ -9,7 +9,7 @@ import org.springframework.stereotype.Service;
 @Service
 @RequiredArgsConstructor
 public class RoleServiceIml implements RoleService {
-    private RoleRepository roleRepository;
+    private final RoleRepository roleRepository;
 
     @Override
     public Role handleGetRoleByCode(String code) {

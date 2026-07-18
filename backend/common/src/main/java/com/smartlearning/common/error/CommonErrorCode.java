@@ -48,6 +48,15 @@ public enum CommonErrorCode implements ErrorCode {
             "INTERNAL_SERVER_ERROR",
             HttpStatus.INTERNAL_SERVER_ERROR,
             "Đã xảy ra lỗi hệ thống"
+    ),
+    UNAUTHORIZED(
+            "UNAUTHORIZED",
+            HttpStatus.UNAUTHORIZED,
+            "Chưa xác thực hoặc token không hợp lệ"
+    ),
+    FORBIDDEN("FORBIDDEN",
+            HttpStatus.FORBIDDEN,
+            "Bạn không có quyền truy cập tài nguyên này"
     );
 
     private final String code;

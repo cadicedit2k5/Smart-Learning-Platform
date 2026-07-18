@@ -21,6 +21,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
+import java.util.UUID;
+
 @Service
 @Transactional
 @RequiredArgsConstructor
@@ -53,7 +55,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public UserResponse handleUpdateUser(Long id, UserUpdateRequest request) {
+    public UserResponse handleUpdateUser(UUID id, UserUpdateRequest request) {
         User user = userRepository.findById(id).orElseThrow(
                         () -> new RuntimeException("User không tồn tại"));
 
@@ -72,7 +74,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void handleDeleteUser(Long id) {
+    public void handleDeleteUser(UUID id) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("User không tồn tại"));
 

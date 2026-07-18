@@ -7,11 +7,13 @@ import com.smartlearning.system.user.dto.request.UserUpdateRequest;
 import com.smartlearning.system.user.dto.response.UserResponse;
 import com.smartlearning.system.user.entity.User;
 
+import java.util.UUID;
+
 public interface UserService {
     PagingResponse<UserResponse> handleGetUsers(UserFilterRequest filter);
 
     UserResponse handleAddUser(UserCreateRequest request);
-    UserResponse handleUpdateUser(Long id, UserUpdateRequest request);
-    void handleDeleteUser(Long id);
+    UserResponse handleUpdateUser(UUID id, UserUpdateRequest request);
+    void handleDeleteUser(UUID id);
 
 }

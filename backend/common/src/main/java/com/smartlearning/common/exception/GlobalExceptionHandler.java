@@ -6,6 +6,7 @@ import com.smartlearning.common.dto.response.ApiResponses;
 import com.smartlearning.common.error.ApplicationException;
 import com.smartlearning.common.error.CommonErrorCode;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindException;
@@ -32,6 +33,23 @@ public class GlobalExceptionHandler {
                 exception.getErrorCode().getHttpStatus(),
                 error,
                 exception.getMessage()
+        );
+    }
+
+    // Data conflic exception
+    @ExceptionHandler(DataIntegrityViolationException.class)
+    public ResponseEntity<ApiResponse<Void>> handleDataIntegrityViolation(
+            DataIntegrityViolationException exception
+    ) {
+        ApiError error = ApiError.builder()
+                .code(CommonErrorCode.DATA_CONFLICT.getCode())
+                .message("Dữ liệu đã tồn tại hoặc không hợp lệ")
+                .build();
+
+        return ApiResponses.fail(
+                HttpStatus.CONFLICT,
+                error,
+                CommonErrorCode.DATA_CONFLICT.getDefaultMessage()
         );
     }
 
