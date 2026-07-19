@@ -1,6 +1,4 @@
 demo/HELP.md
-private-key.pem
-public-key.pem
 target/
 .mvn/wrapper/maven-wrapper.jar
 !**/src/main/**/target/
