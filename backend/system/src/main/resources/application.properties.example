@@ -1,6 +1,15 @@
 spring.application.name=system
+api.version=
 
 server.port=8081
+
+app.security.jwt.issuer=smart-learning-system
+app.security.jwt.access-token-ttl=10m
+app.security.jwt.audiences[0]=system-api
+app.security.jwt.audiences[1]=core-api
+app.security.jwt.key-id=smart-learning-key-1
+app.security.jwt.public-key-location=classpath:keys/public-key.pem
+app.security.jwt.private-key-location=classpath:keys/private-key.pem
 
 spring.datasource.url=
 spring.datasource.username=

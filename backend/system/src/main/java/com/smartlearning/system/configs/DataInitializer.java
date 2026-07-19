@@ -1,7 +1,7 @@
 package com.smartlearning.system.configs;
 
-import com.smartlearning.system.user.entity.Role;
-import com.smartlearning.system.user.repository.RoleRepository;
+import com.smartlearning.system.auth.entity.Role;
+import com.smartlearning.system.auth.repository.RoleRepository;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 

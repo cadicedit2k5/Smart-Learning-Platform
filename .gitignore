@@ -5,6 +5,8 @@ target/
 node_modules/
 
 .env
+private-key.pem
+public-key.pem
 
 logs/
 
