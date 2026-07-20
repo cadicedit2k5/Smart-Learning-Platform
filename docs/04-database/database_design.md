@@ -1,6 +1,8 @@
 # Đặc tả thiết kế cơ sở dữ liệu
 ## AI Learning Platform
 
+## Trong thiết kế phải thêm DANH MỤC MÔN HỌC VÀO (chưa làm)
+
 ## 0. Các chỉnh sửa so với bản thiết kế ban đầu
 
 | Thành phần chỉnh sửa | Nội dung chỉnh sửa | Lý do chỉnh sửa |
