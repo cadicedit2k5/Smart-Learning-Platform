@@ -2,6 +2,7 @@ package com.smartlearning.system.auth.dto.response;
 
 import com.smartlearning.system.auth.entity.Role;
 import com.smartlearning.system.auth.entity.User;
+import com.smartlearning.system.auth.entity.enums.UserStatus;
 
 import java.time.Instant;
 import java.util.UUID;
@@ -12,6 +13,7 @@ public record UserResponse(
         String fullName,
         String avatar,
         Role role,
+        UserStatus status,
         Instant createdAt,
         Instant updatedAt
 ) {
@@ -23,6 +25,7 @@ public record UserResponse(
                 user.getFullName(),
                 user.getAvatar(),
                 user.getRole(),
+                user.getStatus(),
                 user.getCreatedAt(),
                 user.getUpdatedAt()
         );
