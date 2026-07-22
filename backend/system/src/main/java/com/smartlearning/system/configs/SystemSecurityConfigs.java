@@ -28,11 +28,6 @@ public class SystemSecurityConfigs {
     private String apiVersion;
 
     @Bean
-    public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
-    }
-
-    @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http, JwtAuthenticationConverter jwtAuthenticationConverter) throws Exception {
         String apiPrefix = "/api/" + apiVersion;
         http
