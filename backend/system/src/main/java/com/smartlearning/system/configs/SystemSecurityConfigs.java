@@ -11,40 +11,35 @@ import org.springframework.security.config.annotation.method.configuration.Enabl
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
-import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
-import java.util.Collection;
-import java.util.HashSet;
+import java.util.List;
 
 @Configuration
 @EnableMethodSecurity(securedEnabled = true)
-public class SpringSercutiryConfigs {
+public class SystemSecurityConfigs {
     @Value("${api.version:v1}")
     private String apiVersion;
-
-    @Bean
-    public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
-    }
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http, JwtAuthenticationConverter jwtAuthenticationConverter) throws Exception {
         String apiPrefix = "/api/" + apiVersion;
         http
                 .csrf(AbstractHttpConfigurer::disable)
-                .cors(AbstractHttpConfigurer::disable)
+                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .sessionManagement(session ->
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(
                                 apiPrefix + "/auth/register",
                                 apiPrefix + "/auth/login").permitAll()
-                        .requestMatchers(apiPrefix + "/admin/*").hasRole("ADMIN")
+                        .requestMatchers(apiPrefix + "/admin/**").hasRole("ADMIN")
                         .anyRequest().authenticated()
                 );
 
@@ -83,33 +78,31 @@ public class SpringSercutiryConfigs {
         return new ProviderManager(provider);
     }
 
-
     @Bean
-    JwtAuthenticationConverter jwtAuthenticationConverter() {
+    public CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration config = new CorsConfiguration();
 
-        JwtGrantedAuthoritiesConverter roleConverter =
-                new JwtGrantedAuthoritiesConverter();
+        config.setAllowedOrigins(List.of(
+        ));
 
-        roleConverter.setAuthoritiesClaimName("roles");
-        roleConverter.setAuthorityPrefix("ROLE_");
+        config.setAllowedMethods(List.of(
+                "GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"
+        ));
 
-        JwtAuthenticationConverter converter =
-                new JwtAuthenticationConverter();
+        config.setAllowedHeaders(List.of(
+                "Authorization",
+                "Content-Type",
+                "Accept",
+                "Origin",
+                "X-Requested-With"
+        ));
 
-        converter.setPrincipalClaimName("sub");
+        config.setExposedHeaders(List.of("Authorization"));
+        config.setAllowCredentials(true);
 
-        converter.setJwtGrantedAuthoritiesConverter(jwt -> {
-            Collection<GrantedAuthority> authorities =
-                    new HashSet<>();
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/api/**", config);
 
-            var roleAuthorities =
-                    roleConverter.convert(jwt);
-
-            authorities.addAll(roleAuthorities);
-
-            return authorities;
-        });
-
-        return converter;
+        return source;
     }
 }

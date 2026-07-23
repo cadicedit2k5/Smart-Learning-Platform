@@ -1,0 +1,200 @@
+package com.smartlearning.core.course.service.impl;
+
+import com.smartlearning.common.error.ApplicationException;
+import com.smartlearning.common.error.CommonErrorCode;
+import com.smartlearning.core.course.dto.request.CourseMemberCreateRequest;
+import com.smartlearning.core.course.dto.request.JoinCourseRequest;
+import com.smartlearning.core.course.dto.response.CourseMemberResponse;
+import com.smartlearning.core.course.entity.AccessCode;
+import com.smartlearning.core.course.entity.Course;
+import com.smartlearning.core.course.entity.CourseMember;
+import com.smartlearning.core.course.entity.enums.CourseMemberRole;
+import com.smartlearning.core.course.entity.enums.CourseMemberStatus;
+import com.smartlearning.core.course.mapper.CourseMemberMapper;
+import com.smartlearning.core.course.repository.AccessCodeRepository;
+import com.smartlearning.core.course.repository.CourseMemberRepository;
+import com.smartlearning.core.course.service.CourseMemberService;
+import com.smartlearning.core.course.utils.CourseUtils;
+import jakarta.transaction.Transactional;
+import lombok.RequiredArgsConstructor;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
+
+import java.time.Instant;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
+
+@Service
+@Transactional
+@RequiredArgsConstructor
+public class CourseMemberServiceImpl implements CourseMemberService {
+
+    private final CourseMemberRepository memberRepository;
+    private final CourseMemberMapper memberMapper;
+    private final CourseUtils courseUtils;
+    private final AccessCodeRepository accessCodeRepository;
+    private final PasswordEncoder passwordEncoder;
+
+    @Override
+    public CourseMemberResponse addMember(UUID courseId, CourseMemberCreateRequest request, UUID currentUserId) {
+//        permissionService.requireOwner(
+//                courseId,
+//                currentUserId
+//        );
+
+        if (request.role() == CourseMemberRole.OWNER) {
+            throw new ApplicationException(
+                    CommonErrorCode.FORBIDDEN,
+                    "Không thể thêm OWNER bằng chức năng mời thành viên"
+            );
+        }
+
+        Course course = courseUtils.requireCourse(courseId);
+
+        Optional<CourseMember> existing =
+                memberRepository.findByCourseIdAndUserId(
+                        courseId,
+                        request.userId()
+                );
+
+        if (existing.isPresent()
+                && existing.get().getStatus()
+                != CourseMemberStatus.REMOVED) {
+            throw new ApplicationException(
+                    CommonErrorCode.DATA_CONFLICT,
+                    "Người dùng đã là thành viên của khóa học!"
+            );
+        }
+
+        CourseMember member;
+
+        if (existing.isPresent()) {
+            member = existing.get();
+            member.setRole(request.role());
+            member.setStatus(CourseMemberStatus.PENDING);
+            member.setInvitedBy(currentUserId);
+            member.setJoinedAt(null);
+            member.setRemovedAt(null);
+        } else {
+            member = new CourseMember();
+            member.setCourse(course);
+            member.setUserId(request.userId());
+            member.setRole(request.role());
+            member.setStatus(CourseMemberStatus.PENDING);
+            member.setInvitedBy(currentUserId);
+        }
+
+        return memberMapper.toResponse(
+                memberRepository.save(member)
+        );
+    }
+
+    @Override
+    public void removeMember(
+            UUID courseId,
+            UUID memberId,
+            UUID currentUserId
+    ) {
+//        permissionService.requireOwner(
+//                courseId,
+//                currentUserId
+//        );
+
+        CourseMember member = memberRepository
+                .findById(memberId)
+                .orElseThrow(() -> new ApplicationException(
+                        CommonErrorCode.RESOURCE_NOT_FOUND,
+                        "Không tìm thấy thành viên này"
+                ));
+
+        if (!member.getCourse().getId().equals(courseId)) {
+            throw new ApplicationException(
+                    CommonErrorCode.RESOURCE_NOT_FOUND,
+                    "Không tìm thấy thành viên này"
+            );
+        }
+
+        if (member.getRole() == CourseMemberRole.OWNER) {
+            throw new ApplicationException(
+                    CommonErrorCode.FORBIDDEN,
+                    "Không thể xóa chủ sở hữu!"
+            );
+        }
+
+        member.setStatus(CourseMemberStatus.REMOVED);
+        member.setRemovedAt(Instant.now());
+    }
+
+    @Override
+    public CourseMemberResponse joinByCode(JoinCourseRequest request, UUID currentUserId) {
+        Course course = courseUtils.requireCourse(request.courseId());
+
+        CourseMember existing = memberRepository.findByCourseIdAndUserId(
+                        request.courseId(),
+                        currentUserId).orElse(null);
+
+        if (existing != null && existing.getStatus() == CourseMemberStatus.ACTIVE) {
+            return memberMapper.toResponse(existing);
+        }
+
+        List<AccessCode> activeCodes = accessCodeRepository
+                .findAllByCourseIdAndActiveTrue(request.courseId());
+
+        AccessCode matchedCode = activeCodes
+                .stream()
+                .filter(code -> passwordEncoder.matches(
+                        request.code(),
+                        code.getCodeHash()
+                ))
+                .findFirst()
+                .orElseThrow(() -> new ApplicationException(
+                        CommonErrorCode.DATA_CONFLICT,
+                        "Invalid Access Code"
+                ));
+
+        Instant now = Instant.now();
+
+        if (matchedCode.getExpiresAt() != null
+                && matchedCode.getExpiresAt().isBefore(now)) {
+            throw new ApplicationException(
+                    CommonErrorCode.DATA_CONFLICT,
+                    "Access code hết hạn!"
+            );
+        }
+
+        if (matchedCode.getMaxUses() != null
+                && matchedCode.getUsedCount()
+                >= matchedCode.getMaxUses()) {
+            throw new ApplicationException(
+                    CommonErrorCode.DATA_CONFLICT,
+                    "Access Code đã đạt giới hạn sử dụng"
+            );
+        }
+
+        CourseMember member;
+
+        if (existing == null) {
+            member = new CourseMember();
+            member.setCourse(course);
+            member.setUserId(currentUserId);
+            member.setRole(
+                    CourseMemberRole.STUDENT
+            );
+        } else {
+            member = existing;
+        }
+
+        member.setStatus(CourseMemberStatus.ACTIVE);
+        member.setJoinedAt(now);
+        member.setRemovedAt(null);
+
+        matchedCode.setUsedCount(
+                matchedCode.getUsedCount() + 1
+        );
+
+        return memberMapper.toResponse(
+                memberRepository.save(member)
+        );
+    }
+}
