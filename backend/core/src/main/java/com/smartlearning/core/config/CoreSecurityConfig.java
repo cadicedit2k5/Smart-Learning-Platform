@@ -25,7 +25,8 @@ public class CoreSecurityConfig {
                         )
                 )
                 .authorizeHttpRequests(auth -> auth
-                        .anyRequest().permitAll()
+                        .requestMatchers("/").permitAll()
+                        .anyRequest().authenticated()
                 )
                 .oauth2ResourceServer(resource -> resource
                         .jwt(jwt ->
