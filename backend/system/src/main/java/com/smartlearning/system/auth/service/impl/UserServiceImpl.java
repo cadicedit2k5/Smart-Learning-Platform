@@ -3,6 +3,8 @@ package com.smartlearning.system.auth.service.impl;
 import com.smartlearning.common.dto.response.pagination.PagingResponse;
 import com.smartlearning.common.error.ApplicationException;
 import com.smartlearning.common.error.CommonErrorCode;
+import com.smartlearning.storage.dto.FileUploadResponse;
+import com.smartlearning.storage.service.FileStorageService;
 import com.smartlearning.system.auth.dto.request.UserCreateRequest;
 import com.smartlearning.system.auth.dto.request.UserFilterRequest;
 import com.smartlearning.system.auth.dto.request.UserLoginRequest;
@@ -11,6 +13,7 @@ import com.smartlearning.system.auth.dto.response.LoginResponse;
 import com.smartlearning.system.auth.dto.response.UserResponse;
 import com.smartlearning.system.auth.entity.Role;
 import com.smartlearning.system.auth.entity.User;
+import com.smartlearning.system.auth.entity.enums.UserStatus;
 import com.smartlearning.system.auth.mapper.UserMapper;
 import com.smartlearning.system.auth.repository.UserRepository;
 import com.smartlearning.system.auth.security.SecurityUser;
@@ -41,6 +44,7 @@ public class UserServiceImpl implements UserService {
     private final UserMapper userMapper;
     private final AuthenticationManager authenticationManager;
     private final JwtTokenService jwtTokenService;
+    private final FileStorageService fileStorageService;
 
     public PagingResponse<UserResponse> handleGetUsers(UserFilterRequest filter) {
         Page<UserResponse> pages = userRepository.findAll(filter.specification(), filter.pageable())
@@ -72,16 +76,22 @@ public class UserServiceImpl implements UserService {
         // Set user default role
         Role studentRole = this.roleService.handleGetRoleByCode("STUDENT");
         user.setRole(studentRole);
-//        if (request.getAvatar() != null && !request.getAvatar().isEmpty()) {
-//            user.setAvatar();
-//        }
+
         User saveUser = this.userRepository.save(user);
+
+        // Process upload file to MinIO
+        if (request.getAvatar() != null && !request.getAvatar().isEmpty()) {
+            String folder = "system/users/" + user.getId() + "/avatar";
+            FileUploadResponse uploadedFile = fileStorageService.upload(request.getAvatar(), folder);
+            user.setAvatar(uploadedFile.objectName());
+        }
+
         return this.userMapper.toResponse(saveUser);
     }
 
     @Override
     public UserResponse handleUpdateUser(UUID id, UserUpdateRequest request) {
-        User user = userRepository.findById(id).orElseThrow(
+        User user = userRepository.findByIdAndStatusNot(id, UserStatus.DELETED).orElseThrow(
                         () -> new ApplicationException(
                                 CommonErrorCode.RESOURCE_NOT_FOUND,
                                 "User không tồn tại!")
@@ -103,18 +113,18 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public void handleDeleteUser(UUID id) {
-        User user = userRepository.findById(id)
+        User user = userRepository.findByIdAndStatusNot(id, UserStatus.DELETED)
                 .orElseThrow(() -> new ApplicationException(
                         CommonErrorCode.RESOURCE_NOT_FOUND,
                         "User không tồn tại!")
                 );
 
-        userRepository.delete(user);
+        user.setStatus(UserStatus.DELETED);
     }
 
     @Override
     public UserResponse handleGetCurrentUser(UUID id) {
-        User user = userRepository.findById(id)
+        User user = userRepository.findByIdAndStatusNot(id, UserStatus.DELETED)
                 .orElseThrow(() ->
                         new ApplicationException(
                                 CommonErrorCode.RESOURCE_NOT_FOUND,

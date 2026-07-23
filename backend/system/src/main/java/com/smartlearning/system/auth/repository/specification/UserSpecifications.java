@@ -1,6 +1,7 @@
 package com.smartlearning.system.auth.repository.specification;
 
 import com.smartlearning.system.auth.entity.User;
+import com.smartlearning.system.auth.entity.enums.UserStatus;
 import lombok.NoArgsConstructor;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.util.StringUtils;
@@ -51,6 +52,14 @@ public class UserSpecifications {
                 criteriaBuilder.equal(
                         root.join("role").get("code"),
                         roleCode.trim().toUpperCase(Locale.ROOT)
+                );
+    }
+
+    public static Specification<User> status(UserStatus status) {
+        return (root, query, criteriaBuilder) ->
+                criteriaBuilder.equal(
+                        root.get("status"),
+                        status
                 );
     }
 

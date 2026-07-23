@@ -1,6 +1,7 @@
 package com.smartlearning.system.auth.security;
 
 import com.smartlearning.system.auth.entity.User;
+import com.smartlearning.system.auth.entity.enums.UserStatus;
 import com.smartlearning.system.auth.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -26,7 +27,7 @@ public class DatabaseUserDetailsService
                 .toLowerCase(Locale.ROOT);
 
         User user = userRepository
-                .findByEmailIgnoreCase(normalizedEmail)
+                .findByEmailIgnoreCaseAndStatus(normalizedEmail, UserStatus.ACTIVE)
                 .orElseThrow(() ->
                         new UsernameNotFoundException(
                                 "Thông tin đăng nhập không hợp lệ"

@@ -2,6 +2,7 @@ package com.smartlearning.system.auth.entity;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.smartlearning.common.entity.BaseEntity;
+import com.smartlearning.system.auth.entity.enums.UserStatus;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -13,10 +14,6 @@ import org.hibernate.annotations.SoftDeleteType;
 @Setter
 @Entity
 @Table(name = "user", schema = "system")
-@SoftDelete(
-        strategy = SoftDeleteType.DELETED,
-        columnName = "deleted"
-)
 public class User extends BaseEntity {
     @Column(nullable = false, unique = true, length = 100)
     private String email;
@@ -34,4 +31,8 @@ public class User extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "role_id")
     private Role role;
+
+    @Column(name = "status", nullable = false)
+    @Enumerated(EnumType.STRING)
+    private UserStatus status = UserStatus.ACTIVE;
 }

@@ -1,0 +1,10 @@
+spring.application.name=storage
+
+app.storage.minio.endpoint=
+app.storage.minio.access-key=
+app.storage.minio.secret-key=
+app.storage.minio.bucket=
+app.storage.minio.presigned-url-expiry=
+
+spring.servlet.multipart.max-file-size=
+spring.servlet.multipart.max-request-size=

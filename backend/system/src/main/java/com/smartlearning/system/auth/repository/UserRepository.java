@@ -1,6 +1,7 @@
 package com.smartlearning.system.auth.repository;
 
 import com.smartlearning.system.auth.entity.User;
+import com.smartlearning.system.auth.entity.enums.UserStatus;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
@@ -11,8 +12,8 @@ import java.util.UUID;
 public interface UserRepository extends JpaRepository<User, UUID>,
         JpaSpecificationExecutor<User> {
 
-    @EntityGraph(attributePaths = "role")
-    Optional<User> findByEmailIgnoreCase(String email);
+    Optional<User> findByEmailIgnoreCaseAndStatus(String email, UserStatus status);
 
+    Optional<User> findByIdAndStatusNot(UUID id, UserStatus status);
     boolean existsByEmailIgnoreCase(String email);
 }

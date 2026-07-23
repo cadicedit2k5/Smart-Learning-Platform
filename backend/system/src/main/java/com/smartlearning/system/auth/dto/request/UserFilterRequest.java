@@ -2,6 +2,7 @@ package com.smartlearning.system.auth.dto.request;
 
 import com.smartlearning.common.dto.request.FilterRequest;
 import com.smartlearning.system.auth.entity.User;
+import com.smartlearning.system.auth.entity.enums.UserStatus;
 import com.smartlearning.system.auth.repository.specification.UserSpecifications;
 import lombok.Getter;
 import lombok.Setter;
@@ -29,7 +30,8 @@ public class UserFilterRequest extends FilterRequest<User> {
                         UserSpecifications.containsKeyword(this.keyword),
                         UserSpecifications.hasRoleCode(this.roleCode),
                         UserSpecifications.createdFrom(this.createdFrom),
-                        UserSpecifications.createdTo(this.createdTo)
+                        UserSpecifications.createdTo(this.createdTo),
+                        UserSpecifications.status(UserStatus.ACTIVE)
                 );
         }
 }

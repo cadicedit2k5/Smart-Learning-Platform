@@ -17,6 +17,7 @@ public interface UserMapper extends CrudMapper<User, UserCreateRequest, UserUpda
     @Mapping(target = "role", ignore = true)
     @Mapping(target = "createdAt", ignore = true)
     @Mapping(target = "updatedAt", ignore = true)
+    @Mapping(target = "status", ignore = true)
     User toEntity(UserCreateRequest request);
 
     @Override
@@ -30,6 +31,7 @@ public interface UserMapper extends CrudMapper<User, UserCreateRequest, UserUpda
     @Mapping(target = "role", ignore = true)
     @Mapping(target = "createdAt", ignore = true)
     @Mapping(target = "updatedAt", ignore = true)
+    @Mapping(target = "status", ignore = true)
     void partialUpdate(
             UserUpdateRequest request,
             @MappingTarget User entity
