@@ -12,6 +12,10 @@ import java.util.UUID;
 public interface UserRepository extends JpaRepository<User, UUID>,
         JpaSpecificationExecutor<User> {
 
+    @EntityGraph(attributePaths = {
+            "role",
+            "role.permissions"
+    })
     Optional<User> findByEmailIgnoreCaseAndStatus(String email, UserStatus status);
 
     Optional<User> findByIdAndStatusNot(UUID id, UserStatus status);
