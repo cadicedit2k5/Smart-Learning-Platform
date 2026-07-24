@@ -7,8 +7,6 @@ public record AccessCodeCreatedResponse(
         UUID id,
         UUID courseId,
         String code,
-        Integer maxUses,
-        Integer usedCount,
         Instant expiresAt,
         Boolean active,
         Instant createdAt

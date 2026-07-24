@@ -14,6 +14,11 @@ public interface CourseMemberRepository extends JpaRepository<CourseMember, UUID
 
     Optional<CourseMember> findByCourseIdAndUserId(UUID courseId, UUID userId);
 
+    List<CourseMember> findAllByCourseIdAndStatus(
+            UUID courseId,
+            CourseMemberStatus status
+    );
+
     @Query("""
     select member.course
     from CourseMember member

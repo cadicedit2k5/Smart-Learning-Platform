@@ -7,8 +7,6 @@ public record AccessCodeResponse (
     UUID id,
     UUID courseId,
     String codeHint,
-    Integer maxUses,
-    Integer usedCount,
     Instant expiresAt,
     Boolean active,
     Instant revokedAt,

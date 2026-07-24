@@ -13,6 +13,7 @@ import com.smartlearning.core.course.entity.enums.CourseMemberStatus;
 import com.smartlearning.core.course.mapper.CourseMemberMapper;
 import com.smartlearning.core.course.repository.AccessCodeRepository;
 import com.smartlearning.core.course.repository.CourseMemberRepository;
+import com.smartlearning.core.course.sercurity.CoursePermission;
 import com.smartlearning.core.course.service.CourseMemberService;
 import com.smartlearning.core.course.utils.CourseUtils;
 import jakarta.transaction.Transactional;
@@ -35,6 +36,7 @@ public class CourseMemberServiceImpl implements CourseMemberService {
     private final CourseUtils courseUtils;
     private final AccessCodeRepository accessCodeRepository;
     private final PasswordEncoder passwordEncoder;
+    private final CoursePermission coursePermission;
 
     @Override
     public CourseMemberResponse addMember(UUID courseId, CourseMemberCreateRequest request, UUID currentUserId) {
@@ -71,23 +73,37 @@ public class CourseMemberServiceImpl implements CourseMemberService {
 
         if (existing.isPresent()) {
             member = existing.get();
-            member.setRole(request.role());
-            member.setStatus(CourseMemberStatus.PENDING);
-            member.setInvitedBy(currentUserId);
-            member.setJoinedAt(null);
-            member.setRemovedAt(null);
         } else {
             member = new CourseMember();
             member.setCourse(course);
-            member.setUserId(request.userId());
-            member.setRole(request.role());
-            member.setStatus(CourseMemberStatus.PENDING);
-            member.setInvitedBy(currentUserId);
+            member.setUserId(currentUserId);
         }
+        member.setRole(CourseMemberRole.STUDENT);
+        member.setStatus(CourseMemberStatus.ACTIVE);
+        member.setJoinedAt(Instant.now());
+        member.setRemovedAt(null);
+        member.setInvitedBy(null);
 
         return memberMapper.toResponse(
                 memberRepository.save(member)
         );
+    }
+
+    @Override
+    public List<CourseMemberResponse> getMembers(UUID courseId, UUID currentUserId) {
+        coursePermission.requireActiveMember(
+                courseId,
+                currentUserId
+        );
+
+        return memberRepository
+                .findAllByCourseIdAndStatus(
+                        courseId,
+                        CourseMemberStatus.ACTIVE
+                )
+                .stream()
+                .map(memberMapper::toResponse)
+                .toList();
     }
 
     @Override
@@ -163,14 +179,14 @@ public class CourseMemberServiceImpl implements CourseMemberService {
             );
         }
 
-        if (matchedCode.getMaxUses() != null
-                && matchedCode.getUsedCount()
-                >= matchedCode.getMaxUses()) {
-            throw new ApplicationException(
-                    CommonErrorCode.DATA_CONFLICT,
-                    "Access Code đã đạt giới hạn sử dụng"
-            );
-        }
+//        if (matchedCode.getMaxUses() != null
+//                && matchedCode.getUsedCount()
+//                >= matchedCode.getMaxUses()) {
+//            throw new ApplicationException(
+//                    CommonErrorCode.DATA_CONFLICT,
+//                    "Access Code đã đạt giới hạn sử dụng"
+//            );
+//        }
 
         CourseMember member;
 
@@ -189,9 +205,9 @@ public class CourseMemberServiceImpl implements CourseMemberService {
         member.setJoinedAt(now);
         member.setRemovedAt(null);
 
-        matchedCode.setUsedCount(
-                matchedCode.getUsedCount() + 1
-        );
+//        matchedCode.setUsedCount(
+//                matchedCode.getUsedCount() + 1
+//        );
 
         return memberMapper.toResponse(
                 memberRepository.save(member)

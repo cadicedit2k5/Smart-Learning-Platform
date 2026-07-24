@@ -1,4 +1,4 @@
-package com.smartlearning.system.auth.entity;
+package com.smartlearning.common.entity;
 
 import lombok.NoArgsConstructor;
 
@@ -10,6 +10,6 @@ public final class Authorities {
     public static final String COURSE_READ =
             "hasAuthority('COURSE_READ')";
 
-    public static final String COURSE_CREATE =
-            "hasAuthority('COURSE_CREATE')";
+    public static final String COURSE_MANAGE =
+            "hasAuthority('COURSE_MANAGE')";
 }

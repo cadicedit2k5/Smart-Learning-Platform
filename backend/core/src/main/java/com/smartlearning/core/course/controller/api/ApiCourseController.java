@@ -1,5 +1,6 @@
 package com.smartlearning.core.course.controller.api;
 
+import com.smartlearning.common.entity.Authorities;
 import com.smartlearning.common.dto.response.ApiResponse;
 import com.smartlearning.common.dto.response.ApiResponses;
 import com.smartlearning.core.course.dto.request.CourseCreateRequest;
@@ -9,6 +10,7 @@ import com.smartlearning.core.course.service.CourseService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
@@ -22,6 +24,7 @@ import java.util.UUID;
 public class ApiCourseController {
     private final CourseService courseService;
 
+    @PreAuthorize(Authorities.COURSE_MANAGE)
     @PostMapping
     public ResponseEntity<ApiResponse<CourseResponse>> create(
             @Valid @RequestBody CourseCreateRequest request,
@@ -34,6 +37,7 @@ public class ApiCourseController {
         );
     }
 
+    @PreAuthorize(Authorities.COURSE_READ)
     @GetMapping("/{courseId}")
     public ResponseEntity<ApiResponse<CourseResponse>> get(
             @PathVariable UUID courseId,
@@ -47,6 +51,7 @@ public class ApiCourseController {
         );
     }
 
+    @PreAuthorize(Authorities.COURSE_READ)
     @GetMapping("/me")
     public ResponseEntity<ApiResponse<List<CourseResponse>>> myCourses(
             @AuthenticationPrincipal Jwt jwt
@@ -58,6 +63,7 @@ public class ApiCourseController {
         );
     }
 
+    @PreAuthorize(Authorities.COURSE_MANAGE)
     @PatchMapping("/{courseId}")
     public ResponseEntity<ApiResponse<CourseResponse>> update(
             @PathVariable UUID courseId,
@@ -73,6 +79,7 @@ public class ApiCourseController {
         );
     }
 
+    @PreAuthorize(Authorities.COURSE_MANAGE)
     @PostMapping("/{courseId}/publish")
     public ResponseEntity<ApiResponse<CourseResponse>> publish(
             @PathVariable UUID courseId,
@@ -86,6 +93,7 @@ public class ApiCourseController {
         );
     }
 
+    @PreAuthorize(Authorities.COURSE_MANAGE)
     @DeleteMapping("/{courseId}")
     public ResponseEntity<Void> delete(
             @PathVariable UUID courseId,
