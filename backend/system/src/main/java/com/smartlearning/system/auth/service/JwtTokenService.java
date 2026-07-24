@@ -4,6 +4,7 @@ import com.smartlearning.system.configs.JwtProperties;
 import com.smartlearning.system.auth.dto.response.LoginResponse;
 import com.smartlearning.system.auth.security.SecurityUser;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.oauth2.jose.jws.SignatureAlgorithm;
 import org.springframework.security.oauth2.jwt.*;
 import org.springframework.stereotype.Service;
@@ -27,13 +28,17 @@ public class JwtTokenService {
                 jwtProperties.accessTokenTtl()
         );
 
-        List<String> roles = user
-                .getAuthorities()
+        List<String> roles = user.getAuthorities()
                 .stream()
-                .map(authority ->
-                        authority.getAuthority()
-                                .replaceFirst("^ROLE_", "")
-                )
+                .map(GrantedAuthority::getAuthority)
+                .filter(value -> value.startsWith("ROLE_"))
+                .map(value -> value.substring(5))
+                .toList();
+
+        List<String> permissions = user.getAuthorities()
+                .stream()
+                .map(GrantedAuthority::getAuthority)
+                .filter(value -> !value.startsWith("ROLE_"))
                 .toList();
 
         JwtClaimsSet claims = JwtClaimsSet.builder()
@@ -43,6 +48,7 @@ public class JwtTokenService {
                 .subject(user.id().toString())
                 .audience(jwtProperties.audiences())
                 .claim("roles", roles)
+                .claim("permissions", permissions)
                 .build();
 
         JwsHeader header = JwsHeader
