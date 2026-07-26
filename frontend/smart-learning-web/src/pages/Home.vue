@@ -4,6 +4,8 @@
 <template>
   <main>
     <h1>Home</h1>
-    <p>Welcome to the Home page!</p>
+    <h1 class="text-3xl font-bold underline">
+      Hello world!
+    </h1>
   </main>
 </template>
