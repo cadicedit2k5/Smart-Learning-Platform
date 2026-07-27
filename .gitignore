@@ -1,10 +1,13 @@
 .idea/
 
+tmp
+
 target/
 
 node_modules/
 
 .env
+secrets/
 private-key.pem
 public-key.pem
 
