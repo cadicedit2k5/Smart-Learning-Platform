@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref } from 'vue'
-import SideBar from './SideBar.vue'
-import TopBar from './TopBar.vue'
+import AppSidebar from './AppSidebar.vue'
+import AppTopbar from './AppTopbar.vue'
 
 const sidebarOpen = ref(false)
 
@@ -16,12 +16,9 @@ const closeSidebar = () => {
 
 <template>
   <div class="min-h-screen bg-[#F8FAFC]">
-    <SideBar
-      :open="sidebarOpen"
-      @close="closeSidebar"
-    />
+    <AppSidebar :open="sidebarOpen" @close="closeSidebar" />
 
-    <TopBar @toggle-sidebar="toggleSidebar" />
+    <AppTopbar @toggle-sidebar="toggleSidebar" />
 
     <main class="min-h-screen pt-16 lg:pl-[248px]">
       <div class="p-4 sm:p-6 lg:p-8">

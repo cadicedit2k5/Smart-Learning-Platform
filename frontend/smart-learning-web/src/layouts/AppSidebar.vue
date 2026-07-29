@@ -76,9 +76,7 @@ const secondaryNavigation = [
     :class="open ? 'translate-x-0' : '-translate-x-full'"
   >
     <!-- Logo -->
-    <header
-      class="flex h-[74px] shrink-0 items-center justify-between px-5"
-    >
+    <header class="flex h-[74px] shrink-0 items-center justify-between px-5">
       <RouterLink
         to="/lecturer/overview"
         class="flex min-w-0 items-center gap-3"
@@ -91,13 +89,9 @@ const secondaryNavigation = [
         </div>
 
         <div class="min-w-0">
-          <h1 class="truncate text-[15px] font-bold text-slate-900">
-            EduAI Portal
-          </h1>
+          <h1 class="truncate text-[15px] font-bold text-slate-900">EduAI Portal</h1>
 
-          <p class="truncate text-[10px] font-medium text-slate-400">
-            Faculty Dashboard
-          </p>
+          <p class="truncate text-[10px] font-medium text-slate-400">Faculty Dashboard</p>
         </div>
       </RouterLink>
 
@@ -114,15 +108,8 @@ const secondaryNavigation = [
     <!-- Main navigation -->
     <nav class="flex-1 overflow-y-auto px-3 py-4">
       <ul class="space-y-1.5">
-        <li
-          v-for="item in mainNavigation"
-          :key="item.path"
-        >
-          <RouterLink
-            :to="item.path"
-            custom
-            v-slot="{ href, navigate, isActive }"
-          >
+        <li v-for="item in mainNavigation" :key="item.path">
+          <RouterLink :to="item.path" custom v-slot="{ href, navigate, isActive }">
             <a
               :href="href"
               class="group flex h-11 items-center gap-3 rounded-lg px-3 text-[13px] font-medium transition-colors"
@@ -132,7 +119,7 @@ const secondaryNavigation = [
                   : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'
               "
               @click="
-                event => {
+                (event) => {
                   navigate(event)
                   emit('close')
                 }
@@ -143,11 +130,7 @@ const secondaryNavigation = [
                 :size="18"
                 stroke-width="1.8"
                 class="shrink-0"
-                :class="
-                  isActive
-                    ? 'text-violet-600'
-                    : 'text-slate-500 group-hover:text-slate-700'
-                "
+                :class="isActive ? 'text-violet-600' : 'text-slate-500 group-hover:text-slate-700'"
               />
 
               <span>{{ item.label }}</span>
@@ -176,12 +159,7 @@ const secondaryNavigation = [
           class="flex h-10 items-center gap-3 rounded-lg px-3 text-[13px] font-medium text-slate-600 transition hover:bg-slate-50 hover:text-slate-900"
           @click="emit('close')"
         >
-          <component
-            :is="item.icon"
-            :size="17"
-            stroke-width="1.8"
-            class="text-slate-500"
-          />
+          <component :is="item.icon" :size="17" stroke-width="1.8" class="text-slate-500" />
 
           <span>{{ item.label }}</span>
         </RouterLink>
@@ -190,10 +168,7 @@ const secondaryNavigation = [
           type="button"
           class="flex h-10 w-full items-center gap-3 rounded-lg px-3 text-[13px] font-medium text-slate-600 transition hover:bg-red-50 hover:text-red-600"
         >
-          <LogOut
-            :size="17"
-            stroke-width="1.8"
-          />
+          <LogOut :size="17" stroke-width="1.8" />
 
           <span>Logout</span>
         </button>

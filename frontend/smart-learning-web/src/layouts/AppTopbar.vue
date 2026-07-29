@@ -1,14 +1,6 @@
 <script setup lang="ts">
 import { ref } from 'vue'
-import {
-  Bell,
-  Bot,
-  CircleHelp,
-  Grid3X3,
-  Menu,
-  Search,
-  Sparkles,
-} from 'lucide-vue-next'
+import { Bell, CircleHelp, Grid3X3, Menu, Search, Sparkles } from 'lucide-vue-next'
 
 const emit = defineEmits<{
   toggleSidebar: []
@@ -43,10 +35,7 @@ const handleSearch = () => {
       </button>
 
       <!-- Search -->
-      <form
-        class="relative min-w-0 flex-1 lg:max-w-[600px]"
-        @submit.prevent="handleSearch"
-      >
+      <form class="relative min-w-0 flex-1 lg:max-w-[600px]" @submit.prevent="handleSearch">
         <Search
           :size="17"
           stroke-width="1.8"
@@ -100,10 +89,7 @@ const handleSearch = () => {
           to="/lecturer/ai-assistant"
           class="flex h-10 items-center justify-center gap-2 rounded-xl bg-violet-600 px-3 text-xs font-semibold text-white shadow-sm shadow-violet-200 transition hover:bg-violet-700 sm:px-4"
         >
-          <Sparkles
-            :size="15"
-            stroke-width="2.2"
-          />
+          <Sparkles :size="15" stroke-width="2.2" />
 
           <span class="hidden sm:inline">AI Assistant</span>
         </RouterLink>
