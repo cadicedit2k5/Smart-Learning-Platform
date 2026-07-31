@@ -1,6 +1,5 @@
+import type { UserRole } from '@/features/auth/role'
 import 'vue-router'
-
-import type { UserRole } from '@/shared/constants/userRole'
 
 export {}
 

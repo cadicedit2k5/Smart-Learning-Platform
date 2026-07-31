@@ -1,9 +1,17 @@
 <script setup lang="ts">
 import { ref } from 'vue'
-import { Bell, CircleHelp, Grid3X3, Menu, Search, Sparkles } from 'lucide-vue-next'
+import { Bell, CircleHelp, Grid3X3, Menu, Search, UserRound } from 'lucide-vue-next'
+import type { TopbarConfig } from '@/portals/types';
+
+const props = defineProps<{
+  config: TopbarConfig,
+}>()
 
 const emit = defineEmits<{
   toggleSidebar: []
+  search: [keyword: string]
+  openHelp: []
+  openUserMenu: []
 }>()
 
 const searchKeyword = ref('')
@@ -15,7 +23,7 @@ const handleSearch = () => {
     return
   }
 
-  console.log('Search:', keyword)
+  emit('search', keyword)
 }
 </script>
 
@@ -35,7 +43,10 @@ const handleSearch = () => {
       </button>
 
       <!-- Search -->
-      <form class="relative min-w-0 flex-1 lg:max-w-[600px]" @submit.prevent="handleSearch">
+      <form
+       v-if="props.config.search"
+       class="relative min-w-0 flex-1 lg:max-w-[600px]" 
+       @submit.prevent="handleSearch">
         <Search
           :size="17"
           stroke-width="1.8"
@@ -45,7 +56,7 @@ const handleSearch = () => {
         <input
           v-model="searchKeyword"
           type="search"
-          placeholder="Search students, courses, or insights..."
+          :placeholder="props.config.search?.placeholder"
           class="h-10 w-full rounded-xl border border-transparent bg-slate-50 pl-10 pr-4 text-[13px] text-slate-800 outline-none transition placeholder:text-slate-400 hover:bg-slate-100 focus:border-violet-200 focus:bg-white focus:ring-4 focus:ring-violet-100/70"
         />
       </form>
@@ -56,6 +67,7 @@ const handleSearch = () => {
           type="button"
           aria-label="Notifications"
           class="relative flex h-10 w-10 items-center justify-center rounded-xl text-slate-500 transition hover:bg-slate-100 hover:text-slate-800"
+          @click="emit('openNotifications')"
         >
           <Bell :size="18" stroke-width="1.8" />
 
@@ -69,6 +81,7 @@ const handleSearch = () => {
           type="button"
           aria-label="Help"
           class="hidden h-10 w-10 items-center justify-center rounded-xl text-slate-500 transition hover:bg-slate-100 hover:text-slate-800 sm:flex"
+          @click="emit('openHelp')"
         >
           <CircleHelp :size="18" stroke-width="1.8" />
         </button>
@@ -86,12 +99,20 @@ const handleSearch = () => {
 
         <!-- AI Assistant -->
         <RouterLink
-          to="/lecturer/ai-assistant"
+          v-if="props.config.primaryAction"
+          :to="props.config.primaryAction.routeName"
           class="flex h-10 items-center justify-center gap-2 rounded-xl bg-violet-600 px-3 text-xs font-semibold text-white shadow-sm shadow-violet-200 transition hover:bg-violet-700 sm:px-4"
         >
-          <Sparkles :size="15" stroke-width="2.2" />
+          <component
+            :is="props.config.primaryAction.icon"
+            v-if="props.config.primaryAction.icon"
+            :size="15"
+            stroke-width="2.2"
+          />
 
-          <span class="hidden sm:inline">AI Assistant</span>
+          <span class="hidden sm:inline">
+            {{ props.config.primaryAction.label }}
+          </span>
         </RouterLink>
 
         <!-- User profile -->
@@ -99,18 +120,12 @@ const handleSearch = () => {
           type="button"
           aria-label="Open user menu"
           class="ml-1 flex items-center gap-2 rounded-xl p-1.5 transition hover:bg-slate-100"
+          @click="emit('openUserMenu')"
         >
-          <div class="relative">
-            <img
-              src="https://i.pravatar.cc/100?img=12"
-              alt="Lecturer avatar"
-              class="h-8 w-8 rounded-full object-cover ring-2 ring-white"
-            />
-
-            <span
-              class="absolute bottom-0 right-0 h-2.5 w-2.5 rounded-full border-2 border-white bg-emerald-500"
-            />
-          </div>
+          <UserRound
+            :size="19"
+            stroke-width="1.8"
+          />
         </button>
       </div>
     </div>

@@ -1,17 +1,10 @@
 <script setup lang="ts">
-import { markRaw } from 'vue'
 import {
-  BarChart3,
   BookOpen,
-  BrainCircuit,
-  GraduationCap,
-  LayoutDashboard,
   LogOut,
-  Plus,
-  Settings,
   X,
 } from 'lucide-vue-next'
-import type { NavigationItem } from '@/portals/type';
+import type { NavigationItem } from '@/portals/types';
 
 defineProps<{
   open: boolean
@@ -21,14 +14,6 @@ defineProps<{
 const emit = defineEmits<{
   close: []
 }>()
-
-const secondaryNavigation = [
-  {
-    label: 'Settings',
-    path: '/settings',
-    icon: markRaw(Settings),
-  },
-]
 </script>
 
 <template>
@@ -57,16 +42,21 @@ const secondaryNavigation = [
     <!-- Logo -->
     <header class="flex h-[74px] shrink-0 items-center justify-between px-5">
       <RouterLink
-        v-for="item in navigation"
-        :key="item.routeName"
-        :to="{ name: item.routeName }"
+        :to="navigation[0]?.routeName ? { name: navigation[0].routeName } : '/'"
+        class="flex min-w-0 items-center gap-3"
+        @click="emit('close')"
       >
-        <component
-          :is="item.icon"
-          v-if="item.icon"
-        />
+        <div
+          class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-violet-600 text-white shadow-sm shadow-violet-200"
+        >
+          <BookOpen :size="20" stroke-width="2.2" />
+        </div>
 
-        <span>{{ item.label }}</span>
+        <div class="min-w-0">
+          <h1 class="truncate text-[15px] font-bold text-slate-900">EduAI Portal</h1>
+
+          <p class="truncate text-[10px] font-medium text-slate-400">Faculty Dashboard</p>
+        </div>
       </RouterLink>
 
       <button
@@ -116,27 +106,8 @@ const secondaryNavigation = [
 
     <!-- Bottom actions -->
     <div class="shrink-0 space-y-3 px-3 pb-4">
-      <!-- <RouterLink
-        to="/lecturer/courses/create"
-        class="flex h-11 w-full items-center justify-center gap-2 rounded-lg bg-[#082544] px-4 text-[12px] font-semibold text-white shadow-sm transition hover:bg-[#0d3158] active:scale-[0.99]"
-        @click="emit('close')"
-      >
-        <Plus :size="16" stroke-width="2.5" />
-        <span>Create New Course</span>
-      </RouterLink> -->
 
       <div class="border-t border-slate-100 pt-3">
-        <!-- <RouterLink
-          v-for="item in secondaryNavigation"
-          :key="item.path"
-          :to="{ name: item.path ? item.path : '' }"
-          class="flex h-10 items-center gap-3 rounded-lg px-3 text-[13px] font-medium text-slate-600 transition hover:bg-slate-50 hover:text-slate-900"
-          @click="emit('close')"
-        >
-          <component :is="item.icon" :size="17" stroke-width="1.8" class="text-slate-500" />
-
-          <span>{{ item.label }}</span>
-        </RouterLink> -->
 
         <button
           type="button"

@@ -1,6 +1,6 @@
 import { USER_ROLES } from '@/features/auth/role'
 
-import type { PortalDefinition } from '@/portals/type'
+import type { PortalDefinition } from '@/portals/types'
 import { studentRoutes } from './routes'
 import { studentNavigation } from './navigation'
 
@@ -9,4 +9,9 @@ export const studentPortal: PortalDefinition = {
   basePath: '/student',
   routes: studentRoutes,
   navigation: studentNavigation,
+   topbar: {
+    search: {
+      placeholder: 'Search courses and learning materials...',
+    },
+  },
 }

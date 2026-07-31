@@ -9,7 +9,7 @@ const portalRoutes = portals.map((portal) => ({
     portal: portal.role,
   },
   children: portal.routes,
-}))
+}));
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -32,6 +32,14 @@ const router = createRouter({
       },
     },
   ],
-})
+});
 
-export default router
+router.afterEach((to) => {
+  const pageTitle = to.meta.title
+
+  document.title = pageTitle
+    ? `${pageTitle} | Smart Learning`
+    : 'Smart Learning'
+});
+
+export default router;

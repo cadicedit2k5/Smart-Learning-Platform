@@ -9,9 +9,24 @@ export interface NavigationItem {
   icon?: Component
 }
 
+export interface TopbarAction {
+  label: string
+  routeName: string
+  icon?: Component
+}
+
+export interface TopbarConfig {
+  search?: {
+    placeholder: string
+  }
+
+  primaryAction?: TopbarAction
+}
+
 export interface PortalDefinition {
   role: UserRole
   basePath: string
   routes: RouteRecordRaw[]
   navigation: NavigationItem[]
+  topbar: TopbarConfig
 }

@@ -1,7 +1,7 @@
 import { USER_ROLES } from '@/features/auth/role'
 
 
-import type { PortalDefinition } from '@/portals/type'
+import type { PortalDefinition } from '@/portals/types'
 import { adminRoutes } from './routes'
 import { adminNavigation } from './navigation'
 
@@ -10,4 +10,9 @@ export const adminPortal: PortalDefinition = {
   basePath: '/admin',
   routes: adminRoutes,
   navigation: adminNavigation,
+  topbar: {
+    search: {
+      placeholder: 'Search users, courses, or system resources...',
+    },
+  },
 }
