@@ -11,37 +11,16 @@ import {
   Settings,
   X,
 } from 'lucide-vue-next'
+import type { NavigationItem } from '@/portals/type';
 
 defineProps<{
   open: boolean
+  navigation: NavigationItem[]
 }>()
 
 const emit = defineEmits<{
   close: []
 }>()
-
-const mainNavigation = [
-  {
-    label: 'Overview',
-    path: '/lecturer/overview',
-    icon: markRaw(LayoutDashboard),
-  },
-  {
-    label: 'My Courses',
-    path: '/lecturer/courses',
-    icon: markRaw(GraduationCap),
-  },
-  {
-    label: 'Learning Analytics',
-    path: '/lecturer/analytics',
-    icon: markRaw(BarChart3),
-  },
-  {
-    label: 'AI Insights',
-    path: '/lecturer/ai-insights',
-    icon: markRaw(BrainCircuit),
-  },
-]
 
 const secondaryNavigation = [
   {
@@ -78,21 +57,16 @@ const secondaryNavigation = [
     <!-- Logo -->
     <header class="flex h-[74px] shrink-0 items-center justify-between px-5">
       <RouterLink
-        to="/lecturer/overview"
-        class="flex min-w-0 items-center gap-3"
-        @click="emit('close')"
+        v-for="item in navigation"
+        :key="item.routeName"
+        :to="{ name: item.routeName }"
       >
-        <div
-          class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-violet-600 text-white shadow-sm shadow-violet-200"
-        >
-          <BookOpen :size="20" stroke-width="2.2" />
-        </div>
+        <component
+          :is="item.icon"
+          v-if="item.icon"
+        />
 
-        <div class="min-w-0">
-          <h1 class="truncate text-[15px] font-bold text-slate-900">EduAI Portal</h1>
-
-          <p class="truncate text-[10px] font-medium text-slate-400">Faculty Dashboard</p>
-        </div>
+        <span>{{ item.label }}</span>
       </RouterLink>
 
       <button
@@ -108,8 +82,8 @@ const secondaryNavigation = [
     <!-- Main navigation -->
     <nav class="flex-1 overflow-y-auto px-3 py-4">
       <ul class="space-y-1.5">
-        <li v-for="item in mainNavigation" :key="item.path">
-          <RouterLink :to="item.path" custom v-slot="{ href, navigate, isActive }">
+        <li v-for="item in navigation" :key="item.routeName">
+          <RouterLink :to="{ name: item.routeName }" custom v-slot="{ href, navigate, isActive }">
             <a
               :href="href"
               class="group flex h-11 items-center gap-3 rounded-lg px-3 text-[13px] font-medium transition-colors"
@@ -142,27 +116,27 @@ const secondaryNavigation = [
 
     <!-- Bottom actions -->
     <div class="shrink-0 space-y-3 px-3 pb-4">
-      <RouterLink
+      <!-- <RouterLink
         to="/lecturer/courses/create"
         class="flex h-11 w-full items-center justify-center gap-2 rounded-lg bg-[#082544] px-4 text-[12px] font-semibold text-white shadow-sm transition hover:bg-[#0d3158] active:scale-[0.99]"
         @click="emit('close')"
       >
         <Plus :size="16" stroke-width="2.5" />
         <span>Create New Course</span>
-      </RouterLink>
+      </RouterLink> -->
 
       <div class="border-t border-slate-100 pt-3">
-        <RouterLink
+        <!-- <RouterLink
           v-for="item in secondaryNavigation"
           :key="item.path"
-          :to="item.path"
+          :to="{ name: item.path ? item.path : '' }"
           class="flex h-10 items-center gap-3 rounded-lg px-3 text-[13px] font-medium text-slate-600 transition hover:bg-slate-50 hover:text-slate-900"
           @click="emit('close')"
         >
           <component :is="item.icon" :size="17" stroke-width="1.8" class="text-slate-500" />
 
           <span>{{ item.label }}</span>
-        </RouterLink>
+        </RouterLink> -->
 
         <button
           type="button"

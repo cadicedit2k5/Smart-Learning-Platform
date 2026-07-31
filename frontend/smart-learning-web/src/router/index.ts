@@ -1,36 +1,37 @@
+import DefaultLayout from '@/layouts/DefaultLayout.vue'
+import { portals } from '@/portals/registry'
 import { createRouter, createWebHistory } from 'vue-router'
+
+const portalRoutes = portals.map((portal) => ({
+  path: portal.basePath,
+  component: DefaultLayout,
+  meta: {
+    portal: portal.role,
+  },
+  children: portal.routes,
+}))
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
+
+    ...portalRoutes,
     {
-      path: '/',
-      component: () => import('@/layouts/DefaultLayout.vue'),
-      children: [
-        {
-          path: '',
-          name: 'home',
-          component: () => import('@/pages/HomePage.vue'),
-          meta: {
-            title: 'Home',
-          },
-        },
-      ],
+      path: "/",
+      component: () => import('@/pages/HomePage.vue'),
+      meta: {
+        title: 'Home',
+      },
     },
     {
       path: '/:pathMatch(.*)*',
       name: 'not-found',
-      component: () => import('@/pages/NotFoundPage.vue'),
+      component: () => import('@/pages/errors/NotFoundPage.vue'),
       meta: {
         title: 'Page not found',
       },
     },
   ],
-})
-
-router.afterEach((to) => {
-  const pageTitle = typeof to.meta.title === 'string' ? to.meta.title : ''
-  document.title = pageTitle ? `${pageTitle} | Smart Learning` : 'Smart Learning'
 })
 
 export default router

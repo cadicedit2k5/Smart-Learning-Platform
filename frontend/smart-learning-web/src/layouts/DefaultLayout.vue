@@ -1,9 +1,12 @@
 <script setup lang="ts">
 import { ref } from 'vue'
-import AppSidebar from './AppSidebar.vue'
-import AppTopbar from './AppTopbar.vue'
+import { useCurrentPortal } from './composables/useCurrentPortals.ts'
+import AppSidebar from './components/AppSidebar.vue'
+import AppTopbar from './components/AppTopbar.vue'
 
 const sidebarOpen = ref(false)
+
+const {portal} = useCurrentPortal()
 
 const toggleSidebar = () => {
   sidebarOpen.value = !sidebarOpen.value
@@ -15,8 +18,13 @@ const closeSidebar = () => {
 </script>
 
 <template>
-  <div class="min-h-screen bg-[#F8FAFC]">
-    <AppSidebar :open="sidebarOpen" @close="closeSidebar" />
+  <div
+    v-if="portal"
+    class="min-h-screen bg-[#F8FAFC]">
+    <AppSidebar
+    :open="sidebarOpen" 
+    :navigation="portal.navigation"
+    @close="closeSidebar" />
 
     <AppTopbar @toggle-sidebar="toggleSidebar" />
 
