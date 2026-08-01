@@ -8,6 +8,7 @@ import { adminNavigation } from './navigation'
 export const adminPortal: PortalDefinition = {
   role: USER_ROLES.ADMIN,
   basePath: '/admin',
+  homeRouteName: 'admin-dashboard',
   routes: adminRoutes,
   navigation: adminNavigation,
   topbar: {

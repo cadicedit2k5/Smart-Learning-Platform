@@ -7,6 +7,7 @@ import { studentNavigation } from './navigation'
 export const studentPortal: PortalDefinition = {
   role: USER_ROLES.STUDENT,
   basePath: '/student',
+  homeRouteName: 'student-dashboard',
   routes: studentRoutes,
   navigation: studentNavigation,
    topbar: {
