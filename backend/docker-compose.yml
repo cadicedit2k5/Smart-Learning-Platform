@@ -10,12 +10,23 @@ services:
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
 
     ports:
-      - "${POSTGRES_PORT}:5432"
+      - "${POSTGRES_PORT:-5433}:5432"
 
     volumes:
       - postgres_data:/var/lib/postgresql/data
       - ./docker/postgres/init.sql:/docker-entrypoint-initdb.d/init.sql
 
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+
+    networks:
+      - smart-learning-network
   minio:
     image: quay.io/minio/minio:RELEASE.2025-04-22T22-12-26Z
     container_name: smart-learning-minio
@@ -33,6 +44,149 @@ services:
 
     volumes:
       - minio_data:/data
+
+    healthcheck:
+      test:
+        - CMD
+        - mc
+        - ready
+        - local
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+
+    networks:
+      - smart-learning-network
+
+  system:
+    image: smart-learning-system:local
+    restart: unless-stopped
+
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        SERVICE: system
+
+    environment:
+      SERVER_PORT: 8081
+
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/${POSTGRES_DB}?currentSchema=system
+      SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER}
+      SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD}
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
+      JPA_SHOW_SQL: ${JPA_SHOW_SQL:-false}
+
+      ADMIN_EMAIL: ${ADMIN_EMAIL}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD}
+
+      MINIO_ENDPOINT: http://minio:9000
+      MINIO_ACCESS_KEY: ${MINIO_ROOT_USER}
+      MINIO_SECRET_KEY: ${MINIO_ROOT_PASSWORD}
+      MINIO_BUCKET: ${MINIO_BUCKET}
+      MINIO_PRESIGNED_URL_EXPIRY: 15m
+
+    expose:
+      - "8081"
+
+    depends_on:
+      postgres:
+        condition: service_healthy
+      minio:
+        condition: service_healthy
+
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - wget -qO- http://localhost:8081/actuator/health | grep -q '"status":"UP"'
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+
+    networks:
+      - smart-learning-network
+
+  core:
+    image: smart-learning-core:local
+    restart: unless-stopped
+
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        SERVICE: core
+
+    environment:
+      SERVER_PORT: 8082
+
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/${POSTGRES_DB}?currentSchema=core
+      SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER}
+      SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD}
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
+      JPA_SHOW_SQL: ${JPA_SHOW_SQL:-false}
+
+    expose:
+      - "8082"
+
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - wget -qO- http://localhost:8082/actuator/health | grep -q '"status":"UP"'
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+
+    networks:
+      - smart-learning-network
+
+  gateway:
+    image: smart-learning-gateway:local
+    restart: unless-stopped
+
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        SERVICE: gateway
+
+    environment:
+      GATEWAY_PORT: 8080
+      SYSTEM_SERVICE_URL: http://system:8081
+      CORE_SERVICE_URL: http://core:8082
+      FRONTEND_URL: ${FRONTEND_URL}
+
+    ports:
+      - "${GATEWAY_PORT:-8080}:8080"
+
+    depends_on:
+      system:
+        condition: service_healthy
+      core:
+        condition: service_healthy
+
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - wget -qO- http://localhost:8080/actuator/health | grep -q '"status":"UP"'
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 20s
+
+    networks:
+      - smart-learning-network
+
 volumes:
   postgres_data:
   minio_data:
+
+networks:
+  smart-learning-network:
+    driver: bridge

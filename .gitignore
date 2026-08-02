@@ -1,5 +1,7 @@
 .idea/
 
+tmp
+
 target/
 
 tmp
@@ -7,6 +9,7 @@ tmp
 node_modules/
 
 .env
+secrets/
 private-key.pem
 public-key.pem
 
