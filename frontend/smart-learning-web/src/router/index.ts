@@ -7,6 +7,8 @@ const portalRoutes = portals.map((portal) => ({
   component: DefaultLayout,
   meta: {
     portal: portal.role,
+    requiresAuth: true,
+    role: portal.role,
   },
   children: portal.routes,
 }));
@@ -23,6 +25,13 @@ const router = createRouter({
         title: 'Home',
       },
     },
+    // {
+    //   path: "/login",
+    //   component: () => import('@/pages/auth/LoginPage.vue'),
+    //   meta: {
+    //     title: 'Login',
+    //   },
+    // },
     {
       path: '/:pathMatch(.*)*',
       name: 'not-found',
