@@ -5,15 +5,28 @@ import {
   X,
 } from 'lucide-vue-next'
 import type { NavigationItem } from '@/portals/types';
+import { useRouter } from 'vue-router';
+import { useAuthStore } from '@/features/auth/stores';
 
 defineProps<{
   open: boolean
   navigation: NavigationItem[]
-}>()
+  basePath: string
+}>();
 
 const emit = defineEmits<{
   close: []
-}>()
+}>();
+
+const router = useRouter();
+const authStore = useAuthStore();
+
+const handleLogout = async () => {
+  authStore.logout();
+  emit('close');
+
+  await router.replace({ name: 'login' });
+};
 </script>
 
 <template>
@@ -36,26 +49,26 @@ const emit = defineEmits<{
   </Transition>
 
   <aside
-    class="fixed inset-y-0 left-0 z-50 flex w-[248px] flex-col border-r border-slate-200 bg-white transition-transform duration-300 lg:translate-x-0"
+    class="fixed inset-y-0 left-0 z-50 flex w-sidebar flex-col border-r border-app-border bg-app-surface transition-transform duration-300 lg:translate-x-0"
     :class="open ? 'translate-x-0' : '-translate-x-full'"
   >
     <!-- Logo -->
     <header class="flex h-[74px] shrink-0 items-center justify-between px-5">
       <RouterLink
-        :to="navigation[0]?.routeName ? { name: navigation[0].routeName } : '/'"
+        :to="basePath"
         class="flex min-w-0 items-center gap-3"
         @click="emit('close')"
       >
         <div
-          class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-violet-600 text-white shadow-sm shadow-violet-200"
+          class="flex h-10 w-10 shrink-0 items-center justify-center rounded-card bg-primary text-on-primary"
         >
           <BookOpen :size="20" stroke-width="2.2" />
         </div>
 
         <div class="min-w-0">
-          <h1 class="truncate text-[15px] font-bold text-slate-900">EduAI Portal</h1>
+          <h1 class="truncate text-sm font-bold text-app-text">Smart Learning</h1>
 
-          <p class="truncate text-[10px] font-medium text-slate-400">Faculty Dashboard</p>
+          <p class="truncate text-xs text-app-text-muted">{{ authStore.user?.role.name }} Portal</p>
         </div>
       </RouterLink>
 
@@ -76,25 +89,19 @@ const emit = defineEmits<{
           <RouterLink :to="{ name: item.routeName }" custom v-slot="{ href, navigate, isActive }">
             <a
               :href="href"
-              class="group flex h-11 items-center gap-3 rounded-lg px-3 text-[13px] font-medium transition-colors"
+              class="group flex h-11 items-center gap-3 rounded-control px-3 text-sm font-medium transition-colors"
               :class="
                 isActive
-                  ? 'bg-violet-50 text-violet-700'
-                  : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'
-              "
-              @click="
-                (event) => {
-                  navigate(event)
-                  emit('close')
-                }
+                  ? 'bg-secondary-soft text-secondary'
+                  : 'text-app-text-muted hover:bg-app-surface-muted hover:text-app-text'
               "
             >
               <component
                 :is="item.icon"
+                v-if="item.icon"
                 :size="18"
                 stroke-width="1.8"
                 class="shrink-0"
-                :class="isActive ? 'text-violet-600' : 'text-slate-500 group-hover:text-slate-700'"
               />
 
               <span>{{ item.label }}</span>
@@ -111,9 +118,13 @@ const emit = defineEmits<{
 
         <button
           type="button"
-          class="flex h-10 w-full items-center gap-3 rounded-lg px-3 text-[13px] font-medium text-slate-600 transition hover:bg-red-50 hover:text-red-600"
+          class="flex h-10 w-full items-center gap-3 rounded-control px-3 text-sm font-medium text-app-text-muted transition hover:bg-danger-soft hover:text-danger"
+          @click="handleLogout"
         >
-          <LogOut :size="17" stroke-width="1.8" />
+          <LogOut
+            :size="17"
+            :stroke-width="1.8"
+          />
 
           <span>Logout</span>
         </button>

@@ -7,6 +7,8 @@ const portalRoutes = portals.map((portal) => ({
   component: DefaultLayout,
   meta: {
     portal: portal.role,
+    requiresAuth: true,
+    role: portal.role,
   },
   children: portal.routes,
 }));
@@ -17,10 +19,20 @@ const router = createRouter({
 
     ...portalRoutes,
     {
-      path: "/",
-      component: () => import('@/pages/HomePage.vue'),
+      path: '/',
+      redirect: {
+        name: 'login',
+      },
+    },
+    {
+      path: '/login',
+      name: 'login',
+      component: () =>
+        import('@/features/auth/pages/LoginPage.vue'),
+
       meta: {
-        title: 'Home',
+        title: 'Sign in',
+        guestOnly: true,
       },
     },
     {
