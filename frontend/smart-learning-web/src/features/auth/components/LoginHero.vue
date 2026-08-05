@@ -6,7 +6,7 @@ import authBrain from '@/assets/images/auth-brain.png'
 
 <template>
   <section
-    class="relative hidden min-h-screen overflow-hidden border-r border-app-border bg-app-surface lg:flex lg:flex-col"
+    class="relative hidden overflow-hidden border-r border-app-border bg-app-surface lg:flex lg:flex-col"
   >
     <!-- Background glow -->
     <div
@@ -29,7 +29,7 @@ import authBrain from '@/assets/images/auth-brain.png'
           />
         </span>
 
-        <span>Academia AI</span>
+        <span>Smart Learning</span>
       </RouterLink>
     </header>
 

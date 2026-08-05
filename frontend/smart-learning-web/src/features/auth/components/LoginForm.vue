@@ -83,10 +83,7 @@ const handleSubmit = async () => {
     }
 
     if (!errors.email && !errors.password) {
-      errors.general =
-        apiError.statusCode === 401
-          ? 'Email or password is incorrect.'
-          : apiError.message
+      errors.general = apiError.message
     }
   } finally {
     isSubmitting.value = false
@@ -110,7 +107,7 @@ const handleSubmit = async () => {
         />
       </span>
 
-      <span>Academia AI</span>
+      <span>Smart Learning</span>
     </RouterLink>
 
     <BaseCard class="shadow-overlay">
@@ -122,7 +119,7 @@ const handleSubmit = async () => {
         </h1>
 
         <p class="mt-2 text-sm text-app-text-muted">
-          Sign in to continue to Academia AI.
+          Sign in to continue to Smart Learning.
         </p>
       </header>
 
@@ -133,7 +130,7 @@ const handleSubmit = async () => {
       >
         <BaseInput
           v-model="form.email"
-          label="Institutional email"
+          label="Email"
           type="email"
           autocomplete="username"
           placeholder="student@university.edu"
@@ -153,6 +150,7 @@ const handleSubmit = async () => {
           label="Password"
           :type="showPassword ? 'text' : 'password'"
           autocomplete="current-password"
+          placeholder="Enter your password"
           minlength="8"
           maxlength="36"
           :error="errors.password"
@@ -190,12 +188,12 @@ const handleSubmit = async () => {
         </BaseInput>
 
         <div class="flex justify-end">
-          <a
-            href="mailto:support@example.com?subject=Forgot password"
+          <RouterLink
+            to="/login"
             class="text-xs font-semibold text-app-text-muted transition hover:text-secondary"
           >
             Forgot password?
-          </a>
+          </RouterLink>
         </div>
 
         <BaseAlert
@@ -227,15 +225,11 @@ const handleSubmit = async () => {
           Having trouble signing in?
 
           <a
-            href="mailto:support@example.com"
+            href="mailto:support@smartlearning.com"
             class="font-semibold text-app-text transition hover:text-secondary"
           >
             Contact Support
           </a>
-        </p>
-
-        <p class="mt-2 text-[11px] text-app-text-muted/70">
-          Accounts are provided by your organization.
         </p>
       </footer>
     </BaseCard>

@@ -7,6 +7,7 @@ import type { PortalDefinition } from '@/portals/types'
 
 export const lecturerPortal: PortalDefinition = {
   role: USER_ROLES.LECTURER,
+  portalName: 'Lecturer Portal',
   basePath: '/lecturer',
   homeRouteName: 'lecturer-dashboard',
   routes: lecturerRoutes,
