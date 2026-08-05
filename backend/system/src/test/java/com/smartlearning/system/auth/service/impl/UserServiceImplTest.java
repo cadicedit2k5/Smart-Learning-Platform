@@ -9,6 +9,8 @@ import com.smartlearning.system.auth.dto.request.UserCreateRequest;
 import com.smartlearning.system.auth.dto.request.UserFilterRequest;
 import com.smartlearning.system.auth.dto.request.UserLoginRequest;
 import com.smartlearning.system.auth.dto.request.UserUpdateRequest;
+import com.smartlearning.system.auth.dto.request.admin.AdminUserCreateRequest;
+import com.smartlearning.system.auth.dto.request.admin.AdminUserUpdateRequest;
 import com.smartlearning.system.auth.dto.response.LoginResponse;
 import com.smartlearning.system.auth.dto.response.UserResponse;
 import com.smartlearning.system.auth.entity.Role;
@@ -230,6 +232,33 @@ class UserServiceImplTest {
     }
 
     @Test
+    void handleAddUser_assignsRequestedRoleForAdminRequest() {
+        AdminUserCreateRequest request = new AdminUserCreateRequest();
+        request.setEmail("lecturer@example.com");
+        request.setPassword("plain-password");
+        request.setFullName("Lecturer");
+        request.setRoleCode(" lecturer ");
+
+        User user = user(UUID.randomUUID(), null);
+        Role lecturerRole = role("LECTURER");
+
+        when(userRepository.existsByEmailIgnoreCase("lecturer@example.com"))
+                .thenReturn(false);
+        when(userMapper.toEntity(request)).thenReturn(user);
+        when(passwordEncoder.encode("plain-password"))
+                .thenReturn("encoded-password");
+        when(roleService.handleGetRoleByCode("LECTURER"))
+                .thenReturn(lecturerRole);
+        when(userRepository.save(user)).thenReturn(user);
+        when(userMapper.toResponse(user)).thenReturn(response(user));
+
+        userService.handleAddUser(request);
+
+        assertThat(user.getRole()).isSameAs(lecturerRole);
+        verify(roleService).handleGetRoleByCode("LECTURER");
+    }
+
+    @Test
     void handleUpdateUser_updatesFieldsAndEncodesNonBlankPassword() {
         UUID userId = UUID.randomUUID();
         UserUpdateRequest request = new UserUpdateRequest();
@@ -277,6 +306,28 @@ class UserServiceImplTest {
         assertThat(result).isSameAs(expected);
         assertThat(existingUser.getPassword()).isEqualTo("current-password");
         verify(passwordEncoder, never()).encode(any());
+    }
+
+    @Test
+    void handleUpdateUser_updatesRoleForAdminRequest() {
+        UUID userId = UUID.randomUUID();
+
+        AdminUserUpdateRequest request = new AdminUserUpdateRequest();
+        request.setRoleCode("lecturer");
+
+        User user = user(userId, "student@example.com");
+        Role lecturerRole = role("LECTURER");
+
+        when(userRepository.findByIdAndStatusNot(userId, UserStatus.DELETED))
+                .thenReturn(Optional.of(user));
+        when(roleService.handleGetRoleByCode("LECTURER"))
+                .thenReturn(lecturerRole);
+        when(userRepository.save(user)).thenReturn(user);
+        when(userMapper.toResponse(user)).thenReturn(response(user));
+
+        userService.handleUpdateUser(userId, request);
+
+        assertThat(user.getRole()).isSameAs(lecturerRole);
     }
 
     @Test

@@ -9,6 +9,8 @@ import com.smartlearning.system.auth.dto.request.UserCreateRequest;
 import com.smartlearning.system.auth.dto.request.UserFilterRequest;
 import com.smartlearning.system.auth.dto.request.UserLoginRequest;
 import com.smartlearning.system.auth.dto.request.UserUpdateRequest;
+import com.smartlearning.system.auth.dto.request.admin.AdminUserCreateRequest;
+import com.smartlearning.system.auth.dto.request.admin.AdminUserUpdateRequest;
 import com.smartlearning.system.auth.dto.response.LoginResponse;
 import com.smartlearning.system.auth.dto.response.UserResponse;
 import com.smartlearning.system.auth.entity.Role;
@@ -74,8 +76,17 @@ public class UserServiceImpl implements UserService {
         user.setPassword(passwordEncoder.encode(request.getPassword()));
 
         // Set user default role
-        Role studentRole = this.roleService.handleGetRoleByCode("STUDENT");
-        user.setRole(studentRole);
+        // Nếu là admin thì có thể chọn role để tạo
+        String roleCode = "STUDENT";
+
+        if (request instanceof AdminUserCreateRequest adminRequest) {
+            roleCode = adminRequest.getRoleCode()
+                    .trim()
+                    .toUpperCase(Locale.ROOT);
+        }
+
+        Role role = roleService.handleGetRoleByCode(roleCode);
+        user.setRole(role);
 
         User saveUser = this.userRepository.save(user);
 
@@ -98,6 +109,18 @@ public class UserServiceImpl implements UserService {
                         );
 
         userMapper.partialUpdate(request, user);
+
+        // Logic update riêng cho admin
+        if (request instanceof AdminUserUpdateRequest adminRequest
+                && StringUtils.hasText(adminRequest.getRoleCode())) {
+
+            String roleCode = adminRequest.getRoleCode()
+                    .trim()
+                    .toUpperCase(Locale.ROOT);
+
+            Role role = roleService.handleGetRoleByCode(roleCode);
+            user.setRole(role);
+        }
 
         if (StringUtils.hasText(request.getPassword())) {
             user.setPassword(
