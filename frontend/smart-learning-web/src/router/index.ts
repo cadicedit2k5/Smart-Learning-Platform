@@ -19,19 +19,22 @@ const router = createRouter({
 
     ...portalRoutes,
     {
-      path: "/",
-      component: () => import('@/pages/HomePage.vue'),
-      meta: {
-        title: 'Home',
+      path: '/',
+      redirect: {
+        name: 'login',
       },
     },
-    // {
-    //   path: "/login",
-    //   component: () => import('@/pages/auth/LoginPage.vue'),
-    //   meta: {
-    //     title: 'Login',
-    //   },
-    // },
+    {
+      path: '/login',
+      name: 'login',
+      component: () =>
+        import('@/features/auth/pages/LoginPage.vue'),
+
+      meta: {
+        title: 'Sign in',
+        guestOnly: true,
+      },
+    },
     {
       path: '/:pathMatch(.*)*',
       name: 'not-found',

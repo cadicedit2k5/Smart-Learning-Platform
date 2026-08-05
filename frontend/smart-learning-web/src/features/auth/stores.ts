@@ -13,10 +13,19 @@ export const useAuthStore = defineStore('auth', () => {
         const res = await loginApi(request);
 
         tokenStorage.set(res.accessToken, res.expiresIn);
-        const currentUser = await getCurrentUser();
-        user.value = currentUser;
+        
+        try {
+            const currentUser = await getCurrentUser()
 
-        return currentUser;
+            user.value = currentUser
+
+            return currentUser
+        } catch (error) {
+            tokenStorage.clear()
+            user.value = null
+
+            throw error
+        }
     };
 
     const logout = () => {

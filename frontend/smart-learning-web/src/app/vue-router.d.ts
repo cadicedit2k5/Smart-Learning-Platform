@@ -8,7 +8,7 @@ declare module 'vue-router' {
     title?: string
     portal?: UserRole
     requiresAuth?: boolean
-    roles?: UserRole[]
+    role?: UserRole
     permissions?: string[]
   }
 }
