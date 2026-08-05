@@ -20,73 +20,71 @@ import {
   BaseInput,
 } from '@/shared/components'
 
-const router = useRouter()
-const authStore = useAuthStore()
+const router = useRouter();
+const authStore = useAuthStore();
 
 const form = reactive({
   email: '',
   password: '',
-})
+});
 
 const errors = reactive({
   email: '',
   password: '',
   general: '',
-})
+});
 
-const showPassword = ref(false)
-const isSubmitting = ref(false)
+const showPassword = ref(false);
+const isSubmitting = ref(false);
 
 const clearErrors = () => {
-  errors.email = ''
-  errors.password = ''
-  errors.general = ''
+  errors.email = '';
+  errors.password = '';
+  errors.general = '';
 }
 
 const handleSubmit = async () => {
-  clearErrors()
+  clearErrors();
 
   if (!form.email.trim()) {
-    errors.email = 'Email is required.'
+    errors.email = 'Email is required.';
   }
 
   if (!form.password) {
-    errors.password = 'Password is required.'
+    errors.password = 'Password is required.';
   }
 
   if (errors.email || errors.password) {
-    return
+    return;
   }
 
-  isSubmitting.value = true
+  isSubmitting.value = true;
 
   try {
     const user = await authStore.login({
       email: form.email.trim(),
       password: form.password,
-    })
+    });
 
-    await router.replace(
-      getPortalHomeRoute(user.role.code),
-    )
+    await router.replace(getPortalHomeRoute(user.role.code));
   } catch (error) {
-    const apiError = parseApiError(error)
+    const apiError = parseApiError(error);
 
     for (const detail of apiError.errors) {
       if (detail.field === 'email') {
-        errors.email = detail.message
+        errors.email = detail.message;
       }
 
       if (detail.field === 'password') {
-        errors.password = detail.message
+        errors.password = detail.message;
       }
-    }
+    };
 
     if (!errors.email && !errors.password) {
-      errors.general = apiError.message
+      errors.general = apiError.message;
     }
   } finally {
-    isSubmitting.value = false
+    isSubmitting.value = false;
   }
 }
 </script>

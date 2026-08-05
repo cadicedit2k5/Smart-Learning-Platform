@@ -11,8 +11,7 @@ import { useAuthStore } from '@/features/auth/stores';
 defineProps<{
   open: boolean
   navigation: NavigationItem[]
-  portalName: string
-  homeRouteName: string
+  basePath: string
 }>();
 
 const emit = defineEmits<{
@@ -56,7 +55,7 @@ const handleLogout = async () => {
     <!-- Logo -->
     <header class="flex h-[74px] shrink-0 items-center justify-between px-5">
       <RouterLink
-        :to="{ name: homeRouteName }"
+        :to="basePath"
         class="flex min-w-0 items-center gap-3"
         @click="emit('close')"
       >
@@ -69,7 +68,7 @@ const handleLogout = async () => {
         <div class="min-w-0">
           <h1 class="truncate text-sm font-bold text-app-text">Smart Learning</h1>
 
-          <p class="truncate text-xs text-app-text-muted">{{ portalName }}</p>
+          <p class="truncate text-xs text-app-text-muted">{{ authStore.user?.role.name }} Portal</p>
         </div>
       </RouterLink>
 

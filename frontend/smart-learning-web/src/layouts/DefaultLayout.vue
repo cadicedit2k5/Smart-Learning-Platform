@@ -24,8 +24,7 @@ const closeSidebar = () => {
     <AppSidebar
     :open="sidebarOpen" 
     :navigation="portal.navigation"
-    :portal-name="portal.portalName"
-    :home-route-name="portal.homeRouteName"
+    :base-path="portal.basePath"
     @close="closeSidebar" />
 
     <AppTopbar 

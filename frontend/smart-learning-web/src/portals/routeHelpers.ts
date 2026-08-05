@@ -5,7 +5,5 @@ import { portalRegistry } from "./registry"
 export const getPortalHomeRoute = (
   role: UserRole,
 ): RouteLocationRaw => {
-  return {
-    name: portalRegistry[role].homeRouteName,
-  }
+  return portalRegistry[role].basePath
 }

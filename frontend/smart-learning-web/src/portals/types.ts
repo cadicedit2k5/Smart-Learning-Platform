@@ -25,9 +25,7 @@ export interface TopbarConfig {
 
 export interface PortalDefinition {
   role: UserRole
-  portalName: string
   basePath: string
-  homeRouteName: string
   routes: RouteRecordRaw[]
   navigation: NavigationItem[]
   topbar: TopbarConfig
