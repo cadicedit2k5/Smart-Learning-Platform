@@ -20,17 +20,18 @@ const closeSidebar = () => {
 <template>
   <div
     v-if="portal"
-    class="min-h-screen bg-[#F8FAFC]">
+    class="min-h-screen bg-app-bg">
     <AppSidebar
     :open="sidebarOpen" 
     :navigation="portal.navigation"
+    :base-path="portal.basePath"
     @close="closeSidebar" />
 
     <AppTopbar 
     :config="portal.topbar"
     @toggle-sidebar="toggleSidebar" />
 
-    <main class="min-h-screen pt-16 lg:pl-[248px]">
+    <main class="min-h-screen pt-16 lg:pl-sidebar">
       <div class="p-4 sm:p-6 lg:p-8">
         <RouterView />
       </div>

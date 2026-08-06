@@ -5,6 +5,8 @@ import com.smartlearning.system.auth.dto.request.UserCreateRequest;
 import com.smartlearning.system.auth.dto.request.UserFilterRequest;
 import com.smartlearning.system.auth.dto.request.UserLoginRequest;
 import com.smartlearning.system.auth.dto.request.UserUpdateRequest;
+import com.smartlearning.system.auth.dto.request.admin.AdminUserCreateRequest;
+import com.smartlearning.system.auth.dto.request.admin.AdminUserUpdateRequest;
 import com.smartlearning.system.auth.dto.response.LoginResponse;
 import com.smartlearning.system.auth.dto.response.UserResponse;
 
@@ -19,6 +21,4 @@ public interface UserService {
     UserResponse handleGetCurrentUser(UUID id);
 
     LoginResponse handleLogin(UserLoginRequest request);
-
-
 }

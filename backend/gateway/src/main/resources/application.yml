@@ -17,6 +17,11 @@ spring:
                 - Path=/api/v1/auth/login,/api/v1/auth/register
                 - Method=POST
 
+            - id: system-admin
+              uri: ${SYSTEM_SERVICE_URL:http://localhost:8081}
+              predicates:
+                - Path=/api/v1/admin/**
+
             - id: system-auth-protected
               uri: ${SYSTEM_SERVICE_URL:http://localhost:8081}
               predicates:

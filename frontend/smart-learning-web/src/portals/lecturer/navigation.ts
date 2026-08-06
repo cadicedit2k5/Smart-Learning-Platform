@@ -7,7 +7,7 @@ import type { NavigationItem } from '@/portals/types'
 
 export const lecturerNavigation: NavigationItem[] = [
   {
-    label: 'Overview',
+    label: 'Tổng quan',
     routeName: 'lecturer-dashboard',
     icon: markRaw(LayoutDashboard),
   },

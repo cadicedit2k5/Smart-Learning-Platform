@@ -12,4 +12,13 @@ export const adminRoutes: RouteRecordRaw[] = [
     name: 'admin-dashboard',
     component: () => import('./pages/AdminDashboardPage.vue'),
   },
-]
+  {
+    path: 'users',
+    name: 'admin-users',
+    component: () =>
+      import('./pages/AdminUsersPage.vue'),
+    meta: {
+      title: 'Quản lý người dùng',
+    },
+  },
+  ]
