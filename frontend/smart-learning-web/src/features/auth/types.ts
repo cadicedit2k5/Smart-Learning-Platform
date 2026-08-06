@@ -1,10 +1,19 @@
 import type { UserRole } from "./role"
 
+export interface Permission {
+  id: number
+  code: string
+  description: string
+};
+
 export interface AuthRole {
   id: number
   code: UserRole
   name: string
+  permissions: Permission[]
 };
+
+export type UserStatus = | 'ACTIVE' | 'DELETED';
 
 export interface AuthUser {
   id: string
@@ -12,7 +21,7 @@ export interface AuthUser {
   fullName: string
   avatar: string | null
   role: AuthRole
-  status: string
+  status: UserStatus
   createdAt: string
   updatedAt: string
 };
