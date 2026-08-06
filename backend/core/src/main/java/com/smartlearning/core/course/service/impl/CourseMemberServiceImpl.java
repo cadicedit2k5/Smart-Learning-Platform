@@ -13,7 +13,7 @@ import com.smartlearning.core.course.entity.enums.CourseMemberStatus;
 import com.smartlearning.core.course.mapper.CourseMemberMapper;
 import com.smartlearning.core.course.repository.AccessCodeRepository;
 import com.smartlearning.core.course.repository.CourseMemberRepository;
-import com.smartlearning.core.course.sercurity.CoursePermission;
+import com.smartlearning.core.course.sercurity.CourseAccessPolicy;
 import com.smartlearning.core.course.service.CourseMemberService;
 import com.smartlearning.core.course.utils.CourseUtils;
 import jakarta.transaction.Transactional;
@@ -36,7 +36,7 @@ public class CourseMemberServiceImpl implements CourseMemberService {
     private final CourseUtils courseUtils;
     private final AccessCodeRepository accessCodeRepository;
     private final PasswordEncoder passwordEncoder;
-    private final CoursePermission coursePermission;
+    private final CourseAccessPolicy courseAccessPolicy;
 
     @Override
     public CourseMemberResponse addMember(UUID courseId, CourseMemberCreateRequest request, UUID currentUserId) {
@@ -91,7 +91,7 @@ public class CourseMemberServiceImpl implements CourseMemberService {
 
     @Override
     public List<CourseMemberResponse> getMembers(UUID courseId, UUID currentUserId) {
-        coursePermission.requireActiveMember(
+        courseAccessPolicy.requireActiveMember(
                 courseId,
                 currentUserId
         );

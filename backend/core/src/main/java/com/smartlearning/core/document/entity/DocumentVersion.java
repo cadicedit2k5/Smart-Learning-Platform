@@ -41,9 +41,6 @@ public class DocumentVersion extends BaseEntity {
     @Column(name = "file_size", nullable = false)
     private Long fileSize;
 
-    @Column(name = "file_type", nullable = false, length = 50)
-    private String fileType;
-
     @Column(name = "mime_type", length = 150)
     private String mimeType;
 

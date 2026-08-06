@@ -14,7 +14,7 @@ import com.smartlearning.core.course.entity.enums.CourseVisibility;
 import com.smartlearning.core.course.mapper.CourseMapper;
 import com.smartlearning.core.course.repository.CourseMemberRepository;
 import com.smartlearning.core.course.repository.CourseRepository;
-import com.smartlearning.core.course.sercurity.CoursePermission;
+import com.smartlearning.core.course.sercurity.CourseAccessPolicy;
 import com.smartlearning.core.course.service.CourseService;
 import com.smartlearning.core.course.utils.CourseUtils;
 import jakarta.transaction.Transactional;
@@ -33,7 +33,7 @@ public class CourseServiceImpl implements CourseService {
     private final CourseMapper courseMapper;
     private final CourseRepository courseRepository;
     private final CourseMemberRepository memberRepository;
-    private final CoursePermission coursePermission;
+    private final CourseAccessPolicy courseAccessPolicy;
     private final CourseUtils courseUtils;
 
     @Override
@@ -71,7 +71,7 @@ public class CourseServiceImpl implements CourseService {
         Course course = courseUtils.requireCourse(courseId);
 
         if (course.getVisibility() != CourseVisibility.PUBLIC) {
-            coursePermission.requireActiveMember(
+            courseAccessPolicy.requireActiveMember(
                     courseId,
                     currentUserId
             );
