@@ -1,0 +1,75 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@600;700&display=swap');
+
+@import 'tailwindcss';
+@import './base.css';
+
+@theme {
+    --font-heading: 'Plus Jakarta Sans', ui-sans-serif, system-ui, sans-serif;
+    --font-body: Inter, ui-sans-serif, system-ui, sans-serif;
+
+    /*
+    * Background và surface
+    */
+    --color-app-bg: #f7f9fb;
+    --color-app-surface: #ffffff;
+    --color-app-surface-muted: #f2f4f6;
+
+        /*
+    * Text và border
+    */
+    --color-app-text: #191c1e;
+    --color-app-text-muted: #43474e;
+    --color-app-border: #c4c6cf;
+    
+    /*
+    * Primary — action chính
+    */
+    --color-primary: #002045;
+    --color-primary-hover: #1a365d;
+    --color-on-primary: #ffffff;
+
+    /*
+    * Secondary — navigation active, focus, action phụ
+    */
+    --color-secondary: #6b46c1;
+    --color-secondary-hover: #522aa7;
+    --color-secondary-soft: #e9ddff;
+    --color-on-secondary: #ffffff;
+
+    /*
+    * AI — chỉ dùng cho AI feature
+    */
+    --color-ai: #003e28;
+    --color-ai-hover: #005236;
+    --color-ai-soft: #e0f7ed;
+    --color-on-ai: #ffffff;
+
+    /*
+    * Error
+    */
+    --color-danger: #ba1a1a;
+    --color-danger-soft: #ffdad6;
+    --color-on-danger-soft: #93000a;
+
+    /*
+    * Shape
+    */
+    --radius-control: 0.5rem;
+    --radius-card: 0.75rem;
+    --radius-panel: 1rem;
+    --radius-pill: 9999px;
+
+    /*
+    * Layout
+    */
+    --spacing-sidebar: 17.5rem;
+    --spacing-sidebar-collapsed: 5rem;
+
+    --container-app: 90rem;
+
+    /*
+    * Elevation
+    */
+    --shadow-card: 0 4px 6px -1px rgb(0 0 0 / 0.05);
+    --shadow-overlay: 0 10px 15px -3px rgb(0 0 0 / 0.1);
+}

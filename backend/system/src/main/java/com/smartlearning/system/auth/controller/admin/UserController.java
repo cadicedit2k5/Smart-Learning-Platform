@@ -6,6 +6,8 @@ import com.smartlearning.common.dto.response.pagination.PagingResponse;
 import com.smartlearning.system.auth.dto.request.UserCreateRequest;
 import com.smartlearning.system.auth.dto.request.UserFilterRequest;
 import com.smartlearning.system.auth.dto.request.UserUpdateRequest;
+import com.smartlearning.system.auth.dto.request.admin.AdminUserCreateRequest;
+import com.smartlearning.system.auth.dto.request.admin.AdminUserUpdateRequest;
 import com.smartlearning.system.auth.dto.response.UserResponse;
 import com.smartlearning.system.auth.service.UserService;
 import jakarta.validation.Valid;
@@ -33,7 +35,7 @@ public class UserController {
             consumes = MediaType.MULTIPART_FORM_DATA_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<ApiResponse<UserResponse>> addUser(
-            @Valid @ModelAttribute UserCreateRequest request) {
+            @Valid @ModelAttribute AdminUserCreateRequest request) {
         UserResponse createdUser = this.userService.handleAddUser(request);
         return ApiResponses.created(createdUser);
     }
@@ -41,7 +43,7 @@ public class UserController {
     @PatchMapping("/{id}")
     public ResponseEntity<ApiResponse<UserResponse>> updateUser(
             @PathVariable UUID id,
-            @Valid @RequestBody UserUpdateRequest request
+            @Valid @RequestBody AdminUserUpdateRequest request
     ) {
         UserResponse updatedUser =
                 userService.handleUpdateUser(id, request);

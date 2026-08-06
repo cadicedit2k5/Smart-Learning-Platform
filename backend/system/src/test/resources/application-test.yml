@@ -1,0 +1,41 @@
+api:
+  version: v1
+
+spring:
+  application:
+    name: system-test
+  datasource:
+    url: "jdbc:h2:mem:system_test;MODE=PostgreSQL;DATABASE_TO_LOWER=TRUE;DEFAULT_NULL_ORDERING=HIGH;NON_KEYWORDS=USER;DB_CLOSE_DELAY=-1;INIT=CREATE SCHEMA IF NOT EXISTS system"
+    username: sa
+    password: ""
+    driver-class-name: org.h2.Driver
+  jpa:
+    database-platform: org.hibernate.dialect.H2Dialect
+    hibernate:
+      ddl-auto: create-drop
+    properties:
+      hibernate:
+        default_schema: system
+    show-sql: false
+
+app:
+  data-init:
+    admin-email: admin@test.local
+    admin-password: Admin@123
+  security:
+    jwt:
+      issuer: smart-learning-system
+      access-token-ttl: 60m
+      audiences:
+        - system-api
+        - core-api
+      key-id: smart-learning-test-key
+      public-key-location: classpath:keys/test-public-key.pem
+      private-key-location: classpath:keys/test-private-key.pem
+  storage:
+    minio:
+      endpoint: http://localhost:9000
+      access-key: minioadmin
+      secret-key: minioadmin
+      bucket: smart-learning-test
+      presigned-url-expiry: 15m
