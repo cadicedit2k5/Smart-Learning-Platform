@@ -1,9 +1,11 @@
 package com.smartlearning.core.document.service.impl;
 
+import com.smartlearning.common.dto.response.pagination.PagingResponse;
 import com.smartlearning.core.course.entity.Course;
 import com.smartlearning.core.course.sercurity.CourseAccessPolicy;
 import com.smartlearning.core.course.utils.CourseUtils;
 import com.smartlearning.core.document.dto.request.DocumentCreateRequest;
+import com.smartlearning.core.document.dto.request.DocumentFilterRequest;
 import com.smartlearning.core.document.dto.response.DocumentResponse;
 import com.smartlearning.core.document.entity.Document;
 import com.smartlearning.core.document.entity.DocumentVersion;
@@ -12,20 +14,26 @@ import com.smartlearning.core.document.entity.enums.DocumentProcessingStatus;
 import com.smartlearning.core.document.mapper.DocumentMapper;
 import com.smartlearning.core.document.repository.DocumentRepository;
 import com.smartlearning.core.document.repository.DocumentVersionRepository;
+import com.smartlearning.core.document.repository.specification.DocumentSpecifications;
 import com.smartlearning.core.document.service.DocumentService;
 import com.smartlearning.storage.config.MinioProperties;
 import com.smartlearning.storage.dto.FileUploadResponse;
 import com.smartlearning.storage.service.FileStorageService;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.support.TransactionTemplate;
 
+import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 
 @Service
 @Slf4j
+@Transactional
 @RequiredArgsConstructor
 public class DocumentServiceImpl implements DocumentService {
 
@@ -39,7 +47,25 @@ public class DocumentServiceImpl implements DocumentService {
     private final DocumentMapper documentMapper;
 
     @Override
-    public DocumentResponse createDocument(UUID courseId, UUID currentUserId, DocumentCreateRequest request) {
+    public PagingResponse<DocumentResponse> handleGetAll(UUID courseId, UUID currentUserId,
+            DocumentFilterRequest filter) {
+        courseUtils.requireCourse(courseId);
+
+        courseAccessPolicy.requireActiveMember(courseId, currentUserId);
+
+        Specification<Document> specification = Specification.allOf(
+                DocumentSpecifications.courseId(courseId),
+                filter.specification()
+        );
+
+        Page<DocumentResponse> documents = documentRepository.findAll(specification, filter.pageable())
+                .map(documentMapper::toResponse);
+
+        return PagingResponse.from(documents);
+    }
+
+    @Override
+    public DocumentResponse handleCreateDocument(UUID courseId, UUID currentUserId, DocumentCreateRequest request) {
         courseUtils.requireCourse(courseId);
         courseAccessPolicy.requireTeachingMember(courseId,currentUserId);
 
