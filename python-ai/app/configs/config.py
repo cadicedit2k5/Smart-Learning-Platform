@@ -3,6 +3,7 @@ from functools import lru_cache
 
 class Settings(BaseSettings):
     app_name: str = "Smart Learning AI Engine"
+    database_url: str
 
     model_config = SettingsConfigDict(
         env_file=".env",
