@@ -24,12 +24,6 @@ public class AccessCode extends BaseEntity {
     @Column(name = "code_hint", length = 8)
     private String codeHint;
 
-    @Column(name = "max_uses")
-    private Integer maxUses;
-
-    @Column(name = "used_count", nullable = false)
-    private Integer usedCount = 0;
-
     @Column(name = "expires_at")
     private Instant expiresAt;
 

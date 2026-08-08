@@ -48,7 +48,7 @@ public class AccessCodeServiceImpl implements AccessCodeService {
         accessCode.setCodeHint(
                 rawCode.substring(rawCode.length() - 4)
         );
-        accessCode.setMaxUses(request.maxUses());
+//        accessCode.setMaxUses(request.maxUses());
         accessCode.setExpiresAt(request.expiresAt());
         accessCode.setCreatedBy(currentUserId);
 
@@ -59,8 +59,8 @@ public class AccessCodeServiceImpl implements AccessCodeService {
                 saved.getId(),
                 courseId,
                 rawCode,
-                saved.getMaxUses(),
-                saved.getUsedCount(),
+//                saved.getMaxUses(),
+//                saved.getUsedCount(),
                 saved.getExpiresAt(),
                 saved.getActive(),
                 saved.getCreatedAt()

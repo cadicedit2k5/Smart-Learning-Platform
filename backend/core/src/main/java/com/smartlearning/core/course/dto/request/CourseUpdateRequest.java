@@ -1,10 +1,12 @@
 package com.smartlearning.core.course.dto.request;
 
 import com.smartlearning.core.course.entity.enums.CourseVisibility;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 
 public record CourseUpdateRequest(
 
+        @NotBlank(message = "Tên môn học không được để trống")
         @Size(
                 min = 1,
                 max = 255,

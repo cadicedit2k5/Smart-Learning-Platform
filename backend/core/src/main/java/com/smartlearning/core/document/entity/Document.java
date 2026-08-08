@@ -4,7 +4,9 @@ import com.smartlearning.common.entity.BaseEntity;
 import com.smartlearning.core.course.entity.Course;
 import com.smartlearning.core.course.entity.CourseChapter;
 import com.smartlearning.core.course.entity.CourseTopic;
+import com.smartlearning.core.document.entity.DocumentVersion;
 import com.smartlearning.core.document.entity.enums.DocumentLifecycleStatus;
+
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -29,6 +31,13 @@ public class Document extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "topic_id")
     private CourseTopic topic;
+
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(
+            name = "version_id",
+            unique = true
+    )
+    private DocumentVersion version;
 
     @Column(nullable = false, length = 255)
     private String title;
