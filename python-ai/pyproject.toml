@@ -1,4 +1,15 @@
+# exclude migrations outside searching tool range
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["app*"]
+exclude = ["migrations*"]
+
+# Auto async mode
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
 [project]
+
+
 name = "smart-learning-python-ai"
 version = "0.1.0"
 requires-python = ">=3.12"
@@ -12,9 +23,14 @@ dependencies = [
     "alembic",
     "psycopg[binary]",
     "pgvector",
+
+    "langchain-core",
+    "langchain-docling",
+    "langchain-text-splitters",
 ]
 
 [project.optional-dependencies]
 dev = [
     "pytest",
+    "pytest-asyncio",
 ]
