@@ -16,8 +16,8 @@ class DocumentChunk(Base):
 
     id : Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True),primary_key=True, default=uuid.uuid4)
 
-    course_id : Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), nullable=False)
-    document_id : Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), nullable=False)
+    course_id : Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), nullable=False, index=True)
+    document_id : Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), nullable=False, index=True)
     document_version_id : Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), nullable=False)
     chapter_id : Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), nullable=False)
     topic_id : Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), nullable=False)
