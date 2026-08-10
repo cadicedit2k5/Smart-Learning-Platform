@@ -27,4 +27,4 @@ class DocumentChunk(Base):
     source_locator: Mapped[dict] = mapped_column(JSONB, nullable=True)
 
     embeddings: Mapped[list["ChunkEmbedding"]] = relationship("ChunkEmbedding", 
-                backref="chunk", cascade="all, delete-orphan")
+                back_populates="chunk", cascade="all, delete-orphan")
