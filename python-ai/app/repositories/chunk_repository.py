@@ -28,3 +28,12 @@ class ChunkRepository:
         await self.session.execute(statement)
 
         self.session.add_all(list(chunks))
+
+    async def delete_document_chunks(self, *, course_id: uuid.UUID, document_id: uuid.UUID) -> None:
+
+        statement = delete(DocumentChunk).where(
+            DocumentChunk.course_id == course_id,
+            DocumentChunk.document_id == document_id
+        )
+
+        await self.session.execute(statement)
