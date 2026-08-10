@@ -5,8 +5,8 @@ from functools import lru_cache
 class Settings(BaseSettings):
     app_name: str = "Smart Learning AI Engine"
     database_url: str
-    chunk_size: int = 1000
-    chunk_overlap: int = 200
+    # chunk_size: int = 1000
+    # chunk_overlap: int = 200
 
     google_api_key: SecretStr
 

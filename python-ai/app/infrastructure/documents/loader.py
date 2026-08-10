@@ -23,6 +23,12 @@ class DocumentLoader:
             layout_options=layout_options,
         )
 
+        self.SUPPORTED_EXTENSIONS = {
+            ".pdf",
+            ".docx",
+            ".txt",
+        }
+
         self.converter = DocumentConverter(
             format_options={
                 InputFormat.PDF: PdfFormatOption(
@@ -35,23 +41,16 @@ class DocumentLoader:
 
     async def load(self, file_path: Path) -> list[Document]:
         if not file_path.is_file():
-            raise FileNotFoundError(
-                f"Document not found: {file_path}"
-            )
+            raise FileNotFoundError(f"Document not found: {file_path}")
         
-        # File txt về bản chất đã là text rồi nên không cần xử lý
         suffix = file_path.suffix.lower()
-        if suffix == ".txt":
-            return self._load_text(file_path)
 
-        if suffix in {".pdf", ".docx"}:
-            return await asyncio.to_thread(
-                self._load_with_docling,
-                file_path,
-            )
+        if suffix not in self.SUPPORTED_EXTENSIONS:
+            raise ValueError(f"Unsupported document type: {suffix}")
 
-        raise ValueError(
-            f"Unsupported document type: {suffix}"
+        return await asyncio.to_thread(
+            self._load_with_docling,
+            file_path,
         )
 
     def _load_with_docling(
@@ -61,21 +60,7 @@ class DocumentLoader:
         loader = DoclingLoader(
             file_path=str(file_path),
             converter=self.converter,
-            export_type=ExportType.MARKDOWN,
+            export_type=ExportType.DOC_CHUNKS,
         )
 
         return loader.load()
-
-    def _load_text(self, file_path: Path) -> list[Document]:
-        content = file_path.read_text(
-            encoding="utf-8"
-        )
-
-        return [
-            Document(
-                page_content=content,
-                metadata={
-                    "source": str(file_path),
-                },
-            )
-        ]
