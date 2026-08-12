@@ -131,3 +131,123 @@ async def test_replace_document_chunks():
         assert new_embedding.model_key == "test:embedding:3"
 
         await session.rollback()
+
+
+async def test_similarity_search_is_scoped_by_course():
+
+    course_a = uuid.uuid4()
+    course_b = uuid.uuid4()
+
+    document_a = uuid.uuid4()
+    document_b = uuid.uuid4()
+
+    document_version_a = uuid.uuid4()
+    document_version_b = uuid.uuid4()
+
+    model_key = "test:embedding:3"
+
+    chunk_a_relevant = DocumentChunk(
+        course_id=course_a,
+        document_id=document_a,
+        document_version_id=document_version_a,
+        chunk_index=0,
+        content="Dependency Injection trong Spring.",
+    )
+
+    chunk_a_relevant.embeddings.append(
+        ChunkEmbedding(
+            model_key=model_key,
+            embedding=[
+                0.9,
+                0.1,
+                0.0,
+            ],
+        )
+    )
+
+    chunk_a_other = DocumentChunk(
+        course_id=course_a,
+        document_id=document_a,
+        document_version_id=document_version_a,
+        chunk_index=1,
+        content="Spring Boot application lifecycle.",
+    )
+
+    chunk_a_other.embeddings.append(
+        ChunkEmbedding(
+            model_key=model_key,
+            embedding=[
+                0.0,
+                1.0,
+                0.0,
+            ],
+        )
+    )
+
+    chunk_b = DocumentChunk(
+        course_id=course_b,
+        document_id=document_b,
+        document_version_id=document_version_b,
+        chunk_index=0,
+        content="SECRET DATA FROM COURSE B",
+    )
+
+    chunk_b.embeddings.append(
+        ChunkEmbedding(
+            model_key=model_key,
+            embedding=[
+                1.0,
+                0.0,
+                0.0,
+            ],
+        )
+    )
+
+    async with AsyncSessionLocal() as session:
+        repository = ChunkRepository(session)
+
+        session.add_all(
+            [
+                chunk_a_relevant,
+                chunk_a_other,
+                chunk_b,
+            ]
+        )
+
+        await session.flush()
+
+        results = await repository.similarity_search(
+            course_id=course_a,
+            model_key=model_key,
+            query_vector=[
+                1.0,
+                0.0,
+                0.0,
+            ],
+            top_k=5,
+        )
+
+        assert results
+
+        assert all(
+            result.chunk.course_id == course_a
+            for result in results
+        )
+
+        assert all(
+            result.chunk.content
+            != "SECRET DATA FROM COURSE B"
+            for result in results
+        )
+
+        assert (
+                results[0].chunk.content
+                == "Dependency Injection trong Spring."
+        )
+
+        assert (
+                results[0].distance
+                <= results[1].distance
+        )
+
+        await session.rollback()
