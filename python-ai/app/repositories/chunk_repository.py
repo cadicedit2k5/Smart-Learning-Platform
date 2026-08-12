@@ -17,7 +17,7 @@ class ChunkSearchResult:
 class ChunkRepository:
 
     def __init__(self, session: AsyncSession):
-        self.session = session
+        self._session = session
 
     async def replace_document_chunks(self, *,
                                       course_id: uuid.UUID,
@@ -32,9 +32,9 @@ class ChunkRepository:
         else:
             statement = statement.where(DocumentChunk.document_version_id == document_version_id)
 
-        await self.session.execute(statement)
+        await self._session.execute(statement)
 
-        self.session.add_all(list(chunks))
+        self._session.add_all(list(chunks))
 
     async def delete_document_chunks(self, *, course_id: uuid.UUID, document_id: uuid.UUID) -> None:
 
@@ -43,7 +43,7 @@ class ChunkRepository:
             DocumentChunk.document_id == document_id
         )
 
-        await self.session.execute(statement)
+        await self._session.execute(statement)
 
     async def similarity_search(self, *, course_id: uuid.UUID,
                          model_key: str,
@@ -60,6 +60,6 @@ class ChunkRepository:
                      .order_by(distance.asc())
                      .limit(top_k))
 
-        res = await self.session.execute(statement)
+        res = await self._session.execute(statement)
 
         return [ ChunkSearchResult(chunk=row[0], distance=float(row[1])) for row in res.all()]

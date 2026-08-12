@@ -13,6 +13,7 @@ class Settings(BaseSettings):
     embedding_provider: str = "google"
     embedding_model: str = "gemini-embedding-2"
     embedding_dimensions: int = 768
+    retrieve_top_k: int = 5
 
     model_config = SettingsConfigDict(
         env_file=".env",
