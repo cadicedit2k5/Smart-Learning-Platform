@@ -1,6 +1,6 @@
 import uuid
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator
 
 # Output của LLM
 class RagOutputModel(BaseModel):
@@ -31,3 +31,26 @@ class RagCitation(BaseModel):
 class RagAnswer(BaseModel):
     answer: str
     citations: list[RagCitation]
+
+# Dành cho fast api
+class RagAnswerRequest(BaseModel):
+    course_id: uuid.UUID
+
+    question: str = Field(
+        min_length=1,
+    )
+
+    @field_validator("question")
+    @classmethod
+    def validate_question(
+            cls,
+            value: str,
+    ) -> str:
+        value = value.strip()
+
+        if not value:
+            raise ValueError(
+                "question must not be blank"
+            )
+
+        return value
