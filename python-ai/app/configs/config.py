@@ -9,6 +9,9 @@ BASE_DIR = Path(__file__).resolve().parents[2]
 class Settings(BaseSettings):
     app_name: str = "Smart Learning AI Engine"
     database_url: str
+
+    kafka_bootstrap_servers: str = "localhost:9092"
+
     # chunk_size: int = 1000
     # chunk_overlap: int = 200
 

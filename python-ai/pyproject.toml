@@ -27,7 +27,9 @@ dependencies = [
     "langchain-core",
     "langchain-docling",
     "langchain-text-splitters",
-    "langchain-google-genai"
+    "langchain-google-genai",
+
+    "aiokafka"
 ]
 
 [project.optional-dependencies]
