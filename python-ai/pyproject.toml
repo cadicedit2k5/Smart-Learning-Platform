@@ -34,4 +34,5 @@ dependencies = [
 dev = [
     "pytest",
     "pytest-asyncio",
+    "python-multipart"
 ]

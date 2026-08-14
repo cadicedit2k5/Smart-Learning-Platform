@@ -23,10 +23,12 @@ async def test_ingest_document():
     embeddings = create_embeddings(settings)
 
     async with AsyncSessionLocal() as session:
+        repository = ChunkRepository(session=AsyncSession)
         service = IngestionService(
             session=session,
             loader=loader,
             embeddings=embeddings,
+            repository=repository,
             settings=settings,
         )
 
@@ -56,7 +58,6 @@ async def test_ingest_document():
 
         assert embedding_count == res.chunk_count
 
-        repository = ChunkRepository(session)
         await repository.delete_document_chunks(
             course_id=course_id,
             document_id=document_id)

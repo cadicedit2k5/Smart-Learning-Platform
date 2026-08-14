@@ -20,13 +20,12 @@ class IngestionResult:
 
 class IngestionService:
     def __init__(self, *, session: AsyncSession, loader: DocumentLoader,
-            embeddings: Embeddings, settings: Settings):
+            embeddings: Embeddings, repository: ChunkRepository, settings: Settings):
         self._session = session
         self._loader = loader
         self._embeddings = embeddings
+        self._repository = repository
         self._settings = settings
-
-        self._repository = ChunkRepository(session=session)
 
     async def ingest(self, file_path: Path, course_id: uuid.UUID, document_id: uuid.UUID,
                      document_version_id: uuid.UUID,
