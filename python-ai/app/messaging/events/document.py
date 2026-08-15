@@ -20,3 +20,28 @@ class DocumentIngestionRequestedEvent(EventModel):
     storage_key: str
     file_name: str
     mime_type: str
+
+class DocumentIngestionCompletedEvent(EventModel):
+    event_id: UUID
+    schema_version: Literal[1]
+    occurred_at: datetime
+
+    request_event_id: UUID
+    processing_job_id: UUID
+    document_version_id: UUID
+
+    chunk_count: int
+    model_key: str
+
+
+class DocumentIngestionFailedEvent(EventModel):
+    event_id: UUID
+    schema_version: Literal[1]
+    occurred_at: datetime
+
+    request_event_id: UUID
+    processing_job_id: UUID
+    document_version_id: UUID
+
+    error_type: str
+    error_message: str
