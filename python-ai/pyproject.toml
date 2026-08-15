@@ -29,7 +29,8 @@ dependencies = [
     "langchain-text-splitters",
     "langchain-google-genai",
 
-    "aiokafka"
+    "aiokafka",
+    "minio",
 ]
 
 [project.optional-dependencies]

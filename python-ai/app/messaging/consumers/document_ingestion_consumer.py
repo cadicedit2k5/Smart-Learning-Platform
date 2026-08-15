@@ -6,6 +6,7 @@ from pydantic import ValidationError
 
 from app.messaging.events.document import DocumentIngestionRequestedEvent
 from app.messaging.topics import DOCUMENT_INGESTION_REQUESTED
+from app.services.document_ingestion_handler import DocumentIngestionHandler
 
 logger = logging.getLogger(__name__)
 
@@ -13,7 +14,8 @@ class DocumentIngestionConsumer:
 
     GROUP_ID = "ai-engine-document-ingestion"
 
-    def __init__(self,bootstrap_servers: str) -> None:
+    def __init__(self,bootstrap_servers: str,
+                 handler: DocumentIngestionHandler) -> None:
         self._consumer = AIOKafkaConsumer(
             DOCUMENT_INGESTION_REQUESTED,
             bootstrap_servers=bootstrap_servers,
@@ -21,6 +23,7 @@ class DocumentIngestionConsumer:
             enable_auto_commit=False,
             auto_offset_reset="earliest"
         )
+        self._handler = handler
 
     async def start(self) -> None:
         await self._consumer.start()
@@ -50,20 +53,19 @@ class DocumentIngestionConsumer:
 
             raise
 
+        result = await self._handler.handle(event)
         logger.info(
             (
-                "Received document ingestion event: "
+                "Document ingestion completed: "
                 "event_id=%s, "
-                "course_id=%s, "
-                "document_id=%s, "
                 "document_version_id=%s, "
-                "file_name=%s"
+                "chunk_count=%s, "
+                "model_key=%s"
             ),
             event.event_id,
-            event.course_id,
-            event.document_id,
             event.document_version_id,
-            event.file_name,
+            result.chunk_count,
+            result.model_key,
         )
 
         await self._consumer.commit()
