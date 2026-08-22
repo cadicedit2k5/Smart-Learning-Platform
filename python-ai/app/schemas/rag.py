@@ -34,7 +34,7 @@ class RagAnswer(BaseModel):
 
 # Dành cho fast api
 class RagAnswerRequest(BaseModel):
-    course_id: uuid.UUID
+    course_id: uuid.UUID | None = None
 
     question: str = Field(
         min_length=1,

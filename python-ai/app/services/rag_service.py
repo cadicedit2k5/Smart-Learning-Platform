@@ -13,18 +13,20 @@ class RagService:
         self._retrieval_service = retrieval_service
         self._structured_model = chat_model.with_structured_output(RagOutputModel)
 
-    async def answer(self, *, course_id: uuid.UUID, question: str):
+    async def answer(self, *, course_id: uuid.UUID | None = None, question: str):
         question = question.strip()
         if not question:
             raise ValueError("Vui lòng cung cấp câu hỏi")
 
         retrieval_chunks = await self._retrieval_service.retrieve(course_id=course_id, question=question)
         if not retrieval_chunks:
+            search_scope = (
+                "trong tài liệu của khóa học."
+                if course_id is not None
+                else "trong kho tài liệu."
+            )
             return RagAnswer(
-                answer=(
-                    "Không tìm thấy thông tin phù hợp "
-                    "trong tài liệu của khóa học."
-                ),
+                answer=f"Không tìm thấy thông tin phù hợp {search_scope}",
                 citations=[],
             )
 
