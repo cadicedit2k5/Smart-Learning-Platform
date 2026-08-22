@@ -76,7 +76,7 @@ public class CourseMemberServiceImpl implements CourseMemberService {
         } else {
             member = new CourseMember();
             member.setCourse(course);
-            member.setUserId(currentUserId);
+            member.setUserId(request.userId());
         }
         member.setRole(CourseMemberRole.STUDENT);
         member.setStatus(CourseMemberStatus.ACTIVE);
