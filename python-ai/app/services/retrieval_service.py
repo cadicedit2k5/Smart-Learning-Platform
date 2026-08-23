@@ -26,7 +26,7 @@ class RetrievalService:
         self._repository = repository
         self._settings = settings
 
-    async def retrieve(self, *, course_id: uuid.UUID, question: str,
+    async def retrieve(self, *, course_id: uuid.UUID | None = None, question: str,
                        top_k: int | None = None) -> list[RetrievedChunk]:
         question = question.strip()
 

@@ -8,10 +8,14 @@ import com.smartlearning.core.document.dto.request.DocumentCreateRequest;
 import com.smartlearning.core.document.dto.request.DocumentFilterRequest;
 import com.smartlearning.core.document.dto.response.DocumentResponse;
 import com.smartlearning.core.document.entity.Document;
+import com.smartlearning.core.document.entity.DocumentProcessingJob;
 import com.smartlearning.core.document.entity.DocumentVersion;
 import com.smartlearning.core.document.entity.enums.DocumentLifecycleStatus;
 import com.smartlearning.core.document.entity.enums.DocumentProcessingStatus;
 import com.smartlearning.core.document.mapper.DocumentMapper;
+import com.smartlearning.core.document.messaging.event.DocumentIngestionRequestedEvent;
+import com.smartlearning.core.document.messaging.publisher.DocumentIngestionEventPublisher;
+import com.smartlearning.core.document.repository.DocumentProcessingJobRepository;
 import com.smartlearning.core.document.repository.DocumentRepository;
 import com.smartlearning.core.document.repository.DocumentVersionRepository;
 import com.smartlearning.core.document.repository.specification.DocumentSpecifications;
@@ -19,21 +23,21 @@ import com.smartlearning.core.document.service.DocumentService;
 import com.smartlearning.storage.config.MinioProperties;
 import com.smartlearning.storage.dto.FileUploadResponse;
 import com.smartlearning.storage.service.FileStorageService;
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionTemplate;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 
 @Service
 @Slf4j
-@Transactional
 @RequiredArgsConstructor
 public class DocumentServiceImpl implements DocumentService {
 
@@ -45,8 +49,11 @@ public class DocumentServiceImpl implements DocumentService {
     private final MinioProperties minioProperties;
     private final DocumentVersionRepository versionRepository;
     private final DocumentMapper documentMapper;
+    private final DocumentProcessingJobRepository documentProcessingJobRepository;
+    private final DocumentIngestionEventPublisher documentIngestionEventPublisher;
 
     @Override
+    @Transactional(readOnly = true)
     public PagingResponse<DocumentResponse> handleGetAll(UUID courseId, UUID currentUserId,
             DocumentFilterRequest filter) {
         courseUtils.requireCourse(courseId);
@@ -73,9 +80,8 @@ public class DocumentServiceImpl implements DocumentService {
 
         FileUploadResponse uploadedFile = fileStorageService.upload(request.getFile(),folder);
 
-        try {
-            DocumentResponse response =
-                transactionTemplate.execute(status -> {
+        DocumentCreationResult result;
+        try { result = transactionTemplate.execute(status -> {
                     Course course = courseUtils.requireCourse(courseId);
 
                     // Kiểm tra lại trong transaction.
@@ -107,22 +113,52 @@ public class DocumentServiceImpl implements DocumentService {
                     version.setStorageBucket(minioProperties.bucket());
                     version.setStorageKey(uploadedFile.objectName());
                     version.setChecksumSha256(null);
-                    version.setProcessingStatus(DocumentProcessingStatus.UPLOADED);
+                    version.setProcessingStatus(DocumentProcessingStatus.QUEUED);
                     version.setUploadedBy(currentUserId);
 
                     versionRepository.saveAndFlush(version);
 
+                    // Tạo processing job
+                    DocumentProcessingJob processingJob = new DocumentProcessingJob();
+
+                    processingJob.setDocumentVersion(version);
+
+                    documentProcessingJobRepository.saveAndFlush(processingJob);
+
+                    // Tạo event
+                    UUID eventId = UUID.randomUUID();
+
+                    DocumentIngestionRequestedEvent event = new DocumentIngestionRequestedEvent(
+                                    eventId,
+                                    1,
+                                    Instant.now(),
+                                    processingJob.getId(),
+                                    courseId,
+                                    document.getId(),
+                                    version.getId(),
+                                    version.getStorageBucket(),
+                                    version.getStorageKey(),
+                                    version.getFileName(),
+                                    version.getMimeType());
+
                     document.setVersion(version);
                     documentRepository.flush();
 
-                    return documentMapper.toResponse(document);
+                    return new DocumentCreationResult(
+                            documentMapper.toResponse(document),
+                            event
+                    );
                 });
-
-            return Objects.requireNonNull(response);
         } catch (RuntimeException exception) {
             cleanupUploadedObject(uploadedFile.objectName(), exception);
             throw exception;
         }
+
+        result = Objects.requireNonNull(result);
+
+        documentIngestionEventPublisher.publish(result.event());
+
+        return result.response();
     }
 
     private void cleanupUploadedObject(
@@ -140,5 +176,12 @@ public class DocumentServiceImpl implements DocumentService {
                     cleanupException
             );
         }
+    }
+
+    // dùng cho create document
+    private record DocumentCreationResult(
+            DocumentResponse response,
+            DocumentIngestionRequestedEvent event
+    ) {
     }
 }

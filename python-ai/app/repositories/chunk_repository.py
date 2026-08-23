@@ -45,7 +45,7 @@ class ChunkRepository:
 
         await self._session.execute(statement)
 
-    async def similarity_search(self, *, course_id: uuid.UUID,
+    async def similarity_search(self, *, course_id: uuid.UUID | None = None,
                          model_key: str,
                          query_vector: list[float],
                          top_k: int) -> list[ChunkSearchResult]:
@@ -53,10 +53,13 @@ class ChunkRepository:
             raise ValueError("top_k phải lớn hơn 0.")
 
         distance = ChunkEmbedding.embedding.cosine_distance(query_vector).label("distance")
+        filters = [ChunkEmbedding.model_key == model_key]
+        if course_id is not None:
+            filters.append(DocumentChunk.course_id == course_id)
+
         statement = (select(DocumentChunk, distance)
                      .join(ChunkEmbedding, ChunkEmbedding.chunk_id==DocumentChunk.id)
-                     .where(DocumentChunk.course_id == course_id,
-                            ChunkEmbedding.model_key == model_key)
+                     .where(*filters)
                      .order_by(distance.asc())
                      .limit(top_k))
 
