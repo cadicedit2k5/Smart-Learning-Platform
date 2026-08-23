@@ -1,0 +1,28 @@
+spring.application.name=ai
+
+api.version=${API_VERSION:v1}
+
+server.port=${SERVER_PORT:8083}
+
+# Database - AI application domain
+spring.datasource.url=
+spring.datasource.username=
+spring.datasource.password=
+spring.datasource.driver-class-name=org.postgresql.Driver
+
+spring.jpa.hibernate.ddl-auto=update
+spring.jpa.properties.hibernate.default_schema=ai_app
+spring.jpa.show-sql=false
+
+
+# Core Service
+app.services.core.base-url=${CORE_SERVICE_URL:http://localhost:8082}/api/v1
+
+
+# Python AI Engine
+app.ai-engine.base-url=${AI_ENGINE_URL:http://localhost:8000}
+
+
+# Health
+management.endpoints.web.exposure.include=health,info
+management.endpoint.health.show-details=never
