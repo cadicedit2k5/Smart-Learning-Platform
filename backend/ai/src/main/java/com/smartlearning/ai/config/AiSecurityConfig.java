@@ -17,7 +17,6 @@ public class AiSecurityConfig {
 
         return http
                 .csrf(AbstractHttpConfigurer::disable)
-
                 .sessionManagement(session ->session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/actuator/health").permitAll()
@@ -29,8 +28,7 @@ public class AiSecurityConfig {
                                         converter
                                 )
                         )
-                )
-                .build();
+                ).build();
     }
 }
 
