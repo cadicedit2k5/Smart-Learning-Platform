@@ -43,7 +43,7 @@ public class ConversationServiceImpl implements ConversationService {
 
         String normalizedContent = content.trim();
 
-        StartResult startResult = transactionTemplate.execute(status -> {
+        StartResult startResult = Objects.requireNonNull(transactionTemplate.execute(status -> {
 
             AiConversation conversation = new AiConversation();
 
@@ -67,9 +67,7 @@ public class ConversationServiceImpl implements ConversationService {
                 userMessage.getId(),
                 userMessage.getCreatedAt()
             );
-        });
-
-        startResult = Objects.requireNonNull(startResult);
+        }));
 
         PythonAiEngineClient.RagResult result = aiEngineClient.answer(courseId, normalizedContent);
         ChatMessageResponse assistantResponse = transactionTemplate.execute(status -> {

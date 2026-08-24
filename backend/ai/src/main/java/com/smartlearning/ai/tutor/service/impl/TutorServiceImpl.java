@@ -18,7 +18,7 @@ public class TutorServiceImpl implements TutorService {
 
     public TutorAnswerResponse ask(UUID courseId, String accessToken, String question) {
 
-        courseAccessClient.requireActiveMember(courseId, accessToken);
+//        courseAccessClient.requireActiveMember(courseId, accessToken);
 
         PythonAiEngineClient.RagResult result = aiEngineClient.answer(courseId, question.trim());
 
