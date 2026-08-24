@@ -1,4 +1,4 @@
-from langchain_core.prompts import ChatPromptTemplate
+from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 
 RAG_PROMPT = (ChatPromptTemplate.from_messages([
 (
@@ -20,6 +20,10 @@ Không đưa một source vào citation_labels nếu source đó không hỗ tr�
 
 Trả lời cùng ngôn ngữ với câu hỏi của người học.
 """.strip()
+),
+MessagesPlaceholder(
+    variable_name="history",
+    optional=True,
 ),
 ("human",
 """

@@ -35,7 +35,7 @@ class RagService:
             )
 
         rag_context = build_rag_context(chunks=retrieval_chunks)
-        messages = RAG_PROMPT.format_messages(question=question, context=rag_context.text)
+        messages = RAG_PROMPT.format_messages(question=question, history=history, context=rag_context.text)
         raw_output = await self._structured_model.ainvoke(messages)
 
         if isinstance(raw_output, RagOutputModel):
