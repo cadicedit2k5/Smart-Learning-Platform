@@ -12,6 +12,7 @@ from app.infrastructure.ai.chat_model import create_chat_model
 from app.infrastructure.ai.embeddings import create_embeddings
 from app.infrastructure.documents.loader import DocumentLoader
 from app.repositories.chunk_repository import ChunkRepository
+from app.services.course_preview_service import CoursePreviewService
 from app.services.ingestion_service import IngestionService
 from app.services.rag_service import RagService
 from app.services.retrieval_service import RetrievalService
@@ -113,4 +114,12 @@ def get_ingestion_service(
 IngestionServiceDep = Annotated[
     IngestionService,
     Depends(get_ingestion_service),
+]
+
+def get_course_preview_service(chat_model: ChatModelDep) -> CoursePreviewService:
+    return CoursePreviewService(chat_model=chat_model)
+
+CoursePreviewServiceDep = Annotated[
+    CoursePreviewService,
+    Depends(get_course_preview_service)
 ]

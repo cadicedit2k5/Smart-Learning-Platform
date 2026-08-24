@@ -3,6 +3,7 @@ import uuid
 from langchain_core.language_models import BaseChatModel
 
 from app.prompts.rag import RAG_PROMPT
+from app.schemas.chat import ChatHistoryMessage
 from app.schemas.rag import RagOutputModel, RagAnswer, RagCitation
 from app.services.rag_context import build_rag_context
 from app.services.retrieval_service import RetrievalService
@@ -13,12 +14,15 @@ class RagService:
         self._retrieval_service = retrieval_service
         self._structured_model = chat_model.with_structured_output(RagOutputModel)
 
-    async def answer(self, *, course_id: uuid.UUID | None = None, question: str):
+    async def answer(self, *, course_id: uuid.UUID | None = None, question: str,
+                     history: list[ChatHistoryMessage]):
         question = question.strip()
         if not question:
             raise ValueError("Vui lòng cung cấp câu hỏi")
 
-        retrieval_chunks = await self._retrieval_service.retrieve(course_id=course_id, question=question)
+        retrieval_query = self._build_retrieval_query(history=history, question=question)
+
+        retrieval_chunks = await self._retrieval_service.retrieve(course_id=course_id, question=retrieval_query)
         if not retrieval_chunks:
             search_scope = (
                 "trong tài liệu của khóa học."
@@ -60,6 +64,22 @@ class RagService:
             used_labels.add(label)
 
         return RagAnswer(answer=model_ouput.answer, citations=citations)
+
+    def _build_retrieval_query(self, *,
+            history: list[ChatHistoryMessage], question: str) -> str:
+
+        recent_history = history[-4:]
+
+        lines: list[str] = []
+
+        for message in recent_history:
+            content = message.content[:500]
+
+            lines.append(f"{message.role}: {content}")
+
+        lines.append(f"CURRENT_USER_QUESTION: {question}")
+
+        return "\n".join(lines)
 
 
 
