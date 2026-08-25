@@ -8,6 +8,7 @@ import java.util.UUID;
 public record ChatMessageResponse(
         UUID id,
         String role,
+        String accessScope,
         String content,
         List<Citation> citations,
         Instant createdAt

@@ -5,7 +5,10 @@ import com.smartlearning.common.entity.BaseEntity;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
+import java.util.Map;
 import java.util.UUID;
 
 @Getter
@@ -39,6 +42,10 @@ public class MessageCitation extends BaseEntity {
     @Column(name = "document_version_id")
     private UUID documentVersionId;
 
-    @Column(name = "locator_json", columnDefinition = "TEXT")
-    private String locatorJson;
+    @JdbcTypeCode(SqlTypes.JSON)
+    @Column(
+            name = "locator",
+            columnDefinition = "jsonb"
+    )
+    private Map<String, Object> locator;
 }

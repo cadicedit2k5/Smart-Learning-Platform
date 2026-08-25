@@ -10,6 +10,7 @@ import org.springframework.web.client.RestClient;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.UUID;
 
 @Component
@@ -23,21 +24,19 @@ public class PythonAiEngineClient {
         this.aiEngineRestClient = aiEngineRestClient;
     }
 
-    public RagResult answer(UUID courseId, String question) {
+    public AiAnswer answerWithRag(UUID courseId, List<HistoryMessage> history, String question) {
 
         RagResponse response = aiEngineRestClient.post().uri("/internal/rag/answer")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .body(new RagRequest(courseId, question))
+                        .body(new RagRequest(courseId, history, question))
                         .retrieve()
                         .body(RagResponse.class);
 
         if (response == null) {
-            throw new IllegalStateException(
-                    "AI Engine returned empty response"
-            );
+            throw new IllegalStateException("AI Engine returned empty response");
         }
 
-        return new RagResult(response.answer(),
+        return new AiAnswer(response.answer(),
             response.citations().stream().map(citation ->
                 new Citation(
                         citation.label(),
@@ -49,12 +48,72 @@ public class PythonAiEngineClient {
         );
     }
 
+    public AiAnswer answerPreview(
+            CoreCourseAccessClient.CoursePreview course,
+            List<HistoryMessage> history,
+            String question) {
 
-    public record RagResult(
+        PreviewResponse response = aiEngineRestClient.post().uri("/internal/course-preview/answer")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .body(new PreviewRequest(course, history, question))
+                        .retrieve()
+                        .body(PreviewResponse.class);
+
+        response = Objects.requireNonNull(response,
+                "AI Engine returned empty preview response");
+
+        return new AiAnswer(response.answer(), List.of());
+    }
+
+
+    private record RagRequest(
+            @JsonProperty("course_id")
+            UUID courseId,
+            List<HistoryMessage> history,
+            String question
+    ) {}
+
+
+    private record PreviewRequest(
+            CoreCourseAccessClient.CoursePreview course,
+            List<HistoryMessage> history,
+            String question
+    ) {}
+
+
+    private record PreviewResponse(
+            String answer
+    ) {}
+
+
+    private record RagResponse(
+            String answer,
+            List<RagCitationResponse> citations
+    ) {}
+
+
+    private record RagCitationResponse(
+            String label,
+            @JsonProperty("chunk_id")
+            UUID chunkId,
+            @JsonProperty("document_id")
+            UUID documentId,
+            @JsonProperty("document_version_id")
+            UUID documentVersionId,
+            Map<String, Object> locator
+    ) {}
+
+
+    public record HistoryMessage(
+            String role,
+            String content
+    ) {}
+
+
+    public record AiAnswer(
             String answer,
             List<Citation> citations
-    ) {
-    }
+    ) {}
 
     public record Citation(
             String label,
@@ -62,7 +121,5 @@ public class PythonAiEngineClient {
             UUID documentId,
             UUID documentVersionId,
             Map<String, Object> locator
-    ) {
-    }
-
+    ) {}
 }

@@ -1,5 +1,6 @@
 package com.smartlearning.ai.conversation.entity;
 
+import com.smartlearning.ai.conversation.entity.enums.ChatAccessScope;
 import com.smartlearning.ai.conversation.entity.enums.ChatMessageRole;
 import com.smartlearning.common.entity.BaseEntity;
 import jakarta.persistence.*;
@@ -28,6 +29,14 @@ public class ChatMessage extends BaseEntity {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 20)
     private ChatMessageRole role;
+
+    @Enumerated(EnumType.STRING)
+    @Column(
+            name = "access_scope",
+            nullable = false,
+            length = 20
+    )
+    private ChatAccessScope accessScope;
 
     @Column(nullable = false, columnDefinition = "TEXT")
     private String content;
