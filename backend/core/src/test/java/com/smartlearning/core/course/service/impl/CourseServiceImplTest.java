@@ -147,7 +147,7 @@ class CourseServiceImplTest {
         );
         firstMembership.setCourse(first);
         CourseMember secondMembership = com.smartlearning.core.support.CoreTestData.member(
-                CourseMemberRole.LECTURER,
+                CourseMemberRole.STUDENT,
                 CourseMemberStatus.ACTIVE
         );
         secondMembership.setCourse(second);
@@ -160,7 +160,7 @@ class CourseServiceImplTest {
 
         List<CourseResponse> result = courseService.getMyCourses(OWNER_ID);
         assertThat(result).extracting(CourseResponse::currentUserRole)
-                .containsExactly(CourseMemberRole.OWNER, CourseMemberRole.LECTURER);
+                .containsExactly(CourseMemberRole.OWNER, CourseMemberRole.STUDENT);
         assertThat(result).extracting(CourseResponse::id)
                 .containsExactly(firstResponse.id(), secondResponse.id());
     }

@@ -109,7 +109,7 @@ public class CourseServiceImpl implements CourseService {
             UUID currentUserId
     ) {
         Course course = courseUtils.requireCourse(courseId);
-        CourseMember member = courseAccessPolicy.requireTeachingMember(courseId, currentUserId);
+        CourseMember member = courseAccessPolicy.requireOwner(courseId, currentUserId);
 
         courseMapper.partialUpdate(request, course);
 

@@ -43,13 +43,6 @@ public class CourseMemberServiceImpl implements CourseMemberService {
         Course course = courseUtils.requireCourse(courseId);
         courseAccessPolicy.requireOwner(courseId, currentUserId);
 
-        if (request.role() == CourseMemberRole.OWNER) {
-            throw new ApplicationException(
-                    CommonErrorCode.FORBIDDEN,
-                    "Không thể thêm OWNER bằng chức năng mời thành viên"
-            );
-        }
-
         Optional<CourseMember> existing =
                 memberRepository.findByCourseIdAndUserId(
                         courseId,
@@ -74,7 +67,7 @@ public class CourseMemberServiceImpl implements CourseMemberService {
             member.setCourse(course);
             member.setUserId(request.userId());
         }
-        member.setRole(request.role());
+        member.setRole(CourseMemberRole.STUDENT);
         member.setStatus(CourseMemberStatus.ACTIVE);
         member.setJoinedAt(Instant.now());
         member.setRemovedAt(null);
@@ -88,7 +81,7 @@ public class CourseMemberServiceImpl implements CourseMemberService {
     @Override
     public List<CourseMemberResponse> getMembers(UUID courseId, UUID currentUserId) {
         courseUtils.requireCourse(courseId);
-        courseAccessPolicy.requireTeachingMember(
+        courseAccessPolicy.requireOwner(
                 courseId,
                 currentUserId
         );

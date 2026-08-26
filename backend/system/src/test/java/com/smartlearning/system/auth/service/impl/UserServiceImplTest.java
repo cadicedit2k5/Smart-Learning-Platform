@@ -120,19 +120,20 @@ class UserServiceImplTest {
         @SuppressWarnings("unchecked")
         Specification<User> specification = mock(Specification.class);
         Pageable pageable = PageRequest.of(0, 10);
-        User lecturer = user(UUID.randomUUID(), "lecturer@example.com");
-        lecturer.setRole(role("LECTURER"));
+        User student = user(UUID.randomUUID(), "student@example.com");
+        student.setRole(role("STUDENT"));
         when(filter.specification()).thenReturn(specification);
         when(filter.pageable()).thenReturn(pageable);
         when(userRepository.findAll(specification, pageable))
-                .thenReturn(new PageImpl<>(List.of(lecturer), pageable, 1));
+                .thenReturn(new PageImpl<>(List.of(student), pageable, 1));
 
         PagingResponse<UserLookupResponse> result = userService.handleSearchUsers(filter);
 
+        verify(filter).setRoleCode("STUDENT");
         assertThat(result.getContent()).singleElement().satisfies(response -> {
-            assertThat(response.id()).isEqualTo(lecturer.getId());
-            assertThat(response.email()).isEqualTo("lecturer@example.com");
-            assertThat(response.role().code()).isEqualTo("LECTURER");
+            assertThat(response.id()).isEqualTo(student.getId());
+            assertThat(response.email()).isEqualTo("student@example.com");
+            assertThat(response.role().code()).isEqualTo("STUDENT");
         });
         assertThat(result.getPageable().getPage()).isEqualTo(1);
     }

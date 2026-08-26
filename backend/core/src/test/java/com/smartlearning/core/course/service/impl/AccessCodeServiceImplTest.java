@@ -110,7 +110,7 @@ class AccessCodeServiceImplTest {
         assertConflict(() -> accessCodeService.revokeCode(COURSE_ID, ACCESS_CODE_ID, OWNER_ID));
 
         verify(courseUtils).requireCourse(COURSE_ID);
-        verify(courseAccessPolicy).requireTeachingMember(COURSE_ID, OWNER_ID);
+        verify(courseAccessPolicy).requireOwner(COURSE_ID, OWNER_ID);
         verifyNoInteractions(passwordEncoder, accessCodeUtils);
     }
 
@@ -143,7 +143,7 @@ class AccessCodeServiceImplTest {
         assertThat(result).extracting(value -> value.active())
                 .containsExactly(true, false);
         verify(courseUtils).requireCourse(COURSE_ID);
-        verify(courseAccessPolicy).requireTeachingMember(COURSE_ID, OWNER_ID);
+        verify(courseAccessPolicy).requireOwner(COURSE_ID, OWNER_ID);
     }
 
     private static void assertConflict(Runnable invocation) {

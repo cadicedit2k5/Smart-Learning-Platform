@@ -35,7 +35,7 @@ public class AccessCodeServiceImpl implements AccessCodeService {
     @Override
     public AccessCodeCreatedResponse createCode(UUID courseId, AccessCodeCreateRequest request, UUID currentUserId) {
         Course course = courseUtils.requireCourse(courseId);
-        courseAccessPolicy.requireTeachingMember(courseId, currentUserId);
+        courseAccessPolicy.requireOwner(courseId, currentUserId);
         String rawCode = accessCodeUtils.generateRawCode();
 
         AccessCode accessCode =
@@ -70,7 +70,7 @@ public class AccessCodeServiceImpl implements AccessCodeService {
     @Override
     public List<AccessCodeResponse> getCodes(UUID courseId, UUID currentUserId) {
         courseUtils.requireCourse(courseId);
-        courseAccessPolicy.requireTeachingMember(courseId, currentUserId);
+        courseAccessPolicy.requireOwner(courseId, currentUserId);
 
         return accessCodeRepository.findAllByCourseIdOrderByCreatedAtDesc(courseId)
                 .stream()
@@ -85,7 +85,7 @@ public class AccessCodeServiceImpl implements AccessCodeService {
             UUID currentUserId
     ) {
         courseUtils.requireCourse(courseId);
-        courseAccessPolicy.requireTeachingMember(courseId, currentUserId);
+        courseAccessPolicy.requireOwner(courseId, currentUserId);
 
         AccessCode accessCode =
                 accessCodeRepository.findById(codeId)

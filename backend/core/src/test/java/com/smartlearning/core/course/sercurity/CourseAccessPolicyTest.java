@@ -51,27 +51,6 @@ class CourseAccessPolicyTest {
     }
 
     @Test
-    void requireTeachingMember_acceptsOwnerAndLecturer() {
-        CourseMember owner = member(CourseMemberRole.OWNER, CourseMemberStatus.ACTIVE);
-        when(memberRepository.findByCourseIdAndUserId(COURSE_ID, STUDENT_ID)).thenReturn(Optional.of(owner));
-        assertThatCode(() -> accessPolicy.requireTeachingMember(COURSE_ID, STUDENT_ID))
-                .doesNotThrowAnyException();
-
-        CourseMember lecturer = member(CourseMemberRole.LECTURER, CourseMemberStatus.ACTIVE);
-        when(memberRepository.findByCourseIdAndUserId(COURSE_ID, STUDENT_ID)).thenReturn(Optional.of(lecturer));
-        assertThatCode(() -> accessPolicy.requireTeachingMember(COURSE_ID, STUDENT_ID))
-                .doesNotThrowAnyException();
-    }
-
-    @Test
-    void requireTeachingMember_rejectsActiveStudent() {
-        CourseMember student = member(CourseMemberRole.STUDENT, CourseMemberStatus.ACTIVE);
-        when(memberRepository.findByCourseIdAndUserId(COURSE_ID, STUDENT_ID)).thenReturn(Optional.of(student));
-
-        assertForbidden(() -> accessPolicy.requireTeachingMember(COURSE_ID, STUDENT_ID));
-    }
-
-    @Test
     void requireOwner_acceptsOnlyActiveOwner() {
         CourseMember owner = member(CourseMemberRole.OWNER, CourseMemberStatus.ACTIVE);
         when(memberRepository.findByCourseIdAndUserId(COURSE_ID, STUDENT_ID))
@@ -79,9 +58,9 @@ class CourseAccessPolicyTest {
         assertThatCode(() -> accessPolicy.requireOwner(COURSE_ID, STUDENT_ID))
                 .doesNotThrowAnyException();
 
-        CourseMember lecturer = member(CourseMemberRole.LECTURER, CourseMemberStatus.ACTIVE);
+        CourseMember student = member(CourseMemberRole.STUDENT, CourseMemberStatus.ACTIVE);
         when(memberRepository.findByCourseIdAndUserId(COURSE_ID, STUDENT_ID))
-                .thenReturn(Optional.of(lecturer));
+                .thenReturn(Optional.of(student));
         assertForbidden(() -> accessPolicy.requireOwner(COURSE_ID, STUDENT_ID));
     }
 
@@ -90,8 +69,6 @@ class CourseAccessPolicyTest {
         when(currentUserAccess.isAdmin()).thenReturn(true);
 
         assertThatCode(() -> accessPolicy.requireActiveMember(COURSE_ID, STUDENT_ID))
-                .doesNotThrowAnyException();
-        assertThatCode(() -> accessPolicy.requireTeachingMember(COURSE_ID, STUDENT_ID))
                 .doesNotThrowAnyException();
         assertThatCode(() -> accessPolicy.requireOwner(COURSE_ID, STUDENT_ID))
                 .doesNotThrowAnyException();

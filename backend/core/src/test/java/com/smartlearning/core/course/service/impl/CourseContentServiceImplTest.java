@@ -82,7 +82,7 @@ class CourseContentServiceImplTest {
         assertThat(result.status()).isEqualTo(CourseContentStatus.DRAFT);
         assertThat(result.title()).isEqualTo("Chương 1");
         assertThat(mapped.getCourse().getId()).isEqualTo(COURSE_ID);
-        verify(courseAccessPolicy).requireTeachingMember(COURSE_ID, OWNER_ID);
+        verify(courseAccessPolicy).requireOwner(COURSE_ID, OWNER_ID);
     }
 
     @Test

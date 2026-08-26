@@ -93,7 +93,7 @@ public class DocumentServiceImpl implements DocumentService {
     @Override
     public DocumentResponse handleCreateDocument(UUID courseId, UUID currentUserId, DocumentCreateRequest request) {
         courseUtils.requireCourse(courseId);
-        courseAccessPolicy.requireTeachingMember(courseId,currentUserId);
+        courseAccessPolicy.requireOwner(courseId, currentUserId);
 
         String folder = "core/courses/" + courseId + "/documents";
 
@@ -104,7 +104,7 @@ public class DocumentServiceImpl implements DocumentService {
                     Course course = courseUtils.requireCourse(courseId);
 
                     // Kiểm tra lại trong transaction.
-                    courseAccessPolicy.requireTeachingMember(
+                    courseAccessPolicy.requireOwner(
                             courseId,
                             currentUserId
                     );
@@ -196,7 +196,7 @@ public class DocumentServiceImpl implements DocumentService {
             DocumentUpdateRequest request
     ) {
         courseUtils.requireCourse(courseId);
-        courseAccessPolicy.requireTeachingMember(courseId, currentUserId);
+        courseAccessPolicy.requireOwner(courseId, currentUserId);
         Document document = requireDocument(courseId, documentId);
 
         if (request.title() != null) {
@@ -242,7 +242,7 @@ public class DocumentServiceImpl implements DocumentService {
     @Transactional
     public void handleDeleteDocument(UUID courseId, UUID documentId, UUID currentUserId) {
         courseUtils.requireCourse(courseId);
-        courseAccessPolicy.requireTeachingMember(courseId, currentUserId);
+        courseAccessPolicy.requireOwner(courseId, currentUserId);
         Document document = requireDocument(courseId, documentId);
         document.setLifecycleStatus(DocumentLifecycleStatus.ARCHIVED);
         document.setDeletedAt(Instant.now());

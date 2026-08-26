@@ -27,7 +27,7 @@ export interface CourseMember {
   id: string
   courseId: string
   userId: string
-  role: 'OWNER' | 'LECTURER' | 'STUDENT'
+  role: 'OWNER' | 'STUDENT'
   status: 'PENDING' | 'ACTIVE' | 'REJECTED' | 'REMOVED'
   joinedAt: string | null
   invitedBy: string | null
@@ -151,10 +151,7 @@ export const deleteCourse = async (courseId: string): Promise<void> => {
 export const addStudent = async (courseId: string, userId: string): Promise<CourseMember> => {
   const response = await httpClient.post<ApiResponse<CourseMember>>(
     `${coursesPath}/${courseId}/members`,
-    {
-      userId,
-      role: 'STUDENT',
-    },
+    { userId },
   )
 
   return response.data.data

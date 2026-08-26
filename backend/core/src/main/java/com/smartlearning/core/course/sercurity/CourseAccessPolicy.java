@@ -28,26 +28,6 @@ public class CourseAccessPolicy {
         return requireActiveMembership(courseId, userId);
     }
 
-    public CourseMember requireTeachingMember(
-            UUID courseId,
-            UUID userId
-    ) {
-        if (currentUserAccess.isAdmin()) {
-            return null;
-        }
-
-        CourseMember member = requireActiveMembership(courseId, userId);
-
-        if (member.getRole() != CourseMemberRole.OWNER
-                && member.getRole() != CourseMemberRole.LECTURER) {
-            throw new ApplicationException(
-                    CommonErrorCode.FORBIDDEN
-            );
-        }
-
-        return member;
-    }
-
     public CourseMember requireOwner(
             UUID courseId,
             UUID userId

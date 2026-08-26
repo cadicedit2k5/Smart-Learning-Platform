@@ -42,7 +42,7 @@ public class CourseContentServiceImpl implements CourseContentService {
     @Override
     @Transactional(readOnly = true)
     public List<CourseChapterResponse> getChapters(UUID courseId, UUID currentUserId) {
-        requireTeachingCourse(courseId, currentUserId);
+        requireOwnerCourse(courseId, currentUserId);
         return chapterRepository.findAllByCourseIdAndDeletedAtIsNullOrderByOrderIndexAsc(courseId)
                 .stream()
                 .map(chapterMapper::toResponse)
@@ -55,7 +55,7 @@ public class CourseContentServiceImpl implements CourseContentService {
             CourseChapterCreateRequest request,
             UUID currentUserId
     ) {
-        Course course = requireTeachingCourse(courseId, currentUserId);
+        Course course = requireOwnerCourse(courseId, currentUserId);
         CourseChapter chapter = chapterMapper.toEntity(request);
         chapter.setCourse(course);
         chapter.setTitle(request.title().trim());
@@ -74,7 +74,7 @@ public class CourseContentServiceImpl implements CourseContentService {
             CourseChapterUpdateRequest request,
             UUID currentUserId
     ) {
-        requireTeachingCourse(courseId, currentUserId);
+        requireOwnerCourse(courseId, currentUserId);
         CourseChapter chapter = requireChapter(courseId, chapterId);
         if (request.orderIndex() != null) {
             requireChapterOrderAvailable(courseId, request.orderIndex(), chapterId);
@@ -88,7 +88,7 @@ public class CourseContentServiceImpl implements CourseContentService {
 
     @Override
     public void deleteChapter(UUID courseId, UUID chapterId, UUID currentUserId) {
-        requireTeachingCourse(courseId, currentUserId);
+        requireOwnerCourse(courseId, currentUserId);
         CourseChapter chapter = requireChapter(courseId, chapterId);
         Instant deletedAt = Instant.now();
         chapter.setStatus(CourseContentStatus.ARCHIVED);
@@ -103,7 +103,7 @@ public class CourseContentServiceImpl implements CourseContentService {
     @Override
     @Transactional(readOnly = true)
     public List<CourseTopicResponse> getTopics(UUID courseId, UUID chapterId, UUID currentUserId) {
-        requireTeachingCourse(courseId, currentUserId);
+        requireOwnerCourse(courseId, currentUserId);
         requireChapter(courseId, chapterId);
         return topicRepository.findAllByChapterIdAndDeletedAtIsNullOrderByOrderIndexAsc(chapterId)
                 .stream()
@@ -118,7 +118,7 @@ public class CourseContentServiceImpl implements CourseContentService {
             CourseTopicCreateRequest request,
             UUID currentUserId
     ) {
-        requireTeachingCourse(courseId, currentUserId);
+        requireOwnerCourse(courseId, currentUserId);
         CourseChapter chapter = requireChapter(courseId, chapterId);
         CourseTopic topic = topicMapper.toEntity(request);
         topic.setChapter(chapter);
@@ -139,7 +139,7 @@ public class CourseContentServiceImpl implements CourseContentService {
             CourseTopicUpdateRequest request,
             UUID currentUserId
     ) {
-        requireTeachingCourse(courseId, currentUserId);
+        requireOwnerCourse(courseId, currentUserId);
         requireChapter(courseId, chapterId);
         CourseTopic topic = requireTopic(chapterId, topicId);
         if (request.orderIndex() != null) {
@@ -154,16 +154,16 @@ public class CourseContentServiceImpl implements CourseContentService {
 
     @Override
     public void deleteTopic(UUID courseId, UUID chapterId, UUID topicId, UUID currentUserId) {
-        requireTeachingCourse(courseId, currentUserId);
+        requireOwnerCourse(courseId, currentUserId);
         requireChapter(courseId, chapterId);
         CourseTopic topic = requireTopic(chapterId, topicId);
         topic.setStatus(CourseContentStatus.ARCHIVED);
         topic.setDeletedAt(Instant.now());
     }
 
-    private Course requireTeachingCourse(UUID courseId, UUID currentUserId) {
+    private Course requireOwnerCourse(UUID courseId, UUID currentUserId) {
         Course course = courseUtils.requireCourse(courseId);
-        courseAccessPolicy.requireTeachingMember(courseId, currentUserId);
+        courseAccessPolicy.requireOwner(courseId, currentUserId);
         return course;
     }
 

@@ -65,19 +65,8 @@ class CourseMemberServiceImplTest {
     private CourseMemberServiceImpl memberService;
 
     @Test
-    void addMember_rejectsOwnerRoleAfterCheckingOwnerAccess() {
-        CourseMemberCreateRequest request = new CourseMemberCreateRequest(STUDENT_ID, CourseMemberRole.OWNER);
-
-        assertError(() -> memberService.addMember(COURSE_ID, request, OWNER_ID), CommonErrorCode.FORBIDDEN);
-
-        verify(courseUtils).requireCourse(COURSE_ID);
-        verify(courseAccessPolicy).requireOwner(COURSE_ID, OWNER_ID);
-        verifyNoInteractions(memberRepository, memberMapper);
-    }
-
-    @Test
     void addMember_rejectsExistingNonRemovedMember() {
-        CourseMemberCreateRequest request = new CourseMemberCreateRequest(STUDENT_ID, CourseMemberRole.STUDENT);
+        CourseMemberCreateRequest request = new CourseMemberCreateRequest(STUDENT_ID);
         CourseMember existing = member(CourseMemberRole.STUDENT, CourseMemberStatus.ACTIVE);
         when(courseUtils.requireCourse(COURSE_ID)).thenReturn(course());
         when(memberRepository.findByCourseIdAndUserId(COURSE_ID, STUDENT_ID))
@@ -90,8 +79,8 @@ class CourseMemberServiceImplTest {
     }
 
     @Test
-    void addMember_respectsRequestedLecturerRole() {
-        CourseMemberCreateRequest request = new CourseMemberCreateRequest(STUDENT_ID, CourseMemberRole.LECTURER);
+    void addMember_assignsStudentRole() {
+        CourseMemberCreateRequest request = new CourseMemberCreateRequest(STUDENT_ID);
         Course course = course();
         when(courseUtils.requireCourse(COURSE_ID)).thenReturn(course);
         when(memberRepository.findByCourseIdAndUserId(COURSE_ID, STUDENT_ID)).thenReturn(Optional.empty());
@@ -108,7 +97,7 @@ class CourseMemberServiceImplTest {
         Instant afterCall = Instant.now();
 
         assertThat(result.userId()).isEqualTo(STUDENT_ID);
-        assertThat(result.role()).isEqualTo(CourseMemberRole.LECTURER);
+        assertThat(result.role()).isEqualTo(CourseMemberRole.STUDENT);
         assertThat(result.status()).isEqualTo(CourseMemberStatus.ACTIVE);
         assertThat(result.joinedAt()).isBetween(beforeCall, afterCall);
         assertThat(result.courseId()).isEqualTo(COURSE_ID);
@@ -117,8 +106,8 @@ class CourseMemberServiceImplTest {
 
     @Test
     void addMember_reactivatesRemovedMembership() {
-        CourseMemberCreateRequest request = new CourseMemberCreateRequest(STUDENT_ID, CourseMemberRole.STUDENT);
-        CourseMember removed = member(CourseMemberRole.LECTURER, CourseMemberStatus.REMOVED);
+        CourseMemberCreateRequest request = new CourseMemberCreateRequest(STUDENT_ID);
+        CourseMember removed = member(CourseMemberRole.STUDENT, CourseMemberStatus.REMOVED);
         removed.setRemovedAt(Instant.parse("2026-01-01T00:00:00Z"));
         removed.setInvitedBy(OWNER_ID);
         when(courseUtils.requireCourse(COURSE_ID)).thenReturn(removed.getCourse());
@@ -151,7 +140,7 @@ class CourseMemberServiceImplTest {
 
         InOrder order = inOrder(courseUtils, courseAccessPolicy, memberRepository);
         order.verify(courseUtils).requireCourse(COURSE_ID);
-        order.verify(courseAccessPolicy).requireTeachingMember(COURSE_ID, OWNER_ID);
+        order.verify(courseAccessPolicy).requireOwner(COURSE_ID, OWNER_ID);
         order.verify(memberRepository).findAllByCourseIdAndStatus(COURSE_ID, CourseMemberStatus.ACTIVE);
     }
 

@@ -57,6 +57,8 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public PagingResponse<UserLookupResponse> handleSearchUsers(UserFilterRequest filter) {
+        filter.setRoleCode("STUDENT");
+
         Page<UserLookupResponse> pages = userRepository
                 .findAll(filter.specification(), filter.pageable())
                 .map(UserLookupResponse::from);

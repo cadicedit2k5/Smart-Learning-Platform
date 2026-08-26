@@ -188,11 +188,11 @@ class DocumentServiceImplTest {
         assertThat(result).isSameAs(expected);
         InOrder outerOrder = inOrder(courseUtils, courseAccessPolicy, fileStorageService, transactionTemplate, eventPublisher);
         outerOrder.verify(courseUtils).requireCourse(COURSE_ID);
-        outerOrder.verify(courseAccessPolicy).requireTeachingMember(COURSE_ID, OWNER_ID);
+        outerOrder.verify(courseAccessPolicy).requireOwner(COURSE_ID, OWNER_ID);
         outerOrder.verify(fileStorageService).upload(request.getFile(), documentFolder());
         outerOrder.verify(transactionTemplate).execute(any(TransactionCallback.class));
         outerOrder.verify(courseUtils).requireCourse(COURSE_ID);
-        outerOrder.verify(courseAccessPolicy).requireTeachingMember(COURSE_ID, OWNER_ID);
+        outerOrder.verify(courseAccessPolicy).requireOwner(COURSE_ID, OWNER_ID);
 
         ArgumentCaptor<Document> documentCaptor = ArgumentCaptor.forClass(Document.class);
         ArgumentCaptor<DocumentVersion> versionCaptor = ArgumentCaptor.forClass(DocumentVersion.class);
@@ -306,7 +306,7 @@ class DocumentServiceImplTest {
         assertThat(existing.getTitle()).isEqualTo("Tiêu đề mới");
         assertThat(existing.getDescription()).isEqualTo("Mô tả mới");
         assertThat(existing.getLifecycleStatus()).isEqualTo(DocumentLifecycleStatus.ARCHIVED);
-        verify(courseAccessPolicy).requireTeachingMember(COURSE_ID, OWNER_ID);
+        verify(courseAccessPolicy).requireOwner(COURSE_ID, OWNER_ID);
     }
 
     @Test
@@ -343,7 +343,7 @@ class DocumentServiceImplTest {
 
         assertThat(existing.getLifecycleStatus()).isEqualTo(DocumentLifecycleStatus.ARCHIVED);
         assertThat(existing.getDeletedAt()).isBetween(beforeCall, afterCall);
-        verify(courseAccessPolicy).requireTeachingMember(COURSE_ID, OWNER_ID);
+        verify(courseAccessPolicy).requireOwner(COURSE_ID, OWNER_ID);
     }
 
     private void executeTransactionCallback() {
