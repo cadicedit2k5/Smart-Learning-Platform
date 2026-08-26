@@ -75,7 +75,11 @@ class CourseServiceImplTest {
         CourseResponse result = courseService.createCourse(request, OWNER_ID);
         Instant afterCall = Instant.now();
 
-        assertThat(result).isSameAs(expected);
+        assertThat(result)
+                .usingRecursiveComparison()
+                .ignoringFields("currentUserRole")
+                .isEqualTo(expected);
+        assertThat(result.currentUserRole()).isEqualTo(CourseMemberRole.OWNER);
         assertThat(mappedCourse.getCreatedBy()).isEqualTo(OWNER_ID);
         assertThat(mappedCourse.getStatus()).isEqualTo(CourseStatus.DRAFT);
         assertThat(mappedCourse.getVisibility()).isEqualTo(CourseVisibility.PRIVATE);
@@ -102,19 +106,26 @@ class CourseServiceImplTest {
         when(courseUtils.requireCourse(COURSE_ID)).thenReturn(publicCourse);
         when(courseMapper.toResponse(publicCourse)).thenReturn(expected);
 
-        assertThat(courseService.getCourse(COURSE_ID, OWNER_ID)).isSameAs(expected);
+        assertThat(courseService.getCourse(COURSE_ID, OWNER_ID)).isEqualTo(expected);
 
         verifyNoInteractions(courseAccessPolicy);
+        verify(memberRepository).findByCourseIdAndUserId(COURSE_ID, OWNER_ID);
     }
 
     @Test
     void getCourse_requiresActiveMembershipForNonPublicCourse() {
         Course privateCourse = course();
         CourseResponse expected = courseResponse(privateCourse);
+        CourseMember activeOwner = com.smartlearning.core.support.CoreTestData.member(
+                CourseMemberRole.OWNER,
+                CourseMemberStatus.ACTIVE
+        );
         when(courseUtils.requireCourse(COURSE_ID)).thenReturn(privateCourse);
+        when(courseAccessPolicy.requireActiveMember(COURSE_ID, OWNER_ID)).thenReturn(activeOwner);
         when(courseMapper.toResponse(privateCourse)).thenReturn(expected);
 
-        assertThat(courseService.getCourse(COURSE_ID, OWNER_ID)).isSameAs(expected);
+        CourseResponse result = courseService.getCourse(COURSE_ID, OWNER_ID);
+        assertThat(result.currentUserRole()).isEqualTo(CourseMemberRole.OWNER);
 
         InOrder order = inOrder(courseUtils, courseAccessPolicy, courseMapper);
         order.verify(courseUtils).requireCourse(COURSE_ID);
@@ -130,13 +141,28 @@ class CourseServiceImplTest {
         second.setTitle("Second course");
         CourseResponse firstResponse = courseResponse(first);
         CourseResponse secondResponse = courseResponse(second);
-        when(memberRepository.findCoursesByUserIdAndStatus(OWNER_ID, CourseMemberStatus.ACTIVE))
-                .thenReturn(List.of(first, second));
+        CourseMember firstMembership = com.smartlearning.core.support.CoreTestData.member(
+                CourseMemberRole.OWNER,
+                CourseMemberStatus.ACTIVE
+        );
+        firstMembership.setCourse(first);
+        CourseMember secondMembership = com.smartlearning.core.support.CoreTestData.member(
+                CourseMemberRole.LECTURER,
+                CourseMemberStatus.ACTIVE
+        );
+        secondMembership.setCourse(second);
+        when(memberRepository.findAllByUserIdAndStatusAndCourseDeletedAtIsNullOrderByCourseUpdatedAtDesc(
+                OWNER_ID,
+                CourseMemberStatus.ACTIVE
+        )).thenReturn(List.of(firstMembership, secondMembership));
         when(courseMapper.toResponse(first)).thenReturn(firstResponse);
         when(courseMapper.toResponse(second)).thenReturn(secondResponse);
 
-        assertThat(courseService.getMyCourses(OWNER_ID))
-                .containsExactly(firstResponse, secondResponse);
+        List<CourseResponse> result = courseService.getMyCourses(OWNER_ID);
+        assertThat(result).extracting(CourseResponse::currentUserRole)
+                .containsExactly(CourseMemberRole.OWNER, CourseMemberRole.LECTURER);
+        assertThat(result).extracting(CourseResponse::id)
+                .containsExactly(firstResponse.id(), secondResponse.id());
     }
 
     @Test
@@ -154,7 +180,7 @@ class CourseServiceImplTest {
         }).when(courseMapper).partialUpdate(request, existing);
         when(courseMapper.toResponse(existing)).thenReturn(expected);
 
-        assertThat(courseService.updateCourse(COURSE_ID, request, OWNER_ID)).isSameAs(expected);
+        assertThat(courseService.updateCourse(COURSE_ID, request, OWNER_ID)).isEqualTo(expected);
 
         assertThat(existing.getTitle()).isEqualTo("Updated title");
         assertThat(existing.getVisibility()).isEqualTo(CourseVisibility.PUBLIC);
@@ -173,7 +199,7 @@ class CourseServiceImplTest {
         when(courseMapper.toResponse(existing)).thenReturn(expected);
 
         Instant beforeCall = Instant.now();
-        assertThat(courseService.publishCourse(COURSE_ID, OWNER_ID)).isSameAs(expected);
+        assertThat(courseService.publishCourse(COURSE_ID, OWNER_ID)).isEqualTo(expected);
         Instant afterCall = Instant.now();
 
         assertThat(existing.getStatus()).isEqualTo(CourseStatus.PUBLISHED);

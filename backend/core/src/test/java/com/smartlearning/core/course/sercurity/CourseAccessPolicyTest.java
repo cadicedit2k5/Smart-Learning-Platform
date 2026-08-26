@@ -72,12 +72,28 @@ class CourseAccessPolicyTest {
     }
 
     @Test
+    void requireOwner_acceptsOnlyActiveOwner() {
+        CourseMember owner = member(CourseMemberRole.OWNER, CourseMemberStatus.ACTIVE);
+        when(memberRepository.findByCourseIdAndUserId(COURSE_ID, STUDENT_ID))
+                .thenReturn(Optional.of(owner));
+        assertThatCode(() -> accessPolicy.requireOwner(COURSE_ID, STUDENT_ID))
+                .doesNotThrowAnyException();
+
+        CourseMember lecturer = member(CourseMemberRole.LECTURER, CourseMemberStatus.ACTIVE);
+        when(memberRepository.findByCourseIdAndUserId(COURSE_ID, STUDENT_ID))
+                .thenReturn(Optional.of(lecturer));
+        assertForbidden(() -> accessPolicy.requireOwner(COURSE_ID, STUDENT_ID));
+    }
+
+    @Test
     void adminCanAccessAndManageAnyCourseWithoutMembership() {
         when(currentUserAccess.isAdmin()).thenReturn(true);
 
         assertThatCode(() -> accessPolicy.requireActiveMember(COURSE_ID, STUDENT_ID))
                 .doesNotThrowAnyException();
         assertThatCode(() -> accessPolicy.requireTeachingMember(COURSE_ID, STUDENT_ID))
+                .doesNotThrowAnyException();
+        assertThatCode(() -> accessPolicy.requireOwner(COURSE_ID, STUDENT_ID))
                 .doesNotThrowAnyException();
 
         verifyNoInteractions(memberRepository);

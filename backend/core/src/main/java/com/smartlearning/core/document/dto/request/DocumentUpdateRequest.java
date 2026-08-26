@@ -1,14 +1,14 @@
 package com.smartlearning.core.document.dto.request;
 
 import com.smartlearning.core.document.entity.enums.DocumentLifecycleStatus;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 
 import java.util.UUID;
 
 public record DocumentUpdateRequest(
-        @Pattern(
-                regexp = "(?s).*\\S.*",
+        @NotBlank(
                 message = "Tiêu đề không được để trống"
         )
         @Size(max = 255, message = "Tiêu đề phải ngắn hơn 255 ký tự")

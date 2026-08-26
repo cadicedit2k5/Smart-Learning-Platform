@@ -3,9 +3,12 @@ package com.smartlearning.core.document.service.impl;
 import com.smartlearning.common.dto.response.pagination.PagingResponse;
 import com.smartlearning.core.course.entity.Course;
 import com.smartlearning.core.course.sercurity.CourseAccessPolicy;
+import com.smartlearning.core.course.repository.CourseChapterRepository;
+import com.smartlearning.core.course.repository.CourseTopicRepository;
 import com.smartlearning.core.course.utils.CourseUtils;
 import com.smartlearning.core.document.dto.request.DocumentCreateRequest;
 import com.smartlearning.core.document.dto.request.DocumentFilterRequest;
+import com.smartlearning.core.document.dto.request.DocumentUpdateRequest;
 import com.smartlearning.core.document.dto.response.DocumentResponse;
 import com.smartlearning.core.document.entity.Document;
 import com.smartlearning.core.document.entity.DocumentProcessingJob;
@@ -20,6 +23,7 @@ import com.smartlearning.core.document.repository.DocumentRepository;
 import com.smartlearning.core.document.repository.DocumentVersionRepository;
 import com.smartlearning.storage.config.MinioProperties;
 import com.smartlearning.storage.dto.FileUploadResponse;
+import com.smartlearning.storage.dto.StoredFile;
 import com.smartlearning.storage.service.FileStorageService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -39,9 +43,11 @@ import org.springframework.transaction.support.TransactionCallback;
 import org.springframework.transaction.support.TransactionTemplate;
 
 import java.nio.charset.StandardCharsets;
+import java.io.ByteArrayInputStream;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.List;
+import java.util.Optional;
 
 import static com.smartlearning.core.support.CoreTestData.COURSE_ID;
 import static com.smartlearning.core.support.CoreTestData.DOCUMENT_ID;
@@ -51,6 +57,7 @@ import static com.smartlearning.core.support.CoreTestData.VERSION_ID;
 import static com.smartlearning.core.support.CoreTestData.course;
 import static com.smartlearning.core.support.CoreTestData.document;
 import static com.smartlearning.core.support.CoreTestData.documentResponse;
+import static com.smartlearning.core.support.CoreTestData.documentVersion;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
@@ -83,6 +90,10 @@ class DocumentServiceImplTest {
     private DocumentProcessingJobRepository processingJobRepository;
     @Mock
     private DocumentIngestionEventPublisher eventPublisher;
+    @Mock
+    private CourseChapterRepository chapterRepository;
+    @Mock
+    private CourseTopicRepository topicRepository;
 
     private DocumentServiceImpl documentService;
 
@@ -105,7 +116,9 @@ class DocumentServiceImplTest {
                 versionRepository,
                 documentMapper,
                 processingJobRepository,
-                eventPublisher
+                eventPublisher,
+                chapterRepository,
+                topicRepository
         );
     }
 
@@ -134,7 +147,7 @@ class DocumentServiceImplTest {
         PagingResponse<DocumentResponse> result = documentService.handleGetAll(COURSE_ID, OWNER_ID, filter);
 
         assertThat(result.getContent()).containsExactly(firstResponse, secondResponse);
-        assertThat(result.getPageable().getPage()).isEqualTo(1);
+        assertThat(result.getPageable().getPage()).isEqualTo(2);
         assertThat(result.getPageable().getSize()).isEqualTo(2);
         assertThat(result.getPageable().getTotalElements()).isEqualTo(5);
         assertThat(result.getPageable().getTotalPages()).isEqualTo(3);
@@ -256,6 +269,81 @@ class DocumentServiceImplTest {
                 .satisfies(exception -> assertThat(exception.getSuppressed()).containsExactly(cleanupFailure));
 
         verifyNoInteractions(eventPublisher);
+    }
+
+    @Test
+    void handleGetDocument_checksMembershipAndReturnsDocument() {
+        Document existing = document();
+        DocumentResponse expected = documentResponse();
+        when(courseUtils.requireCourse(COURSE_ID)).thenReturn(course());
+        when(documentRepository.findByIdAndCourseIdAndDeletedAtIsNull(DOCUMENT_ID, COURSE_ID))
+                .thenReturn(Optional.of(existing));
+        when(documentMapper.toResponse(existing)).thenReturn(expected);
+
+        assertThat(documentService.handleGetDocument(COURSE_ID, DOCUMENT_ID, OWNER_ID))
+                .isSameAs(expected);
+
+        verify(courseAccessPolicy).requireActiveMember(COURSE_ID, OWNER_ID);
+    }
+
+    @Test
+    void handleUpdateDocument_updatesMetadataAfterTeachingAccessCheck() {
+        Document existing = document();
+        DocumentUpdateRequest request = new DocumentUpdateRequest(
+                "  Tiêu đề mới  ",
+                "Mô tả mới",
+                DocumentLifecycleStatus.ARCHIVED,
+                null,
+                null
+        );
+        when(courseUtils.requireCourse(COURSE_ID)).thenReturn(course());
+        when(documentRepository.findByIdAndCourseIdAndDeletedAtIsNull(DOCUMENT_ID, COURSE_ID))
+                .thenReturn(Optional.of(existing));
+        when(documentMapper.toResponse(existing)).thenAnswer(invocation -> documentResponse());
+
+        documentService.handleUpdateDocument(COURSE_ID, DOCUMENT_ID, OWNER_ID, request);
+
+        assertThat(existing.getTitle()).isEqualTo("Tiêu đề mới");
+        assertThat(existing.getDescription()).isEqualTo("Mô tả mới");
+        assertThat(existing.getLifecycleStatus()).isEqualTo(DocumentLifecycleStatus.ARCHIVED);
+        verify(courseAccessPolicy).requireTeachingMember(COURSE_ID, OWNER_ID);
+    }
+
+    @Test
+    void handleDownloadDocument_returnsStoredFileForCurrentVersion() {
+        Document existing = document();
+        DocumentVersion version = documentVersion();
+        existing.setVersion(version);
+        StoredFile expected = new StoredFile(
+                new ByteArrayInputStream("file".getBytes(StandardCharsets.UTF_8)),
+                "application/pdf",
+                4,
+                "lesson.pdf"
+        );
+        when(courseUtils.requireCourse(COURSE_ID)).thenReturn(course());
+        when(documentRepository.findByIdAndCourseIdAndDeletedAtIsNull(DOCUMENT_ID, COURSE_ID))
+                .thenReturn(Optional.of(existing));
+        when(fileStorageService.download(version.getStorageKey())).thenReturn(expected);
+
+        assertThat(documentService.handleDownloadDocument(COURSE_ID, DOCUMENT_ID, OWNER_ID))
+                .isSameAs(expected);
+        verify(courseAccessPolicy).requireActiveMember(COURSE_ID, OWNER_ID);
+    }
+
+    @Test
+    void handleDeleteDocument_softDeletesAndArchivesDocument() {
+        Document existing = document();
+        when(courseUtils.requireCourse(COURSE_ID)).thenReturn(course());
+        when(documentRepository.findByIdAndCourseIdAndDeletedAtIsNull(DOCUMENT_ID, COURSE_ID))
+                .thenReturn(Optional.of(existing));
+
+        Instant beforeCall = Instant.now();
+        documentService.handleDeleteDocument(COURSE_ID, DOCUMENT_ID, OWNER_ID);
+        Instant afterCall = Instant.now();
+
+        assertThat(existing.getLifecycleStatus()).isEqualTo(DocumentLifecycleStatus.ARCHIVED);
+        assertThat(existing.getDeletedAt()).isBetween(beforeCall, afterCall);
+        verify(courseAccessPolicy).requireTeachingMember(COURSE_ID, OWNER_ID);
     }
 
     private void executeTransactionCallback() {

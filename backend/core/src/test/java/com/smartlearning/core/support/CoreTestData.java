@@ -56,7 +56,7 @@ public final class CoreTestData {
         return new CourseResponse(
                 course.getId(), course.getTitle(), course.getDescription(), course.getLevel(),
                 course.getVisibility(), course.getStatus(), course.getCreatedBy(), course.getPublishedAt(),
-                course.getCreatedAt(), course.getUpdatedAt()
+                course.getCreatedAt(), course.getUpdatedAt(), null
         );
     }
 

@@ -7,6 +7,7 @@ import com.smartlearning.core.course.dto.response.AccessCodeCreatedResponse;
 import com.smartlearning.core.course.entity.AccessCode;
 import com.smartlearning.core.course.entity.Course;
 import com.smartlearning.core.course.repository.AccessCodeRepository;
+import com.smartlearning.core.course.sercurity.CourseAccessPolicy;
 import com.smartlearning.core.course.utils.AccessCodeUtils;
 import com.smartlearning.core.course.utils.CourseUtils;
 import org.junit.jupiter.api.Test;
@@ -19,6 +20,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.time.Instant;
 import java.util.Optional;
+import java.util.List;
 import java.util.UUID;
 
 import static com.smartlearning.core.support.CoreTestData.ACCESS_CODE_ID;
@@ -46,6 +48,8 @@ class AccessCodeServiceImplTest {
     private PasswordEncoder passwordEncoder;
     @Mock
     private AccessCodeRepository accessCodeRepository;
+    @Mock
+    private CourseAccessPolicy courseAccessPolicy;
     @InjectMocks
     private AccessCodeServiceImpl accessCodeService;
 
@@ -105,7 +109,9 @@ class AccessCodeServiceImplTest {
 
         assertConflict(() -> accessCodeService.revokeCode(COURSE_ID, ACCESS_CODE_ID, OWNER_ID));
 
-        verifyNoInteractions(courseUtils, passwordEncoder, accessCodeUtils);
+        verify(courseUtils).requireCourse(COURSE_ID);
+        verify(courseAccessPolicy).requireTeachingMember(COURSE_ID, OWNER_ID);
+        verifyNoInteractions(passwordEncoder, accessCodeUtils);
     }
 
     @Test
@@ -118,6 +124,26 @@ class AccessCodeServiceImplTest {
 
         assertThat(code.getActive()).isTrue();
         assertThat(code.getRevokedAt()).isNull();
+    }
+
+    @Test
+    void getCodes_returnsOnlyHintsAfterTeachingAccessCheck() {
+        AccessCode first = accessCode();
+        AccessCode second = accessCode();
+        second.setId(UUID.randomUUID());
+        second.setCodeHint("5678");
+        second.setActive(false);
+        when(accessCodeRepository.findAllByCourseIdOrderByCreatedAtDesc(COURSE_ID))
+                .thenReturn(List.of(first, second));
+
+        var result = accessCodeService.getCodes(COURSE_ID, OWNER_ID);
+
+        assertThat(result).extracting(value -> value.codeHint())
+                .containsExactly("1234", "5678");
+        assertThat(result).extracting(value -> value.active())
+                .containsExactly(true, false);
+        verify(courseUtils).requireCourse(COURSE_ID);
+        verify(courseAccessPolicy).requireTeachingMember(COURSE_ID, OWNER_ID);
     }
 
     private static void assertConflict(Runnable invocation) {

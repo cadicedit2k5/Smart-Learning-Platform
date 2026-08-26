@@ -65,12 +65,14 @@ class CourseMemberServiceImplTest {
     private CourseMemberServiceImpl memberService;
 
     @Test
-    void addMember_rejectsOwnerRoleBeforeLoadingCourse() {
+    void addMember_rejectsOwnerRoleAfterCheckingOwnerAccess() {
         CourseMemberCreateRequest request = new CourseMemberCreateRequest(STUDENT_ID, CourseMemberRole.OWNER);
 
         assertError(() -> memberService.addMember(COURSE_ID, request, OWNER_ID), CommonErrorCode.FORBIDDEN);
 
-        verifyNoInteractions(courseUtils, memberRepository, memberMapper);
+        verify(courseUtils).requireCourse(COURSE_ID);
+        verify(courseAccessPolicy).requireOwner(COURSE_ID, OWNER_ID);
+        verifyNoInteractions(memberRepository, memberMapper);
     }
 
     @Test
@@ -88,7 +90,7 @@ class CourseMemberServiceImplTest {
     }
 
     @Test
-    void addMember_createsStudentEvenWhenAnotherRoleIsRequested() {
+    void addMember_respectsRequestedLecturerRole() {
         CourseMemberCreateRequest request = new CourseMemberCreateRequest(STUDENT_ID, CourseMemberRole.LECTURER);
         Course course = course();
         when(courseUtils.requireCourse(COURSE_ID)).thenReturn(course);
@@ -106,10 +108,11 @@ class CourseMemberServiceImplTest {
         Instant afterCall = Instant.now();
 
         assertThat(result.userId()).isEqualTo(STUDENT_ID);
-        assertThat(result.role()).isEqualTo(CourseMemberRole.STUDENT);
+        assertThat(result.role()).isEqualTo(CourseMemberRole.LECTURER);
         assertThat(result.status()).isEqualTo(CourseMemberStatus.ACTIVE);
         assertThat(result.joinedAt()).isBetween(beforeCall, afterCall);
         assertThat(result.courseId()).isEqualTo(COURSE_ID);
+        assertThat(result.invitedBy()).isEqualTo(OWNER_ID);
     }
 
     @Test
@@ -128,7 +131,7 @@ class CourseMemberServiceImplTest {
         assertThat(removed.getStatus()).isEqualTo(CourseMemberStatus.ACTIVE);
         assertThat(removed.getRole()).isEqualTo(CourseMemberRole.STUDENT);
         assertThat(removed.getRemovedAt()).isNull();
-        assertThat(removed.getInvitedBy()).isNull();
+        assertThat(removed.getInvitedBy()).isEqualTo(OWNER_ID);
     }
 
     @Test
@@ -146,8 +149,9 @@ class CourseMemberServiceImplTest {
         assertThat(memberService.getMembers(COURSE_ID, OWNER_ID))
                 .containsExactly(firstResponse, secondResponse);
 
-        InOrder order = inOrder(courseAccessPolicy, memberRepository);
-        order.verify(courseAccessPolicy).requireActiveMember(COURSE_ID, OWNER_ID);
+        InOrder order = inOrder(courseUtils, courseAccessPolicy, memberRepository);
+        order.verify(courseUtils).requireCourse(COURSE_ID);
+        order.verify(courseAccessPolicy).requireTeachingMember(COURSE_ID, OWNER_ID);
         order.verify(memberRepository).findAllByCourseIdAndStatus(COURSE_ID, CourseMemberStatus.ACTIVE);
     }
 
