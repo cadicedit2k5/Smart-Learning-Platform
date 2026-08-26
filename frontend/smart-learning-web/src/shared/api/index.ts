@@ -6,4 +6,6 @@ export type {
   ApiResponse,
   ApiErrorDetail,
   ApiErrorResponse,
+  PageableData,
+  PaginatedData,
 } from './types'

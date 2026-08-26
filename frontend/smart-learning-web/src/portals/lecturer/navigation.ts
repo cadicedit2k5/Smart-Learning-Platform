@@ -1,6 +1,4 @@
-import {
-  LayoutDashboard,
-} from 'lucide-vue-next'
+import { BookOpenCheck, LayoutDashboard } from 'lucide-vue-next'
 import { markRaw } from 'vue'
 
 import type { NavigationItem } from '@/portals/types'
@@ -11,11 +9,11 @@ export const lecturerNavigation: NavigationItem[] = [
     routeName: 'lecturer-dashboard',
     icon: markRaw(LayoutDashboard),
   },
-  // {
-  //   label: 'My Courses',
-  //   routeName: 'lecturer-courses',
-  //   icon: markRaw(GraduationCap),
-  // },
+  {
+    label: 'Khóa học của tôi',
+    routeName: 'lecturer-courses',
+    icon: markRaw(BookOpenCheck),
+  },
   // {
   //   label: 'Learning Analytics',
   //   routeName: 'lecturer-analytics',

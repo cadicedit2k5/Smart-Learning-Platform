@@ -9,6 +9,18 @@ export interface ApiResponse<T> {
   data: T
 }
 
+export interface PageableData {
+  page: number
+  size: number
+  totalElements: number
+  totalPages: number
+}
+
+export interface PaginatedData<T> {
+  content: T[]
+  pageable: PageableData
+}
+
 export interface ApiErrorDetail {
   code: string
   field?: string
