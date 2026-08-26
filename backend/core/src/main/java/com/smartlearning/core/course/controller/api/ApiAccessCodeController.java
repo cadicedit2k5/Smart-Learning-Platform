@@ -6,6 +6,7 @@ import com.smartlearning.common.entity.Authorities;
 import com.smartlearning.common.utils.JwtUtils;
 import com.smartlearning.core.course.dto.request.AccessCodeCreateRequest;
 import com.smartlearning.core.course.dto.response.AccessCodeCreatedResponse;
+import com.smartlearning.core.course.dto.response.AccessCodeResponse;
 import com.smartlearning.core.course.service.AccessCodeService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -15,6 +16,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -26,9 +28,7 @@ public class ApiAccessCodeController {
 
     @PreAuthorize(Authorities.COURSE_MANAGE)
     @PostMapping
-    public ResponseEntity<
-                ApiResponse<AccessCodeCreatedResponse>
-                > create(
+    public ResponseEntity<ApiResponse<AccessCodeCreatedResponse>> create(
             @PathVariable UUID courseId,
             @Valid @RequestBody
             AccessCodeCreateRequest request,
@@ -40,6 +40,17 @@ public class ApiAccessCodeController {
                         request,
                         JwtUtils.getUserId(jwt)
                 )
+        );
+    }
+
+    @PreAuthorize(Authorities.COURSE_MANAGE)
+    @GetMapping
+    public ResponseEntity<ApiResponse<List<AccessCodeResponse>>> getCodes(
+            @PathVariable UUID courseId,
+            @AuthenticationPrincipal Jwt jwt
+    ) {
+        return ApiResponses.ok(
+                accessCodeService.getCodes(courseId, JwtUtils.getUserId(jwt))
         );
     }
 

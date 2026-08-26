@@ -4,9 +4,11 @@ import com.smartlearning.common.error.ApplicationException;
 import com.smartlearning.common.error.CommonErrorCode;
 import com.smartlearning.core.course.dto.request.AccessCodeCreateRequest;
 import com.smartlearning.core.course.dto.response.AccessCodeCreatedResponse;
+import com.smartlearning.core.course.dto.response.AccessCodeResponse;
 import com.smartlearning.core.course.entity.AccessCode;
 import com.smartlearning.core.course.entity.Course;
 import com.smartlearning.core.course.repository.AccessCodeRepository;
+import com.smartlearning.core.course.sercurity.CourseAccessPolicy;
 import com.smartlearning.core.course.service.AccessCodeService;
 import com.smartlearning.core.course.utils.AccessCodeUtils;
 import com.smartlearning.core.course.utils.CourseUtils;
@@ -16,6 +18,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
+import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -27,15 +30,12 @@ public class AccessCodeServiceImpl implements AccessCodeService {
     private final AccessCodeUtils accessCodeUtils;
     private final PasswordEncoder passwordEncoder;
     private final AccessCodeRepository accessCodeRepository;
+    private final CourseAccessPolicy courseAccessPolicy;
 
     @Override
     public AccessCodeCreatedResponse createCode(UUID courseId, AccessCodeCreateRequest request, UUID currentUserId) {
-//        permissionService.requireTeachingMember(
-//                courseId,
-//                currentUserId
-//        );
-
         Course course = courseUtils.requireCourse(courseId);
+        courseAccessPolicy.requireTeachingMember(courseId, currentUserId);
         String rawCode = accessCodeUtils.generateRawCode();
 
         AccessCode accessCode =
@@ -67,15 +67,25 @@ public class AccessCodeServiceImpl implements AccessCodeService {
         );
     }
 
+    @Override
+    public List<AccessCodeResponse> getCodes(UUID courseId, UUID currentUserId) {
+        courseUtils.requireCourse(courseId);
+        courseAccessPolicy.requireTeachingMember(courseId, currentUserId);
+
+        return accessCodeRepository.findAllByCourseIdOrderByCreatedAtDesc(courseId)
+                .stream()
+                .map(this::toResponse)
+                .toList();
+    }
+
+    @Override
     public void revokeCode(
             UUID courseId,
             UUID codeId,
             UUID currentUserId
     ) {
-//        permissionService.requireTeachingMember(
-//                courseId,
-//                currentUserId
-//        );
+        courseUtils.requireCourse(courseId);
+        courseAccessPolicy.requireTeachingMember(courseId, currentUserId);
 
         AccessCode accessCode =
                 accessCodeRepository.findById(codeId)
@@ -93,5 +103,18 @@ public class AccessCodeServiceImpl implements AccessCodeService {
 
         accessCode.setActive(false);
         accessCode.setRevokedAt(Instant.now());
+    }
+
+    private AccessCodeResponse toResponse(AccessCode accessCode) {
+        return new AccessCodeResponse(
+                accessCode.getId(),
+                accessCode.getCourse().getId(),
+                accessCode.getCodeHint(),
+                accessCode.getExpiresAt(),
+                accessCode.getActive(),
+                accessCode.getRevokedAt(),
+                accessCode.getCreatedBy(),
+                accessCode.getCreatedAt()
+        );
     }
 }

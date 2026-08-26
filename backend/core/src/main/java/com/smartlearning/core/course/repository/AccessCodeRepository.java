@@ -9,4 +9,6 @@ import java.util.UUID;
 public interface AccessCodeRepository extends JpaRepository<AccessCode, UUID> {
 
     List<AccessCode> findAllByCourseIdAndActiveTrue(UUID courseId);
+
+    List<AccessCode> findAllByCourseIdOrderByCreatedAtDesc(UUID courseId);
 }
