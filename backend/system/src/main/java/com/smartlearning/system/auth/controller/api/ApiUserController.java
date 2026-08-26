@@ -2,15 +2,20 @@ package com.smartlearning.system.auth.controller.api;
 
 import com.smartlearning.common.dto.response.ApiResponse;
 import com.smartlearning.common.dto.response.ApiResponses;
+import com.smartlearning.common.dto.response.pagination.PagingResponse;
+import com.smartlearning.common.entity.Authorities;
 import com.smartlearning.system.auth.dto.request.UserCreateRequest;
+import com.smartlearning.system.auth.dto.request.UserFilterRequest;
 import com.smartlearning.system.auth.dto.request.UserLoginRequest;
 import com.smartlearning.system.auth.dto.response.LoginResponse;
+import com.smartlearning.system.auth.dto.response.UserLookupResponse;
 import com.smartlearning.system.auth.dto.response.UserResponse;
 import com.smartlearning.system.auth.service.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
@@ -56,5 +61,21 @@ public class ApiUserController {
         return ApiResponses.ok(
                 userService.handleGetCurrentUser(userId)
         );
+    }
+
+    @PreAuthorize(Authorities.USER_READ)
+    @GetMapping("/users")
+    public ResponseEntity<ApiResponse<PagingResponse<UserLookupResponse>>> searchUsers(
+            @ModelAttribute UserFilterRequest filter
+    ) {
+        return ApiResponses.ok(userService.handleSearchUsers(filter));
+    }
+
+    @PreAuthorize(Authorities.USER_READ)
+    @GetMapping("/users/{id}")
+    public ResponseEntity<ApiResponse<UserLookupResponse>> getUser(
+            @PathVariable UUID id
+    ) {
+        return ApiResponses.ok(userService.handleGetUserLookup(id));
     }
 }

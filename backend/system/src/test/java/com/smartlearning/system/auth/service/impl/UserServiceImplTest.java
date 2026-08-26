@@ -13,6 +13,7 @@ import com.smartlearning.system.auth.dto.request.admin.AdminUserCreateRequest;
 import com.smartlearning.system.auth.dto.request.admin.AdminUserUpdateRequest;
 import com.smartlearning.system.auth.dto.response.LoginResponse;
 import com.smartlearning.system.auth.dto.response.UserResponse;
+import com.smartlearning.system.auth.dto.response.UserLookupResponse;
 import com.smartlearning.system.auth.entity.Role;
 import com.smartlearning.system.auth.entity.User;
 import com.smartlearning.system.auth.entity.enums.UserStatus;
@@ -107,10 +108,52 @@ class UserServiceImplTest {
 
         assertThat(result.getContent())
                 .containsExactly(firstResponse, secondResponse);
-        assertThat(result.getPageable().getPage()).isZero();
+        assertThat(result.getPageable().getPage()).isEqualTo(1);
         assertThat(result.getPageable().getSize()).isEqualTo(10);
         assertThat(result.getPageable().getTotalElements()).isEqualTo(2);
         assertThat(result.getPageable().getTotalPages()).isEqualTo(1);
+    }
+
+    @Test
+    void handleSearchUsers_returnsSafeLookupProjection() {
+        UserFilterRequest filter = mock(UserFilterRequest.class);
+        @SuppressWarnings("unchecked")
+        Specification<User> specification = mock(Specification.class);
+        Pageable pageable = PageRequest.of(0, 10);
+        User lecturer = user(UUID.randomUUID(), "lecturer@example.com");
+        lecturer.setRole(role("LECTURER"));
+        when(filter.specification()).thenReturn(specification);
+        when(filter.pageable()).thenReturn(pageable);
+        when(userRepository.findAll(specification, pageable))
+                .thenReturn(new PageImpl<>(List.of(lecturer), pageable, 1));
+
+        PagingResponse<UserLookupResponse> result = userService.handleSearchUsers(filter);
+
+        assertThat(result.getContent()).singleElement().satisfies(response -> {
+            assertThat(response.id()).isEqualTo(lecturer.getId());
+            assertThat(response.email()).isEqualTo("lecturer@example.com");
+            assertThat(response.role().code()).isEqualTo("LECTURER");
+        });
+        assertThat(result.getPageable().getPage()).isEqualTo(1);
+    }
+
+    @Test
+    void handleGetUserLookup_returnsActiveUserAndRejectsMissingUser() {
+        UUID id = UUID.randomUUID();
+        User active = user(id, "student@example.com");
+        active.setRole(role("STUDENT"));
+        when(userRepository.findByIdAndStatusNot(id, UserStatus.DELETED))
+                .thenReturn(Optional.of(active));
+
+        UserLookupResponse result = userService.handleGetUserLookup(id);
+
+        assertThat(result.id()).isEqualTo(id);
+        assertThat(result.role().code()).isEqualTo("STUDENT");
+
+        UUID missingId = UUID.randomUUID();
+        when(userRepository.findByIdAndStatusNot(missingId, UserStatus.DELETED))
+                .thenReturn(Optional.empty());
+        assertNotFound(() -> userService.handleGetUserLookup(missingId));
     }
 
     @Test

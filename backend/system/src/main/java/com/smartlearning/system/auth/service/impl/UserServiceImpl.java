@@ -13,6 +13,7 @@ import com.smartlearning.system.auth.dto.request.admin.AdminUserCreateRequest;
 import com.smartlearning.system.auth.dto.request.admin.AdminUserUpdateRequest;
 import com.smartlearning.system.auth.dto.response.LoginResponse;
 import com.smartlearning.system.auth.dto.response.UserResponse;
+import com.smartlearning.system.auth.dto.response.UserLookupResponse;
 import com.smartlearning.system.auth.entity.Role;
 import com.smartlearning.system.auth.entity.User;
 import com.smartlearning.system.auth.entity.enums.UserStatus;
@@ -52,6 +53,26 @@ public class UserServiceImpl implements UserService {
         Page<UserResponse> pages = userRepository.findAll(filter.specification(), filter.pageable())
                 .map(this.userMapper::toResponse);
         return PagingResponse.from(pages);
+    }
+
+    @Override
+    public PagingResponse<UserLookupResponse> handleSearchUsers(UserFilterRequest filter) {
+        Page<UserLookupResponse> pages = userRepository
+                .findAll(filter.specification(), filter.pageable())
+                .map(UserLookupResponse::from);
+
+        return PagingResponse.from(pages);
+    }
+
+    @Override
+    public UserLookupResponse handleGetUserLookup(UUID id) {
+        User user = userRepository.findByIdAndStatusNot(id, UserStatus.DELETED)
+                .orElseThrow(() -> new ApplicationException(
+                        CommonErrorCode.RESOURCE_NOT_FOUND,
+                        "Không tìm thấy người dùng"
+                ));
+
+        return UserLookupResponse.from(user);
     }
 
     @Override

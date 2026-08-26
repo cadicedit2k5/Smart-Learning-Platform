@@ -41,6 +41,7 @@ public class DataInitializer implements CommandLineRunner {
         // Khời tạo Permission mặc định
         Permission courseManage = createPermissionIfNotExists("COURSE_MANAGE", "Quản lý môn học");
         Permission courseRead = createPermissionIfNotExists("COURSE_READ", "Truy cập môn học");
+        Permission userRead = createPermissionIfNotExists("USER_READ", "Tra cứu người dùng");
 
         // Khởi tạo Role mặc định
         Role studentRole = createRoleIfNotExists("STUDENT", "Student");
@@ -50,8 +51,8 @@ public class DataInitializer implements CommandLineRunner {
         // Gán quyền cho Role
         assignPermission(studentRole, courseRead);
 
-        assignPermission(lecturerRole, courseManage, courseRead);
-        assignPermission(adminRole, courseManage, courseRead);
+        assignPermission(lecturerRole, courseManage, courseRead, userRead);
+        assignPermission(adminRole, courseManage, courseRead, userRead);
 
         createAdminIfNotExists(roleRepository.findByCode("ADMIN")
                 .orElseThrow(() ->
