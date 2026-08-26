@@ -1,7 +1,6 @@
 package com.smartlearning.common.dto.request;
 
 import lombok.Getter;
-import lombok.Setter;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -16,9 +15,12 @@ import java.util.Map;
 public class PagingRequest {
     private static final int PAGE_SIZE = 10;
 
-    @Setter
     int page = 1;
     private Map<String, String> orders = new HashMap<>();
+
+    public void setPage(int page) {
+        this.page = Math.max(page, 1);
+    }
 
     public Pageable pageable() {
         if (CollectionUtils.isEmpty(orders)) {
