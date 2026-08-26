@@ -2,6 +2,9 @@ import uuid
 
 from pydantic import BaseModel, Field, field_validator
 
+from app.schemas.chat import ChatHistoryMessage
+
+
 # Output của LLM
 class RagOutputModel(BaseModel):
     answer: str = Field(
@@ -36,9 +39,11 @@ class RagAnswer(BaseModel):
 class RagAnswerRequest(BaseModel):
     course_id: uuid.UUID | None = None
 
-    question: str = Field(
-        min_length=1,
+    history: list[ChatHistoryMessage] = Field(
+        default_factory=list,
     )
+
+    question: str = Field(min_length=1)
 
     @field_validator("question")
     @classmethod
@@ -49,8 +54,6 @@ class RagAnswerRequest(BaseModel):
         value = value.strip()
 
         if not value:
-            raise ValueError(
-                "question must not be blank"
-            )
+            raise ValueError("question must not be blank" )
 
         return value

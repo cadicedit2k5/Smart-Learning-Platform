@@ -9,6 +9,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.validation.BindException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -95,6 +96,24 @@ public class GlobalExceptionHandler {
                 HttpStatus.BAD_REQUEST,
                 errors,
                 CommonErrorCode.VALIDATION_FAILED.getDefaultMessage()
+        );
+    }
+
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    public ResponseEntity<ApiResponse<Void>> handleHttpMessageNotReadable(
+            HttpMessageNotReadableException exception
+    ) {
+        CommonErrorCode errorCode = CommonErrorCode.MALFORMED_REQUEST;
+
+        ApiError error = ApiError.builder()
+                .code(errorCode.getCode())
+                .message(errorCode.getDefaultMessage())
+                .build();
+
+        return ApiResponses.fail(
+                errorCode.getHttpStatus(),
+                error,
+                errorCode.getDefaultMessage()
         );
     }
 

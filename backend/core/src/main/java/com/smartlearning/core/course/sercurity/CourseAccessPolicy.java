@@ -15,8 +15,38 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class CourseAccessPolicy {
     private final CourseMemberRepository memberRepository;
+    private final CurrentUserAccess currentUserAccess;
 
-    public CourseMember requireActiveMember(
+    public void requireActiveMember(
+            UUID courseId,
+            UUID userId
+    ) {
+        if (currentUserAccess.isAdmin()) {
+            return;
+        }
+
+        requireActiveMembership(courseId, userId);
+    }
+
+    public void requireTeachingMember(
+            UUID courseId,
+            UUID userId
+    ) {
+        if (currentUserAccess.isAdmin()) {
+            return;
+        }
+
+        CourseMember member = requireActiveMembership(courseId, userId);
+
+        if (member.getRole() != CourseMemberRole.OWNER
+                && member.getRole() != CourseMemberRole.LECTURER) {
+            throw new ApplicationException(
+                    CommonErrorCode.FORBIDDEN
+            );
+        }
+    }
+
+    private CourseMember requireActiveMembership(
             UUID courseId,
             UUID userId
     ) {
@@ -27,22 +57,6 @@ public class CourseAccessPolicy {
                 ));
 
         if (member.getStatus() != CourseMemberStatus.ACTIVE) {
-            throw new ApplicationException(
-                    CommonErrorCode.FORBIDDEN
-            );
-        }
-
-        return member;
-    }
-
-    public CourseMember requireTeachingMember(
-            UUID courseId,
-            UUID userId
-    ) {
-        CourseMember member = requireActiveMember(courseId, userId);
-
-        if (member.getRole() != CourseMemberRole.OWNER
-                && member.getRole() != CourseMemberRole.LECTURER) {
             throw new ApplicationException(
                     CommonErrorCode.FORBIDDEN
             );

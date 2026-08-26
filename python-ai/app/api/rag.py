@@ -10,4 +10,4 @@ router = APIRouter(
 
 @router.post("/answer", response_model=RagAnswer)
 async def answer_question(request: RagAnswerRequest, rag_service: RagServiceDep) -> RagAnswer:
-    return await rag_service.answer(course_id=request.course_id, question=request.question)
+    return await rag_service.answer(course_id=request.course_id, question=request.question, history=request.history)

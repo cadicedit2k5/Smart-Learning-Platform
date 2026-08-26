@@ -17,15 +17,17 @@ import java.util.Optional;
 import static com.smartlearning.core.support.CoreTestData.COURSE_ID;
 import static com.smartlearning.core.support.CoreTestData.STUDENT_ID;
 import static com.smartlearning.core.support.CoreTestData.member;
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class CourseAccessPolicyTest {
 
     @Mock
     private CourseMemberRepository memberRepository;
+    @Mock
+    private CurrentUserAccess currentUserAccess;
     @InjectMocks
     private CourseAccessPolicy accessPolicy;
 
@@ -34,7 +36,8 @@ class CourseAccessPolicyTest {
         CourseMember active = member(CourseMemberRole.STUDENT, CourseMemberStatus.ACTIVE);
         when(memberRepository.findByCourseIdAndUserId(COURSE_ID, STUDENT_ID)).thenReturn(Optional.of(active));
 
-        assertThat(accessPolicy.requireActiveMember(COURSE_ID, STUDENT_ID)).isSameAs(active);
+        assertThatCode(() -> accessPolicy.requireActiveMember(COURSE_ID, STUDENT_ID))
+                .doesNotThrowAnyException();
     }
 
     @Test
@@ -51,11 +54,13 @@ class CourseAccessPolicyTest {
     void requireTeachingMember_acceptsOwnerAndLecturer() {
         CourseMember owner = member(CourseMemberRole.OWNER, CourseMemberStatus.ACTIVE);
         when(memberRepository.findByCourseIdAndUserId(COURSE_ID, STUDENT_ID)).thenReturn(Optional.of(owner));
-        assertThat(accessPolicy.requireTeachingMember(COURSE_ID, STUDENT_ID)).isSameAs(owner);
+        assertThatCode(() -> accessPolicy.requireTeachingMember(COURSE_ID, STUDENT_ID))
+                .doesNotThrowAnyException();
 
         CourseMember lecturer = member(CourseMemberRole.LECTURER, CourseMemberStatus.ACTIVE);
         when(memberRepository.findByCourseIdAndUserId(COURSE_ID, STUDENT_ID)).thenReturn(Optional.of(lecturer));
-        assertThat(accessPolicy.requireTeachingMember(COURSE_ID, STUDENT_ID)).isSameAs(lecturer);
+        assertThatCode(() -> accessPolicy.requireTeachingMember(COURSE_ID, STUDENT_ID))
+                .doesNotThrowAnyException();
     }
 
     @Test
@@ -64,6 +69,18 @@ class CourseAccessPolicyTest {
         when(memberRepository.findByCourseIdAndUserId(COURSE_ID, STUDENT_ID)).thenReturn(Optional.of(student));
 
         assertForbidden(() -> accessPolicy.requireTeachingMember(COURSE_ID, STUDENT_ID));
+    }
+
+    @Test
+    void adminCanAccessAndManageAnyCourseWithoutMembership() {
+        when(currentUserAccess.isAdmin()).thenReturn(true);
+
+        assertThatCode(() -> accessPolicy.requireActiveMember(COURSE_ID, STUDENT_ID))
+                .doesNotThrowAnyException();
+        assertThatCode(() -> accessPolicy.requireTeachingMember(COURSE_ID, STUDENT_ID))
+                .doesNotThrowAnyException();
+
+        verifyNoInteractions(memberRepository);
     }
 
     private static void assertForbidden(Runnable invocation) {

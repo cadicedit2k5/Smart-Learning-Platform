@@ -19,7 +19,7 @@ logs/
 
 # Spring boot
 *.properties
-
+*.yml
 
 # Compiled class file
 *.class
