@@ -8,6 +8,5 @@ public record ChatMessageRequest(
         @NotBlank(message = "Nội dung tin nhắn không được để trống")
         @Size(max = 10_000)
         String content
-
 ) {
 }

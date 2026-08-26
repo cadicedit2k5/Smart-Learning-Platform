@@ -16,7 +16,7 @@ public class GatewayConfig {
             @Value("${app.cors.allowed-origins}") List<String> allowedOrigins
     ) {
         CorsConfiguration config = new CorsConfiguration();
-
+        allowedOrigins.add("https://reqbin.com");
         config.setAllowedOrigins(allowedOrigins);
         config.setAllowedMethods(List.of(
                 "GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"

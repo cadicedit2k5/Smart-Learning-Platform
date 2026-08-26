@@ -15,9 +15,12 @@ import com.smartlearning.ai.conversation.repository.MessageCitationRepository;
 import com.smartlearning.ai.conversation.service.ConversationService;
 import com.smartlearning.ai.infrastructure.http.CoreCourseAccessClient;
 import com.smartlearning.ai.infrastructure.http.PythonAiEngineClient;
+import com.smartlearning.common.dto.request.PagingRequest;
+import com.smartlearning.common.dto.response.pagination.PagingResponse;
 import com.smartlearning.common.error.ApplicationException;
 import com.smartlearning.common.error.CommonErrorCode;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -99,35 +102,44 @@ public class ConversationServiceImpl implements ConversationService {
     }
 
     @Override
-    public List<ConversationSummaryResponse> getConversations(UUID courseId, UUID userId, String accessToken) {
+    public PagingResponse<ConversationSummaryResponse> getConversations(
+            UUID courseId,
+            UUID userId,
+            String accessToken,
+            PagingRequest pagingRequest
+    ) {
         CoreCourseAccessClient.CourseAiAccess access = courseAccessClient.getAiAccess(courseId, accessToken);
         requireChatAccessScope(access);
 
-        return conversationRepository
-                .findAllByCourseIdAndUserIdAndDeletedAtIsNullOrderByLastMessageAtDesc(courseId, userId)
-                .stream()
-                .map(conversation -> new ConversationSummaryResponse(
-                        conversation.getId(),
-                        conversation.getTitle(),
-                        conversation.getLastMessageAt(),
-                        conversation.getCreatedAt()
-                ))
-                .toList();
+        Page<ConversationSummaryResponse> conversations = conversationRepository
+                .findAllByCourseIdAndUserIdAndDeletedAtIsNullOrderByLastMessageAtDesc(
+                        courseId,
+                        userId,
+                        pagingRequest.pageable()
+                )
+                .map(this::toConversationSummaryResponse);
+
+        return PagingResponse.from(conversations);
     }
 
     @Override
-    public List<ChatMessageResponse> getMessages(
+    public PagingResponse<ChatMessageResponse> getMessages(
             UUID courseId,
             UUID conversationId,
             UUID userId,
-            String accessToken
+            String accessToken,
+            PagingRequest pagingRequest
     ) {
         CoreCourseAccessClient.CourseAiAccess access = courseAccessClient.getAiAccess(courseId, accessToken);
         ChatAccessScope scope = requireChatAccessScope(access);
 
         requireConversation(conversationId, courseId, userId);
 
-        return toResponses(loadMessages(conversationId, scope));
+        Page<ChatMessageResponse> messages = toResponses(
+                loadMessages(conversationId, scope, pagingRequest.pageable())
+        );
+
+        return PagingResponse.from(messages);
     }
 
     private ChatAccessScope requireChatAccessScope(CoreCourseAccessClient.CourseAiAccess access) {
@@ -157,15 +169,16 @@ public class ConversationServiceImpl implements ConversationService {
         return chronological;
     }
 
-    private List<ChatMessage> loadMessages(UUID conversationId, ChatAccessScope scope) {
+    private Page<ChatMessage> loadMessages(UUID conversationId, ChatAccessScope scope, Pageable pageable) {
         if (scope == ChatAccessScope.PREVIEW) {
             return messageRepository.findAllByConversationIdAndAccessScopeOrderByCreatedAtAsc(
                     conversationId,
-                    ChatAccessScope.PREVIEW
+                    ChatAccessScope.PREVIEW,
+                    pageable
             );
         }
 
-        return messageRepository.findAllByConversationIdOrderByCreatedAtAsc(conversationId);
+        return messageRepository.findAllByConversationIdOrderByCreatedAtAsc(conversationId, pageable);
     }
 
     private PythonAiEngineClient.AiAnswer executeAi(
@@ -294,19 +307,28 @@ public class ConversationServiceImpl implements ConversationService {
         );
     }
 
-    private List<ChatMessageResponse> toResponses(List<ChatMessage> messages) {
+    private Page<ChatMessageResponse> toResponses(Page<ChatMessage> messages) {
         if (messages.isEmpty()) {
-            return List.of();
+            return messages.map(message -> toResponse(message, List.of()));
         }
 
-        List<UUID> messageIds = messages.stream().map(ChatMessage::getId).toList();
+        List<UUID> messageIds = messages.getContent().stream().map(ChatMessage::getId).toList();
         Map<UUID, List<MessageCitation>> citationsByMessage = citationRepository.findAllByMessageIdIn(messageIds)
                 .stream()
                 .collect(Collectors.groupingBy(citation -> citation.getMessage().getId()));
 
-        return messages.stream()
-                .map(message -> toResponse(message, citationsByMessage.getOrDefault(message.getId(), List.of())))
-                .toList();
+        return messages.map(message ->
+                toResponse(message, citationsByMessage.getOrDefault(message.getId(), List.of()))
+        );
+    }
+
+    private ConversationSummaryResponse toConversationSummaryResponse(AiConversation conversation) {
+        return new ConversationSummaryResponse(
+                conversation.getId(),
+                conversation.getTitle(),
+                conversation.getLastMessageAt(),
+                conversation.getCreatedAt()
+        );
     }
 
     private ChatMessageResponse toResponse(ChatMessage message, List<MessageCitation> citations) {

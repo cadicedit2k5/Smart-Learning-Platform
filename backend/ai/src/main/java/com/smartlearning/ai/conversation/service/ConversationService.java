@@ -3,8 +3,9 @@ package com.smartlearning.ai.conversation.service;
 import com.smartlearning.ai.conversation.dto.response.ChatMessageResponse;
 import com.smartlearning.ai.conversation.dto.response.ChatTurnResponse;
 import com.smartlearning.ai.conversation.dto.response.ConversationSummaryResponse;
+import com.smartlearning.common.dto.request.PagingRequest;
+import com.smartlearning.common.dto.response.pagination.PagingResponse;
 
-import java.util.List;
 import java.util.UUID;
 
 public interface ConversationService {
@@ -19,12 +20,18 @@ public interface ConversationService {
             String content
     );
 
-    List<ConversationSummaryResponse> getConversations(UUID courseId, UUID userId, String accessToken);
+    PagingResponse<ConversationSummaryResponse> getConversations(
+            UUID courseId,
+            UUID userId,
+            String accessToken,
+            PagingRequest pagingRequest
+    );
 
-    List<ChatMessageResponse> getMessages(
+    PagingResponse<ChatMessageResponse> getMessages(
             UUID courseId,
             UUID conversationId,
             UUID userId,
-            String accessToken
+            String accessToken,
+            PagingRequest pagingRequest
     );
 }

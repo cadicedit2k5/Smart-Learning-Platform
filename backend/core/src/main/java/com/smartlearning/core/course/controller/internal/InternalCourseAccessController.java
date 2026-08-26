@@ -22,7 +22,7 @@ public class InternalCourseAccessController {
     private final CourseAccessPolicy courseAccessPolicy;
     private final CourseAiAccessService courseAiAccessService;
 
-    @GetMapping("/{courseId}/access")
+    @GetMapping("/{courseId}/ai-access")
     @PreAuthorize(Authorities.COURSE_READ)
     public ResponseEntity<CourseAiAccessResponse> requireAccess(
             @PathVariable UUID courseId,
