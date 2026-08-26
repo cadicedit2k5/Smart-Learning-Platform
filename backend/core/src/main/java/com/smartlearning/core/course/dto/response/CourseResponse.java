@@ -1,6 +1,7 @@
 package com.smartlearning.core.course.dto.response;
 
 import com.smartlearning.core.course.entity.enums.CourseStatus;
+import com.smartlearning.core.course.entity.enums.CourseMemberRole;
 import com.smartlearning.core.course.entity.enums.CourseVisibility;
 
 import java.time.Instant;
@@ -16,6 +17,7 @@ public record CourseResponse(
         UUID createdBy,
         Instant publishedAt,
         Instant createdAt,
-        Instant updatedAt
+        Instant updatedAt,
+        CourseMemberRole currentUserRole
 ) {
 }

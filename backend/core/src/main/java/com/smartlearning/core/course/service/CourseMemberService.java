@@ -17,6 +17,8 @@ public interface CourseMemberService {
             UUID currentUserId
     );
 
+    CourseMemberResponse getCurrentMember(UUID courseId, UUID currentUserId);
+
     void removeMember(UUID courseId, UUID memberId, UUID currentUserId);
     CourseMemberResponse joinByCode(JoinCourseRequest request, UUID currentUserId);
 }

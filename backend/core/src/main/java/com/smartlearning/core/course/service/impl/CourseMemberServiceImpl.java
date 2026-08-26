@@ -40,10 +40,8 @@ public class CourseMemberServiceImpl implements CourseMemberService {
 
     @Override
     public CourseMemberResponse addMember(UUID courseId, CourseMemberCreateRequest request, UUID currentUserId) {
-//        permissionService.requireOwner(
-//                courseId,
-//                currentUserId
-//        );
+        Course course = courseUtils.requireCourse(courseId);
+        courseAccessPolicy.requireOwner(courseId, currentUserId);
 
         if (request.role() == CourseMemberRole.OWNER) {
             throw new ApplicationException(
@@ -51,8 +49,6 @@ public class CourseMemberServiceImpl implements CourseMemberService {
                     "Không thể thêm OWNER bằng chức năng mời thành viên"
             );
         }
-
-        Course course = courseUtils.requireCourse(courseId);
 
         Optional<CourseMember> existing =
                 memberRepository.findByCourseIdAndUserId(
@@ -78,11 +74,11 @@ public class CourseMemberServiceImpl implements CourseMemberService {
             member.setCourse(course);
             member.setUserId(request.userId());
         }
-        member.setRole(CourseMemberRole.STUDENT);
+        member.setRole(request.role());
         member.setStatus(CourseMemberStatus.ACTIVE);
         member.setJoinedAt(Instant.now());
         member.setRemovedAt(null);
-        member.setInvitedBy(null);
+        member.setInvitedBy(currentUserId);
 
         return memberMapper.toResponse(
                 memberRepository.save(member)
@@ -91,7 +87,8 @@ public class CourseMemberServiceImpl implements CourseMemberService {
 
     @Override
     public List<CourseMemberResponse> getMembers(UUID courseId, UUID currentUserId) {
-        courseAccessPolicy.requireActiveMember(
+        courseUtils.requireCourse(courseId);
+        courseAccessPolicy.requireTeachingMember(
                 courseId,
                 currentUserId
         );
@@ -107,15 +104,27 @@ public class CourseMemberServiceImpl implements CourseMemberService {
     }
 
     @Override
+    public CourseMemberResponse getCurrentMember(UUID courseId, UUID currentUserId) {
+        courseUtils.requireCourse(courseId);
+        CourseMember member = courseAccessPolicy.requireActiveMember(courseId, currentUserId);
+
+        if (member == null) {
+            member = memberRepository.findByCourseIdAndUserId(courseId, currentUserId)
+                    .filter(value -> value.getStatus() == CourseMemberStatus.ACTIVE)
+                    .orElseThrow(() -> new ApplicationException(CommonErrorCode.RESOURCE_NOT_FOUND));
+        }
+
+        return memberMapper.toResponse(member);
+    }
+
+    @Override
     public void removeMember(
             UUID courseId,
             UUID memberId,
             UUID currentUserId
     ) {
-//        permissionService.requireOwner(
-//                courseId,
-//                currentUserId
-//        );
+        courseUtils.requireCourse(courseId);
+        courseAccessPolicy.requireOwner(courseId, currentUserId);
 
         CourseMember member = memberRepository
                 .findById(memberId)
