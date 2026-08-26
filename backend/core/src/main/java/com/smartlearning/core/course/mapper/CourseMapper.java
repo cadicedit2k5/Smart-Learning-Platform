@@ -21,6 +21,10 @@ public interface CourseMapper extends CrudMapper<Course, CourseCreateRequest,
     @Mapping(target = "updatedAt", ignore = true)
     Course toEntity(CourseCreateRequest request);
 
+    @Override
+    @Mapping(target = "currentUserRole", ignore = true)
+    CourseResponse toResponse(Course course);
+
     @BeanMapping(
             nullValuePropertyMappingStrategy =
                     NullValuePropertyMappingStrategy.IGNORE

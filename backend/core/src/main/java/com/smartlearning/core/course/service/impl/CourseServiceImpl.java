@@ -61,7 +61,7 @@ public class CourseServiceImpl implements CourseService {
 
         memberRepository.save(owner);
 
-        return courseMapper.toResponse(savedCourse);
+        return withRole(courseMapper.toResponse(savedCourse), CourseMemberRole.OWNER);
     }
 
     public CourseResponse getCourse(
@@ -70,25 +70,35 @@ public class CourseServiceImpl implements CourseService {
     ) {
         Course course = courseUtils.requireCourse(courseId);
 
+        CourseMember member;
         if (course.getVisibility() != CourseVisibility.PUBLIC) {
-            courseAccessPolicy.requireActiveMember(
+            member = courseAccessPolicy.requireActiveMember(
                     courseId,
                     currentUserId
             );
+        } else {
+            member = memberRepository
+                    .findByCourseIdAndUserId(courseId, currentUserId)
+                    .filter(value -> value.getStatus() == CourseMemberStatus.ACTIVE)
+                    .orElse(null);
         }
 
-        return courseMapper.toResponse(course);
+        CourseMemberRole role = member == null ? null : member.getRole();
+        return withRole(courseMapper.toResponse(course), role);
     }
 
     @Override
     public List<CourseResponse> getMyCourses(UUID currentUserId) {
         return memberRepository
-                .findCoursesByUserIdAndStatus(
+                .findAllByUserIdAndStatusAndCourseDeletedAtIsNullOrderByCourseUpdatedAtDesc(
                         currentUserId,
                         CourseMemberStatus.ACTIVE
                 )
                 .stream()
-                .map(courseMapper::toResponse)
+                .map(member -> withRole(
+                        courseMapper.toResponse(member.getCourse()),
+                        member.getRole()
+                ))
                 .toList();
     }
 
@@ -98,12 +108,8 @@ public class CourseServiceImpl implements CourseService {
             CourseUpdateRequest request,
             UUID currentUserId
     ) {
-//        coursePermission.requireTeachingMember(
-//                courseId,
-//                currentUserId
-//        );
-
         Course course = courseUtils.requireCourse(courseId);
+        CourseMember member = courseAccessPolicy.requireTeachingMember(courseId, currentUserId);
 
         courseMapper.partialUpdate(request, course);
 
@@ -111,7 +117,10 @@ public class CourseServiceImpl implements CourseService {
             course.setTitle(course.getTitle().trim());
         }
 
-        return courseMapper.toResponse(course);
+        return withRole(
+                courseMapper.toResponse(course),
+                member == null ? null : member.getRole()
+        );
     }
 
     @Override
@@ -119,12 +128,8 @@ public class CourseServiceImpl implements CourseService {
             UUID courseId,
             UUID currentUserId
     ) {
-//        permissionService.requireOwner(
-//                courseId,
-//                currentUserId
-//        );
-
         Course course = courseUtils.requireCourse(courseId);
+        CourseMember owner = courseAccessPolicy.requireOwner(courseId, currentUserId);
 
         if (course.getStatus() == CourseStatus.PUBLISHED) {
             throw new ApplicationException(
@@ -136,7 +141,10 @@ public class CourseServiceImpl implements CourseService {
         course.setStatus(CourseStatus.PUBLISHED);
         course.setPublishedAt(Instant.now());
 
-        return courseMapper.toResponse(course);
+        return withRole(
+                courseMapper.toResponse(course),
+                owner == null ? null : owner.getRole()
+        );
     }
 
     @Override
@@ -144,12 +152,24 @@ public class CourseServiceImpl implements CourseService {
             UUID courseId,
             UUID currentUserId
     ) {
-//        coursePermission.requireOwner(
-//                courseId,
-//                currentUserId
-//        );
-
         Course course = courseUtils.requireCourse(courseId);
+        courseAccessPolicy.requireOwner(courseId, currentUserId);
         course.setDeletedAt(Instant.now());
+    }
+
+    private CourseResponse withRole(CourseResponse response, CourseMemberRole role) {
+        return new CourseResponse(
+                response.id(),
+                response.title(),
+                response.description(),
+                response.level(),
+                response.visibility(),
+                response.status(),
+                response.createdBy(),
+                response.publishedAt(),
+                response.createdAt(),
+                response.updatedAt(),
+                role
+        );
     }
 }
