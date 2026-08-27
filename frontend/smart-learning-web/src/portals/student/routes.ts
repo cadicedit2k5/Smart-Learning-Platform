@@ -1,7 +1,7 @@
 import type { RouteRecordRaw } from 'vue-router'
 
 export const studentRoutes: RouteRecordRaw[] = [
- {
+  {
     path: '',
     redirect: {
       name: 'student-dashboard',
@@ -11,5 +11,21 @@ export const studentRoutes: RouteRecordRaw[] = [
     path: 'dashboard',
     name: 'student-dashboard',
     component: () => import('./pages/StudentDashboardPage.vue'),
+  },
+  {
+    path: 'courses',
+    name: 'student-courses',
+    component: () => import('./pages/StudentCoursesPage.vue'),
+    meta: {
+      title: 'Khóa học của tôi',
+    },
+  },
+  {
+    path: 'courses/:courseId',
+    name: 'student-course-detail',
+    component: () => import('./pages/StudentCourseDetailPage.vue'),
+    meta: {
+      title: 'Chi tiết khóa học',
+    },
   },
 ]

@@ -1,0 +1,201 @@
+<script setup lang="ts">
+import { computed, onMounted, ref } from 'vue'
+import { ArrowRight, BookOpen, CalendarDays, KeyRound, Search } from 'lucide-vue-next'
+import { useRouter } from 'vue-router'
+
+import BaseAlert from '@/shared/components/BaseAlert.vue'
+import BaseButton from '@/shared/components/BaseButton.vue'
+import BaseCard from '@/shared/components/BaseCard.vue'
+import BaseInput from '@/shared/components/BaseInput.vue'
+
+import { getMyCourses, joinCourse, type Course } from '../api/courseApi'
+import { useStudentApiError } from '../composables/useStudentApiError'
+
+const router = useRouter()
+const { handleApiError } = useStudentApiError()
+const courses = ref<Course[]>([])
+const loading = ref(true)
+const loadError = ref('')
+const keyword = ref('')
+const courseId = ref('')
+const code = ref('')
+const joining = ref(false)
+const joinMessage = ref('')
+const joinErrors = ref<Record<string, string>>({})
+
+const filteredCourses = computed(() => {
+  const query = keyword.value.trim().toLocaleLowerCase('vi')
+  if (!query) return courses.value
+  return courses.value.filter(
+    (course) =>
+      course.title.toLocaleLowerCase('vi').includes(query) ||
+      course.description?.toLocaleLowerCase('vi').includes(query) ||
+      course.level?.toLocaleLowerCase('vi').includes(query),
+  )
+})
+
+const loadCourses = async () => {
+  loading.value = true
+  loadError.value = ''
+  try {
+    courses.value = await getMyCourses()
+  } catch (error) {
+    loadError.value = handleApiError(error, 'Không thể tải danh sách khóa học.').message
+  } finally {
+    loading.value = false
+  }
+}
+
+const submitJoin = async () => {
+  joinMessage.value = ''
+  joinErrors.value = {}
+  const input = { courseId: courseId.value.trim(), code: code.value.trim() }
+
+  if (!input.courseId) joinErrors.value.courseId = 'Vui lòng nhập ID khóa học.'
+  if (!input.code) joinErrors.value.code = 'Vui lòng nhập mã tham gia.'
+  if (Object.keys(joinErrors.value).length > 0) return
+
+  joining.value = true
+  try {
+    const membership = await joinCourse(input)
+    await loadCourses()
+    await router.push({ name: 'student-course-detail', params: { courseId: membership.courseId } })
+  } catch (error) {
+    const parsed = handleApiError(error, 'Không thể tham gia khóa học.')
+    joinMessage.value = parsed.message
+    joinErrors.value = parsed.fieldErrors
+  } finally {
+    joining.value = false
+  }
+}
+
+const formatDate = (value: string) =>
+  new Intl.DateTimeFormat('vi-VN', { dateStyle: 'medium' }).format(new Date(value))
+
+onMounted(() => void loadCourses())
+</script>
+
+<template>
+  <section class="mx-auto max-w-app space-y-6">
+    <header>
+      <p class="text-sm font-semibold text-secondary">Không gian học tập</p>
+      <h1 class="mt-1 font-heading text-3xl font-bold tracking-tight text-app-text">
+        Khóa học của tôi
+      </h1>
+      <p class="mt-2 text-sm text-app-text-muted">
+        Truy cập khóa học đã tham gia hoặc tham gia bằng mã được cung cấp.
+      </p>
+    </header>
+
+    <BaseCard>
+      <template #header>
+        <div class="flex items-center gap-3">
+          <span
+            class="flex h-10 w-10 items-center justify-center rounded-control bg-secondary-soft text-secondary"
+            ><KeyRound :size="20"
+          /></span>
+          <div>
+            <h2 class="font-heading text-lg font-bold text-app-text">Tham gia khóa học</h2>
+            <p class="mt-1 text-sm text-app-text-muted">Nhập đúng ID khóa học và mã tham gia.</p>
+          </div>
+        </div>
+      </template>
+      <form
+        class="grid gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_auto] lg:items-start"
+        @submit.prevent="submitJoin"
+      >
+        <BaseInput
+          v-model="courseId"
+          label="ID khóa học"
+          placeholder="UUID khóa học"
+          :error="joinErrors.courseId"
+          :disabled="joining"
+          required
+        />
+        <BaseInput
+          v-model="code"
+          label="Mã tham gia"
+          placeholder="Nhập mã tham gia"
+          :error="joinErrors.code"
+          :disabled="joining"
+          required
+        />
+        <BaseButton type="submit" class="lg:mt-7" :loading="joining"
+          ><template #leading><KeyRound :size="18" /></template>Tham gia</BaseButton
+        >
+      </form>
+      <BaseAlert v-if="joinMessage" class="mt-4">{{ joinMessage }}</BaseAlert>
+    </BaseCard>
+
+    <BaseAlert v-if="loadError">
+      <div class="flex flex-wrap items-center justify-between gap-3">
+        <span>{{ loadError }}</span
+        ><button type="button" class="font-semibold underline" @click="loadCourses">Thử lại</button>
+      </div>
+    </BaseAlert>
+
+    <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+      <h2 class="font-heading text-xl font-bold text-app-text">Danh sách khóa học</h2>
+      <BaseInput v-model="keyword" class="w-full sm:max-w-sm" placeholder="Tìm khóa học..."
+        ><template #leading><Search :size="18" /></template
+      ></BaseInput>
+    </div>
+
+    <div v-if="loading" class="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
+      <div
+        v-for="index in 6"
+        :key="index"
+        class="h-64 animate-pulse rounded-card bg-app-surface-muted"
+      />
+    </div>
+    <BaseCard v-else-if="filteredCourses.length === 0">
+      <div class="py-10 text-center">
+        <BookOpen :size="44" class="mx-auto text-app-text-muted/40" />
+        <h2 class="mt-4 font-heading text-xl font-bold text-app-text">
+          {{
+            courses.length ? 'Không tìm thấy khóa học phù hợp' : 'Bạn chưa tham gia khóa học nào'
+          }}
+        </h2>
+        <p class="mt-2 text-sm text-app-text-muted">
+          {{
+            courses.length
+              ? 'Thử thay đổi từ khóa tìm kiếm.'
+              : 'Sử dụng ID khóa học và mã tham gia ở phía trên.'
+          }}
+        </p>
+      </div>
+    </BaseCard>
+    <div v-else class="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
+      <RouterLink
+        v-for="course in filteredCourses"
+        :key="course.id"
+        :to="{ name: 'student-course-detail', params: { courseId: course.id } }"
+        class="group flex min-h-64 flex-col overflow-hidden rounded-card border border-app-border bg-app-surface shadow-card transition hover:-translate-y-0.5 hover:border-secondary/50 hover:shadow-overlay"
+      >
+        <div class="h-2 bg-secondary" />
+        <div class="flex flex-1 flex-col p-5">
+          <span class="w-fit rounded-pill bg-ai-soft px-2.5 py-1 text-xs font-semibold text-ai"
+            >Đã tham gia</span
+          >
+          <h3
+            class="mt-4 line-clamp-2 font-heading text-xl font-bold text-app-text group-hover:text-secondary"
+          >
+            {{ course.title }}
+          </h3>
+          <p class="mt-2 line-clamp-3 text-sm leading-6 text-app-text-muted">
+            {{ course.description || 'Khóa học chưa có mô tả.' }}
+          </p>
+          <div class="mt-auto flex items-end justify-between gap-3 pt-6">
+            <div class="space-y-1 text-xs text-app-text-muted">
+              <p v-if="course.level" class="font-medium text-app-text">{{ course.level }}</p>
+              <p class="flex items-center gap-1.5">
+                <CalendarDays :size="14" />Cập nhật {{ formatDate(course.updatedAt) }}
+              </p>
+            </div>
+            <ArrowRight :size="20" class="text-secondary transition group-hover:translate-x-1" />
+          </div>
+        </div>
+      </RouterLink>
+    </div>
+  </section>
+</template>
