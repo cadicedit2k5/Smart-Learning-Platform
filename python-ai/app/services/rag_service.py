@@ -5,6 +5,7 @@ from langchain_core.language_models import BaseChatModel
 from app.prompts.rag import RAG_PROMPT
 from app.schemas.chat import ChatHistoryMessage
 from app.schemas.rag import RagOutputModel, RagAnswer, RagCitation
+from app.services.chat_history import to_langchain_messages
 from app.services.rag_context import build_rag_context
 from app.services.retrieval_service import RetrievalService
 
@@ -33,9 +34,9 @@ class RagService:
                 answer=f"Không tìm thấy thông tin phù hợp {search_scope}",
                 citations=[],
             )
-
+        langchain_history = to_langchain_messages(history=history)
         rag_context = build_rag_context(chunks=retrieval_chunks)
-        messages = RAG_PROMPT.format_messages(question=question, history=history, context=rag_context.text)
+        messages = RAG_PROMPT.format_messages(question=question, history=langchain_history, context=rag_context.text)
         raw_output = await self._structured_model.ainvoke(messages)
 
         if isinstance(raw_output, RagOutputModel):
