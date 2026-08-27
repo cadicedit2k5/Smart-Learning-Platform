@@ -42,7 +42,7 @@ public class CourseContentServiceImpl implements CourseContentService {
     @Override
     @Transactional(readOnly = true)
     public List<CourseChapterResponse> getChapters(UUID courseId, UUID currentUserId) {
-        requireOwnerCourse(courseId, currentUserId);
+        requireActiveMemberCourse(courseId, currentUserId);
         return chapterRepository.findAllByCourseIdAndDeletedAtIsNullOrderByOrderIndexAsc(courseId)
                 .stream()
                 .map(chapterMapper::toResponse)
@@ -103,7 +103,7 @@ public class CourseContentServiceImpl implements CourseContentService {
     @Override
     @Transactional(readOnly = true)
     public List<CourseTopicResponse> getTopics(UUID courseId, UUID chapterId, UUID currentUserId) {
-        requireOwnerCourse(courseId, currentUserId);
+        requireActiveMemberCourse(courseId, currentUserId);
         requireChapter(courseId, chapterId);
         return topicRepository.findAllByChapterIdAndDeletedAtIsNullOrderByOrderIndexAsc(chapterId)
                 .stream()
@@ -165,6 +165,11 @@ public class CourseContentServiceImpl implements CourseContentService {
         Course course = courseUtils.requireCourse(courseId);
         courseAccessPolicy.requireOwner(courseId, currentUserId);
         return course;
+    }
+
+    private void requireActiveMemberCourse(UUID courseId, UUID currentUserId) {
+        courseUtils.requireCourse(courseId);
+        courseAccessPolicy.requireActiveMember(courseId, currentUserId);
     }
 
     private CourseChapter requireChapter(UUID courseId, UUID chapterId) {

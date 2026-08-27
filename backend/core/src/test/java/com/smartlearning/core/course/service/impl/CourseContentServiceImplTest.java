@@ -28,6 +28,7 @@ import java.util.UUID;
 
 import static com.smartlearning.core.support.CoreTestData.COURSE_ID;
 import static com.smartlearning.core.support.CoreTestData.OWNER_ID;
+import static com.smartlearning.core.support.CoreTestData.STUDENT_ID;
 import static com.smartlearning.core.support.CoreTestData.course;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -56,6 +57,43 @@ class CourseContentServiceImplTest {
     private CourseTopicMapper topicMapper;
     @InjectMocks
     private CourseContentServiceImpl contentService;
+
+    @Test
+    void getChapters_allowsActiveMember() {
+        CourseChapter chapter = chapter();
+        when(courseUtils.requireCourse(COURSE_ID)).thenReturn(course());
+        when(chapterRepository.findAllByCourseIdAndDeletedAtIsNullOrderByOrderIndexAsc(COURSE_ID))
+                .thenReturn(List.of(chapter));
+        when(chapterMapper.toResponse(chapter)).thenReturn(chapterResponse(chapter));
+
+        List<CourseChapterResponse> result = contentService.getChapters(COURSE_ID, STUDENT_ID);
+
+        assertThat(result).hasSize(1);
+        verify(courseAccessPolicy).requireActiveMember(COURSE_ID, STUDENT_ID);
+        verify(courseAccessPolicy, never()).requireOwner(COURSE_ID, STUDENT_ID);
+    }
+
+    @Test
+    void getTopics_allowsActiveMember() {
+        CourseChapter chapter = chapter();
+        CourseTopic topic = topic(chapter);
+        when(courseUtils.requireCourse(COURSE_ID)).thenReturn(course());
+        when(chapterRepository.findByIdAndCourseIdAndDeletedAtIsNull(CHAPTER_ID, COURSE_ID))
+                .thenReturn(Optional.of(chapter));
+        when(topicRepository.findAllByChapterIdAndDeletedAtIsNullOrderByOrderIndexAsc(CHAPTER_ID))
+                .thenReturn(List.of(topic));
+        when(topicMapper.toResponse(topic)).thenReturn(topicResponse(topic));
+
+        List<CourseTopicResponse> result = contentService.getTopics(
+                COURSE_ID,
+                CHAPTER_ID,
+                STUDENT_ID
+        );
+
+        assertThat(result).hasSize(1);
+        verify(courseAccessPolicy).requireActiveMember(COURSE_ID, STUDENT_ID);
+        verify(courseAccessPolicy, never()).requireOwner(COURSE_ID, STUDENT_ID);
+    }
 
     @Test
     void createChapter_assignsNextOrderAndDraftStatus() {

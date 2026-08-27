@@ -32,12 +32,12 @@ import java.util.UUID;
 @RestController
 @RequestMapping("/courses/{courseId}/chapters")
 @RequiredArgsConstructor
-@PreAuthorize(Authorities.COURSE_MANAGE)
 public class ApiCourseContentController {
 
     private final CourseContentService contentService;
 
     @GetMapping
+    @PreAuthorize(Authorities.COURSE_READ)
     public ResponseEntity<ApiResponse<List<CourseChapterResponse>>> getChapters(
             @PathVariable UUID courseId,
             @AuthenticationPrincipal Jwt jwt
@@ -46,6 +46,7 @@ public class ApiCourseContentController {
     }
 
     @PostMapping
+    @PreAuthorize(Authorities.COURSE_MANAGE)
     public ResponseEntity<ApiResponse<CourseChapterResponse>> createChapter(
             @PathVariable UUID courseId,
             @Valid @RequestBody CourseChapterCreateRequest request,
@@ -59,6 +60,7 @@ public class ApiCourseContentController {
     }
 
     @PatchMapping("/{chapterId}")
+    @PreAuthorize(Authorities.COURSE_MANAGE)
     public ResponseEntity<ApiResponse<CourseChapterResponse>> updateChapter(
             @PathVariable UUID courseId,
             @PathVariable UUID chapterId,
@@ -74,6 +76,7 @@ public class ApiCourseContentController {
     }
 
     @DeleteMapping("/{chapterId}")
+    @PreAuthorize(Authorities.COURSE_MANAGE)
     public ResponseEntity<Void> deleteChapter(
             @PathVariable UUID courseId,
             @PathVariable UUID chapterId,
@@ -84,6 +87,7 @@ public class ApiCourseContentController {
     }
 
     @GetMapping("/{chapterId}/topics")
+    @PreAuthorize(Authorities.COURSE_READ)
     public ResponseEntity<ApiResponse<List<CourseTopicResponse>>> getTopics(
             @PathVariable UUID courseId,
             @PathVariable UUID chapterId,
@@ -97,6 +101,7 @@ public class ApiCourseContentController {
     }
 
     @PostMapping("/{chapterId}/topics")
+    @PreAuthorize(Authorities.COURSE_MANAGE)
     public ResponseEntity<ApiResponse<CourseTopicResponse>> createTopic(
             @PathVariable UUID courseId,
             @PathVariable UUID chapterId,
@@ -112,6 +117,7 @@ public class ApiCourseContentController {
     }
 
     @PatchMapping("/{chapterId}/topics/{topicId}")
+    @PreAuthorize(Authorities.COURSE_MANAGE)
     public ResponseEntity<ApiResponse<CourseTopicResponse>> updateTopic(
             @PathVariable UUID courseId,
             @PathVariable UUID chapterId,
@@ -129,6 +135,7 @@ public class ApiCourseContentController {
     }
 
     @DeleteMapping("/{chapterId}/topics/{topicId}")
+    @PreAuthorize(Authorities.COURSE_MANAGE)
     public ResponseEntity<Void> deleteTopic(
             @PathVariable UUID courseId,
             @PathVariable UUID chapterId,
