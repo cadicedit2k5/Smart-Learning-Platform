@@ -9,6 +9,8 @@ import {
   CheckCircle2,
   FileText,
   Globe2,
+  KeyRound,
+  Layers3,
   LockKeyhole,
   Pencil,
   Rocket,
@@ -30,13 +32,15 @@ import {
   type CourseStatus,
   type CourseVisibility,
 } from '../api/courseApi'
-import CourseAccessPanel from '../components/CourseAccessPanel.vue'
+import CourseAccessCodesPanel from '../components/CourseAccessCodesPanel.vue'
 import CourseAiPanel from '../components/CourseAiPanel.vue'
+import CourseContentPanel from '../components/CourseContentPanel.vue'
 import CourseDocumentsPanel from '../components/CourseDocumentsPanel.vue'
 import CourseFormModal from '../components/CourseFormModal.vue'
+import CourseMembersPanel from '../components/CourseMembersPanel.vue'
 import { useLecturerApiError } from '../composables/useLecturerApiError'
 
-type DetailTab = 'overview' | 'documents' | 'ai'
+type DetailTab = 'overview' | 'members' | 'access' | 'content' | 'documents' | 'ai'
 
 const route = useRoute()
 const router = useRouter()
@@ -57,15 +61,26 @@ const deleting = ref(false)
 const formMessage = ref('')
 const formErrors = ref<Record<string, string>>({})
 
-const tabs: Array<{
-  id: DetailTab
-  label: string
-  icon: typeof BookOpen
-}> = [
-  { id: 'overview', label: 'Tổng quan & truy cập', icon: BookOpen },
+const canManageCourse = computed(() => course.value?.currentUserRole === 'OWNER')
+
+const tabs = computed<
+  Array<{
+    id: DetailTab
+    label: string
+    icon: typeof BookOpen
+  }>
+>(() => [
+  { id: 'overview', label: 'Tổng quan', icon: BookOpen },
+  ...(canManageCourse.value
+    ? [
+        { id: 'members' as const, label: 'Thành viên', icon: UsersRound },
+        { id: 'access' as const, label: 'Mã tham gia', icon: KeyRound },
+        { id: 'content' as const, label: 'Nội dung', icon: Layers3 },
+      ]
+    : []),
   { id: 'documents', label: 'Tài liệu', icon: FileText },
   { id: 'ai', label: 'Trợ lý AI', icon: Bot },
-]
+])
 
 const loadCourse = async () => {
   loading.value = true
@@ -236,7 +251,7 @@ onMounted(() => {
             </p>
           </div>
 
-          <div class="flex flex-wrap gap-3">
+          <div v-if="canManageCourse" class="flex flex-wrap gap-3">
             <BaseButton variant="secondary" @click="openEdit">
               <template #leading><Pencil :size="17" /></template>
               Chỉnh sửa
@@ -308,9 +323,10 @@ onMounted(() => {
           </dl>
         </article>
 
-        <CourseAccessPanel :course-id="course.id" />
-
-        <article class="rounded-card border border-danger/25 bg-app-surface p-5 shadow-card sm:p-6">
+        <article
+          v-if="canManageCourse"
+          class="rounded-card border border-danger/25 bg-app-surface p-5 shadow-card sm:p-6"
+        >
           <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div>
               <h2 class="font-heading text-lg font-bold text-app-text">Xóa khóa học</h2>
@@ -330,8 +346,15 @@ onMounted(() => {
         </article>
       </div>
 
-      <CourseDocumentsPanel v-else-if="activeTab === 'documents'" :course-id="course.id" />
-      <CourseAiPanel v-else :course-id="course.id" />
+      <CourseMembersPanel v-else-if="activeTab === 'members'" :course-id="course.id" />
+      <CourseAccessCodesPanel v-else-if="activeTab === 'access'" :course-id="course.id" />
+      <CourseContentPanel v-else-if="activeTab === 'content'" :course-id="course.id" />
+      <CourseDocumentsPanel
+        v-else-if="activeTab === 'documents'"
+        :course-id="course.id"
+        :can-manage="canManageCourse"
+      />
+      <CourseAiPanel v-else-if="activeTab === 'ai'" :course-id="course.id" />
 
       <CourseFormModal
         :open="editOpen"

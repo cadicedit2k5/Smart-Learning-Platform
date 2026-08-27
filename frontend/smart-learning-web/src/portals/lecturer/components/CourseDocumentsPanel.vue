@@ -1,15 +1,18 @@
 <script setup lang="ts">
-import { computed, onBeforeUnmount, onMounted, reactive, ref } from 'vue'
+import { computed, onBeforeUnmount, onMounted, reactive, ref, watch } from 'vue'
 import {
   AlertTriangle,
   CheckCircle2,
   ChevronLeft,
   ChevronRight,
   Clock3,
+  Download,
   FileText,
+  Pencil,
   RefreshCw,
+  Search,
+  Trash2,
   Upload,
-  X,
 } from 'lucide-vue-next'
 
 import BaseAlert from '@/shared/components/BaseAlert.vue'
@@ -17,58 +20,68 @@ import BaseButton from '@/shared/components/BaseButton.vue'
 import BaseInput from '@/shared/components/BaseInput.vue'
 import type { PaginatedData } from '@/shared/api'
 
+import { getChapters, getTopics, type CourseChapter, type CourseTopic } from '../api/contentApi'
 import {
+  deleteDocument,
+  downloadDocument,
+  getDocument,
   getDocuments,
+  updateDocument,
   uploadDocument,
   type CourseDocument,
   type DocumentProcessingStatus,
-} from '../api/courseApi'
+  type DocumentUpdateInput,
+  type DocumentUploadInput,
+} from '../api/documentApi'
 import { useLecturerApiError } from '../composables/useLecturerApiError'
+import DocumentFormModal from './DocumentFormModal.vue'
 
-const props = defineProps<{
-  courseId: string
-}>()
-
-const MAX_FILE_SIZE = 50 * 1024 * 1024
-const POLL_INTERVAL = 5000
+const props = withDefaults(
+  defineProps<{
+    courseId: string
+    canManage?: boolean
+  }>(),
+  {
+    canManage: false,
+  },
+)
 
 const { handleApiError } = useLecturerApiError()
-
-const documentsPage = ref<PaginatedData<CourseDocument>>({
+const emptyPage = (): PaginatedData<CourseDocument> => ({
   content: [],
-  pageable: {
-    page: 0,
-    size: 10,
-    totalElements: 0,
-    totalPages: 0,
-  },
+  pageable: { page: 1, size: 10, totalElements: 0, totalPages: 0 },
 })
+
+const documentsPage = ref(emptyPage())
+const chapters = ref<CourseChapter[]>([])
+const filterTopics = ref<CourseTopic[]>([])
 const requestedPage = ref(1)
 const loading = ref(true)
 const polling = ref(false)
 const loadError = ref('')
-const uploadOpen = ref(false)
-const uploading = ref(false)
-const uploadMessage = ref('')
-const uploadErrors = reactive<Record<string, string>>({})
-const fileInput = ref<HTMLInputElement | null>(null)
-const uploadForm = reactive({
-  title: '',
-  description: '',
-  file: null as File | null,
+const actionMessage = ref('')
+const formOpen = ref(false)
+const formLoading = ref(false)
+const formMessage = ref('')
+const formErrors = ref<Record<string, string>>({})
+const editingDocument = ref<CourseDocument | null>(null)
+const downloadingId = ref('')
+const deletingId = ref('')
+const filters = reactive({
+  keyword: '',
+  lifecycleStatus: 'ACTIVE' as 'ACTIVE' | 'ARCHIVED',
+  chapterId: '',
+  topicId: '',
 })
 
 let pollTimer: ReturnType<typeof setTimeout> | undefined
 
-const totalPages = computed(() => {
-  return Math.max(1, documentsPage.value.pageable.totalPages)
-})
-
-const hasProcessingDocuments = computed(() => {
-  return documentsPage.value.content.some((document) => {
-    return ['UPLOADED', 'QUEUED', 'PROCESSING'].includes(document.version.processingStatus)
-  })
-})
+const totalPages = computed(() => Math.max(1, documentsPage.value.pageable.totalPages))
+const hasProcessingDocuments = computed(() =>
+  documentsPage.value.content.some((item) =>
+    ['UPLOADED', 'QUEUED', 'PROCESSING'].includes(item.version.processingStatus),
+  ),
+)
 
 const clearPollTimer = () => {
   if (pollTimer) {
@@ -79,27 +92,23 @@ const clearPollTimer = () => {
 
 const schedulePoll = () => {
   clearPollTimer()
-
-  if (!hasProcessingDocuments.value) {
-    return
-  }
-
-  pollTimer = setTimeout(() => {
-    void loadDocuments(true)
-  }, POLL_INTERVAL)
+  if (!hasProcessingDocuments.value) return
+  pollTimer = setTimeout(() => void loadDocuments(true), 5000)
 }
 
 const loadDocuments = async (silent = false) => {
-  if (silent) {
-    polling.value = true
-  } else {
-    loading.value = true
-  }
-
+  if (silent) polling.value = true
+  else loading.value = true
   loadError.value = ''
 
   try {
-    documentsPage.value = await getDocuments(props.courseId, requestedPage.value)
+    documentsPage.value = await getDocuments(props.courseId, {
+      page: requestedPage.value,
+      keyword: filters.keyword.trim() || undefined,
+      lifecycleStatus: filters.lifecycleStatus,
+      chapterId: filters.chapterId || undefined,
+      topicId: filters.topicId || undefined,
+    })
   } catch (error) {
     loadError.value = handleApiError(error, 'Không thể tải danh sách tài liệu.').message
   } finally {
@@ -109,108 +118,140 @@ const loadDocuments = async (silent = false) => {
   }
 }
 
-const goToPage = (page: number) => {
-  if (page < 1 || page > totalPages.value || page === requestedPage.value) {
-    return
+const loadChapters = async () => {
+  if (!props.canManage) return
+  try {
+    chapters.value = await getChapters(props.courseId)
+  } catch (error) {
+    actionMessage.value = handleApiError(error, 'Không thể tải danh sách chương.').message
   }
+}
 
-  clearPollTimer()
+const changeFilterChapter = async () => {
+  filters.topicId = ''
+  filterTopics.value = filters.chapterId ? await getTopics(props.courseId, filters.chapterId) : []
+}
+
+const applyFilters = () => {
+  requestedPage.value = 1
+  void loadDocuments()
+}
+
+const resetFilters = () => {
+  filters.keyword = ''
+  filters.lifecycleStatus = 'ACTIVE'
+  filters.chapterId = ''
+  filters.topicId = ''
+  filterTopics.value = []
+  applyFilters()
+}
+
+const goToPage = (page: number) => {
+  if (page < 1 || page > totalPages.value || page === requestedPage.value) return
   requestedPage.value = page
   void loadDocuments()
 }
 
-const selectFile = (event: Event) => {
-  const input = event.target as HTMLInputElement
-  uploadForm.file = input.files?.[0] ?? null
-  delete uploadErrors.file
-
-  if (uploadForm.file && uploadForm.file.size > MAX_FILE_SIZE) {
-    uploadErrors.file = 'Tệp không được vượt quá 50 MB.'
-  }
+const openUpload = () => {
+  editingDocument.value = null
+  formMessage.value = ''
+  formErrors.value = {}
+  formOpen.value = true
 }
 
-const clearUploadErrors = () => {
-  Object.keys(uploadErrors).forEach((field) => {
-    delete uploadErrors[field]
-  })
-  uploadMessage.value = ''
-}
-
-const resetUpload = () => {
-  uploadForm.title = ''
-  uploadForm.description = ''
-  uploadForm.file = null
-  clearUploadErrors()
-
-  if (fileInput.value) {
-    fileInput.value.value = ''
-  }
-}
-
-const closeUpload = () => {
-  if (!uploading.value) {
-    uploadOpen.value = false
-    resetUpload()
-  }
-}
-
-const submitUpload = async () => {
-  clearUploadErrors()
-
-  if (!uploadForm.title.trim()) {
-    uploadErrors.title = 'Vui lòng nhập tiêu đề tài liệu.'
-  } else if (uploadForm.title.trim().length > 255) {
-    uploadErrors.title = 'Tiêu đề không được vượt quá 255 ký tự.'
-  }
-
-  if (uploadForm.description.length > 10000) {
-    uploadErrors.description = 'Mô tả không được vượt quá 10.000 ký tự.'
-  }
-
-  if (!uploadForm.file) {
-    uploadErrors.file = 'Vui lòng chọn tài liệu cần tải lên.'
-  } else if (uploadForm.file.size > MAX_FILE_SIZE) {
-    uploadErrors.file = 'Tệp không được vượt quá 50 MB.'
-  }
-
-  if (Object.keys(uploadErrors).length > 0 || !uploadForm.file) {
-    return
-  }
-
-  uploading.value = true
-
+const openEdit = async (item: CourseDocument) => {
+  formMessage.value = ''
+  formErrors.value = {}
   try {
-    await uploadDocument(props.courseId, {
-      title: uploadForm.title.trim(),
-      description: uploadForm.description.trim(),
-      file: uploadForm.file,
-    })
+    editingDocument.value = await getDocument(props.courseId, item.id)
+    formOpen.value = true
+  } catch (error) {
+    actionMessage.value = handleApiError(error, 'Không thể tải chi tiết tài liệu.').message
+  }
+}
 
-    uploadOpen.value = false
-    resetUpload()
+const submitUpload = async (input: DocumentUploadInput) => {
+  formLoading.value = true
+  formMessage.value = ''
+  formErrors.value = {}
+  try {
+    await uploadDocument(props.courseId, input)
+    formOpen.value = false
     requestedPage.value = 1
     await loadDocuments()
   } catch (error) {
     const parsed = handleApiError(error, 'Không thể tải tài liệu lên.')
-    uploadMessage.value = parsed.message
-    Object.assign(uploadErrors, parsed.fieldErrors)
+    formMessage.value = parsed.message
+    formErrors.value = parsed.fieldErrors
   } finally {
-    uploading.value = false
+    formLoading.value = false
+  }
+}
+
+const submitUpdate = async (input: DocumentUpdateInput) => {
+  if (!editingDocument.value) return
+  formLoading.value = true
+  formMessage.value = ''
+  formErrors.value = {}
+  try {
+    await updateDocument(props.courseId, editingDocument.value.id, input)
+    formOpen.value = false
+    editingDocument.value = null
+    await loadDocuments()
+  } catch (error) {
+    const parsed = handleApiError(error, 'Không thể cập nhật tài liệu.')
+    formMessage.value = parsed.message
+    formErrors.value = parsed.fieldErrors
+  } finally {
+    formLoading.value = false
+  }
+}
+
+const handleDownload = async (item: CourseDocument) => {
+  downloadingId.value = item.id
+  actionMessage.value = ''
+  try {
+    const blob = await downloadDocument(props.courseId, item.id)
+    const objectUrl = URL.createObjectURL(blob)
+    const anchor = window.document.createElement('a')
+    anchor.href = objectUrl
+    anchor.download = item.version.fileName || item.title
+    anchor.click()
+    URL.revokeObjectURL(objectUrl)
+  } catch (error) {
+    actionMessage.value = handleApiError(error, 'Không thể tải tài liệu.').message
+  } finally {
+    downloadingId.value = ''
+  }
+}
+
+const handleDelete = async (item: CourseDocument) => {
+  if (!window.confirm('Xóa tài liệu “' + item.title + '”?')) return
+  deletingId.value = item.id
+  actionMessage.value = ''
+  try {
+    await deleteDocument(props.courseId, item.id)
+    if (documentsPage.value.content.length === 1 && requestedPage.value > 1) {
+      requestedPage.value -= 1
+    }
+    await loadDocuments()
+  } catch (error) {
+    actionMessage.value = handleApiError(error, 'Không thể xóa tài liệu.').message
+  } finally {
+    deletingId.value = ''
   }
 }
 
 const formatFileSize = (bytes: number) => {
-  if (bytes < 1024) return `${bytes} B`
-  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`
-  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`
+  if (bytes < 1024) return bytes + ' B'
+  if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB'
+  return (bytes / (1024 * 1024)).toFixed(1) + ' MB'
 }
 
-const formatDate = (value: string) => {
-  return new Intl.DateTimeFormat('vi-VN', {
-    dateStyle: 'medium',
-    timeStyle: 'short',
-  }).format(new Date(value))
-}
+const formatDate = (value: string) =>
+  new Intl.DateTimeFormat('vi-VN', { dateStyle: 'medium', timeStyle: 'short' }).format(
+    new Date(value),
+  )
 
 const statusLabel: Record<DocumentProcessingStatus, string> = {
   UPLOADED: 'Đã tải lên',
@@ -228,13 +269,17 @@ const statusClass: Record<DocumentProcessingStatus, string> = {
   FAILED: 'bg-danger-soft text-on-danger-soft',
 }
 
-onMounted(() => {
-  void loadDocuments()
-})
+watch(
+  () => props.courseId,
+  () => {
+    requestedPage.value = 1
+    documentsPage.value = emptyPage()
+    void Promise.all([loadDocuments(), loadChapters()])
+  },
+)
 
-onBeforeUnmount(() => {
-  clearPollTimer()
-})
+onMounted(() => void Promise.all([loadDocuments(), loadChapters()]))
+onBeforeUnmount(clearPollTimer)
 </script>
 
 <template>
@@ -246,21 +291,63 @@ onBeforeUnmount(() => {
           Tài liệu đã lập chỉ mục sẽ được dùng làm nguồn cho trợ lý AI.
         </p>
       </div>
-
-      <BaseButton @click="uploadOpen = true">
+      <BaseButton v-if="canManage" @click="openUpload">
         <template #leading><Upload :size="18" /></template>
         Tải tài liệu lên
       </BaseButton>
     </header>
 
+    <BaseAlert v-if="actionMessage">{{ actionMessage }}</BaseAlert>
     <BaseAlert v-if="loadError">
-      <div class="flex flex-wrap items-center justify-between gap-3">
+      <div class="flex items-center justify-between gap-3">
         <span>{{ loadError }}</span>
         <button type="button" class="font-semibold underline" @click="loadDocuments()">
           Thử lại
         </button>
       </div>
     </BaseAlert>
+
+    <form
+      class="grid gap-3 rounded-card border border-app-border bg-app-surface p-4 shadow-card md:grid-cols-[minmax(0,1fr)_11rem_12rem_12rem_auto]"
+      @submit.prevent="applyFilters"
+    >
+      <BaseInput v-model="filters.keyword" placeholder="Tìm tài liệu">
+        <template #leading><Search :size="17" /></template>
+      </BaseInput>
+      <select
+        v-model="filters.lifecycleStatus"
+        class="h-11 rounded-control border border-app-border bg-app-surface px-3 text-sm"
+      >
+        <option value="ACTIVE">Đang hoạt động</option>
+        <option value="ARCHIVED">Đã lưu trữ</option>
+      </select>
+      <select
+        v-if="canManage"
+        v-model="filters.chapterId"
+        class="h-11 rounded-control border border-app-border bg-app-surface px-3 text-sm"
+        @change="changeFilterChapter"
+      >
+        <option value="">Tất cả chương</option>
+        <option v-for="chapter in chapters" :key="chapter.id" :value="chapter.id">
+          {{ chapter.title }}
+        </option>
+      </select>
+      <select
+        v-if="canManage"
+        v-model="filters.topicId"
+        class="h-11 rounded-control border border-app-border bg-app-surface px-3 text-sm"
+        :disabled="!filters.chapterId"
+      >
+        <option value="">Tất cả chủ đề</option>
+        <option v-for="topic in filterTopics" :key="topic.id" :value="topic.id">
+          {{ topic.title }}
+        </option>
+      </select>
+      <div class="flex gap-2">
+        <BaseButton type="submit">Lọc</BaseButton>
+        <BaseButton variant="secondary" @click="resetFilters">Đặt lại</BaseButton>
+      </div>
+    </form>
 
     <div class="overflow-hidden rounded-card border border-app-border bg-app-surface shadow-card">
       <header class="flex items-center justify-between border-b border-app-border px-5 py-4">
@@ -270,10 +357,8 @@ onBeforeUnmount(() => {
             {{ documentsPage.pageable.totalElements }} tài liệu
           </p>
         </div>
-
         <span v-if="polling" class="flex items-center gap-2 text-xs font-medium text-secondary">
-          <RefreshCw :size="14" class="animate-spin" />
-          Đang cập nhật
+          <RefreshCw :size="14" class="animate-spin" /> Đang cập nhật
         </span>
       </header>
 
@@ -284,57 +369,68 @@ onBeforeUnmount(() => {
           class="h-20 animate-pulse rounded-control bg-app-surface-muted"
         />
       </div>
-
       <div v-else-if="documentsPage.content.length === 0" class="px-6 py-16 text-center">
         <FileText :size="40" class="mx-auto text-app-text-muted/50" />
         <h3 class="mt-4 font-semibold text-app-text">Chưa có tài liệu</h3>
-        <p class="mt-1 text-sm text-app-text-muted">
-          Tải lên PDF, DOCX hoặc tài liệu môn học để bắt đầu lập chỉ mục.
-        </p>
       </div>
-
       <ul v-else class="divide-y divide-app-border">
-        <li
-          v-for="document in documentsPage.content"
-          :key="document.id"
-          class="flex gap-4 px-5 py-4"
-        >
+        <li v-for="item in documentsPage.content" :key="item.id" class="flex gap-4 px-5 py-4">
           <span
             class="flex h-11 w-11 shrink-0 items-center justify-center rounded-control bg-app-surface-muted text-app-text-muted"
-          >
-            <FileText :size="21" />
-          </span>
-
+            ><FileText :size="21"
+          /></span>
           <div class="min-w-0 flex-1">
             <div class="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
               <div class="min-w-0">
-                <p class="truncate font-semibold text-app-text">{{ document.title }}</p>
+                <p class="truncate font-semibold text-app-text">{{ item.title }}</p>
                 <p class="mt-1 truncate text-sm text-app-text-muted">
-                  {{ document.version.fileName }} · {{ formatFileSize(document.version.fileSize) }}
+                  {{ item.version.fileName }} · {{ formatFileSize(item.version.fileSize) }}
                 </p>
               </div>
-
               <span
-                class="inline-flex w-fit shrink-0 items-center gap-1.5 rounded-pill px-2.5 py-1 text-xs font-semibold"
-                :class="statusClass[document.version.processingStatus]"
+                class="inline-flex w-fit items-center gap-1.5 rounded-pill px-2.5 py-1 text-xs font-semibold"
+                :class="statusClass[item.version.processingStatus]"
               >
-                <CheckCircle2 v-if="document.version.processingStatus === 'INDEXED'" :size="13" />
-                <AlertTriangle
-                  v-else-if="document.version.processingStatus === 'FAILED'"
-                  :size="13"
-                />
+                <CheckCircle2 v-if="item.version.processingStatus === 'INDEXED'" :size="13" />
+                <AlertTriangle v-else-if="item.version.processingStatus === 'FAILED'" :size="13" />
                 <Clock3 v-else :size="13" />
-                {{ statusLabel[document.version.processingStatus] }}
+                {{ statusLabel[item.version.processingStatus] }}
               </span>
             </div>
-
-            <p v-if="document.description" class="mt-2 line-clamp-2 text-sm text-app-text-muted">
-              {{ document.description }}
+            <p v-if="item.description" class="mt-2 line-clamp-2 text-sm text-app-text-muted">
+              {{ item.description }}
             </p>
-
-            <p class="mt-2 text-xs text-app-text-muted">
-              Tải lên {{ formatDate(document.createdAt) }}
-            </p>
+            <p class="mt-2 text-xs text-app-text-muted">Tải lên {{ formatDate(item.createdAt) }}</p>
+          </div>
+          <div class="flex shrink-0 items-start gap-1">
+            <button
+              type="button"
+              class="rounded-control p-2 text-secondary hover:bg-secondary-soft disabled:opacity-50"
+              :disabled="downloadingId === item.id"
+              aria-label="Tải xuống"
+              @click="handleDownload(item)"
+            >
+              <Download :size="17" />
+            </button>
+            <button
+              v-if="canManage"
+              type="button"
+              class="rounded-control p-2 text-app-text-muted hover:bg-app-surface-muted"
+              aria-label="Sửa tài liệu"
+              @click="openEdit(item)"
+            >
+              <Pencil :size="17" />
+            </button>
+            <button
+              v-if="canManage"
+              type="button"
+              class="rounded-control p-2 text-danger hover:bg-danger-soft disabled:opacity-50"
+              :disabled="deletingId === item.id"
+              aria-label="Xóa tài liệu"
+              @click="handleDelete(item)"
+            >
+              <Trash2 :size="17" />
+            </button>
           </div>
         </li>
       </ul>
@@ -344,23 +440,21 @@ onBeforeUnmount(() => {
         class="flex items-center justify-between border-t border-app-border px-5 py-4 text-sm"
       >
         <span class="text-app-text-muted">Trang {{ requestedPage }} / {{ totalPages }}</span>
-
         <div class="flex gap-2">
           <button
             type="button"
-            aria-label="Trang trước"
-            class="flex h-9 w-9 items-center justify-center rounded-control border border-app-border disabled:opacity-40"
+            class="rounded-control border border-app-border p-2 disabled:opacity-40"
             :disabled="requestedPage <= 1 || loading"
+            aria-label="Trang trước"
             @click="goToPage(requestedPage - 1)"
           >
             <ChevronLeft :size="18" />
           </button>
-
           <button
             type="button"
-            aria-label="Trang sau"
-            class="flex h-9 w-9 items-center justify-center rounded-control border border-app-border disabled:opacity-40"
+            class="rounded-control border border-app-border p-2 disabled:opacity-40"
             :disabled="requestedPage >= totalPages || loading"
+            aria-label="Trang sau"
             @click="goToPage(requestedPage + 1)"
           >
             <ChevronRight :size="18" />
@@ -369,114 +463,17 @@ onBeforeUnmount(() => {
       </footer>
     </div>
 
-    <Teleport to="body">
-      <div
-        v-if="uploadOpen"
-        class="fixed inset-0 z-[70] flex items-center justify-center bg-slate-950/50 p-4"
-        @mousedown.self="closeUpload"
-      >
-        <section
-          role="dialog"
-          aria-modal="true"
-          aria-labelledby="upload-title"
-          class="max-h-[calc(100vh-2rem)] w-full max-w-xl overflow-y-auto rounded-panel bg-app-surface shadow-overlay"
-        >
-          <header
-            class="flex items-start justify-between border-b border-app-border px-5 py-4 sm:px-6"
-          >
-            <div>
-              <h2 id="upload-title" class="font-heading text-xl font-bold text-app-text">
-                Tải tài liệu lên
-              </h2>
-              <p class="mt-1 text-sm text-app-text-muted">Dung lượng tối đa 50 MB cho mỗi tệp.</p>
-            </div>
-
-            <button
-              type="button"
-              aria-label="Đóng"
-              class="flex h-9 w-9 items-center justify-center rounded-control text-app-text-muted hover:bg-app-surface-muted"
-              :disabled="uploading"
-              @click="closeUpload"
-            >
-              <X :size="20" />
-            </button>
-          </header>
-
-          <form class="space-y-5 p-5 sm:p-6" @submit.prevent="submitUpload">
-            <BaseAlert v-if="uploadMessage">{{ uploadMessage }}</BaseAlert>
-
-            <BaseInput
-              v-model="uploadForm.title"
-              label="Tiêu đề tài liệu"
-              maxlength="255"
-              required
-              :disabled="uploading"
-              :error="uploadErrors.title"
-            />
-
-            <div class="space-y-2">
-              <label for="document-description" class="block text-sm font-semibold text-app-text"
-                >Mô tả</label
-              >
-              <textarea
-                id="document-description"
-                v-model="uploadForm.description"
-                rows="3"
-                maxlength="10000"
-                class="w-full rounded-control border bg-app-surface px-3 py-2.5 text-sm outline-none focus:border-secondary focus:ring-2 focus:ring-secondary/20"
-                :class="uploadErrors.description ? 'border-danger' : 'border-app-border'"
-                :disabled="uploading"
-              />
-              <p v-if="uploadErrors.description" role="alert" class="text-sm text-danger">
-                {{ uploadErrors.description }}
-              </p>
-            </div>
-
-            <div class="space-y-2">
-              <p class="text-sm font-semibold text-app-text">
-                Tệp tài liệu <span class="text-danger">*</span>
-              </p>
-              <label
-                for="document-file"
-                class="flex cursor-pointer items-center gap-3 rounded-control border border-dashed bg-app-surface-muted px-4 py-4 transition hover:border-secondary"
-                :class="uploadErrors.file ? 'border-danger' : 'border-app-border'"
-              >
-                <span
-                  class="flex h-10 w-10 items-center justify-center rounded-control bg-secondary-soft text-secondary"
-                >
-                  <Upload :size="19" />
-                </span>
-                <span class="min-w-0 text-sm">
-                  <span class="block truncate font-medium text-app-text">{{
-                    uploadForm.file?.name ?? 'Chọn tệp từ thiết bị'
-                  }}</span>
-                  <span class="text-app-text-muted">Tối đa 50 MB</span>
-                </span>
-              </label>
-              <input
-                id="document-file"
-                ref="fileInput"
-                type="file"
-                class="sr-only"
-                :disabled="uploading"
-                @change="selectFile"
-              />
-              <p v-if="uploadErrors.file" role="alert" class="text-sm text-danger">
-                {{ uploadErrors.file }}
-              </p>
-            </div>
-
-            <footer
-              class="flex flex-col-reverse gap-3 border-t border-app-border pt-5 sm:flex-row sm:justify-end"
-            >
-              <BaseButton variant="secondary" :disabled="uploading" @click="closeUpload"
-                >Hủy</BaseButton
-              >
-              <BaseButton type="submit" :loading="uploading">Tải lên</BaseButton>
-            </footer>
-          </form>
-        </section>
-      </div>
-    </Teleport>
+    <DocumentFormModal
+      :open="formOpen"
+      :course-id="courseId"
+      :document="editingDocument"
+      :chapters="chapters"
+      :loading="formLoading"
+      :server-message="formMessage"
+      :server-errors="formErrors"
+      @close="formOpen = false"
+      @upload="submitUpload"
+      @update="submitUpdate"
+    />
   </section>
 </template>

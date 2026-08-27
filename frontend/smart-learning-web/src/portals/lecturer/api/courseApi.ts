@@ -1,5 +1,33 @@
 import { httpClient, type ApiResponse, type PaginatedData } from '@/shared/api'
 
+export { createAccessCode, getAccessCodes, revokeAccessCode } from './accessCodeApi'
+export type { AccessCode, AccessCodeItem } from './accessCodeApi'
+export {
+  getDocument,
+  getDocuments,
+  uploadDocument,
+  updateDocument,
+  downloadDocument,
+  deleteDocument,
+} from './documentApi'
+export type {
+  CourseDocument,
+  CourseDocumentVersion,
+  DocumentFilters,
+  DocumentLifecycleStatus,
+  DocumentProcessingStatus,
+  DocumentUpdateInput,
+  DocumentUploadInput,
+} from './documentApi'
+export {
+  addStudent,
+  getCourseMembers,
+  getUserLookup,
+  removeCourseMember,
+  searchStudents,
+} from './memberApi'
+export type { CourseMember, UserLookup } from './memberApi'
+
 export type CourseVisibility = 'PUBLIC' | 'PRIVATE' | 'INVITE_ONLY'
 export type CourseStatus = 'DRAFT' | 'PUBLISHED' | 'ARCHIVED'
 
@@ -14,6 +42,7 @@ export interface Course {
   publishedAt: string | null
   createdAt: string
   updatedAt: string
+  currentUserRole: 'OWNER' | 'STUDENT' | null
 }
 
 export interface CourseInput {
@@ -21,61 +50,6 @@ export interface CourseInput {
   description: string
   level: string
   visibility: CourseVisibility
-}
-
-export interface CourseMember {
-  id: string
-  courseId: string
-  userId: string
-  role: 'OWNER' | 'STUDENT'
-  status: 'PENDING' | 'ACTIVE' | 'REJECTED' | 'REMOVED'
-  joinedAt: string | null
-  invitedBy: string | null
-  removedAt: string | null
-  createdAt: string
-}
-
-export interface AccessCode {
-  id: string
-  courseId: string
-  code: string
-  expiresAt: string | null
-  active: boolean
-  createdAt: string
-}
-
-export type DocumentProcessingStatus = 'UPLOADED' | 'QUEUED' | 'PROCESSING' | 'INDEXED' | 'FAILED'
-
-export interface CourseDocumentVersion {
-  id: string
-  versionNumber: number
-  fileName: string
-  fileSize: number
-  mimeType: string
-  checksumSha256: string | null
-  processingStatus: DocumentProcessingStatus
-  uploadedBy: string
-  createdAt: string
-}
-
-export interface CourseDocument {
-  id: string
-  courseId: string
-  chapterId: string | null
-  topicId: string | null
-  title: string
-  description: string | null
-  lifecycleStatus: 'ACTIVE' | 'ARCHIVED'
-  uploadedBy: string
-  version: CourseDocumentVersion
-  createdAt: string
-  updatedAt: string
-}
-
-export interface DocumentUploadInput {
-  title: string
-  description?: string
-  file: File
 }
 
 export interface AiCitation {
@@ -146,64 +120,6 @@ export const publishCourse = async (courseId: string): Promise<Course> => {
 
 export const deleteCourse = async (courseId: string): Promise<void> => {
   await httpClient.delete(`${coursesPath}/${courseId}`)
-}
-
-export const addStudent = async (courseId: string, userId: string): Promise<CourseMember> => {
-  const response = await httpClient.post<ApiResponse<CourseMember>>(
-    `${coursesPath}/${courseId}/members`,
-    { userId },
-  )
-
-  return response.data.data
-}
-
-export const createAccessCode = async (
-  courseId: string,
-  expiresAt: string | null,
-): Promise<AccessCode> => {
-  const response = await httpClient.post<ApiResponse<AccessCode>>(
-    `${coursesPath}/${courseId}/access-codes`,
-    { expiresAt },
-  )
-
-  return response.data.data
-}
-
-export const revokeAccessCode = async (courseId: string, codeId: string): Promise<void> => {
-  await httpClient.delete(`${coursesPath}/${courseId}/access-codes/${codeId}`)
-}
-
-export const getDocuments = async (
-  courseId: string,
-  page = 1,
-): Promise<PaginatedData<CourseDocument>> => {
-  const response = await httpClient.get<ApiResponse<PaginatedData<CourseDocument>>>(
-    `${coursesPath}/${courseId}/documents`,
-    {
-      params: { page },
-    },
-  )
-
-  return response.data.data
-}
-
-export const uploadDocument = async (
-  courseId: string,
-  input: DocumentUploadInput,
-): Promise<CourseDocument> => {
-  const formData = new FormData()
-
-  formData.append('title', input.title)
-  formData.append('description', input.description ?? '')
-  formData.append('file', input.file)
-
-  // Do not set Content-Type: the browser must add the multipart boundary.
-  const response = await httpClient.post<ApiResponse<CourseDocument>>(
-    `${coursesPath}/${courseId}/documents`,
-    formData,
-  )
-
-  return response.data.data
 }
 
 export const getConversations = async (
