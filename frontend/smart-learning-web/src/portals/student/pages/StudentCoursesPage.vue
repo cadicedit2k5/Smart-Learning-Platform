@@ -81,11 +81,11 @@ onMounted(() => void loadCourses())
           }}
         </h2>
         <p class="mt-2 text-sm text-app-text-muted">
-          {{
-            courses.length
-              ? 'Thử thay đổi từ khóa tìm kiếm.'
-              : 'Sử dụng ID khóa học và mã tham gia ở phía trên.'
-          }}
+        {{
+          courses.length
+            ? 'Thử thay đổi từ khóa tìm kiếm.'
+            : 'Khám phá các khóa học công khai để gửi yêu cầu tham gia.'
+        }}
         </p>
       </div>
     </BaseCard>

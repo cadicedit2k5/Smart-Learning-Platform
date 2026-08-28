@@ -9,12 +9,12 @@ import {
   CheckCircle2,
   FileText,
   Globe2,
-  KeyRound,
   Layers3,
   LockKeyhole,
   Pencil,
   Rocket,
   Trash2,
+  UserRoundCheck,
   UsersRound,
   X,
 } from 'lucide-vue-next'
@@ -32,15 +32,15 @@ import {
   type CourseStatus,
   type CourseVisibility,
 } from '../api/courseApi'
-import CourseAccessCodesPanel from '../components/CourseAccessCodesPanel.vue'
 import CourseAiPanel from '../components/CourseAiPanel.vue'
 import CourseContentPanel from '../components/CourseContentPanel.vue'
 import CourseDocumentsPanel from '../components/CourseDocumentsPanel.vue'
 import CourseFormModal from '../components/CourseFormModal.vue'
 import CourseMembersPanel from '../components/CourseMembersPanel.vue'
 import { useLecturerApiError } from '../composables/useLecturerApiError'
+import CourseJoinRequestPanel from '../components/CourseJoinRequestPanel.vue'
 
-type DetailTab = 'overview' | 'members' | 'access' | 'content' | 'documents' | 'ai'
+type DetailTab = 'overview' | 'members' | 'requests' | 'content' | 'documents' | 'ai'
 
 const route = useRoute()
 const router = useRouter()
@@ -63,21 +63,26 @@ const formErrors = ref<Record<string, string>>({})
 
 const canManageCourse = computed(() => course.value?.currentUserRole === 'OWNER')
 
-const tabs = computed<
-  Array<{
-    id: DetailTab
-    label: string
-    icon: typeof BookOpen
-  }>
->(() => [
+const canReviewJoinRequests = computed(
+  () =>
+    canManageCourse.value &&
+    course.value?.status === 'PUBLISHED' &&
+    course.value?.visibility === 'PUBLIC',
+)
+
+const tabs = computed<Array<{ id: DetailTab; label: string; icon: typeof BookOpen }>>(() => [
   { id: 'overview', label: 'Tổng quan', icon: BookOpen },
+
   ...(canManageCourse.value
     ? [
         { id: 'members' as const, label: 'Thành viên', icon: UsersRound },
-        { id: 'access' as const, label: 'Mã tham gia', icon: KeyRound },
+        ...(canReviewJoinRequests.value
+          ? [{ id: 'requests' as const, label: 'Yêu cầu tham gia', icon: UserRoundCheck }]
+          : []),
         { id: 'content' as const, label: 'Nội dung', icon: Layers3 },
       ]
     : []),
+
   { id: 'documents', label: 'Tài liệu', icon: FileText },
   { id: 'ai', label: 'Trợ lý AI', icon: Bot },
 ])
@@ -193,167 +198,155 @@ onMounted(() => {
 </script>
 
 <template>
-  <section class="mx-auto max-w-app space-y-6">
+  <section class="mx-auto max-w-app space-y-5">
     <RouterLink
       :to="{ name: 'lecturer-courses' }"
       class="inline-flex items-center gap-2 text-sm font-semibold text-app-text-muted hover:text-secondary"
     >
       <ArrowLeft :size="17" />
-      Quay lại khóa học của tôi
+      Khóa học của tôi
     </RouterLink>
 
-    <div v-if="loading" class="space-y-5">
-      <div class="h-48 animate-pulse rounded-panel bg-app-surface-muted" />
-      <div class="h-96 animate-pulse rounded-panel bg-app-surface-muted" />
+    <div v-if="loading" class="space-y-4">
+      <div class="h-44 animate-pulse rounded-card bg-app-surface-muted" />
+      <div class="h-12 animate-pulse rounded-card bg-app-surface-muted" />
+      <div class="h-80 animate-pulse rounded-card bg-app-surface-muted" />
     </div>
 
     <BaseAlert v-else-if="loadError">
-      <div class="flex flex-wrap items-center justify-between gap-3">
+      <div class="flex items-center justify-between gap-3">
         <span>{{ loadError }}</span>
         <button type="button" class="font-semibold underline" @click="loadCourse">Thử lại</button>
       </div>
     </BaseAlert>
 
     <template v-else-if="course">
-      <header class="overflow-hidden rounded-panel bg-primary text-white shadow-card">
-        <div class="h-2 bg-secondary" :class="course.status === 'PUBLISHED' ? 'bg-ai-soft' : ''" />
-        <div class="flex flex-col gap-6 p-6 lg:flex-row lg:items-end lg:justify-between lg:p-8">
-          <div class="min-w-0">
-            <div class="flex flex-wrap items-center gap-2">
-              <span
-                class="rounded-pill px-2.5 py-1 text-xs font-semibold"
-                :class="statusClass[course.status]"
-              >
-                {{ statusLabel[course.status] }}
-              </span>
-              <span
-                class="flex items-center gap-1.5 rounded-pill bg-white/10 px-2.5 py-1 text-xs font-medium"
-              >
-                <Globe2 v-if="course.visibility === 'PUBLIC'" :size="13" />
-                <UsersRound v-else-if="course.visibility === 'INVITE_ONLY'" :size="13" />
-                <LockKeyhole v-else :size="13" />
-                {{ visibilityLabel[course.visibility] }}
-              </span>
-              <span
-                v-if="course.level"
-                class="rounded-pill bg-white/10 px-2.5 py-1 text-xs font-medium"
-              >
-                {{ course.level }}
-              </span>
-            </div>
+      <!-- Header -->
+      <header class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <h1 class="font-heading text-3xl font-bold tracking-tight text-app-text">
+            {{ course.title }}
+          </h1>
+        </div>
 
-            <h1 class="mt-4 max-w-4xl font-heading text-3xl font-bold tracking-tight sm:text-4xl">
-              {{ course.title }}
-            </h1>
-            <p class="mt-3 flex items-center gap-2 text-sm text-white/70">
-              <CalendarDays :size="16" />
-              Cập nhật {{ formatDate(course.updatedAt) }}
-            </p>
-          </div>
+        <div v-if="canManageCourse" class="flex gap-2">
+          <BaseButton variant="secondary" @click="openEdit">
+            <template #leading><Pencil :size="16" /></template>
+            Chỉnh sửa
+          </BaseButton>
 
-          <div v-if="canManageCourse" class="flex flex-wrap gap-3">
-            <BaseButton variant="secondary" @click="openEdit">
-              <template #leading><Pencil :size="17" /></template>
-              Chỉnh sửa
-            </BaseButton>
-            <BaseButton
-              v-if="course.status === 'DRAFT'"
-              variant="ai"
-              :loading="publishing"
-              @click="handlePublish"
-            >
-              <template #leading><Rocket :size="17" /></template>
-              Xuất bản
-            </BaseButton>
-          </div>
+          <BaseButton
+            v-if="course.status === 'DRAFT'"
+            :loading="publishing"
+            @click="handlePublish"
+          >
+            <template #leading><Rocket :size="16" /></template>
+            Xuất bản
+          </BaseButton>
         </div>
       </header>
 
       <BaseAlert v-if="actionMessage">{{ actionMessage }}</BaseAlert>
+
       <BaseAlert v-if="successMessage" variant="ai">
         <template #icon><CheckCircle2 :size="18" /></template>
         {{ successMessage }}
       </BaseAlert>
 
-      <nav
-        class="flex gap-1 overflow-x-auto rounded-card border border-app-border bg-app-surface p-1.5 shadow-card"
-        aria-label="Nội dung khóa học"
-      >
-        <button
-          v-for="tab in tabs"
-          :key="tab.id"
-          type="button"
-          class="inline-flex h-10 shrink-0 items-center gap-2 rounded-control px-4 text-sm font-semibold transition"
-          :class="
-            activeTab === tab.id
-              ? 'bg-secondary-soft text-secondary'
-              : 'text-app-text-muted hover:bg-app-surface-muted'
-          "
-          @click="activeTab = tab.id"
-        >
-          <component :is="tab.icon" :size="17" />
-          {{ tab.label }}
-        </button>
+      <!-- Navigation -->
+      <nav class="border-b border-app-border" aria-label="Nội dung khóa học">
+        <div class="flex gap-6 overflow-x-auto">
+          <button
+            v-for="tab in tabs"
+            :key="tab.id"
+            type="button"
+            class="flex h-12 shrink-0 items-center gap-2 border-b-2 px-1 text-sm font-semibold"
+            :class="
+              activeTab === tab.id
+                ? 'border-secondary text-secondary'
+                : 'border-transparent text-app-text-muted hover:text-app-text'
+            "
+            @click="activeTab = tab.id"
+          >
+            <component :is="tab.icon" :size="17" />
+            {{ tab.label }}
+          </button>
+        </div>
       </nav>
 
-      <div v-if="activeTab === 'overview'" class="space-y-5">
-        <article
-          class="rounded-card border border-app-border bg-app-surface p-5 shadow-card sm:p-6"
-        >
-          <h2 class="font-heading text-xl font-bold text-app-text">Giới thiệu khóa học</h2>
-          <p class="mt-3 whitespace-pre-wrap text-sm leading-7 text-app-text-muted">
+      <!-- Overview -->
+      <div v-if="activeTab === 'overview'" class="space-y-8">
+        <section>
+          <h2 class="font-heading text-xl font-bold text-app-text">Giới thiệu</h2>
+
+          <p class="mt-3 max-w-4xl whitespace-pre-wrap text-sm leading-7 text-app-text-muted">
             {{ course.description || 'Chưa có mô tả cho khóa học này.' }}
           </p>
+        </section>
 
-          <dl class="mt-6 grid gap-4 border-t border-app-border pt-5 text-sm sm:grid-cols-3">
-            <div>
-              <dt class="text-app-text-muted">Ngày tạo</dt>
-              <dd class="mt-1 font-semibold text-app-text">{{ formatDate(course.createdAt) }}</dd>
+        <section>
+          <h2 class="font-heading text-xl font-bold text-app-text">Thông tin khóa học</h2>
+
+          <dl class="mt-4 max-w-3xl divide-y divide-app-border border-y border-app-border text-sm">
+            <div class="grid grid-cols-[11rem_1fr] gap-4 py-4">
+              <dt class="text-app-text-muted">Trạng thái</dt>
+              <dd class="font-semibold text-app-text">{{ statusLabel[course.status] }}</dd>
             </div>
-            <div>
-              <dt class="text-app-text-muted">Ngày xuất bản</dt>
-              <dd class="mt-1 font-semibold text-app-text">{{ formatDate(course.publishedAt) }}</dd>
-            </div>
-            <div>
-              <dt class="text-app-text-muted">Mã khóa học</dt>
-              <dd class="mt-1 break-all font-mono text-xs font-semibold text-app-text">
-                {{ course.id }}
+
+            <div class="grid grid-cols-[11rem_1fr] gap-4 py-4">
+              <dt class="text-app-text-muted">Quyền truy cập</dt>
+              <dd class="font-semibold text-app-text">
+                {{ visibilityLabel[course.visibility] }}
               </dd>
             </div>
-          </dl>
-        </article>
 
-        <article
-          v-if="canManageCourse"
-          class="rounded-card border border-danger/25 bg-app-surface p-5 shadow-card sm:p-6"
-        >
-          <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-            <div>
-              <h2 class="font-heading text-lg font-bold text-app-text">Xóa khóa học</h2>
-              <p class="mt-1 text-sm text-app-text-muted">
-                Thao tác này sẽ xóa khóa học khỏi danh sách của bạn.
-              </p>
+            <div class="grid grid-cols-[11rem_1fr] gap-4 py-4">
+              <dt class="text-app-text-muted">Cấp độ</dt>
+              <dd class="font-semibold text-app-text">{{ course.level || '—' }}</dd>
             </div>
-            <button
-              type="button"
-              class="inline-flex h-11 items-center justify-center gap-2 rounded-control border border-danger/30 px-4 text-sm font-semibold text-danger hover:bg-danger-soft"
-              @click="deleteOpen = true"
-            >
-              <Trash2 :size="17" />
-              Xóa khóa học
-            </button>
-          </div>
-        </article>
+
+            <div class="grid grid-cols-[11rem_1fr] gap-4 py-4">
+              <dt class="text-app-text-muted">Ngày tạo</dt>
+              <dd class="font-semibold text-app-text">{{ formatDate(course.createdAt) }}</dd>
+            </div>
+
+            <div class="grid grid-cols-[11rem_1fr] gap-4 py-4">
+              <dt class="text-app-text-muted">Ngày xuất bản</dt>
+              <dd class="font-semibold text-app-text">{{ formatDate(course.publishedAt) }}</dd>
+            </div>
+
+            <div class="grid grid-cols-[11rem_1fr] gap-4 py-4">
+              <dt class="text-app-text-muted">Cập nhật gần nhất</dt>
+              <dd class="font-semibold text-app-text">{{ formatDate(course.updatedAt) }}</dd>
+            </div>
+          </dl>
+        </section>
       </div>
 
-      <CourseMembersPanel v-else-if="activeTab === 'members'" :course-id="course.id" />
-      <CourseAccessCodesPanel v-else-if="activeTab === 'access'" :course-id="course.id" />
-      <CourseContentPanel v-else-if="activeTab === 'content'" :course-id="course.id" />
+      <!-- Other tabs -->
+      <CourseMembersPanel
+        v-else-if="activeTab === 'members'"
+        :course-id="course.id"
+        :visibility="course.visibility"
+        :status="course.status"
+      />
+
+      <CourseJoinRequestPanel
+        v-else-if="activeTab === 'requests'"
+        :course-id="course.id"
+      />
+
+      <CourseContentPanel
+        v-else-if="activeTab === 'content'"
+        :course-id="course.id"
+      />
+
       <CourseDocumentsPanel
         v-else-if="activeTab === 'documents'"
         :course-id="course.id"
         :can-manage="canManageCourse"
       />
+
       <CourseAiPanel v-else-if="activeTab === 'ai'" :course-id="course.id" />
 
       <CourseFormModal
@@ -366,17 +359,18 @@ onMounted(() => {
         @submit="submitUpdate"
       />
 
+      <!-- Delete dialog -->
       <Teleport to="body">
         <div
           v-if="deleteOpen"
-          class="fixed inset-0 z-[80] flex items-center justify-center bg-slate-950/50 p-4"
+          class="fixed inset-0 z-[80] flex items-center justify-center bg-slate-950/40 p-4"
           @mousedown.self="!deleting && (deleteOpen = false)"
         >
           <section
             role="alertdialog"
             aria-modal="true"
             aria-labelledby="delete-course-title"
-            class="w-full max-w-md rounded-panel bg-app-surface p-6 shadow-overlay"
+            class="w-full max-w-md rounded-card border border-app-border bg-app-surface p-6 shadow-overlay"
           >
             <div class="flex items-start justify-between gap-4">
               <div>
@@ -384,10 +378,11 @@ onMounted(() => {
                   Xóa khóa học?
                 </h2>
                 <p class="mt-2 text-sm leading-6 text-app-text-muted">
-                  Bạn sắp xóa <strong class="text-app-text">{{ course.title }}</strong
-                  >. Hãy chắc chắn trước khi tiếp tục.
+                  Bạn sắp xóa <strong class="text-app-text">{{ course.title }}</strong>.
+                  Hãy chắc chắn trước khi tiếp tục.
                 </p>
               </div>
+
               <button
                 type="button"
                 aria-label="Đóng"
@@ -399,13 +394,14 @@ onMounted(() => {
               </button>
             </div>
 
-            <div class="mt-6 flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
-              <BaseButton variant="secondary" :disabled="deleting" @click="deleteOpen = false"
-                >Hủy</BaseButton
-              >
+            <div class="mt-6 flex justify-end gap-3">
+              <BaseButton variant="secondary" :disabled="deleting" @click="deleteOpen = false">
+                Hủy
+              </BaseButton>
+
               <button
                 type="button"
-                class="inline-flex h-11 items-center justify-center gap-2 rounded-control bg-danger px-4 text-sm font-semibold text-white disabled:opacity-60"
+                class="inline-flex h-11 items-center gap-2 rounded-control bg-danger px-4 text-sm font-semibold text-white disabled:opacity-60"
                 :disabled="deleting"
                 @click="handleDelete"
               >

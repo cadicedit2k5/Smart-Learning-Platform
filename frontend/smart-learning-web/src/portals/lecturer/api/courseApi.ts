@@ -1,7 +1,5 @@
 import { httpClient, type ApiResponse, type PaginatedData } from '@/shared/api'
 
-export { createAccessCode, getAccessCodes, revokeAccessCode } from './accessCodeApi'
-export type { AccessCode, AccessCodeItem } from './accessCodeApi'
 export {
   getDocument,
   getDocuments,
@@ -25,6 +23,9 @@ export {
   getUserLookup,
   removeCourseMember,
   searchStudents,
+  getJoinRequests,
+  approveJoinRequest,
+  rejectJoinRequest
 } from './memberApi'
 export type { CourseMember, UserLookup } from './memberApi'
 

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { onMounted, reactive, ref } from 'vue'
-import { ChevronDown, ChevronRight, Layers3, Pencil, Plus, Trash2, X } from 'lucide-vue-next'
+import { ChevronDown, ChevronRight, Pencil, Plus, Trash2, X } from 'lucide-vue-next'
 
 import BaseAlert from '@/shared/components/BaseAlert.vue'
 import BaseButton from '@/shared/components/BaseButton.vue'
@@ -21,13 +21,6 @@ import CourseTopicsPanel from './CourseTopicsPanel.vue'
 const props = defineProps<{ courseId: string }>()
 const { handleApiError } = useLecturerApiError()
 
-const chapters = ref<CourseChapter[]>([])
-const loading = ref(true)
-const saving = ref(false)
-const message = ref('')
-const expandedId = ref('')
-const editingId = ref('')
-
 const emptyForm = () => ({
   title: '',
   description: '',
@@ -35,10 +28,25 @@ const emptyForm = () => ({
   orderIndex: '',
   status: 'DRAFT' as ContentStatus,
 })
-const createForm = reactive(emptyForm())
-const editForm = reactive(emptyForm())
 
-const toInput = (form: ReturnType<typeof emptyForm>): ChapterInput => ({
+const chapters = ref<CourseChapter[]>([])
+const loading = ref(true)
+const saving = ref(false)
+const message = ref('')
+const formMessage = ref('')
+const expandedId = ref('')
+const formOpen = ref(false)
+const editingId = ref<string | null>(null)
+
+const form = reactive(emptyForm())
+
+const statusLabel: Record<ContentStatus, string> = {
+  DRAFT: 'Bản nháp',
+  PUBLISHED: 'Đã xuất bản',
+  ARCHIVED: 'Đã lưu trữ',
+}
+
+const toInput = (): ChapterInput => ({
   title: form.title.trim(),
   description: form.description.trim() || undefined,
   learningObjectives: form.learningObjectives.trim() || undefined,
@@ -49,6 +57,7 @@ const toInput = (form: ReturnType<typeof emptyForm>): ChapterInput => ({
 const loadChapters = async () => {
   loading.value = true
   message.value = ''
+
   try {
     chapters.value = await getChapters(props.courseId)
   } catch (error) {
@@ -58,45 +67,65 @@ const loadChapters = async () => {
   }
 }
 
-const handleCreate = async () => {
-  if (!createForm.title.trim()) {
-    message.value = 'Tên chương không được để trống.'
-    return
-  }
-  saving.value = true
-  message.value = ''
-  try {
-    await createChapter(props.courseId, toInput(createForm))
-    Object.assign(createForm, emptyForm())
-    await loadChapters()
-  } catch (error) {
-    message.value = handleApiError(error, 'Không thể tạo chương.').message
-  } finally {
-    saving.value = false
-  }
+const openCreate = () => {
+  editingId.value = null
+  formMessage.value = ''
+  Object.assign(form, emptyForm())
+  formOpen.value = true
 }
 
-const startEdit = (chapter: CourseChapter) => {
+const openEdit = (chapter: CourseChapter) => {
   editingId.value = chapter.id
-  Object.assign(editForm, {
+  formMessage.value = ''
+
+  Object.assign(form, {
     title: chapter.title,
     description: chapter.description ?? '',
     learningObjectives: chapter.learningObjectives ?? '',
-    orderIndex: String(chapter.orderIndex),
+    orderIndex: chapter.orderIndex == null ? '' : String(chapter.orderIndex),
     status: chapter.status,
   })
+
+  formOpen.value = true
 }
 
-const saveEdit = async () => {
-  if (!editingId.value || !editForm.title.trim()) return
+const closeForm = () => {
+  if (saving.value) return
+
+  formOpen.value = false
+  editingId.value = null
+  formMessage.value = ''
+  Object.assign(form, emptyForm())
+}
+
+const handleSubmit = async () => {
+  if (!form.title.trim()) {
+    formMessage.value = 'Tên chương không được để trống.'
+    return
+  }
+
+  const isEditing = editingId.value !== null
+
   saving.value = true
-  message.value = ''
+  formMessage.value = ''
+
   try {
-    await updateChapter(props.courseId, editingId.value, toInput(editForm))
-    editingId.value = ''
+    if (isEditing) {
+      await updateChapter(props.courseId, editingId.value!, toInput())
+    } else {
+      await createChapter(props.courseId, toInput())
+    }
+
+    formOpen.value = false
+    editingId.value = null
+    Object.assign(form, emptyForm())
+
     await loadChapters()
   } catch (error) {
-    message.value = handleApiError(error, 'Không thể cập nhật chương.').message
+    formMessage.value = handleApiError(
+      error,
+      isEditing ? 'Không thể cập nhật chương.' : 'Không thể tạo chương.',
+    ).message
   } finally {
     saving.value = false
   }
@@ -104,10 +133,16 @@ const saveEdit = async () => {
 
 const handleDelete = async (chapter: CourseChapter) => {
   if (!window.confirm(`Xóa chương “${chapter.title}” và các chủ đề bên trong?`)) return
+
   message.value = ''
+
   try {
     await deleteChapter(props.courseId, chapter.id)
-    if (expandedId.value === chapter.id) expandedId.value = ''
+
+    if (expandedId.value === chapter.id) {
+      expandedId.value = ''
+    }
+
     await loadChapters()
   } catch (error) {
     message.value = handleApiError(error, 'Không thể xóa chương.').message
@@ -119,50 +154,21 @@ onMounted(() => void loadChapters())
 
 <template>
   <section class="space-y-5">
-    <header>
-      <div class="flex items-center gap-2 text-secondary">
-        <Layers3 :size="20" /><span class="text-sm font-semibold">Cấu trúc khóa học</span>
+    <header class="flex items-start justify-between gap-4">
+      <div>
+        <h2 class="font-heading text-xl font-bold text-app-text">Nội dung khóa học</h2>
+        <p class="mt-1 text-sm text-app-text-muted">
+          Quản lý các chương và chủ đề trong khóa học.
+        </p>
       </div>
-      <h2 class="mt-2 font-heading text-xl font-bold text-app-text">Chương và chủ đề</h2>
+
+      <BaseButton @click="openCreate">
+        <template #leading><Plus :size="17" /></template>
+        Thêm chương
+      </BaseButton>
     </header>
 
     <BaseAlert v-if="message">{{ message }}</BaseAlert>
-
-    <form
-      class="space-y-4 rounded-card border border-app-border bg-app-surface p-5 shadow-card"
-      @submit.prevent="handleCreate"
-    >
-      <h3 class="font-semibold text-app-text">Thêm chương</h3>
-      <div class="grid gap-4 md:grid-cols-[minmax(0,1fr)_8rem_10rem]">
-        <BaseInput v-model="createForm.title" label="Tên chương" maxlength="255" required />
-        <BaseInput v-model="createForm.orderIndex" type="number" min="0" label="Thứ tự" />
-        <select
-          v-model="createForm.status"
-          class="h-11 self-end rounded-control border border-app-border bg-app-surface px-3 text-sm"
-        >
-          <option value="DRAFT">Bản nháp</option>
-          <option value="PUBLISHED">Đã xuất bản</option>
-          <option value="ARCHIVED">Đã lưu trữ</option>
-        </select>
-      </div>
-      <textarea
-        v-model="createForm.description"
-        rows="2"
-        maxlength="10000"
-        class="w-full rounded-control border border-app-border bg-app-surface px-3 py-2 text-sm"
-        placeholder="Mô tả"
-      />
-      <textarea
-        v-model="createForm.learningObjectives"
-        rows="2"
-        maxlength="10000"
-        class="w-full rounded-control border border-app-border bg-app-surface px-3 py-2 text-sm"
-        placeholder="Mục tiêu học tập"
-      />
-      <BaseButton type="submit" :loading="saving"
-        ><template #leading><Plus :size="17" /></template>Thêm chương</BaseButton
-      >
-    </form>
 
     <div v-if="loading" class="space-y-3">
       <div
@@ -171,105 +177,197 @@ onMounted(() => void loadChapters())
         class="h-24 animate-pulse rounded-card bg-app-surface-muted"
       />
     </div>
+
     <div
       v-else-if="chapters.length === 0"
-      class="rounded-card border border-dashed border-app-border p-12 text-center text-sm text-app-text-muted"
+      class="rounded-card border border-dashed border-app-border p-12 text-center"
     >
-      Chưa có chương.
+      <p class="text-sm font-medium text-app-text">Chưa có nội dung</p>
+      <p class="mt-1 text-sm text-app-text-muted">
+        Thêm chương đầu tiên để bắt đầu xây dựng nội dung khóa học.
+      </p>
     </div>
 
-    <article
-      v-for="chapter in chapters"
-      v-else
-      :key="chapter.id"
-      class="overflow-hidden rounded-card border border-app-border bg-app-surface shadow-card"
-    >
-      <form v-if="editingId === chapter.id" class="space-y-4 p-5" @submit.prevent="saveEdit">
-        <BaseInput v-model="editForm.title" label="Tên chương" required />
-        <textarea
-          v-model="editForm.description"
-          rows="2"
-          maxlength="10000"
-          class="w-full rounded-control border border-app-border px-3 py-2 text-sm"
-          placeholder="Mô tả"
-        />
-        <textarea
-          v-model="editForm.learningObjectives"
-          rows="2"
-          maxlength="10000"
-          class="w-full rounded-control border border-app-border px-3 py-2 text-sm"
-          placeholder="Mục tiêu học tập"
-        />
-        <div class="grid gap-3 sm:grid-cols-2">
-          <BaseInput v-model="editForm.orderIndex" type="number" min="0" label="Thứ tự" />
-          <select
-            v-model="editForm.status"
-            class="h-11 self-end rounded-control border border-app-border bg-app-surface px-3 text-sm"
-          >
-            <option value="DRAFT">Bản nháp</option>
-            <option value="PUBLISHED">Đã xuất bản</option>
-            <option value="ARCHIVED">Đã lưu trữ</option>
-          </select>
-        </div>
-        <div class="flex gap-2">
-          <BaseButton type="submit" :loading="saving">Lưu</BaseButton
-          ><BaseButton variant="secondary" @click="editingId = ''"
-            ><template #leading><X :size="16" /></template>Hủy</BaseButton
-          >
-        </div>
-      </form>
-      <template v-else>
+    <div v-else class="space-y-3">
+      <article
+        v-for="chapter in chapters"
+        :key="chapter.id"
+        class="overflow-hidden rounded-card border border-app-border bg-app-surface"
+      >
         <div class="flex items-start gap-3 p-5">
           <button
             type="button"
-            class="mt-0.5 rounded-control p-1 text-app-text-muted"
+            class="mt-0.5 rounded-control p-1 text-app-text-muted hover:bg-app-surface-muted"
             :aria-label="expandedId === chapter.id ? 'Đóng chủ đề' : 'Mở chủ đề'"
             @click="expandedId = expandedId === chapter.id ? '' : chapter.id"
           >
-            <ChevronDown v-if="expandedId === chapter.id" :size="20" /><ChevronRight
-              v-else
-              :size="20"
-            />
+            <ChevronDown v-if="expandedId === chapter.id" :size="20" />
+            <ChevronRight v-else :size="20" />
           </button>
+
           <div class="min-w-0 flex-1">
             <div class="flex flex-wrap items-center gap-2">
-              <h3 class="font-heading text-lg font-bold text-app-text">{{ chapter.title }}</h3>
-              <span
-                class="rounded-pill bg-app-surface-muted px-2 py-0.5 text-xs font-semibold text-app-text-muted"
-                >{{ chapter.status }}</span
-              >
+              <h3 class="font-heading text-lg font-bold text-app-text">
+                {{ chapter.title }}
+              </h3>
+
+              <span class="text-xs font-medium text-app-text-muted">
+                {{ statusLabel[chapter.status] }}
+              </span>
             </div>
-            <p v-if="chapter.description" class="mt-2 text-sm text-app-text-muted">
+
+            <p v-if="chapter.description" class="mt-2 text-sm leading-6 text-app-text-muted">
               {{ chapter.description }}
             </p>
-            <p v-if="chapter.learningObjectives" class="mt-2 text-sm text-app-text">
-              <strong>Mục tiêu:</strong> {{ chapter.learningObjectives }}
+
+            <p v-if="chapter.learningObjectives" class="mt-2 text-sm leading-6 text-app-text">
+              <span class="font-semibold">Mục tiêu:</span>
+              {{ chapter.learningObjectives }}
             </p>
           </div>
-          <button
-            type="button"
-            class="rounded-control p-2 text-app-text-muted hover:bg-app-surface-muted"
-            aria-label="Sửa chương"
-            @click="startEdit(chapter)"
-          >
-            <Pencil :size="17" />
-          </button>
-          <button
-            type="button"
-            class="rounded-control p-2 text-danger hover:bg-danger-soft"
-            aria-label="Xóa chương"
-            @click="handleDelete(chapter)"
-          >
-            <Trash2 :size="17" />
-          </button>
+
+          <div class="flex shrink-0 items-center">
+            <button
+              type="button"
+              class="rounded-control p-2 text-app-text-muted hover:bg-app-surface-muted"
+              aria-label="Sửa chương"
+              @click="openEdit(chapter)"
+            >
+              <Pencil :size="17" />
+            </button>
+
+            <button
+              type="button"
+              class="rounded-control p-2 text-danger hover:bg-danger-soft"
+              aria-label="Xóa chương"
+              @click="handleDelete(chapter)"
+            >
+              <Trash2 :size="17" />
+            </button>
+          </div>
         </div>
+
         <CourseTopicsPanel
           v-if="expandedId === chapter.id"
           :key="chapter.id"
           :course-id="courseId"
           :chapter-id="chapter.id"
         />
-      </template>
-    </article>
+      </article>
+    </div>
   </section>
+
+  <Teleport to="body">
+    <div
+      v-if="formOpen"
+      class="fixed inset-0 z-[80] flex items-center justify-center bg-slate-950/40 p-4"
+      @mousedown.self="closeForm"
+    >
+      <form
+        class="w-full max-w-2xl rounded-card bg-app-surface p-6 shadow-overlay"
+        @submit.prevent="handleSubmit"
+      >
+        <div class="flex items-center justify-between gap-4">
+          <div>
+            <h2 class="font-heading text-xl font-bold text-app-text">
+              {{ editingId ? 'Chỉnh sửa chương' : 'Thêm chương' }}
+            </h2>
+
+            <p class="mt-1 text-sm text-app-text-muted">
+              {{
+                editingId
+                  ? 'Cập nhật thông tin của chương.'
+                  : 'Thêm một chương mới vào khóa học.'
+              }}
+            </p>
+          </div>
+
+          <button
+            type="button"
+            aria-label="Đóng"
+            class="rounded-control p-2 text-app-text-muted hover:bg-app-surface-muted"
+            :disabled="saving"
+            @click="closeForm"
+          >
+            <X :size="19" />
+          </button>
+        </div>
+
+        <BaseAlert v-if="formMessage" class="mt-4">
+          {{ formMessage }}
+        </BaseAlert>
+
+        <div class="mt-5 space-y-4">
+          <BaseInput
+            v-model="form.title"
+            label="Tên chương"
+            maxlength="255"
+            required
+          />
+
+          <div class="grid gap-4 sm:grid-cols-2">
+            <BaseInput
+              v-model="form.orderIndex"
+              type="number"
+              min="0"
+              label="Thứ tự"
+            />
+
+            <label class="block">
+              <span class="mb-1.5 block text-sm font-medium text-app-text">
+                Trạng thái
+              </span>
+
+              <select
+                v-model="form.status"
+                class="h-11 w-full rounded-control border border-app-border bg-app-surface px-3 text-sm text-app-text outline-none focus:border-secondary focus:ring-2 focus:ring-secondary/20"
+              >
+                <option value="DRAFT">Bản nháp</option>
+                <option value="PUBLISHED">Đã xuất bản</option>
+                <option value="ARCHIVED">Đã lưu trữ</option>
+              </select>
+            </label>
+          </div>
+
+          <label class="block">
+            <span class="mb-1.5 block text-sm font-medium text-app-text">
+              Mô tả
+            </span>
+
+            <textarea
+              v-model="form.description"
+              rows="3"
+              maxlength="10000"
+              class="w-full resize-y rounded-control border border-app-border bg-app-surface px-3 py-2 text-sm text-app-text outline-none focus:border-secondary focus:ring-2 focus:ring-secondary/20"
+              placeholder="Mô tả nội dung của chương..."
+            />
+          </label>
+
+          <label class="block">
+            <span class="mb-1.5 block text-sm font-medium text-app-text">
+              Mục tiêu học tập
+            </span>
+
+            <textarea
+              v-model="form.learningObjectives"
+              rows="3"
+              maxlength="10000"
+              class="w-full resize-y rounded-control border border-app-border bg-app-surface px-3 py-2 text-sm text-app-text outline-none focus:border-secondary focus:ring-2 focus:ring-secondary/20"
+              placeholder="Học viên sẽ đạt được gì sau chương này?"
+            />
+          </label>
+        </div>
+
+        <div class="mt-6 flex justify-end gap-2 border-t border-app-border pt-5">
+          <BaseButton variant="secondary" type="button" :disabled="saving" @click="closeForm">
+            Hủy
+          </BaseButton>
+
+          <BaseButton type="submit" :loading="saving">
+            {{ editingId ? 'Lưu thay đổi' : 'Tạo chương' }}
+          </BaseButton>
+        </div>
+      </form>
+    </div>
+  </Teleport>
 </template>

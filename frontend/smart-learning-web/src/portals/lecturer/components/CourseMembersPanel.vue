@@ -10,19 +10,22 @@ import type { PaginatedData } from '@/shared/api'
 import {
   addStudent,
   getCourseMembers,
-  getUserLookup,
   removeCourseMember,
   searchStudents,
-  type CourseMember,
+  type CourseMemberDetail,
   type UserLookup,
 } from '../api/memberApi'
 import { useLecturerApiError } from '../composables/useLecturerApiError'
+import type { CourseStatus, CourseVisibility } from '../api/courseApi'
 
-const props = defineProps<{ courseId: string }>()
+const props = defineProps<{ 
+  courseId: string
+  visibility: CourseVisibility
+  status: CourseStatus
+ }>()
 const { handleApiError } = useLecturerApiError()
 
-const members = ref<CourseMember[]>([])
-const users = ref<Record<string, UserLookup>>({})
+const members = ref<CourseMemberDetail[]>([])
 const loading = ref(true)
 const message = ref('')
 const keyword = ref('')
@@ -35,6 +38,9 @@ const results = ref<PaginatedData<UserLookup>>({
   pageable: { page: 1, size: 10, totalElements: 0, totalPages: 0 },
 })
 
+const canInviteStudent = computed(() =>
+    props.visibility === 'INVITE_ONLY' && props.status === 'PUBLISHED'
+)
 const memberUserIds = computed(() => new Set(members.value.map((member) => member.userId)))
 const availableStudents = computed(() =>
   results.value.content.filter((user) => !memberUserIds.value.has(user.id)),
@@ -45,17 +51,7 @@ const loadMembers = async () => {
   message.value = ''
 
   try {
-    members.value = await getCourseMembers(props.courseId)
-    const missingIds = members.value
-      .map((member) => member.userId)
-      .filter((userId) => !users.value[userId])
-
-    const lookups = await Promise.allSettled(missingIds.map((userId) => getUserLookup(userId)))
-    lookups.forEach((result) => {
-      if (result.status === 'fulfilled') {
-        users.value[result.value.id] = result.value
-      }
-    })
+    members.value = await getCourseMembers(props.courseId);
   } catch (error) {
     message.value = handleApiError(error, 'Không thể tải danh sách thành viên.').message
   } finally {
@@ -90,7 +86,6 @@ const handleAdd = async (user: UserLookup) => {
   message.value = ''
   try {
     await addStudent(props.courseId, user.id)
-    users.value[user.id] = user
     await loadMembers()
     await runSearch(searchPage.value)
   } catch (error) {
@@ -100,16 +95,16 @@ const handleAdd = async (user: UserLookup) => {
   }
 }
 
-const handleRemove = async (member: CourseMember) => {
-  const user = users.value[member.userId]
-  if (!window.confirm(`Xóa ${user?.fullName || user?.email || member.userId} khỏi khóa học?`))
+const handleRemove = async (member: CourseMemberDetail) => {
+  const displayName = member.user?.fullName || member.user?.email || member.userId
+  if (!window.confirm(`Xóa ${displayName} khỏi khóa học?`))
     return
 
   removingMemberId.value = member.id
   message.value = ''
   try {
     await removeCourseMember(props.courseId, member.id)
-    await loadMembers()
+    members.value = members.value.filter((item) => item.id !== member.id)
   } catch (error) {
     message.value = handleApiError(error, 'Không thể xóa thành viên.').message
   } finally {
@@ -126,7 +121,11 @@ onMounted(() => void loadMembers())
 </script>
 
 <template>
-  <section class="grid gap-5 xl:grid-cols-[minmax(0,1fr)_minmax(22rem,0.8fr)]">
+  <section
+    class="grid gap-5"
+    :class="canInviteStudent
+        ? 'xl:grid-cols-[minmax(0,1fr)_minmax(22rem,0.8fr)]'
+        : 'grid-cols-1'">
     <article
       class="overflow-hidden rounded-card border border-app-border bg-app-surface shadow-card"
     >
@@ -158,17 +157,24 @@ onMounted(() => void loadMembers())
             class="flex h-10 w-10 shrink-0 items-center justify-center rounded-pill bg-secondary-soft font-semibold text-secondary"
           >
             {{
-              (users[member.userId]?.fullName || users[member.userId]?.email || '?')
+              (member.user?.fullName || member.user?.email || '?')
                 .charAt(0)
                 .toUpperCase()
             }}
           </span>
           <div class="min-w-0 flex-1">
             <p class="truncate font-semibold text-app-text">
-              {{ users[member.userId]?.fullName || member.userId }}
+              {{
+                member.user?.fullName ||
+                member.user?.email ||
+                member.userId
+              }}
             </p>
             <p class="truncate text-sm text-app-text-muted">
-              {{ users[member.userId]?.email || `Tham gia ${formatDate(member.joinedAt)}` }}
+              {{
+                member.user?.email ||
+                `Tham gia ${formatDate(member.joinedAt)}`
+              }}
             </p>
           </div>
           <span
@@ -189,7 +195,10 @@ onMounted(() => void loadMembers())
       </ul>
     </article>
 
-    <article class="rounded-card border border-app-border bg-app-surface p-5 shadow-card">
+    <article
+        v-if="canInviteStudent"
+        class="rounded-card border border-app-border bg-app-surface p-5 shadow-card"
+      >
       <h2 class="font-heading text-lg font-bold text-app-text">Thêm học viên</h2>
       <p class="mt-1 text-sm text-app-text-muted">Tìm tài khoản có system role STUDENT.</p>
 
