@@ -3,7 +3,9 @@ package com.smartlearning.core.course.service.impl;
 import com.smartlearning.common.error.ApplicationException;
 import com.smartlearning.common.error.CommonErrorCode;
 import com.smartlearning.core.course.dto.request.CourseMemberCreateRequest;
+import com.smartlearning.core.course.dto.response.CourseMemberDetailResponse;
 import com.smartlearning.core.course.dto.response.CourseMemberResponse;
+import com.smartlearning.core.course.dto.response.CourseMemberUserResponse;
 import com.smartlearning.core.course.entity.Course;
 import com.smartlearning.core.course.entity.CourseMember;
 import com.smartlearning.core.course.entity.enums.CourseMemberRole;
@@ -15,14 +17,19 @@ import com.smartlearning.core.course.repository.CourseMemberRepository;
 import com.smartlearning.core.course.sercurity.CourseAccessPolicy;
 import com.smartlearning.core.course.service.CourseMemberService;
 import com.smartlearning.core.course.utils.CourseUtils;
+import com.smartlearning.core.infrastructure.dto.SystemUserResponse;
+import com.smartlearning.core.infrastructure.http.SystemClient;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional
@@ -33,6 +40,7 @@ public class CourseMemberServiceImpl implements CourseMemberService {
     private final CourseMemberMapper memberMapper;
     private final CourseUtils courseUtils;
     private final CourseAccessPolicy courseAccessPolicy;
+    private final SystemClient systemClient;
 
     @Override
     public CourseMemberResponse addMember(UUID courseId, CourseMemberCreateRequest request, UUID currentUserId) {
@@ -82,21 +90,17 @@ public class CourseMemberServiceImpl implements CourseMemberService {
     }
 
     @Override
-    public List<CourseMemberResponse> getMembers(UUID courseId, UUID currentUserId) {
+    public List<CourseMemberDetailResponse> getMembers(UUID courseId, UUID currentUserId, String accessToken) {
         courseUtils.requireCourse(courseId);
         courseAccessPolicy.requireOwner(
                 courseId,
                 currentUserId
         );
 
-        return memberRepository
-                .findAllByCourseIdAndStatus(
-                        courseId,
-                        CourseMemberStatus.ACTIVE
-                )
-                .stream()
-                .map(memberMapper::toResponse)
-                .toList();
+        List<CourseMember> members = memberRepository.findAllByCourseIdAndStatus(
+                        courseId, CourseMemberStatus.ACTIVE);
+
+        return buildMemberDetails(members, accessToken);
     }
 
     @Override
@@ -193,15 +197,56 @@ public class CourseMemberServiceImpl implements CourseMemberService {
     }
 
     @Override
-    public List<CourseMemberResponse> getJoinRequests(UUID courseId, UUID currentUserId) {
+    public List<CourseMemberDetailResponse> getJoinRequests(UUID courseId, UUID currentUserId, String accessToken) {
         courseUtils.requireCourse(courseId);
         courseAccessPolicy.requireOwner(courseId, currentUserId);
 
-        return memberRepository
-                .findAllByCourseIdAndStatus(courseId, CourseMemberStatus.PENDING)
-                .stream()
-                .map(memberMapper::toResponse)
-                .toList();
+        List<CourseMember> members = memberRepository.findAllByCourseIdAndStatus(
+                courseId, CourseMemberStatus.PENDING);
+        return buildMemberDetails(members, accessToken);
+    }
+
+    private List<CourseMemberDetailResponse> buildMemberDetails(
+            List<CourseMember> members,
+            String accessToken) {
+        if (members.isEmpty()) {
+            return List.of();
+        }
+
+        List<UUID> userIds = members.stream()
+                .map(CourseMember::getUserId).distinct().toList();
+
+        Map<UUID, SystemUserResponse> usersById =
+                systemClient.lookupUsers(userIds,accessToken)
+                        .stream().collect(Collectors.toMap(
+                                SystemUserResponse::id,
+                                Function.identity()));
+
+        return members.stream().map(member -> toDetailResponse(
+                member,
+                usersById.get(member.getUserId()))).toList();
+    }
+
+    private CourseMemberDetailResponse toDetailResponse(
+            CourseMember member,
+            SystemUserResponse systemUser) {
+        CourseMemberUserResponse user = systemUser == null ? null : new CourseMemberUserResponse(
+                systemUser.id(),
+                systemUser.email(),
+                systemUser.fullName());
+
+        return new CourseMemberDetailResponse(
+                member.getId(),
+                member.getCourse().getId(),
+                member.getUserId(),
+                user,
+                member.getRole(),
+                member.getStatus(),
+                member.getJoinedAt(),
+                member.getInvitedBy(),
+                member.getRemovedAt(),
+                member.getCreatedAt()
+        );
     }
 
     @Override

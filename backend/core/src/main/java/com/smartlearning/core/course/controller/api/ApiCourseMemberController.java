@@ -5,6 +5,7 @@ import com.smartlearning.common.dto.response.ApiResponses;
 import com.smartlearning.common.entity.Authorities;
 import com.smartlearning.common.utils.JwtUtils;
 import com.smartlearning.core.course.dto.request.CourseMemberCreateRequest;
+import com.smartlearning.core.course.dto.response.CourseMemberDetailResponse;
 import com.smartlearning.core.course.dto.response.CourseMemberResponse;
 import com.smartlearning.core.course.service.CourseMemberService;
 import jakarta.validation.Valid;
@@ -43,13 +44,11 @@ public class ApiCourseMemberController {
 
     @PreAuthorize(Authorities.COURSE_MANAGE)
     @GetMapping("/{courseId}/members")
-    public ResponseEntity<ApiResponse<List<CourseMemberResponse>>> getMembers(
+    public ResponseEntity<ApiResponse<List<CourseMemberDetailResponse>>> getMembers(
             @PathVariable UUID courseId,
             @AuthenticationPrincipal Jwt jwt
     ) {
-        return ApiResponses.ok(
-                memberService.getMembers(courseId, JwtUtils.getUserId(jwt))
-        );
+        return ApiResponses.ok(memberService.getMembers(courseId, JwtUtils.getUserId(jwt), jwt.getTokenValue()));
     }
 
     @PreAuthorize(Authorities.COURSE_READ)
@@ -95,12 +94,12 @@ public class ApiCourseMemberController {
 
     @PreAuthorize(Authorities.COURSE_MANAGE)
     @GetMapping("/{courseId}/join-requests")
-    public ResponseEntity<ApiResponse<List<CourseMemberResponse>>> getJoinRequests(
+    public ResponseEntity<ApiResponse<List<CourseMemberDetailResponse>>> getJoinRequests(
             @PathVariable UUID courseId,
             @AuthenticationPrincipal Jwt jwt
     ) {
         return ApiResponses.ok(
-                memberService.getJoinRequests(courseId, JwtUtils.getUserId(jwt))
+                memberService.getJoinRequests(courseId, JwtUtils.getUserId(jwt), jwt.getTokenValue())
         );
     }
 

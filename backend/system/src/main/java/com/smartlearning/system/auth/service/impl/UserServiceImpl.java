@@ -14,6 +14,7 @@ import com.smartlearning.system.auth.dto.request.admin.AdminUserUpdateRequest;
 import com.smartlearning.system.auth.dto.response.LoginResponse;
 import com.smartlearning.system.auth.dto.response.UserResponse;
 import com.smartlearning.system.auth.dto.response.UserLookupResponse;
+import com.smartlearning.system.auth.dto.response.UserSummaryResponse;
 import com.smartlearning.system.auth.entity.Role;
 import com.smartlearning.system.auth.entity.User;
 import com.smartlearning.system.auth.entity.enums.UserStatus;
@@ -34,7 +35,9 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
+import java.util.List;
 import java.util.Locale;
+import java.util.Set;
 import java.util.UUID;
 
 @Service
@@ -64,6 +67,18 @@ public class UserServiceImpl implements UserService {
                 .map(UserLookupResponse::from);
 
         return PagingResponse.from(pages);
+    }
+
+    @Override
+    public List<UserSummaryResponse> handleLookupUsers(Set<UUID> userIds) {
+        if (userIds.isEmpty()) {
+            return List.of();
+        }
+
+        return userRepository.findAllByIdInAndStatus(
+                        userIds,
+                        UserStatus.ACTIVE).stream()
+                .map(UserSummaryResponse::from).toList();
     }
 
     @Override

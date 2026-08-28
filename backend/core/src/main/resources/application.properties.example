@@ -3,6 +3,9 @@ api.version=
 
 server.port=8082
 
+# System Service
+app.services.system.base-url=${SYSTEM_SERVICE_URL:http://localhost:8081}/api/v1
+
 spring.datasource.url=
 spring.datasource.username=
 spring.datasource.password=

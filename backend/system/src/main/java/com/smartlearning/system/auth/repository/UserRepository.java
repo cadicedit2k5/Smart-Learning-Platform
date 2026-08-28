@@ -6,6 +6,8 @@ import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 
+import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -19,5 +21,8 @@ public interface UserRepository extends JpaRepository<User, UUID>,
     Optional<User> findByEmailIgnoreCaseAndStatus(String email, UserStatus status);
 
     Optional<User> findByIdAndStatusNot(UUID id, UserStatus status);
+
+    List<User> findAllByIdInAndStatus(Collection<UUID> ids, UserStatus status);
+
     boolean existsByEmailIgnoreCase(String email);
 }
