@@ -5,7 +5,6 @@ import com.smartlearning.common.dto.response.ApiResponses;
 import com.smartlearning.common.entity.Authorities;
 import com.smartlearning.common.utils.JwtUtils;
 import com.smartlearning.core.course.dto.request.CourseMemberCreateRequest;
-import com.smartlearning.core.course.dto.request.JoinCourseRequest;
 import com.smartlearning.core.course.dto.response.CourseMemberResponse;
 import com.smartlearning.core.course.service.CourseMemberService;
 import jakarta.validation.Valid;
@@ -81,15 +80,57 @@ public class ApiCourseMemberController {
     }
 
     @PreAuthorize(Authorities.COURSE_READ)
-    @PostMapping("/join")
-    public ResponseEntity<ApiResponse<CourseMemberResponse>>
-    joinByCode(
-            @Valid @RequestBody JoinCourseRequest request,
+    @PostMapping("/{courseId}/join-requests")
+    public ResponseEntity<ApiResponse<CourseMemberResponse>> requestToJoin(
+            @PathVariable UUID courseId,
+            @AuthenticationPrincipal Jwt jwt
+    ) {
+        return ApiResponses.created(
+                memberService.requestToJoin(
+                        courseId,
+                        JwtUtils.getUserId(jwt)
+                )
+        );
+    }
+
+    @PreAuthorize(Authorities.COURSE_MANAGE)
+    @GetMapping("/{courseId}/join-requests")
+    public ResponseEntity<ApiResponse<List<CourseMemberResponse>>> getJoinRequests(
+            @PathVariable UUID courseId,
             @AuthenticationPrincipal Jwt jwt
     ) {
         return ApiResponses.ok(
-                memberService.joinByCode(
-                        request,
+                memberService.getJoinRequests(courseId, JwtUtils.getUserId(jwt))
+        );
+    }
+
+    @PreAuthorize(Authorities.COURSE_MANAGE)
+    @PostMapping("/{courseId}/join-requests/{memberId}/approve")
+    public ResponseEntity<ApiResponse<CourseMemberResponse>> approveJoinRequest(
+            @PathVariable UUID courseId,
+            @PathVariable UUID memberId,
+            @AuthenticationPrincipal Jwt jwt
+    ) {
+        return ApiResponses.ok(
+                memberService.approveJoinRequest(
+                        courseId,
+                        memberId,
+                        JwtUtils.getUserId(jwt)
+                )
+        );
+    }
+
+    @PreAuthorize(Authorities.COURSE_MANAGE)
+    @PostMapping("/{courseId}/join-requests/{memberId}/reject")
+    public ResponseEntity<ApiResponse<CourseMemberResponse>> rejectJoinRequest(
+            @PathVariable UUID courseId,
+            @PathVariable UUID memberId,
+            @AuthenticationPrincipal Jwt jwt
+    ) {
+        return ApiResponses.ok(
+                memberService.rejectJoinRequest(
+                        courseId,
+                        memberId,
                         JwtUtils.getUserId(jwt)
                 )
         );

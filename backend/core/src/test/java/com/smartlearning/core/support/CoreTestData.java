@@ -2,7 +2,6 @@ package com.smartlearning.core.support;
 
 import com.smartlearning.core.course.dto.response.CourseMemberResponse;
 import com.smartlearning.core.course.dto.response.CourseResponse;
-import com.smartlearning.core.course.entity.AccessCode;
 import com.smartlearning.core.course.entity.Course;
 import com.smartlearning.core.course.entity.CourseMember;
 import com.smartlearning.core.course.entity.enums.CourseMemberRole;
@@ -28,7 +27,6 @@ public final class CoreTestData {
     public static final UUID OWNER_ID = UUID.fromString("20000000-0000-0000-0000-000000000001");
     public static final UUID STUDENT_ID = UUID.fromString("20000000-0000-0000-0000-000000000002");
     public static final UUID MEMBER_ID = UUID.fromString("30000000-0000-0000-0000-000000000001");
-    public static final UUID ACCESS_CODE_ID = UUID.fromString("40000000-0000-0000-0000-000000000001");
     public static final UUID DOCUMENT_ID = UUID.fromString("50000000-0000-0000-0000-000000000001");
     public static final UUID VERSION_ID = UUID.fromString("60000000-0000-0000-0000-000000000001");
     public static final UUID PROCESSING_JOB_ID = UUID.fromString("70000000-0000-0000-0000-000000000001");
@@ -44,7 +42,7 @@ public final class CoreTestData {
         course.setTitle("Smart Learning");
         course.setDescription("Core course test data");
         course.setLevel("BEGINNER");
-        course.setVisibility(CourseVisibility.PRIVATE);
+        course.setVisibility(CourseVisibility.INVITE_ONLY);
         course.setStatus(CourseStatus.DRAFT);
         course.setCreatedBy(OWNER_ID);
         course.setCreatedAt(TEST_TIME);
@@ -79,19 +77,6 @@ public final class CoreTestData {
                 member.getStatus(), member.getJoinedAt(), member.getInvitedBy(), member.getRemovedAt(),
                 member.getCreatedAt()
         );
-    }
-
-    public static AccessCode accessCode() {
-        AccessCode code = new AccessCode();
-        code.setId(ACCESS_CODE_ID);
-        code.setCourse(course());
-        code.setCodeHash("encoded-code");
-        code.setCodeHint("1234");
-        code.setActive(true);
-        code.setCreatedBy(OWNER_ID);
-        code.setCreatedAt(TEST_TIME);
-        code.setUpdatedAt(TEST_TIME);
-        return code;
     }
 
     public static Document document() {
