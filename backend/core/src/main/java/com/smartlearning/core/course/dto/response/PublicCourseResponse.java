@@ -10,7 +10,6 @@ public record PublicCourseResponse(
         String title,
         String description,
         String level,
-        UUID createdBy,
         Instant publishedAt,
         CourseMemberStatus currentUserMembershipStatus
 ) {

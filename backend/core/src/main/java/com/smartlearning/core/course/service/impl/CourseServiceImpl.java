@@ -140,7 +140,6 @@ public class CourseServiceImpl implements CourseService {
                     course.getTitle(),
                     course.getDescription(),
                     course.getLevel(),
-                    course.getCreatedBy(),
                     course.getPublishedAt(),
                     membership == null ? null : membership.getStatus()
             );

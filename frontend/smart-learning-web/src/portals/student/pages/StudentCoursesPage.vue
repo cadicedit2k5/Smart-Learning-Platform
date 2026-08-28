@@ -1,27 +1,20 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
-import { ArrowRight, BookOpen, CalendarDays, KeyRound, Search } from 'lucide-vue-next'
+import { ArrowRight, BookOpen, CalendarDays, Search } from 'lucide-vue-next'
 import { useRouter } from 'vue-router'
 
 import BaseAlert from '@/shared/components/BaseAlert.vue'
-import BaseButton from '@/shared/components/BaseButton.vue'
 import BaseCard from '@/shared/components/BaseCard.vue'
 import BaseInput from '@/shared/components/BaseInput.vue'
 
-import { getMyCourses, joinCourse, type Course } from '../api/courseApi'
+import { getMyCourses, type Course } from '../api/courseApi'
 import { useStudentApiError } from '../composables/useStudentApiError'
 
-const router = useRouter()
 const { handleApiError } = useStudentApiError()
 const courses = ref<Course[]>([])
 const loading = ref(true)
 const loadError = ref('')
 const keyword = ref('')
-const courseId = ref('')
-const code = ref('')
-const joining = ref(false)
-const joinMessage = ref('')
-const joinErrors = ref<Record<string, string>>({})
 
 const filteredCourses = computed(() => {
   const query = keyword.value.trim().toLocaleLowerCase('vi')
@@ -46,29 +39,6 @@ const loadCourses = async () => {
   }
 }
 
-const submitJoin = async () => {
-  joinMessage.value = ''
-  joinErrors.value = {}
-  const input = { courseId: courseId.value.trim(), code: code.value.trim() }
-
-  if (!input.courseId) joinErrors.value.courseId = 'Vui lòng nhập ID khóa học.'
-  if (!input.code) joinErrors.value.code = 'Vui lòng nhập mã tham gia.'
-  if (Object.keys(joinErrors.value).length > 0) return
-
-  joining.value = true
-  try {
-    const membership = await joinCourse(input)
-    await loadCourses()
-    await router.push({ name: 'student-course-detail', params: { courseId: membership.courseId } })
-  } catch (error) {
-    const parsed = handleApiError(error, 'Không thể tham gia khóa học.')
-    joinMessage.value = parsed.message
-    joinErrors.value = parsed.fieldErrors
-  } finally {
-    joining.value = false
-  }
-}
-
 const formatDate = (value: string) =>
   new Intl.DateTimeFormat('vi-VN', { dateStyle: 'medium' }).format(new Date(value))
 
@@ -79,53 +49,7 @@ onMounted(() => void loadCourses())
   <section class="mx-auto max-w-app space-y-6">
     <header>
       <p class="text-sm font-semibold text-secondary">Không gian học tập</p>
-      <h1 class="mt-1 font-heading text-3xl font-bold tracking-tight text-app-text">
-        Khóa học của tôi
-      </h1>
-      <p class="mt-2 text-sm text-app-text-muted">
-        Truy cập khóa học đã tham gia hoặc tham gia bằng mã được cung cấp.
-      </p>
     </header>
-
-    <BaseCard>
-      <template #header>
-        <div class="flex items-center gap-3">
-          <span
-            class="flex h-10 w-10 items-center justify-center rounded-control bg-secondary-soft text-secondary"
-            ><KeyRound :size="20"
-          /></span>
-          <div>
-            <h2 class="font-heading text-lg font-bold text-app-text">Tham gia khóa học</h2>
-            <p class="mt-1 text-sm text-app-text-muted">Nhập đúng ID khóa học và mã tham gia.</p>
-          </div>
-        </div>
-      </template>
-      <form
-        class="grid gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_auto] lg:items-start"
-        @submit.prevent="submitJoin"
-      >
-        <BaseInput
-          v-model="courseId"
-          label="ID khóa học"
-          placeholder="UUID khóa học"
-          :error="joinErrors.courseId"
-          :disabled="joining"
-          required
-        />
-        <BaseInput
-          v-model="code"
-          label="Mã tham gia"
-          placeholder="Nhập mã tham gia"
-          :error="joinErrors.code"
-          :disabled="joining"
-          required
-        />
-        <BaseButton type="submit" class="lg:mt-7" :loading="joining"
-          ><template #leading><KeyRound :size="18" /></template>Tham gia</BaseButton
-        >
-      </form>
-      <BaseAlert v-if="joinMessage" class="mt-4">{{ joinMessage }}</BaseAlert>
-    </BaseCard>
 
     <BaseAlert v-if="loadError">
       <div class="flex flex-wrap items-center justify-between gap-3">

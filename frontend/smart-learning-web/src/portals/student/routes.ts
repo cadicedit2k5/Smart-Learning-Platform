@@ -13,6 +13,15 @@ export const studentRoutes: RouteRecordRaw[] = [
     component: () => import('./pages/StudentDashboardPage.vue'),
   },
   {
+  path: 'discover',
+  name: 'student-public-courses',
+  component: () =>
+    import('./pages/StudentPublicCoursePage.vue'),
+  meta: {
+    title: 'Khám phá khóa học',
+  },
+},
+  {
     path: 'courses',
     name: 'student-courses',
     component: () => import('./pages/StudentCoursesPage.vue'),

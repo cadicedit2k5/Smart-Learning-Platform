@@ -1,4 +1,4 @@
-import { httpClient, type ApiResponse } from '@/shared/api'
+import { httpClient, type ApiResponse , type PaginatedData} from '@/shared/api'
 
 export type CourseVisibility = 'PUBLIC' | 'PRIVATE' | 'INVITE_ONLY'
 export type CourseStatus = 'DRAFT' | 'PUBLISHED' | 'ARCHIVED'
@@ -31,29 +31,42 @@ export interface CourseMembership {
   createdAt: string
 }
 
-export interface JoinCourseInput {
-  courseId: string
-  code: string
+export interface PublicCourse {
+  id: string
+  title: string
+  description: string | null
+  level: string | null
+  publishedAt: string | null
+  currentUserMembershipStatus: CourseMemberStatus | null
 }
 
 export const getMyCourses = async (): Promise<Course[]> => {
   const response = await httpClient.get<ApiResponse<Course[]>>('/courses/me')
-  return response.data.data
+  return response.data.data;
 }
 
 export const getCourse = async (courseId: string): Promise<Course> => {
   const response = await httpClient.get<ApiResponse<Course>>(`/courses/${courseId}`)
-  return response.data.data
+  return response.data.data;
 }
 
 export const getCurrentMembership = async (courseId: string): Promise<CourseMembership> => {
   const response = await httpClient.get<ApiResponse<CourseMembership>>(
     `/courses/${courseId}/members/me`,
   )
-  return response.data.data
+  return response.data.data;
 }
 
-export const joinCourse = async (input: JoinCourseInput): Promise<CourseMembership> => {
-  const response = await httpClient.post<ApiResponse<CourseMembership>>('/courses/join', input)
-  return response.data.data
+export const getPublicCourses = async (page = 1): Promise<PaginatedData<PublicCourse>> => {
+  const response = await httpClient.get<ApiResponse<PaginatedData<PublicCourse>>>('/courses/public', {
+    params: { page },
+  });
+
+  return response.data.data;
+}
+
+export const requestToJoinCourse = async (courseId: string): Promise<CourseMembership> => {
+  const response = await httpClient.post<ApiResponse<CourseMembership>>(`/courses/${courseId}/join-requests`)
+
+  return response.data.data;
 }
