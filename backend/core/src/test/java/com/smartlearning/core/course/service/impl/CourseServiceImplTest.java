@@ -2,9 +2,12 @@ package com.smartlearning.core.course.service.impl;
 
 import com.smartlearning.common.error.ApplicationException;
 import com.smartlearning.common.error.CommonErrorCode;
+import com.smartlearning.common.dto.request.PagingRequest;
+import com.smartlearning.common.dto.response.pagination.PagingResponse;
 import com.smartlearning.core.course.dto.request.CourseCreateRequest;
 import com.smartlearning.core.course.dto.request.CourseUpdateRequest;
 import com.smartlearning.core.course.dto.response.CourseResponse;
+import com.smartlearning.core.course.dto.response.PublicCourseResponse;
 import com.smartlearning.core.course.entity.Course;
 import com.smartlearning.core.course.entity.CourseMember;
 import com.smartlearning.core.course.entity.enums.CourseMemberRole;
@@ -23,9 +26,12 @@ import org.mockito.InOrder;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.UUID;
 
 import static com.smartlearning.core.support.CoreTestData.COURSE_ID;
 import static com.smartlearning.core.support.CoreTestData.OWNER_ID;
@@ -34,6 +40,7 @@ import static com.smartlearning.core.support.CoreTestData.courseResponse;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -82,7 +89,7 @@ class CourseServiceImplTest {
         assertThat(result.currentUserRole()).isEqualTo(CourseMemberRole.OWNER);
         assertThat(mappedCourse.getCreatedBy()).isEqualTo(OWNER_ID);
         assertThat(mappedCourse.getStatus()).isEqualTo(CourseStatus.DRAFT);
-        assertThat(mappedCourse.getVisibility()).isEqualTo(CourseVisibility.PRIVATE);
+        assertThat(mappedCourse.getVisibility()).isEqualTo(CourseVisibility.INVITE_ONLY);
 
         ArgumentCaptor<CourseMember> ownerCaptor = ArgumentCaptor.forClass(CourseMember.class);
         InOrder order = inOrder(courseRepository, memberRepository, courseMapper);
@@ -102,6 +109,7 @@ class CourseServiceImplTest {
     void getCourse_skipsMembershipCheckForPublicCourse() {
         Course publicCourse = course();
         publicCourse.setVisibility(CourseVisibility.PUBLIC);
+        publicCourse.setStatus(CourseStatus.PUBLISHED);
         CourseResponse expected = courseResponse(publicCourse);
         when(courseUtils.requireCourse(COURSE_ID)).thenReturn(publicCourse);
         when(courseMapper.toResponse(publicCourse)).thenReturn(expected);
@@ -113,16 +121,16 @@ class CourseServiceImplTest {
     }
 
     @Test
-    void getCourse_requiresActiveMembershipForNonPublicCourse() {
-        Course privateCourse = course();
-        CourseResponse expected = courseResponse(privateCourse);
+    void getCourse_requiresActiveMembershipForInviteOnlyOrUnpublishedCourse() {
+        Course inviteOnlyCourse = course();
+        CourseResponse expected = courseResponse(inviteOnlyCourse);
         CourseMember activeOwner = com.smartlearning.core.support.CoreTestData.member(
                 CourseMemberRole.OWNER,
                 CourseMemberStatus.ACTIVE
         );
-        when(courseUtils.requireCourse(COURSE_ID)).thenReturn(privateCourse);
+        when(courseUtils.requireCourse(COURSE_ID)).thenReturn(inviteOnlyCourse);
         when(courseAccessPolicy.requireActiveMember(COURSE_ID, OWNER_ID)).thenReturn(activeOwner);
-        when(courseMapper.toResponse(privateCourse)).thenReturn(expected);
+        when(courseMapper.toResponse(inviteOnlyCourse)).thenReturn(expected);
 
         CourseResponse result = courseService.getCourse(COURSE_ID, OWNER_ID);
         assertThat(result.currentUserRole()).isEqualTo(CourseMemberRole.OWNER);
@@ -130,7 +138,25 @@ class CourseServiceImplTest {
         InOrder order = inOrder(courseUtils, courseAccessPolicy, courseMapper);
         order.verify(courseUtils).requireCourse(COURSE_ID);
         order.verify(courseAccessPolicy).requireActiveMember(COURSE_ID, OWNER_ID);
-        order.verify(courseMapper).toResponse(privateCourse);
+        order.verify(courseMapper).toResponse(inviteOnlyCourse);
+    }
+
+    @Test
+    void getCourse_requiresMembershipForPublicDraft() {
+        Course publicDraft = course();
+        publicDraft.setVisibility(CourseVisibility.PUBLIC);
+        CourseMember activeOwner = com.smartlearning.core.support.CoreTestData.member(
+                CourseMemberRole.OWNER,
+                CourseMemberStatus.ACTIVE
+        );
+        when(courseUtils.requireCourse(COURSE_ID)).thenReturn(publicDraft);
+        when(courseAccessPolicy.requireActiveMember(COURSE_ID, OWNER_ID)).thenReturn(activeOwner);
+        when(courseMapper.toResponse(publicDraft)).thenReturn(courseResponse(publicDraft));
+
+        assertThat(courseService.getCourse(COURSE_ID, OWNER_ID).currentUserRole())
+                .isEqualTo(CourseMemberRole.OWNER);
+
+        verify(courseAccessPolicy).requireActiveMember(COURSE_ID, OWNER_ID);
     }
 
     @Test
@@ -163,6 +189,46 @@ class CourseServiceImplTest {
                 .containsExactly(CourseMemberRole.OWNER, CourseMemberRole.STUDENT);
         assertThat(result).extracting(CourseResponse::id)
                 .containsExactly(firstResponse.id(), secondResponse.id());
+    }
+
+    @Test
+    void getPublicCourses_returnsOnlyRepositoryPageAndCurrentMembershipStatus() {
+        Course first = course();
+        first.setVisibility(CourseVisibility.PUBLIC);
+        first.setStatus(CourseStatus.PUBLISHED);
+        first.setPublishedAt(Instant.parse("2026-08-28T12:00:00Z"));
+        Course second = course();
+        second.setId(UUID.randomUUID());
+        second.setTitle("Second public course");
+        second.setVisibility(CourseVisibility.PUBLIC);
+        second.setStatus(CourseStatus.PUBLISHED);
+        second.setPublishedAt(Instant.parse("2026-08-27T12:00:00Z"));
+        CourseMember pending = com.smartlearning.core.support.CoreTestData.member(
+                CourseMemberRole.STUDENT,
+                CourseMemberStatus.PENDING
+        );
+        pending.setCourse(first);
+        PagingRequest pagingRequest = new PagingRequest();
+        PageRequest pageable = PageRequest.of(0, 10);
+        when(courseRepository.findAllByVisibilityAndStatusAndDeletedAtIsNullOrderByPublishedAtDesc(
+                eq(CourseVisibility.PUBLIC),
+                eq(CourseStatus.PUBLISHED),
+                any()
+        )).thenReturn(new PageImpl<>(List.of(first, second), pageable, 2));
+        when(memberRepository.findAllByCourseIdInAndUserId(
+                List.of(first.getId(), second.getId()),
+                OWNER_ID
+        )).thenReturn(List.of(pending));
+
+        PagingResponse<PublicCourseResponse> result = courseService.getPublicCourses(
+                pagingRequest,
+                OWNER_ID
+        );
+
+        assertThat(result.getContent()).extracting(PublicCourseResponse::id)
+                .containsExactly(first.getId(), second.getId());
+        assertThat(result.getContent()).extracting(PublicCourseResponse::currentUserMembershipStatus)
+                .containsExactly(CourseMemberStatus.PENDING, null);
     }
 
     @Test
