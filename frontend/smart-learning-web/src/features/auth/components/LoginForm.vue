@@ -216,18 +216,16 @@ const handleSubmit = async () => {
         </BaseButton>
       </form>
 
-      <footer
-        class="mt-8 border-t border-app-border pt-6 text-center"
-      >
-        <p class="text-xs text-app-text-muted">
-          Having trouble signing in?
+      <footer class="mt-8 border-t border-app-border pt-6 text-center">
+        <p class="text-sm text-app-text-muted">
+          Chưa có tài khoản?
 
-          <a
-            href="mailto:support@smartlearning.com"
-            class="font-semibold text-app-text transition hover:text-secondary"
+          <RouterLink
+            to="/register"
+            class="font-semibold text-secondary hover:underline"
           >
-            Contact Support
-          </a>
+            Đăng ký
+          </RouterLink>
         </p>
       </footer>
     </BaseCard>

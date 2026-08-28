@@ -36,6 +36,16 @@ const router = createRouter({
       },
     },
     {
+      path: '/register',
+      name: 'register',
+      component: () =>
+        import('@/features/auth/pages/RegisterPage.vue'),
+      meta: {
+        title: 'Đăng ký',
+        guestOnly: true,
+      },
+    },
+    {
       path: '/:pathMatch(.*)*',
       name: 'not-found',
       component: () => import('@/pages/errors/NotFoundPage.vue'),
