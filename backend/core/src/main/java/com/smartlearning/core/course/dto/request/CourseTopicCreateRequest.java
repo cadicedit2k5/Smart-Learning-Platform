@@ -5,6 +5,8 @@ import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.PositiveOrZero;
 import jakarta.validation.constraints.Size;
 
+import java.util.Map;
+
 public record CourseTopicCreateRequest(
         @NotBlank(message = "Tên chủ đề không được để trống")
         @Size(max = 255, message = "Tên chủ đề không được vượt quá 255 ký tự")
@@ -17,6 +19,8 @@ public record CourseTopicCreateRequest(
         Integer orderIndex,
 
         @Positive(message = "Thời lượng dự kiến phải lớn hơn 0")
-        Integer estimatedMinutes
+        Integer estimatedMinutes,
+
+        Map<String, Object> content
 ) {
 }

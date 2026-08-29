@@ -147,7 +147,8 @@ class CourseContentServiceImplTest {
                 "  Chủ đề 1  ",
                 "Mô tả",
                 null,
-                30
+                30,
+                null
         );
         CourseTopic mapped = new CourseTopic();
         when(courseUtils.requireCourse(COURSE_ID)).thenReturn(course());

@@ -1,6 +1,7 @@
 package com.smartlearning.core.course.dto.response;
 
 import java.time.Instant;
+import java.util.Map;
 import java.util.UUID;
 
 public record CourseTopicResponse(
@@ -11,6 +12,7 @@ public record CourseTopicResponse(
         String description,
         Integer orderIndex,
         Integer estimatedMinutes,
+        Map<String, Object> content,
         Instant createdAt,
         Instant updatedAt
 ) {
