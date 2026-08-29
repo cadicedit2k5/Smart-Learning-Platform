@@ -42,3 +42,10 @@ export interface RegisterRequest {
   fullName: string
   avatar?: File
 };
+
+export interface UpdateCurrentUserRequest {
+  email?: string
+  password?: string
+  fullName?: string
+  avatar?: File
+}

@@ -1,5 +1,5 @@
 import type { NavigationItem } from '@/portals/types'
-import { LayoutDashboard, UserIcon } from 'lucide-vue-next'
+import { CircleUserRound, LayoutDashboard, UserIcon } from 'lucide-vue-next'
 import { markRaw } from 'vue'
 
 export const adminNavigation: NavigationItem[] = [
@@ -12,5 +12,10 @@ export const adminNavigation: NavigationItem[] = [
     label: 'Quản lý người dùng',
     routeName: 'admin-users',
     icon: markRaw(UserIcon),
+  },
+   {
+    label: 'Tài khoản',
+    routeName: 'admin-profile',
+    icon: markRaw(CircleUserRound),
   },
 ]

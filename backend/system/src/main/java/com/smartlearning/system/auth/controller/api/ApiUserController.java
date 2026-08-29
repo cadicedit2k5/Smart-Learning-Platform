@@ -7,6 +7,7 @@ import com.smartlearning.common.entity.Authorities;
 import com.smartlearning.system.auth.dto.request.UserCreateRequest;
 import com.smartlearning.system.auth.dto.request.UserFilterRequest;
 import com.smartlearning.system.auth.dto.request.UserLoginRequest;
+import com.smartlearning.system.auth.dto.request.UserUpdateRequest;
 import com.smartlearning.system.auth.dto.response.LoginResponse;
 import com.smartlearning.system.auth.dto.response.UserLookupResponse;
 import com.smartlearning.system.auth.dto.response.UserResponse;
@@ -61,6 +62,20 @@ public class ApiUserController {
         return ApiResponses.ok(
                 userService.handleGetCurrentUser(userId)
         );
+    }
+
+    @PatchMapping(
+            value = "/auth/me",
+            consumes = MediaType.MULTIPART_FORM_DATA_VALUE,
+            produces = MediaType.APPLICATION_JSON_VALUE
+    )
+    public ResponseEntity<ApiResponse<UserResponse>> updateMe(
+            @AuthenticationPrincipal Jwt jwt,
+            @Valid @ModelAttribute UserUpdateRequest request
+    ) {
+        return ApiResponses.ok(userService.handleUpdateUser(
+                        UUID.fromString(Objects.requireNonNull(jwt.getSubject())),
+                        request));
     }
 
     @PreAuthorize(Authorities.USER_READ)

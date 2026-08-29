@@ -18,7 +18,7 @@ import {
 } from 'lucide-vue-next'
 
 import type { UserRole } from '@/features/auth/role'
-import type { AuthUser } from '@/features/auth/types'
+import type { AuthUser, UserStatus } from '@/features/auth/types'
 import { parseApiError } from '@/shared/api'
 import BaseButton from '@/shared/components/BaseButton.vue'
 
@@ -63,6 +63,7 @@ const serverMessage = ref('')
 const filters = reactive({
   keyword: '',
   roleCode: '' as UserRole | '',
+  status: '' as UserStatus | '',
   createdFrom: '',
   createdTo: '',
   createdAtOrder: 'DESC' as 'ASC' | 'DESC',
@@ -111,17 +112,13 @@ const loadUsers = async () => {
   try {
     const result = await getUsers({
       page: currentPage.value,
-      keyword:
-        filters.keyword.trim() || undefined,
-      roleCode:
-        filters.roleCode || undefined,
-      createdFrom:
-        toIso(filters.createdFrom),
-      createdTo:
-        toIso(filters.createdTo),
-      createdAtOrder:
-        filters.createdAtOrder,
-    })
+      keyword: filters.keyword.trim() || undefined,
+      roleCode: filters.roleCode || undefined,
+      status: filters.status || undefined,
+      createdFrom: toIso(filters.createdFrom),
+      createdTo: toIso(filters.createdTo),
+      createdAtOrder: filters.createdAtOrder,
+    });
 
     if (loadId === latestLoadId) {
       usersPage.value = result
@@ -146,6 +143,7 @@ const applyFilters = () => {
 const resetFilters = () => {
   filters.keyword = ''
   filters.roleCode = ''
+  filters.status = ''
   filters.createdFrom = ''
   filters.createdTo = ''
   filters.createdAtOrder = 'DESC'
@@ -339,6 +337,21 @@ const roleClass = (role: UserRole) => {
   return classes[role]
 }
 
+const statusLabel = (status: UserStatus) => {
+  const labels: Record<UserStatus, string> = {
+    ACTIVE: 'Đang hoạt động',
+    DELETED: 'Đã vô hiệu hóa',
+  }
+
+  return labels[status]
+}
+
+const statusClass = (status: UserStatus) => {
+  return status === 'ACTIVE'
+    ? 'bg-emerald-50 text-emerald-700'
+    : 'bg-slate-100 text-slate-600'
+}
+
 onMounted(loadUsers)
 </script>
 
@@ -362,8 +375,7 @@ onMounted(loadUsers)
         </h1>
 
         <p class="mt-2 text-sm text-app-text-muted">
-          Tạo tài khoản, phân quyền và quản lý
-          người dùng đang hoạt động.
+          Tạo tài khoản, phân quyền và quản lý người dùng trong hệ thống.
         </p>
       </div>
 
@@ -412,7 +424,7 @@ onMounted(loadUsers)
       class="rounded-card border border-app-border bg-app-surface p-4 shadow-card sm:p-5"
     >
       <form
-        class="grid gap-4 lg:grid-cols-[minmax(240px,1.5fr)_1fr_1fr_1fr_auto]"
+        class="grid gap-4 xl:grid-cols-[minmax(220px,1.5fr)_1fr_1fr_1fr_1fr_auto]"
         @submit.prevent="applyFilters"
       >
         <div class="relative">
@@ -447,6 +459,16 @@ onMounted(loadUsers)
           <option value="ADMIN">
             Quản trị viên
           </option>
+        </select>
+
+        <select
+          v-model="filters.status"
+          aria-label="Lọc theo trạng thái"
+          class="h-11 rounded-control border border-app-border bg-app-surface px-3 text-sm outline-none focus:border-secondary focus:ring-2 focus:ring-secondary/20"
+        >
+          <option value="">Tất cả trạng thái</option>
+          <option value="ACTIVE">Đang hoạt động</option>
+          <option value="DELETED">Đã vô hiệu hóa</option>
         </select>
 
         <input
@@ -521,8 +543,7 @@ onMounted(loadUsers)
           </h2>
 
           <p class="mt-1 text-xs text-app-text-muted">
-            {{ usersPage.pageable.totalElements }}
-            tài khoản đang hoạt động
+            {{ usersPage.pageable.totalElements }} tài khoản
           </p>
         </div>
 
@@ -610,12 +631,12 @@ onMounted(loadUsers)
 
               <td class="px-5 py-4">
                 <span
-                  class="text-xs font-semibold text-emerald-700"
+                  class="rounded-pill px-2.5 py-1 text-xs font-semibold"
+                  :class="statusClass(user.status)"
                 >
-                  Đang hoạt động
+                  {{ statusLabel(user.status) }}
                 </span>
               </td>
-
               <td
                 class="whitespace-nowrap px-5 py-4 text-app-text-muted"
               >
@@ -624,23 +645,29 @@ onMounted(loadUsers)
 
               <td class="px-5 py-4">
                 <div class="flex justify-end gap-1">
-                  <button
-                    type="button"
-                    :aria-label="`Sửa ${user.fullName}`"
-                    class="flex h-9 w-9 items-center justify-center rounded-control text-app-text-muted hover:bg-secondary-soft hover:text-secondary"
-                    @click="openEdit(user)"
-                  >
-                    <Pencil :size="17" />
-                  </button>
+                  <template v-if="user.status === 'ACTIVE'">
+                    <button
+                      type="button"
+                      :aria-label="`Sửa ${user.fullName}`"
+                      class="flex h-9 w-9 items-center justify-center rounded-control text-app-text-muted hover:bg-secondary-soft hover:text-secondary"
+                      @click="openEdit(user)"
+                    >
+                      <Pencil :size="17" />
+                    </button>
 
-                  <button
-                    type="button"
-                    :aria-label="`Xóa ${user.fullName}`"
-                    class="flex h-9 w-9 items-center justify-center rounded-control text-app-text-muted hover:bg-danger-soft hover:text-danger"
-                    @click="openDelete(user)"
-                  >
-                    <Trash2 :size="17" />
-                  </button>
+                    <button
+                      type="button"
+                      :aria-label="`Vô hiệu hóa ${user.fullName}`"
+                      class="flex h-9 w-9 items-center justify-center rounded-control text-app-text-muted hover:bg-danger-soft hover:text-danger"
+                      @click="openDelete(user)"
+                    >
+                      <Trash2 :size="17" />
+                    </button>
+                  </template>
+
+                  <span v-else class="text-xs text-app-text-muted">
+                    Đã vô hiệu hóa
+                  </span>
                 </div>
               </td>
             </tr>

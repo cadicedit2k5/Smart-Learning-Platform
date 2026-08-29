@@ -21,4 +21,13 @@ export const adminRoutes: RouteRecordRaw[] = [
       title: 'Quản lý người dùng',
     },
   },
+  {
+    path: 'profile',
+    name: 'admin-profile',
+    component: () =>
+      import('@/features/auth/pages/ProfilePage.vue'),
+    meta: {
+      title: 'Tài khoản của tôi',
+    },
+  },
   ]

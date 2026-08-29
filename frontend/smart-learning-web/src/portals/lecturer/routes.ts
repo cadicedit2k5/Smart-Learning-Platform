@@ -28,4 +28,13 @@ export const lecturerRoutes: RouteRecordRaw[] = [
       title: 'Chi tiết khóa học',
     },
   },
+   {
+    path: 'profile',
+    name: 'lecturer-profile',
+    component: () =>
+      import('@/features/auth/pages/ProfilePage.vue'),
+    meta: {
+      title: 'Tài khoản của tôi',
+    },
+  },
 ]

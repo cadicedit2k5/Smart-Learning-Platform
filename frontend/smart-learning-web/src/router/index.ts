@@ -1,3 +1,4 @@
+import { useAuthStore } from '@/features/auth/stores';
 import DefaultLayout from '@/layouts/DefaultLayout.vue'
 import { portals } from '@/portals/registry'
 import { createRouter, createWebHistory } from 'vue-router'
@@ -55,6 +56,14 @@ const router = createRouter({
     },
   ],
 });
+
+router.beforeEach(async (to) => {
+  const authStore = useAuthStore()
+
+  if (!authStore.initialized) {
+    await authStore.initialize()
+  }
+})
 
 router.afterEach((to) => {
   const pageTitle = to.meta.title

@@ -185,15 +185,6 @@ const handleSubmit = async () => {
           </template>
         </BaseInput>
 
-        <div class="flex justify-end">
-          <RouterLink
-            to="/login"
-            class="text-xs font-semibold text-app-text-muted transition hover:text-secondary"
-          >
-            Forgot password?
-          </RouterLink>
-        </div>
-
         <BaseAlert
           v-if="errors.general"
           variant="error"

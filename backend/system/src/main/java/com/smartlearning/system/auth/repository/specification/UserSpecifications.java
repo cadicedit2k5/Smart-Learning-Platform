@@ -56,6 +56,10 @@ public class UserSpecifications {
     }
 
     public static Specification<User> status(UserStatus status) {
+        if (status == null) {
+            return Specification.unrestricted();
+        }
+
         return (root, query, criteriaBuilder) ->
                 criteriaBuilder.equal(
                         root.get("status"),

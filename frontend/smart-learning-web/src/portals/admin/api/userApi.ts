@@ -1,4 +1,4 @@
-import type { AuthUser, RegisterRequest } from '@/features/auth/types'
+import type { AuthUser, RegisterRequest, UserStatus } from '@/features/auth/types'
 import type { UserRole } from '@/features/auth/role'
 import {
     httpClient,
@@ -21,6 +21,7 @@ export interface UserListParams {
     page: number
     keyword?: string
     roleCode?: UserRole
+    status?: UserStatus
     createdFrom?: string
     createdTo?: string
     createdAtOrder?: 'ASC' | 'DESC'
@@ -47,6 +48,7 @@ export const getUsers = async (params: UserListParams): Promise<UsersPage> => {
                     page: params.page ? params.page : 1,
                     keyword: params.keyword || undefined,
                     roleCode: params.roleCode || undefined,
+                    status: params.status || undefined,
                     createdFrom: params.createdFrom || undefined,
                     createdTo: params.createdTo || undefined,
                     'orders[createdAt]':

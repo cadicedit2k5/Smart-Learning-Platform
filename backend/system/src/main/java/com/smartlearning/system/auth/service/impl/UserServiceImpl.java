@@ -61,6 +61,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public PagingResponse<UserLookupResponse> handleSearchUsers(UserFilterRequest filter) {
         filter.setRoleCode("STUDENT");
+        filter.setStatus(UserStatus.ACTIVE);
 
         Page<UserLookupResponse> pages = userRepository
                 .findAll(filter.specification(), filter.pageable())
@@ -143,9 +144,20 @@ public class UserServiceImpl implements UserService {
         User user = userRepository.findByIdAndStatusNot(id, UserStatus.DELETED).orElseThrow(
                         () -> new ApplicationException(
                                 CommonErrorCode.RESOURCE_NOT_FOUND,
-                                "User không tồn tại!")
-                        );
+                                "User không tồn tại!"));
 
+        if (StringUtils.hasText(request.getEmail())) {
+            String normalizedEmail = request.getEmail().trim().toLowerCase(Locale.ROOT);
+
+            if (!normalizedEmail.equals(user.getEmail())
+                    && userRepository.existsByEmailIgnoreCase(normalizedEmail)) {
+                throw new ApplicationException(CommonErrorCode.DATA_CONFLICT,
+                        "Email đã được sử dụng"
+                );
+            }
+
+            request.setEmail(normalizedEmail);
+        }
         userMapper.partialUpdate(request, user);
 
         // Logic update riêng cho admin
@@ -166,6 +178,13 @@ public class UserServiceImpl implements UserService {
                             request.getPassword()
                     )
             );
+        }
+
+        if (request.getAvatar() != null && !request.getAvatar().isEmpty()) {
+            String folder = "system/users/" + user.getId() + "/avatar";
+
+            FileUploadResponse uploadedFile = fileStorageService.upload(request.getAvatar(), folder);
+            user.setAvatar(uploadedFile.objectName());
         }
 
         User savedUser = userRepository.save(user);

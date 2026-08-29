@@ -37,4 +37,13 @@ export const studentRoutes: RouteRecordRaw[] = [
       title: 'Chi tiết khóa học',
     },
   },
+  {
+    path: 'profile',
+    name: 'student-profile',
+    component: () =>
+      import('@/features/auth/pages/ProfilePage.vue'),
+    meta: {
+      title: 'Tài khoản của tôi',
+    },
+  },
 ]
