@@ -1,6 +1,5 @@
 package com.smartlearning.core.course.dto.request;
 
-import com.smartlearning.core.course.entity.enums.CourseContentStatus;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.PositiveOrZero;
@@ -18,8 +17,6 @@ public record CourseTopicUpdateRequest(
         Integer orderIndex,
 
         @Positive(message = "Thời lượng dự kiến phải lớn hơn 0")
-        Integer estimatedMinutes,
-
-        CourseContentStatus status
+        Integer estimatedMinutes
 ) {
 }

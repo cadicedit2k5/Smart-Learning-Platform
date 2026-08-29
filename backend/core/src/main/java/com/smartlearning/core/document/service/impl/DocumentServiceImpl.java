@@ -6,7 +6,6 @@ import com.smartlearning.common.error.CommonErrorCode;
 import com.smartlearning.core.course.entity.Course;
 import com.smartlearning.core.course.entity.CourseChapter;
 import com.smartlearning.core.course.entity.CourseTopic;
-import com.smartlearning.core.course.entity.enums.CourseContentStatus;
 import com.smartlearning.core.course.repository.CourseChapterRepository;
 import com.smartlearning.core.course.repository.CourseTopicRepository;
 import com.smartlearning.core.course.sercurity.CourseAccessPolicy;
@@ -261,17 +260,12 @@ public class DocumentServiceImpl implements DocumentService {
         CourseTopic topic = null;
 
         if (topicId != null) {
-            topic = topicRepository.findByIdAndChapterCourseIdAndDeletedAtIsNull(topicId, courseId)
+            topic = topicRepository
+                    .findByIdAndChapterCourseIdAndDeletedAtIsNullAndChapterDeletedAtIsNull(topicId, courseId)
                     .orElseThrow(() -> new ApplicationException(
                             CommonErrorCode.RESOURCE_NOT_FOUND,
                             "Không tìm thấy chủ đề"
                     ));
-            if (topic.getStatus() == CourseContentStatus.ARCHIVED) {
-                throw new ApplicationException(
-                        CommonErrorCode.DATA_CONFLICT,
-                        "Không thể gắn tài liệu vào chủ đề đã lưu trữ"
-                );
-            }
             chapter = topic.getChapter();
         }
 
@@ -282,13 +276,6 @@ public class DocumentServiceImpl implements DocumentService {
                             CommonErrorCode.RESOURCE_NOT_FOUND,
                             "Không tìm thấy chương"
                     ));
-
-            if (requestedChapter.getStatus() == CourseContentStatus.ARCHIVED) {
-                throw new ApplicationException(
-                        CommonErrorCode.DATA_CONFLICT,
-                        "Không thể gắn tài liệu vào chương đã lưu trữ"
-                );
-            }
 
             if (chapter != null && !chapter.getId().equals(requestedChapter.getId())) {
                 throw new ApplicationException(

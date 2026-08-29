@@ -1,7 +1,6 @@
 package com.smartlearning.core.course.repository;
 
 import com.smartlearning.core.course.entity.CourseTopic;
-import com.smartlearning.core.course.entity.enums.CourseContentStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
@@ -10,12 +9,10 @@ import java.util.Optional;
 import java.util.UUID;
 
 public interface CourseTopicRepository extends JpaRepository<CourseTopic, UUID> {
-    List<CourseTopic> findAllByChapterIdAndStatusAndDeletedAtIsNullOrderByOrderIndexAsc(
-            UUID chapterId,
-            CourseContentStatus status
+    Optional<CourseTopic> findByIdAndChapterCourseIdAndDeletedAtIsNullAndChapterDeletedAtIsNull(
+            UUID id,
+            UUID courseId
     );
-
-    Optional<CourseTopic> findByIdAndChapterCourseIdAndDeletedAtIsNull(UUID id, UUID courseId);
 
     Optional<CourseTopic> findByIdAndChapterIdAndDeletedAtIsNull(UUID id, UUID chapterId);
 

@@ -11,7 +11,6 @@ import com.smartlearning.core.course.dto.response.CourseTopicResponse;
 import com.smartlearning.core.course.entity.Course;
 import com.smartlearning.core.course.entity.CourseChapter;
 import com.smartlearning.core.course.entity.CourseTopic;
-import com.smartlearning.core.course.entity.enums.CourseContentStatus;
 import com.smartlearning.core.course.mapper.CourseChapterMapper;
 import com.smartlearning.core.course.mapper.CourseTopicMapper;
 import com.smartlearning.core.course.repository.CourseChapterRepository;
@@ -59,7 +58,6 @@ public class CourseContentServiceImpl implements CourseContentService {
         CourseChapter chapter = chapterMapper.toEntity(request);
         chapter.setCourse(course);
         chapter.setTitle(request.title().trim());
-        chapter.setStatus(request.status() == null ? CourseContentStatus.DRAFT : request.status());
         chapter.setOrderIndex(request.orderIndex() == null
                 ? chapterRepository.findMaxOrderIndex(courseId) + 1
                 : request.orderIndex());
@@ -91,13 +89,9 @@ public class CourseContentServiceImpl implements CourseContentService {
         requireOwnerCourse(courseId, currentUserId);
         CourseChapter chapter = requireChapter(courseId, chapterId);
         Instant deletedAt = Instant.now();
-        chapter.setStatus(CourseContentStatus.ARCHIVED);
         chapter.setDeletedAt(deletedAt);
         topicRepository.findAllByChapterIdAndDeletedAtIsNullOrderByOrderIndexAsc(chapterId)
-                .forEach(topic -> {
-                    topic.setStatus(CourseContentStatus.ARCHIVED);
-                    topic.setDeletedAt(deletedAt);
-                });
+                .forEach(topic -> topic.setDeletedAt(deletedAt));
     }
 
     @Override
@@ -123,7 +117,6 @@ public class CourseContentServiceImpl implements CourseContentService {
         CourseTopic topic = topicMapper.toEntity(request);
         topic.setChapter(chapter);
         topic.setTitle(request.title().trim());
-        topic.setStatus(request.status() == null ? CourseContentStatus.DRAFT : request.status());
         topic.setOrderIndex(request.orderIndex() == null
                 ? topicRepository.findMaxOrderIndex(chapterId) + 1
                 : request.orderIndex());
@@ -157,7 +150,6 @@ public class CourseContentServiceImpl implements CourseContentService {
         requireOwnerCourse(courseId, currentUserId);
         requireChapter(courseId, chapterId);
         CourseTopic topic = requireTopic(chapterId, topicId);
-        topic.setStatus(CourseContentStatus.ARCHIVED);
         topic.setDeletedAt(Instant.now());
     }
 

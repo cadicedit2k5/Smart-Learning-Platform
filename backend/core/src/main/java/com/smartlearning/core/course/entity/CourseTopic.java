@@ -1,7 +1,6 @@
 package com.smartlearning.core.course.entity;
 
 import com.smartlearning.common.entity.BaseEntity;
-import com.smartlearning.core.course.entity.enums.CourseContentStatus;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -38,10 +37,6 @@ public class CourseTopic extends BaseEntity {
 
     @Column(name = "estimated_minutes")
     private Integer estimatedMinutes;
-
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false, length = 30)
-    private CourseContentStatus status = CourseContentStatus.DRAFT;
 
     @Column(name = "deleted_at")
     private Instant deletedAt;

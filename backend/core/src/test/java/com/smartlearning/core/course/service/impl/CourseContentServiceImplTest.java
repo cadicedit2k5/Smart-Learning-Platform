@@ -8,7 +8,6 @@ import com.smartlearning.core.course.dto.response.CourseChapterResponse;
 import com.smartlearning.core.course.dto.response.CourseTopicResponse;
 import com.smartlearning.core.course.entity.CourseChapter;
 import com.smartlearning.core.course.entity.CourseTopic;
-import com.smartlearning.core.course.entity.enums.CourseContentStatus;
 import com.smartlearning.core.course.mapper.CourseChapterMapper;
 import com.smartlearning.core.course.mapper.CourseTopicMapper;
 import com.smartlearning.core.course.repository.CourseChapterRepository;
@@ -96,12 +95,11 @@ class CourseContentServiceImplTest {
     }
 
     @Test
-    void createChapter_assignsNextOrderAndDraftStatus() {
+    void createChapter_assignsNextOrderAndTrimsTitle() {
         CourseChapterCreateRequest request = new CourseChapterCreateRequest(
                 "  Chương 1  ",
                 "Mô tả",
                 "Mục tiêu",
-                null,
                 null
         );
         CourseChapter mapped = new CourseChapter();
@@ -117,7 +115,6 @@ class CourseContentServiceImplTest {
         CourseChapterResponse result = contentService.createChapter(COURSE_ID, request, OWNER_ID);
 
         assertThat(result.orderIndex()).isEqualTo(3);
-        assertThat(result.status()).isEqualTo(CourseContentStatus.DRAFT);
         assertThat(result.title()).isEqualTo("Chương 1");
         assertThat(mapped.getCourse().getId()).isEqualTo(COURSE_ID);
         verify(courseAccessPolicy).requireOwner(COURSE_ID, OWNER_ID);
@@ -129,8 +126,7 @@ class CourseContentServiceImplTest {
                 "Chương trùng",
                 null,
                 null,
-                1,
-                CourseContentStatus.DRAFT
+                1
         );
         when(courseUtils.requireCourse(COURSE_ID)).thenReturn(course());
         when(chapterMapper.toEntity(request)).thenReturn(new CourseChapter());
@@ -151,8 +147,7 @@ class CourseContentServiceImplTest {
                 "  Chủ đề 1  ",
                 "Mô tả",
                 null,
-                30,
-                null
+                30
         );
         CourseTopic mapped = new CourseTopic();
         when(courseUtils.requireCourse(COURSE_ID)).thenReturn(course());
@@ -174,7 +169,6 @@ class CourseContentServiceImplTest {
         );
 
         assertThat(result.orderIndex()).isZero();
-        assertThat(result.status()).isEqualTo(CourseContentStatus.DRAFT);
         assertThat(result.chapterId()).isEqualTo(CHAPTER_ID);
         assertThat(result.title()).isEqualTo("Chủ đề 1");
     }
@@ -195,13 +189,9 @@ class CourseContentServiceImplTest {
         contentService.deleteChapter(COURSE_ID, CHAPTER_ID, OWNER_ID);
         Instant afterCall = Instant.now();
 
-        assertThat(chapter.getStatus()).isEqualTo(CourseContentStatus.ARCHIVED);
         assertThat(chapter.getDeletedAt()).isBetween(beforeCall, afterCall);
         assertThat(List.of(first, second))
-                .allSatisfy(topic -> {
-                    assertThat(topic.getStatus()).isEqualTo(CourseContentStatus.ARCHIVED);
-                    assertThat(topic.getDeletedAt()).isEqualTo(chapter.getDeletedAt());
-                });
+                .allSatisfy(topic -> assertThat(topic.getDeletedAt()).isEqualTo(chapter.getDeletedAt()));
     }
 
     private static CourseChapter chapter() {
@@ -210,7 +200,6 @@ class CourseContentServiceImplTest {
         chapter.setCourse(course());
         chapter.setTitle("Chương 1");
         chapter.setOrderIndex(0);
-        chapter.setStatus(CourseContentStatus.DRAFT);
         return chapter;
     }
 
@@ -220,7 +209,6 @@ class CourseContentServiceImplTest {
         topic.setChapter(chapter);
         topic.setTitle("Chủ đề 1");
         topic.setOrderIndex(0);
-        topic.setStatus(CourseContentStatus.DRAFT);
         return topic;
     }
 
@@ -232,7 +220,6 @@ class CourseContentServiceImplTest {
                 chapter.getDescription(),
                 chapter.getLearningObjectives(),
                 chapter.getOrderIndex(),
-                chapter.getStatus(),
                 chapter.getCreatedAt(),
                 chapter.getUpdatedAt()
         );
@@ -247,7 +234,6 @@ class CourseContentServiceImplTest {
                 topic.getDescription(),
                 topic.getOrderIndex(),
                 topic.getEstimatedMinutes(),
-                topic.getStatus(),
                 topic.getCreatedAt(),
                 topic.getUpdatedAt()
         );

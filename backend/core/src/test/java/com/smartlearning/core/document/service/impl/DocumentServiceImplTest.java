@@ -2,6 +2,8 @@ package com.smartlearning.core.document.service.impl;
 
 import com.smartlearning.common.dto.response.pagination.PagingResponse;
 import com.smartlearning.core.course.entity.Course;
+import com.smartlearning.core.course.entity.CourseChapter;
+import com.smartlearning.core.course.entity.CourseTopic;
 import com.smartlearning.core.course.sercurity.CourseAccessPolicy;
 import com.smartlearning.core.course.repository.CourseChapterRepository;
 import com.smartlearning.core.course.repository.CourseTopicRepository;
@@ -48,6 +50,7 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 import static com.smartlearning.core.support.CoreTestData.COURSE_ID;
 import static com.smartlearning.core.support.CoreTestData.DOCUMENT_ID;
@@ -307,6 +310,38 @@ class DocumentServiceImplTest {
         assertThat(existing.getDescription()).isEqualTo("Mô tả mới");
         assertThat(existing.getLifecycleStatus()).isEqualTo(DocumentLifecycleStatus.ARCHIVED);
         verify(courseAccessPolicy).requireOwner(COURSE_ID, OWNER_ID);
+    }
+
+    @Test
+    void handleUpdateDocument_placesDocumentOnlyInTopicWithActiveChapter() {
+        UUID chapterId = UUID.fromString("90000000-0000-0000-0000-000000000001");
+        UUID topicId = UUID.fromString("91000000-0000-0000-0000-000000000001");
+        CourseChapter chapter = new CourseChapter();
+        chapter.setId(chapterId);
+        chapter.setCourse(course());
+        CourseTopic topic = new CourseTopic();
+        topic.setId(topicId);
+        topic.setChapter(chapter);
+        Document existing = document();
+        DocumentUpdateRequest request = new DocumentUpdateRequest(null, null, null, null, topicId);
+
+        when(courseUtils.requireCourse(COURSE_ID)).thenReturn(course());
+        when(documentRepository.findByIdAndCourseIdAndDeletedAtIsNull(DOCUMENT_ID, COURSE_ID))
+                .thenReturn(Optional.of(existing));
+        when(topicRepository.findByIdAndChapterCourseIdAndDeletedAtIsNullAndChapterDeletedAtIsNull(
+                topicId,
+                COURSE_ID
+        )).thenReturn(Optional.of(topic));
+        when(documentMapper.toResponse(existing)).thenReturn(documentResponse());
+
+        documentService.handleUpdateDocument(COURSE_ID, DOCUMENT_ID, OWNER_ID, request);
+
+        assertThat(existing.getChapter()).isSameAs(chapter);
+        assertThat(existing.getTopic()).isSameAs(topic);
+        verify(topicRepository).findByIdAndChapterCourseIdAndDeletedAtIsNullAndChapterDeletedAtIsNull(
+                topicId,
+                COURSE_ID
+        );
     }
 
     @Test

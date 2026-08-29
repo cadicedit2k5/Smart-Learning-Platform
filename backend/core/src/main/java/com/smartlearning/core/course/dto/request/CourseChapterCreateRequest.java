@@ -1,6 +1,5 @@
 package com.smartlearning.core.course.dto.request;
 
-import com.smartlearning.core.course.entity.enums.CourseContentStatus;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.PositiveOrZero;
 import jakarta.validation.constraints.Size;
@@ -17,8 +16,6 @@ public record CourseChapterCreateRequest(
         String learningObjectives,
 
         @PositiveOrZero(message = "Thứ tự chương không được là số âm")
-        Integer orderIndex,
-
-        CourseContentStatus status
+        Integer orderIndex
 ) {
 }
