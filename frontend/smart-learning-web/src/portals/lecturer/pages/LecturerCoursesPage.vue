@@ -11,9 +11,15 @@ import {
   UsersRound,
 } from 'lucide-vue-next'
 
-import BaseAlert from '@/shared/components/BaseAlert.vue'
-import BaseButton from '@/shared/components/BaseButton.vue'
-import BaseInput from '@/shared/components/BaseInput.vue'
+import {
+  BaseAlert,
+  BaseBadge,
+  BaseButton,
+  BaseEmptyState,
+  BaseInput,
+  BasePageHeader,
+  BaseStatCard,
+} from '@/shared/components'
 
 import {
   createCourse,
@@ -110,10 +116,10 @@ const statusLabel: Record<CourseStatus, string> = {
   ARCHIVED: 'Đã lưu trữ',
 }
 
-const statusClass: Record<CourseStatus, string> = {
-  DRAFT: 'bg-amber-50 text-amber-800',
-  PUBLISHED: 'bg-ai-soft text-ai',
-  ARCHIVED: 'bg-app-surface-muted text-app-text-muted',
+const statusTone: Record<CourseStatus, 'warning' | 'success' | 'neutral'> = {
+  DRAFT: 'warning',
+  PUBLISHED: 'success',
+  ARCHIVED: 'neutral',
 }
 
 const visibilityLabel: Record<CourseVisibility, string> = {
@@ -129,36 +135,39 @@ onMounted(() => {
 
 <template>
   <section class="mx-auto max-w-app space-y-6">
-    <header class="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
-      <div>
-        <p class="text-sm font-semibold text-secondary">Không gian giảng dạy</p>
-        <h1 class="mt-1 font-heading text-3xl font-bold tracking-tight text-app-text">
-          Khóa học của tôi
-        </h1>
-        <p class="mt-2 max-w-2xl text-sm leading-6 text-app-text-muted">
-          Xây dựng nội dung, quản lý quyền truy cập và khai thác trợ lý AI cho từng khóa học.
-        </p>
-      </div>
+    <BasePageHeader
+      eyebrow="Không gian giảng dạy"
+      title="Khóa học của tôi"
+      description="Xây dựng nội dung, quản lý quyền truy cập và khai thác trợ lý AI cho từng khóa học."
+    >
+      <template #actions>
+        <BaseButton @click="openCreate">
+          <template #leading>
+            <Plus :size="18" />
+          </template>
 
-      <BaseButton @click="openCreate">
-        <template #leading><Plus :size="18" /></template>
-        Tạo khóa học
-      </BaseButton>
-    </header>
+          Tạo khóa học
+        </BaseButton>
+      </template>
+    </BasePageHeader>
 
     <div class="grid gap-4 sm:grid-cols-3">
-      <article class="rounded-card border border-app-border bg-app-surface p-5 shadow-card">
-        <p class="text-sm font-medium text-app-text-muted">Tổng khóa học</p>
-        <p class="mt-2 font-heading text-3xl font-bold text-app-text">{{ courses.length }}</p>
-      </article>
-      <article class="rounded-card border border-app-border bg-app-surface p-5 shadow-card">
-        <p class="text-sm font-medium text-app-text-muted">Đã xuất bản</p>
-        <p class="mt-2 font-heading text-3xl font-bold text-ai">{{ publishedCount }}</p>
-      </article>
-      <article class="rounded-card border border-app-border bg-app-surface p-5 shadow-card">
-        <p class="text-sm font-medium text-app-text-muted">Đang soạn</p>
-        <p class="mt-2 font-heading text-3xl font-bold text-amber-700">{{ draftCount }}</p>
-      </article>
+      <BaseStatCard
+        label="Tổng khóa học"
+        :value="courses.length"
+      />
+
+      <BaseStatCard
+        label="Đã xuất bản"
+        :value="publishedCount"
+        tone="success"
+      />
+
+      <BaseStatCard
+        label="Đang soạn"
+        :value="draftCount"
+        tone="warning"
+      />
     </div>
 
     <BaseAlert v-if="loadError">
@@ -195,26 +204,36 @@ onMounted(() => {
       />
     </div>
 
-    <section
+    <BaseEmptyState
       v-else-if="filteredCourses.length === 0"
-      class="rounded-card border border-dashed border-app-border bg-app-surface px-6 py-16 text-center"
+      :title="
+        courses.length === 0
+          ? 'Chưa có khóa học nào'
+          : 'Không tìm thấy khóa học phù hợp'
+      "
+      :description="
+        courses.length === 0
+          ? 'Tạo khóa học đầu tiên để bắt đầu xây dựng nội dung và mời học viên.'
+          : 'Thử thay đổi từ khóa hoặc bộ lọc trạng thái.'
+      "
     >
-      <BookOpen :size="44" class="mx-auto text-app-text-muted/40" />
-      <h2 class="mt-4 font-heading text-xl font-bold text-app-text">
-        {{ courses.length === 0 ? 'Chưa có khóa học nào' : 'Không tìm thấy khóa học phù hợp' }}
-      </h2>
-      <p class="mx-auto mt-2 max-w-md text-sm text-app-text-muted">
-        {{
-          courses.length === 0
-            ? 'Tạo khóa học đầu tiên để bắt đầu xây dựng nội dung và mời học viên.'
-            : 'Thử thay đổi từ khóa hoặc bộ lọc trạng thái.'
-        }}
-      </p>
-      <BaseButton v-if="courses.length === 0" class="mt-5" @click="openCreate">
-        <template #leading><Plus :size="18" /></template>
-        Tạo khóa học đầu tiên
-      </BaseButton>
-    </section>
+      <template #icon>
+        <BookOpen :size="24" />
+      </template>
+
+      <template
+        v-if="courses.length === 0"
+        #actions
+      >
+        <BaseButton @click="openCreate">
+          <template #leading>
+            <Plus :size="18" />
+          </template>
+
+          Tạo khóa học đầu tiên
+        </BaseButton>
+      </template>
+    </BaseEmptyState>
 
     <div v-else class="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
       <RouterLink
@@ -226,12 +245,9 @@ onMounted(() => {
         <div class="h-2 bg-primary" :class="course.status === 'PUBLISHED' ? 'bg-ai' : ''" />
         <div class="flex flex-1 flex-col p-5">
           <div class="flex items-center justify-between gap-3">
-            <span
-              class="rounded-pill px-2.5 py-1 text-xs font-semibold"
-              :class="statusClass[course.status]"
-            >
+            <BaseBadge :tone="statusTone[course.status]">
               {{ statusLabel[course.status] }}
-            </span>
+            </BaseBadge>
             <span class="flex items-center gap-1.5 text-xs text-app-text-muted">
               <Globe2 v-if="course.visibility === 'PUBLIC'" :size="14" />
               <UsersRound v-else-if="course.visibility === 'INVITE_ONLY'" :size="14" />

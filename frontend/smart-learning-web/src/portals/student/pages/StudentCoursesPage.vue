@@ -1,12 +1,14 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
 import { ArrowRight, BookOpen, CalendarDays, Search } from 'lucide-vue-next'
-import { useRouter } from 'vue-router'
 
-import BaseAlert from '@/shared/components/BaseAlert.vue'
-import BaseCard from '@/shared/components/BaseCard.vue'
-import BaseInput from '@/shared/components/BaseInput.vue'
-
+import {
+  BaseAlert,
+  BaseEmptyState,
+  BaseInput,
+  BaseCard,
+  BasePageHeader,
+} from '@/shared/components'
 import { getMyCourses, type Course } from '../api/courseApi'
 import { useStudentApiError } from '../composables/useStudentApiError'
 
@@ -47,9 +49,11 @@ onMounted(() => void loadCourses())
 
 <template>
   <section class="mx-auto max-w-app space-y-6">
-    <header>
-      <p class="text-sm font-semibold text-secondary">Không gian học tập</p>
-    </header>
+    <BasePageHeader
+      eyebrow="Không gian học tập"
+      title="Khóa học của tôi"
+      description="Tiếp tục học tập và truy cập các khóa học bạn đang tham gia."
+    />
 
     <BaseAlert v-if="loadError">
       <div class="flex flex-wrap items-center justify-between gap-3">
@@ -72,23 +76,23 @@ onMounted(() => void loadCourses())
         class="h-64 animate-pulse rounded-card bg-app-surface-muted"
       />
     </div>
-    <BaseCard v-else-if="filteredCourses.length === 0">
-      <div class="py-10 text-center">
-        <BookOpen :size="44" class="mx-auto text-app-text-muted/40" />
-        <h2 class="mt-4 font-heading text-xl font-bold text-app-text">
-          {{
-            courses.length ? 'Không tìm thấy khóa học phù hợp' : 'Bạn chưa tham gia khóa học nào'
-          }}
-        </h2>
-        <p class="mt-2 text-sm text-app-text-muted">
-        {{
-          courses.length
-            ? 'Thử thay đổi từ khóa tìm kiếm.'
-            : 'Khám phá các khóa học công khai để gửi yêu cầu tham gia.'
-        }}
-        </p>
-      </div>
-    </BaseCard>
+    <BaseEmptyState
+      v-else-if="filteredCourses.length === 0"
+      :title="
+        courses.length
+          ? 'Không tìm thấy khóa học phù hợp'
+          : 'Bạn chưa tham gia khóa học nào'
+      "
+      :description="
+        courses.length
+          ? 'Thử thay đổi từ khóa tìm kiếm.'
+          : 'Khám phá các khóa học công khai để gửi yêu cầu tham gia.'
+      "
+    >
+      <template #icon>
+        <BookOpen :size="24" />
+      </template>
+    </BaseEmptyState>
     <div v-else class="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
       <RouterLink
         v-for="course in filteredCourses"

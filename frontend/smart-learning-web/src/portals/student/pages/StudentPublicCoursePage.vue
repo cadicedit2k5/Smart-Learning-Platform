@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue'
+import { onMounted, ref } from 'vue'
 import {
   BookOpen,
   CalendarDays,
@@ -8,9 +8,15 @@ import {
   Send,
 } from 'lucide-vue-next'
 
-import BaseAlert from '@/shared/components/BaseAlert.vue'
-import BaseButton from '@/shared/components/BaseButton.vue'
-import BaseCard from '@/shared/components/BaseCard.vue'
+import {
+  BaseAlert,
+  BaseBadge,
+  BaseButton,
+  BaseCard,
+  BaseEmptyState,
+  BasePageHeader,
+  BasePagination,
+} from '@/shared/components'
 import type { PageableData } from '@/shared/api'
 
 import {
@@ -36,14 +42,6 @@ const loadError = ref('')
 
 const requestingCourseId = ref<string | null>(null)
 const actionError = ref('')
-
-const canGoPrevious = computed(
-  () => pageable.value.page > 1,
-)
-
-const canGoNext = computed(
-  () => pageable.value.page < pageable.value.totalPages,
-)
 
 const loadCourses = async (page = 1) => {
   loading.value = true
@@ -107,22 +105,11 @@ onMounted(() => void loadCourses())
 
 <template>
   <section class="mx-auto max-w-app space-y-6">
-    <header>
-      <p class="text-sm font-semibold text-secondary">
-        Khám phá
-      </p>
-
-      <h1
-        class="mt-1 font-heading text-3xl font-bold tracking-tight text-app-text"
-      >
-        Khóa học công khai
-      </h1>
-
-      <p class="mt-2 max-w-2xl text-sm text-app-text-muted">
-        Khám phá các khóa học công khai và gửi yêu cầu tham gia.
-        Bạn có thể truy cập khóa học sau khi được giảng viên chấp nhận.
-      </p>
-    </header>
+    <BasePageHeader
+      eyebrow="Khám phá"
+      title="Khóa học công khai"
+      description="Khám phá các khóa học công khai và gửi yêu cầu tham gia. Bạn có thể truy cập khóa học sau khi được giảng viên chấp nhận."
+    />
 
     <BaseAlert
       v-if="actionError"
@@ -157,24 +144,15 @@ onMounted(() => void loadCourses())
       />
     </div>
 
-    <BaseCard v-else-if="courses.length === 0">
-      <div class="py-12 text-center">
-        <BookOpen
-          :size="44"
-          class="mx-auto text-app-text-muted/40"
-        />
-
-        <h2
-          class="mt-4 font-heading text-xl font-bold text-app-text"
-        >
-          Chưa có khóa học công khai
-        </h2>
-
-        <p class="mt-2 text-sm text-app-text-muted">
-          Hiện chưa có khóa học nào được công khai.
-        </p>
-      </div>
-    </BaseCard>
+    <BaseEmptyState
+      v-else-if="courses.length === 0"
+      title="Chưa có khóa học công khai"
+      description="Hiện chưa có khóa học nào được công khai."
+    >
+      <template #icon>
+        <BookOpen :size="24" />
+      </template>
+    </BaseEmptyState>
 
     <div
       v-else
@@ -186,11 +164,9 @@ onMounted(() => void loadCourses())
       >
         <div class="flex h-full flex-col">
           <div>
-            <span
-              class="inline-flex rounded-pill bg-secondary-soft px-2.5 py-1 text-xs font-semibold text-secondary"
-            >
+            <BaseBadge tone="secondary">
               Công khai
-            </span>
+            </BaseBadge>
 
             <h2
               class="mt-4 line-clamp-2 font-heading text-xl font-bold text-app-text"
@@ -293,42 +269,17 @@ onMounted(() => void loadCourses())
       </BaseCard>
     </div>
 
-    <div
+    <BasePagination
       v-if="
         !loading &&
         courses.length > 0 &&
         pageable.totalPages > 1
       "
-      class="flex items-center justify-between gap-4"
-    >
-      <p class="text-sm text-app-text-muted">
-        Trang
-        <span class="font-semibold text-app-text">
-          {{ pageable.page }}
-        </span>
-        /
-        {{ pageable.totalPages }}
-        ·
-        {{ pageable.totalElements }} khóa học
-      </p>
-
-      <div class="flex gap-2">
-        <BaseButton
-          variant="secondary"
-          :disabled="!canGoPrevious"
-          @click="goToPage(pageable.page - 1)"
-        >
-          Trước
-        </BaseButton>
-
-        <BaseButton
-          variant="secondary"
-          :disabled="!canGoNext"
-          @click="goToPage(pageable.page + 1)"
-        >
-          Sau
-        </BaseButton>
-      </div>
-    </div>
+      :page="pageable.page"
+      :total-pages="pageable.totalPages"
+      :total-elements="pageable.totalElements"
+      @previous="goToPage(pageable.page - 1)"
+      @next="goToPage(pageable.page + 1)"
+    />
   </section>
 </template>
