@@ -17,8 +17,6 @@ public record DocumentUpdateRequest(
         @Size(max = 10_000, message = "Mô tả không được vượt quá 10000 ký tự")
         String description,
 
-        DocumentLifecycleStatus lifecycleStatus,
-
         UUID chapterId,
 
         UUID topicId

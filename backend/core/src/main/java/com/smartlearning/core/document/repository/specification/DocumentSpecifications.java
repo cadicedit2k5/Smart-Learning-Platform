@@ -31,14 +31,6 @@ public final class DocumentSpecifications {
                 );
     }
 
-    public static Specification<Document> lifecycleStatus(DocumentLifecycleStatus lifecycleStatus) {
-        if (lifecycleStatus == null) {
-            return Specification.unrestricted();
-        }
-        return (root, query, criteriaBuilder) ->
-                criteriaBuilder.equal(root.get("lifecycleStatus"), lifecycleStatus);
-    }
-
     public static Specification<Document> courseId(UUID courseId) {
         if (courseId == null) {
             return Specification.unrestricted();

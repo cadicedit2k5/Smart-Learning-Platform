@@ -45,11 +45,6 @@ public class Document extends BaseEntity {
     @Column(columnDefinition = "TEXT")
     private String description;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "lifecycle_status", nullable = false, length = 30)
-    private DocumentLifecycleStatus lifecycleStatus =
-            DocumentLifecycleStatus.ACTIVE;
-
     @Column(name = "uploaded_by", nullable = false)
     private UUID uploadedBy;
 

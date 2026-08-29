@@ -14,7 +14,6 @@ import java.util.UUID;
 @Setter
 public class DocumentFilterRequest extends FilterRequest<Document> {
     private String keyword;
-    private DocumentLifecycleStatus lifecycleStatus = DocumentLifecycleStatus.ACTIVE;
     private UUID chapterId;
     private UUID topicId;
 
@@ -22,7 +21,6 @@ public class DocumentFilterRequest extends FilterRequest<Document> {
     public Specification<Document> specification() {
         return Specification.allOf(
                 DocumentSpecifications.keyword(this.keyword),
-                DocumentSpecifications.lifecycleStatus(this.lifecycleStatus),
                 DocumentSpecifications.chapterId(this.chapterId),
                 DocumentSpecifications.topicId(this.topicId),
                 DocumentSpecifications.notDeleted()

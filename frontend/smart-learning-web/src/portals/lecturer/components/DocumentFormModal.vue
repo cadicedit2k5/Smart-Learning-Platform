@@ -40,7 +40,6 @@ const localErrors = reactive<Record<string, string>>({})
 const form = reactive({
   title: '',
   description: '',
-  lifecycleStatus: 'ACTIVE' as 'ACTIVE' | 'ARCHIVED',
   chapterId: '',
   topicId: '',
   file: null as File | null,
@@ -55,7 +54,6 @@ const loadTopics = async (chapterId: string) => {
 const reset = async () => {
   form.title = props.document?.title ?? ''
   form.description = props.document?.description ?? ''
-  form.lifecycleStatus = props.document?.lifecycleStatus ?? 'ACTIVE'
   form.chapterId = props.document?.chapterId ?? ''
   form.topicId = props.document?.topicId ?? ''
   form.file = null
@@ -107,7 +105,7 @@ const submit = () => {
   }
 
   if (props.document) {
-    emit('update', { ...common, lifecycleStatus: form.lifecycleStatus })
+    emit('update', common)
   } else if (form.file) {
     emit('upload', { ...common, file: form.file })
   }
@@ -214,45 +212,6 @@ const fieldError = (field: string) => localErrors[field] ?? props.serverErrors[f
                 </option>
               </select>
             </div>
-          </div>
-
-          <div v-if="document" class="space-y-2">
-            <label for="document-lifecycle" class="text-sm font-semibold text-app-text"
-              >Trạng thái</label
-            >
-            <select
-              id="document-lifecycle"
-              v-model="form.lifecycleStatus"
-              class="h-11 w-full rounded-control border border-app-border bg-app-surface px-3 text-sm"
-              :disabled="loading"
-            >
-              <option value="ACTIVE">Đang hoạt động</option>
-              <option value="ARCHIVED">Đã lưu trữ</option>
-            </select>
-          </div>
-
-          <div v-else class="space-y-2">
-            <p class="text-sm font-semibold text-app-text">
-              Tệp tài liệu <span class="text-danger">*</span>
-            </p>
-            <label
-              for="document-form-file"
-              class="flex cursor-pointer items-center gap-3 rounded-control border border-dashed border-app-border bg-app-surface-muted p-4"
-            >
-              <Upload :size="20" class="text-secondary" />
-              <span class="truncate text-sm text-app-text">{{
-                form.file?.name ?? 'Chọn tệp từ thiết bị'
-              }}</span>
-            </label>
-            <input
-              id="document-form-file"
-              ref="fileInput"
-              type="file"
-              class="sr-only"
-              :disabled="loading"
-              @change="selectFile"
-            />
-            <p v-if="fieldError('file')" class="text-sm text-danger">{{ fieldError('file') }}</p>
           </div>
 
           <footer class="flex justify-end gap-3 border-t border-app-border pt-5">

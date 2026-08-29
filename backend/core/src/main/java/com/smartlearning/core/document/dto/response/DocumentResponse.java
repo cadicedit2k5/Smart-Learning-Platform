@@ -12,7 +12,6 @@ public record DocumentResponse(
         UUID topicId,
         String title,
         String description,
-        DocumentLifecycleStatus lifecycleStatus,
         UUID uploadedBy,
         DocumentVersionResponse version,
         Instant createdAt,

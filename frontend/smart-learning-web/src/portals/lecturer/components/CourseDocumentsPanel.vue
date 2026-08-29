@@ -69,7 +69,6 @@ const downloadingId = ref('')
 const deletingId = ref('')
 const filters = reactive({
   keyword: '',
-  lifecycleStatus: 'ACTIVE' as 'ACTIVE' | 'ARCHIVED',
   chapterId: '',
   topicId: '',
 })
@@ -105,7 +104,6 @@ const loadDocuments = async (silent = false) => {
     documentsPage.value = await getDocuments(props.courseId, {
       page: requestedPage.value,
       keyword: filters.keyword.trim() || undefined,
-      lifecycleStatus: filters.lifecycleStatus,
       chapterId: filters.chapterId || undefined,
       topicId: filters.topicId || undefined,
     })
@@ -139,7 +137,6 @@ const applyFilters = () => {
 
 const resetFilters = () => {
   filters.keyword = ''
-  filters.lifecycleStatus = 'ACTIVE'
   filters.chapterId = ''
   filters.topicId = ''
   filterTopics.value = []
@@ -314,13 +311,6 @@ onBeforeUnmount(clearPollTimer)
       <BaseInput v-model="filters.keyword" placeholder="Tìm tài liệu">
         <template #leading><Search :size="17" /></template>
       </BaseInput>
-      <select
-        v-model="filters.lifecycleStatus"
-        class="h-11 rounded-control border border-app-border bg-app-surface px-3 text-sm"
-      >
-        <option value="ACTIVE">Đang hoạt động</option>
-        <option value="ARCHIVED">Đã lưu trữ</option>
-      </select>
       <select
         v-if="canManage"
         v-model="filters.chapterId"

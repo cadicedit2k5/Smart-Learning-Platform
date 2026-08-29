@@ -122,7 +122,6 @@ public class DocumentServiceImpl implements DocumentService {
                     );
                     document.setChapter(placement.chapter());
                     document.setTopic(placement.topic());
-                    document.setLifecycleStatus(DocumentLifecycleStatus.ACTIVE);
                     document.setUploadedBy(currentUserId);
 
                     documentRepository.saveAndFlush(document);
@@ -207,9 +206,7 @@ public class DocumentServiceImpl implements DocumentService {
         if (request.description() != null) {
             document.setDescription(request.description());
         }
-        if (request.lifecycleStatus() != null) {
-            document.setLifecycleStatus(request.lifecycleStatus());
-        }
+
         if (request.chapterId() != null || request.topicId() != null) {
             ContentPlacement placement = resolvePlacement(
                     courseId,
@@ -264,7 +261,6 @@ public class DocumentServiceImpl implements DocumentService {
                 }
             }
 
-            document.setLifecycleStatus(DocumentLifecycleStatus.ARCHIVED);
             document.setDeletedAt(Instant.now());
 
             return new DocumentDeletionRequestedEvent(

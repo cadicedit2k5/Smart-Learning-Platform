@@ -1,7 +1,6 @@
 import { httpClient, type ApiResponse, type PaginatedData } from '@/shared/api'
 
 export type DocumentProcessingStatus = 'UPLOADED' | 'QUEUED' | 'PROCESSING' | 'INDEXED' | 'FAILED'
-export type DocumentLifecycleStatus = 'ACTIVE' | 'ARCHIVED'
 
 export interface CourseDocumentVersion {
   id: string
@@ -22,7 +21,6 @@ export interface CourseDocument {
   topicId: string | null
   title: string
   description: string | null
-  lifecycleStatus: DocumentLifecycleStatus
   uploadedBy: string
   version: CourseDocumentVersion
   createdAt: string
@@ -31,7 +29,6 @@ export interface CourseDocument {
 
 export interface DocumentFilters {
   keyword?: string
-  lifecycleStatus?: DocumentLifecycleStatus
   chapterId?: string
   topicId?: string
   page?: number
@@ -48,7 +45,6 @@ export interface DocumentUploadInput {
 export interface DocumentUpdateInput {
   title: string
   description?: string
-  lifecycleStatus?: DocumentLifecycleStatus
   chapterId?: string
   topicId?: string
 }
@@ -65,7 +61,6 @@ export const getDocuments = async (
     {
       params: {
         keyword: normalizedFilters.keyword || undefined,
-        lifecycleStatus: normalizedFilters.lifecycleStatus || undefined,
         chapterId: normalizedFilters.chapterId || undefined,
         topicId: normalizedFilters.topicId || undefined,
         page: normalizedFilters.page ?? 1,

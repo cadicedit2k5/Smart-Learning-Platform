@@ -299,7 +299,6 @@ class DocumentServiceImplTest {
         DocumentUpdateRequest request = new DocumentUpdateRequest(
                 "  Tiêu đề mới  ",
                 "Mô tả mới",
-                DocumentLifecycleStatus.ARCHIVED,
                 null,
                 null
         );
@@ -327,7 +326,7 @@ class DocumentServiceImplTest {
         topic.setId(topicId);
         topic.setChapter(chapter);
         Document existing = document();
-        DocumentUpdateRequest request = new DocumentUpdateRequest(null, null, null, null, topicId);
+        DocumentUpdateRequest request = new DocumentUpdateRequest(null, null, null, topicId);
 
         when(courseUtils.requireCourse(COURSE_ID)).thenReturn(course());
         when(documentRepository.findByIdAndCourseIdAndDeletedAtIsNull(DOCUMENT_ID, COURSE_ID))
