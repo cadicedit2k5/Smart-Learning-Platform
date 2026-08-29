@@ -10,15 +10,14 @@ import {
 
 import BaseAlert from '@/shared/components/BaseAlert.vue'
 
+import { useStudentApiError } from '../composables/useStudentApiError'
+import TopicContentViewer from './StudentTopicContentViewer.vue'
 import {
   getChapters,
   getTopics,
   type CourseChapter,
   type CourseTopic,
-} from '../api/contentApi'
-
-import { useStudentApiError } from '../composables/useStudentApiError'
-import TopicContentViewer from './StudentTopicContentViewer.vue'
+} from '@/shared/course-content'
 
 const props = defineProps<{
   courseId: string

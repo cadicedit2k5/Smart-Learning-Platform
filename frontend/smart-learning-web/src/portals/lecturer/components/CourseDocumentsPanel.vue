@@ -20,7 +20,7 @@ import BaseButton from '@/shared/components/BaseButton.vue'
 import BaseInput from '@/shared/components/BaseInput.vue'
 import type { PaginatedData } from '@/shared/api'
 
-import { getChapters, getTopics, type CourseChapter, type CourseTopic } from '../api/contentApi'
+import { getChapters, getTopics, type CourseChapter, type CourseTopic } from '@/shared/course-content'
 import {
   deleteDocument,
   downloadDocument,

@@ -1,0 +1,142 @@
+.topic-content {
+  color: var(--color-app-text);
+  font-size: 1rem;
+  line-height: 1.8;
+  outline: none;
+  word-break: break-word;
+}
+
+.topic-content > *:first-child {
+  margin-top: 0;
+}
+
+.topic-content > *:last-child {
+  margin-bottom: 0;
+}
+
+/* Heading */
+
+.topic-content h1 {
+  margin: 2.25rem 0 1rem;
+  font-family: var(--font-heading);
+  font-size: 2rem;
+  font-weight: 700;
+  line-height: 1.25;
+  letter-spacing: -0.025em;
+}
+
+.topic-content h2 {
+  margin: 2rem 0 0.875rem;
+  font-family: var(--font-heading);
+  font-size: 1.5rem;
+  font-weight: 700;
+  line-height: 1.35;
+  letter-spacing: -0.015em;
+}
+
+.topic-content h3 {
+  margin: 1.75rem 0 0.75rem;
+  font-family: var(--font-heading);
+  font-size: 1.2rem;
+  font-weight: 700;
+  line-height: 1.4;
+}
+
+/* Text */
+
+.topic-content p {
+  margin: 0.875rem 0;
+}
+
+.topic-content strong {
+  font-weight: 700;
+}
+
+.topic-content em {
+  font-style: italic;
+}
+
+.topic-content s {
+  text-decoration: line-through;
+}
+
+/* Lists */
+
+.topic-content ul,
+.topic-content ol {
+  margin: 1rem 0;
+  padding-left: 1.75rem;
+}
+
+.topic-content ul {
+  list-style: disc;
+}
+
+.topic-content ol {
+  list-style: decimal;
+}
+
+.topic-content li {
+  margin: 0.35rem 0;
+}
+
+.topic-content li p {
+  margin: 0.25rem 0;
+}
+
+/* Quote */
+
+.topic-content blockquote {
+  margin: 1.5rem 0;
+  border-left: 4px solid var(--color-secondary);
+  border-radius: 0 0.5rem 0.5rem 0;
+  background: var(--color-secondary-soft);
+  padding: 1rem 1.25rem;
+  color: var(--color-app-text-muted);
+}
+
+.topic-content blockquote p {
+  margin: 0;
+}
+
+/* Inline code */
+
+.topic-content code {
+  border-radius: 0.375rem;
+  background: var(--color-app-surface-muted);
+  padding: 0.15rem 0.4rem;
+  font-family:
+    ui-monospace,
+    SFMono-Regular,
+    Menlo,
+    Monaco,
+    Consolas,
+    monospace;
+  font-size: 0.875em;
+}
+
+/* Code block */
+
+.topic-content pre {
+  margin: 1.5rem 0;
+  overflow-x: auto;
+  border-radius: 0.75rem;
+  background: #0f172a;
+  padding: 1.25rem 1.5rem;
+  color: #f8fafc;
+  line-height: 1.7;
+}
+
+.topic-content pre code {
+  background: transparent;
+  padding: 0;
+  color: inherit;
+}
+
+/* Separator */
+
+.topic-content hr {
+  margin: 2rem 0;
+  border: 0;
+  border-top: 1px solid var(--color-app-border);
+}

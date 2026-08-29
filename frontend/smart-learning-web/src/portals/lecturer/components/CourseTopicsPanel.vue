@@ -5,14 +5,16 @@ import { BookOpenText, Clock3, FilePenLine, Plus, Trash2, X} from 'lucide-vue-ne
 import BaseAlert from '@/shared/components/BaseAlert.vue'
 import BaseButton from '@/shared/components/BaseButton.vue'
 import BaseInput from '@/shared/components/BaseInput.vue'
+import {
+  getTopics,
+  type CourseTopic,
+  type TopicContent,
+} from '@/shared/course-content'
 
 import {
   createTopic,
   deleteTopic,
-  getTopics,
   updateTopic,
-  type CourseTopic,
-  type TopicContent,
   type TopicInput,
 } from '../api/contentApi'
 

@@ -5,14 +5,15 @@ import { ChevronDown, ChevronRight, Pencil, Plus, Trash2, X } from 'lucide-vue-n
 import BaseAlert from '@/shared/components/BaseAlert.vue'
 import BaseButton from '@/shared/components/BaseButton.vue'
 import BaseInput from '@/shared/components/BaseInput.vue'
-
+import {
+  getChapters,
+  type CourseChapter,
+} from '@/shared/course-content'
 import {
   createChapter,
   deleteChapter,
-  getChapters,
   updateChapter,
   type ChapterInput,
-  type CourseChapter,
 } from '../api/contentApi'
 import { useLecturerApiError } from '../composables/useLecturerApiError'
 import CourseTopicsPanel from './CourseTopicsPanel.vue'

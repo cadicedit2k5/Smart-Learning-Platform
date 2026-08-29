@@ -2,6 +2,7 @@
 
 @import 'tailwindcss';
 @import './base.css';
+@import './rich-text.css';
 
 @theme {
     --font-heading:

@@ -2,9 +2,9 @@
 import { watch } from 'vue'
 import {Bold, Code2, Heading1, Heading2, Heading3, Italic, List, ListOrdered, Quote, Redo2, Strikethrough, Undo2} from 'lucide-vue-next'
 import { EditorContent, useEditor } from '@tiptap/vue-3'
-import StarterKit from '@tiptap/starter-kit'
 
-import type { TopicContent } from '../api/contentApi'
+import type { TopicContent } from '@/shared/course-content'
+import { topicContentExtensions } from '@/shared/rich-text'
 
 const props = defineProps<{
   modelValue: TopicContent | null
@@ -20,19 +20,13 @@ const emptyContent = (): TopicContent => ({
 })
 
 const editor = useEditor({
-  extensions: [
-    StarterKit.configure({
-      heading: {
-        levels: [1, 2, 3],
-      },
-    }),
-  ],
+  extensions: topicContentExtensions,
 
   content: props.modelValue ?? emptyContent(),
 
   editorProps: {
     attributes: {
-      class: 'topic-editor-content',
+      class: 'topic-content topic-content-editor',
     },
   },
 
@@ -225,83 +219,5 @@ watch(() => props.modelValue, (content) => {
 .editor-tool-active {
   background: var(--color-secondary-soft);
   color: var(--color-secondary);
-}
-
-:deep(.topic-editor-content) {
-  min-height: 28rem;
-  padding: 2rem 2.5rem;
-  outline: none;
-  color: var(--color-app-text);
-  line-height: 1.75;
-}
-
-:deep(.topic-editor-content > *:first-child) {
-  margin-top: 0;
-}
-
-:deep(.topic-editor-content h1) {
-  margin: 2rem 0 1rem;
-  font-size: 1.9rem;
-  font-weight: 700;
-  line-height: 1.25;
-}
-
-:deep(.topic-editor-content h2) {
-  margin: 1.75rem 0 0.75rem;
-  font-size: 1.5rem;
-  font-weight: 700;
-  line-height: 1.35;
-}
-
-:deep(.topic-editor-content h3) {
-  margin: 1.5rem 0 0.65rem;
-  font-size: 1.2rem;
-  font-weight: 700;
-}
-
-:deep(.topic-editor-content p) {
-  margin: 0.75rem 0;
-}
-
-:deep(.topic-editor-content ul) {
-  margin: 0.75rem 0;
-  list-style: disc;
-  padding-left: 1.75rem;
-}
-
-:deep(.topic-editor-content ol) {
-  margin: 0.75rem 0;
-  list-style: decimal;
-  padding-left: 1.75rem;
-}
-
-:deep(.topic-editor-content blockquote) {
-  margin: 1rem 0;
-  border-left: 3px solid var(--color-secondary);
-  background: var(--color-app-surface-muted);
-  padding: 0.75rem 1rem;
-  color: var(--color-app-text-muted);
-}
-
-:deep(.topic-editor-content code) {
-  border-radius: 0.3rem;
-  background: var(--color-app-surface-muted);
-  padding: 0.15rem 0.35rem;
-  font-size: 0.875em;
-}
-
-:deep(.topic-editor-content pre) {
-  margin: 1rem 0;
-  overflow-x: auto;
-  border-radius: 0.75rem;
-  background: #111827;
-  padding: 1rem 1.25rem;
-  color: #f8fafc;
-}
-
-:deep(.topic-editor-content pre code) {
-  background: transparent;
-  padding: 0;
-  color: inherit;
 }
 </style>
