@@ -7,8 +7,10 @@ from app.configs.database import AsyncSessionLocal
 from app.infrastructure.ai.embeddings import create_embeddings
 from app.infrastructure.documents.loader import DocumentLoader
 from app.infrastructure.storage.minio_storage import MinioStorage
+from app.messaging.consumers.document_deletion_consumer import DocumentDeletionConsumer
 from app.messaging.consumers.document_ingestion_consumer import DocumentIngestionConsumer
 from app.messaging.publisher.document_ingestion_result_publisher import DocumentIngestionResultPublisher
+from app.services.document_deletion_handler import DocumentDeletionHandler
 from app.services.document_ingestion_handler import DocumentIngestionHandler
 
 logger = logging.getLogger(__name__)
@@ -41,15 +43,29 @@ async def main() -> None:
         result_publisher=result_publisher,
     )
 
+    deletion_handler = DocumentDeletionHandler(
+        session_factory=AsyncSessionLocal,
+    )
+
+    deletion_consumer = DocumentDeletionConsumer(
+        bootstrap_servers=settings.kafka_bootstrap_servers,
+        handler=deletion_handler,
+    )
+
     await result_publisher.start()
     await consumer.start()
+    await deletion_consumer.start()
 
     try:
-        await consumer.consume()
+        await asyncio.gather(
+            consumer.consume(),
+            deletion_consumer.consume()
+        )
 
     finally:
         await consumer.stop()
         await result_publisher.stop()
+        await deletion_consumer.stop()
 
 if __name__ == "__main__":
 

@@ -19,6 +19,7 @@ import com.smartlearning.core.document.entity.enums.DocumentLifecycleStatus;
 import com.smartlearning.core.document.entity.enums.DocumentProcessingStatus;
 import com.smartlearning.core.document.mapper.DocumentMapper;
 import com.smartlearning.core.document.messaging.event.DocumentIngestionRequestedEvent;
+import com.smartlearning.core.document.messaging.publisher.DocumentDeletionEventPublisher;
 import com.smartlearning.core.document.messaging.publisher.DocumentIngestionEventPublisher;
 import com.smartlearning.core.document.repository.DocumentProcessingJobRepository;
 import com.smartlearning.core.document.repository.DocumentRepository;
@@ -97,6 +98,8 @@ class DocumentServiceImplTest {
     private CourseChapterRepository chapterRepository;
     @Mock
     private CourseTopicRepository topicRepository;
+    @Mock
+    private DocumentDeletionEventPublisher documentDeletionEventPublisher;
 
     private DocumentServiceImpl documentService;
 
@@ -121,7 +124,8 @@ class DocumentServiceImplTest {
                 processingJobRepository,
                 eventPublisher,
                 chapterRepository,
-                topicRepository
+                topicRepository,
+                documentDeletionEventPublisher
         );
     }
 

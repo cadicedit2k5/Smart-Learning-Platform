@@ -20,7 +20,9 @@ import com.smartlearning.core.document.entity.DocumentVersion;
 import com.smartlearning.core.document.entity.enums.DocumentLifecycleStatus;
 import com.smartlearning.core.document.entity.enums.DocumentProcessingStatus;
 import com.smartlearning.core.document.mapper.DocumentMapper;
+import com.smartlearning.core.document.messaging.event.DocumentDeletionRequestedEvent;
 import com.smartlearning.core.document.messaging.event.DocumentIngestionRequestedEvent;
+import com.smartlearning.core.document.messaging.publisher.DocumentDeletionEventPublisher;
 import com.smartlearning.core.document.messaging.publisher.DocumentIngestionEventPublisher;
 import com.smartlearning.core.document.repository.DocumentProcessingJobRepository;
 import com.smartlearning.core.document.repository.DocumentRepository;
@@ -61,6 +63,7 @@ public class DocumentServiceImpl implements DocumentService {
     private final DocumentIngestionEventPublisher documentIngestionEventPublisher;
     private final CourseChapterRepository chapterRepository;
     private final CourseTopicRepository topicRepository;
+    private final DocumentDeletionEventPublisher documentDeletionEventPublisher;
 
     @Override
     @Transactional(readOnly = true)
@@ -242,9 +245,38 @@ public class DocumentServiceImpl implements DocumentService {
     public void handleDeleteDocument(UUID courseId, UUID documentId, UUID currentUserId) {
         courseUtils.requireCourse(courseId);
         courseAccessPolicy.requireOwner(courseId, currentUserId);
-        Document document = requireDocument(courseId, documentId);
-        document.setLifecycleStatus(DocumentLifecycleStatus.ARCHIVED);
-        document.setDeletedAt(Instant.now());
+        DocumentDeletionRequestedEvent event = transactionTemplate.execute(status -> {
+            courseUtils.requireCourse(courseId);
+            courseAccessPolicy.requireOwner(courseId, currentUserId);
+
+            Document document = requireDocument(courseId, documentId);
+
+            if (document.getVersion() != null) {
+                DocumentProcessingStatus processingStatus =
+                        document.getVersion().getProcessingStatus();
+
+                if (processingStatus != DocumentProcessingStatus.INDEXED
+                        && processingStatus != DocumentProcessingStatus.FAILED) {
+                    throw new ApplicationException(
+                            CommonErrorCode.DATA_CONFLICT,
+                            "Tài liệu đang được xử lý, chưa thể xóa"
+                    );
+                }
+            }
+
+            document.setLifecycleStatus(DocumentLifecycleStatus.ARCHIVED);
+            document.setDeletedAt(Instant.now());
+
+            return new DocumentDeletionRequestedEvent(
+                    UUID.randomUUID(),
+                    1,
+                    Instant.now(),
+                    courseId,
+                    documentId
+            );
+        });
+
+        documentDeletionEventPublisher.publish(Objects.requireNonNull(event));
     }
 
     private Document requireDocument(UUID courseId, UUID documentId) {

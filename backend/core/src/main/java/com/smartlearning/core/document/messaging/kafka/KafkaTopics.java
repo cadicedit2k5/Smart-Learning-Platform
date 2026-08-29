@@ -13,4 +13,7 @@ public final class KafkaTopics {
 
     public static final String DOCUMENT_INGESTION_FAILED =
             "document.ingestion.failed";
+
+    public static final String DOCUMENT_DELETION_REQUESTED =
+            "document.deletion.requested";
 }

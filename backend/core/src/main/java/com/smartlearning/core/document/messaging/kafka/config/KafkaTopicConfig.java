@@ -42,4 +42,13 @@ public class KafkaTopicConfig {
                 .replicas(replicationFactor)
                 .build();
     }
+
+    @Bean
+    NewTopic documentDeletionRequestedTopic() {
+        return TopicBuilder
+                .name(KafkaTopics.DOCUMENT_DELETION_REQUESTED)
+                .partitions(partitions)
+                .replicas(replicationFactor)
+                .build();
+    }
 }

@@ -45,3 +45,11 @@ class DocumentIngestionFailedEvent(EventModel):
 
     error_type: str
     error_message: str
+
+class DocumentDeletionRequestedEvent(EventModel):
+    event_id: UUID
+    schema_version: Literal[1]
+    occurred_at: datetime
+
+    course_id: UUID
+    document_id: UUID
