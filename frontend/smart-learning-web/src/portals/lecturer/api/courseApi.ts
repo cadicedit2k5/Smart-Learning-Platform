@@ -12,7 +12,6 @@ export type {
   CourseDocument,
   CourseDocumentVersion,
   DocumentFilters,
-  DocumentLifecycleStatus,
   DocumentProcessingStatus,
   DocumentUpdateInput,
   DocumentUploadInput,

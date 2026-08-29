@@ -1,6 +1,6 @@
 import { httpClient, type ApiResponse } from '@/shared/api'
 
-export type ContentStatus = 'DRAFT' | 'PUBLISHED' | 'ARCHIVED'
+export type TopicContent = Record<string, unknown>
 
 export interface CourseChapter {
   id: string
@@ -9,7 +9,6 @@ export interface CourseChapter {
   description: string | null
   learningObjectives: string | null
   orderIndex: number
-  status: ContentStatus
   createdAt: string
   updatedAt: string
 }
@@ -22,7 +21,7 @@ export interface CourseTopic {
   description: string | null
   orderIndex: number
   estimatedMinutes: number | null
-  status: ContentStatus
+  content: TopicContent | null
   createdAt: string
   updatedAt: string
 }
@@ -32,7 +31,6 @@ export interface ChapterInput {
   description?: string
   learningObjectives?: string
   orderIndex?: number
-  status?: ContentStatus
 }
 
 export interface TopicInput {
@@ -40,7 +38,7 @@ export interface TopicInput {
   description?: string
   orderIndex?: number
   estimatedMinutes?: number
-  status?: ContentStatus
+  content: TopicContent
 }
 
 const chaptersPath = (courseId: string) => `/courses/${courseId}/chapters`

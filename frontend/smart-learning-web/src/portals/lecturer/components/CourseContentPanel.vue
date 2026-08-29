@@ -12,7 +12,6 @@ import {
   getChapters,
   updateChapter,
   type ChapterInput,
-  type ContentStatus,
   type CourseChapter,
 } from '../api/contentApi'
 import { useLecturerApiError } from '../composables/useLecturerApiError'
@@ -26,7 +25,6 @@ const emptyForm = () => ({
   description: '',
   learningObjectives: '',
   orderIndex: '',
-  status: 'DRAFT' as ContentStatus,
 })
 
 const chapters = ref<CourseChapter[]>([])
@@ -40,18 +38,11 @@ const editingId = ref<string | null>(null)
 
 const form = reactive(emptyForm())
 
-const statusLabel: Record<ContentStatus, string> = {
-  DRAFT: 'Bản nháp',
-  PUBLISHED: 'Đã xuất bản',
-  ARCHIVED: 'Đã lưu trữ',
-}
-
 const toInput = (): ChapterInput => ({
   title: form.title.trim(),
   description: form.description.trim() || undefined,
   learningObjectives: form.learningObjectives.trim() || undefined,
   orderIndex: form.orderIndex === '' ? undefined : Number(form.orderIndex),
-  status: form.status,
 })
 
 const loadChapters = async () => {
@@ -83,7 +74,6 @@ const openEdit = (chapter: CourseChapter) => {
     description: chapter.description ?? '',
     learningObjectives: chapter.learningObjectives ?? '',
     orderIndex: chapter.orderIndex == null ? '' : String(chapter.orderIndex),
-    status: chapter.status,
   })
 
   formOpen.value = true
@@ -154,16 +144,38 @@ onMounted(() => void loadChapters())
 
 <template>
   <section class="space-y-5">
-    <header class="flex items-start justify-between gap-4">
+    <header
+      class="flex flex-col gap-5 rounded-panel border border-app-border bg-app-surface p-6 shadow-card sm:flex-row sm:items-center sm:justify-between"
+    >
       <div>
-        <h2 class="font-heading text-xl font-bold text-app-text">Nội dung khóa học</h2>
-        <p class="mt-1 text-sm text-app-text-muted">
-          Quản lý các chương và chủ đề trong khóa học.
-        </p>
+        <div class="flex items-center gap-3">
+          <div
+            class="flex h-11 w-11 items-center justify-center rounded-card bg-secondary-soft text-secondary"
+          >
+            <Layers3 :size="22" />
+          </div>
+
+          <div>
+            <h2
+              class="font-heading text-xl font-bold text-app-text"
+            >
+              Nội dung khóa học
+            </h2>
+
+            <p
+              class="mt-1 text-sm text-app-text-muted"
+            >
+              Xây dựng chương, chủ đề và nội dung bài học.
+            </p>
+          </div>
+        </div>
       </div>
 
       <BaseButton @click="openCreate">
-        <template #leading><Plus :size="17" /></template>
+        <template #leading>
+          <Plus :size="17" />
+        </template>
+
         Thêm chương
       </BaseButton>
     </header>
@@ -192,7 +204,7 @@ onMounted(() => void loadChapters())
       <article
         v-for="chapter in chapters"
         :key="chapter.id"
-        class="overflow-hidden rounded-card border border-app-border bg-app-surface"
+        class="overflow-hidden rounded-panel border border-app-border bg-app-surface shadow-card transition hover:border-secondary/30"
       >
         <div class="flex items-start gap-3 p-5">
           <button
@@ -207,13 +219,17 @@ onMounted(() => void loadChapters())
 
           <div class="min-w-0 flex-1">
             <div class="flex flex-wrap items-center gap-2">
-              <h3 class="font-heading text-lg font-bold text-app-text">
+              <span
+                class="rounded-pill bg-secondary-soft px-2.5 py-1 text-xs font-semibold text-secondary"
+              >
+                Chương {{ chapter.orderIndex + 1 }}
+              </span>
+
+              <h3
+                class="font-heading text-lg font-bold text-app-text"
+              >
                 {{ chapter.title }}
               </h3>
-
-              <span class="text-xs font-medium text-app-text-muted">
-                {{ statusLabel[chapter.status] }}
-              </span>
             </div>
 
             <p v-if="chapter.description" class="mt-2 text-sm leading-6 text-app-text-muted">
@@ -317,15 +333,6 @@ onMounted(() => void loadChapters())
               <span class="mb-1.5 block text-sm font-medium text-app-text">
                 Trạng thái
               </span>
-
-              <select
-                v-model="form.status"
-                class="h-11 w-full rounded-control border border-app-border bg-app-surface px-3 text-sm text-app-text outline-none focus:border-secondary focus:ring-2 focus:ring-secondary/20"
-              >
-                <option value="DRAFT">Bản nháp</option>
-                <option value="PUBLISHED">Đã xuất bản</option>
-                <option value="ARCHIVED">Đã lưu trữ</option>
-              </select>
             </label>
           </div>
 
