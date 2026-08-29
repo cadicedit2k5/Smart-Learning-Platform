@@ -46,7 +46,7 @@ const initials = computed(() => {
 
       <div
         v-if="config.search"
-        class="relative min-w-0 flex-1 lg:max-w-[600px]"
+        class="relative min-w-0 flex-1 lg:max-w-md"
       >
         <Search
           :size="17"
@@ -58,7 +58,7 @@ const initials = computed(() => {
           type="search"
           :placeholder="config.search.placeholder"
           aria-label="Search"
-          class="h-10 w-full rounded-control border border-transparent bg-app-surface-muted pl-10 pr-4 text-sm text-app-text outline-none transition focus:border-secondary focus:bg-app-surface focus:ring-2 focus:ring-secondary/20"
+          class="h-10 w-full rounded-control border border-transparent border-app-border bg-app-surface pl-10 pr-4 text-sm text-app-text outline-none transition focus:border-secondary focus:bg-app-surface focus:ring-2 focus:ring-secondary/20"
         />
       </div>
 

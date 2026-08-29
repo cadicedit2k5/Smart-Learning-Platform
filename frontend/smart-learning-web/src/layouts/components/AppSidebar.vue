@@ -49,7 +49,7 @@ const handleLogout = async () => {
   </Transition>
 
   <aside
-    class="fixed inset-y-0 left-0 z-50 flex w-sidebar flex-col border-r border-app-border bg-app-surface transition-transform duration-300 lg:translate-x-0"
+    class="fixed inset-y-0 left-0 z-50 flex w-sidebar flex-col border-r border-app-border/80 bg-app-surface transition-transform duration-300 lg:translate-x-0"
     :class="open ? 'translate-x-0' : '-translate-x-full'"
   >
     <!-- Logo -->
@@ -92,7 +92,7 @@ const handleLogout = async () => {
               class="group flex h-11 items-center gap-3 rounded-control px-3 text-sm font-medium transition-colors"
               :class="
                 isActive
-                  ? 'bg-secondary-soft text-secondary'
+                  ? 'bg-secondary-soft text-secondary font-semibold'
                   : 'text-app-text-muted hover:bg-app-surface-muted hover:text-app-text'
               "
             >

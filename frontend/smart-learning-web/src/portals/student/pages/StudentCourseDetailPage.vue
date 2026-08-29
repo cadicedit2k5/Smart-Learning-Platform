@@ -7,6 +7,7 @@ import {
   CalendarDays,
   FileText,
   GraduationCap,
+  Layers3,
   UserRoundCheck,
 } from 'lucide-vue-next'
 import { useRoute } from 'vue-router'
@@ -23,9 +24,10 @@ import {
 } from '../api/courseApi'
 import StudentAiTutorPanel from '../components/StudentAiTutorPanel.vue'
 import StudentDocumentsPanel from '../components/StudentDocumentsPanel.vue'
+import StudentCourseContentPanel from '../components/StudentCourseContentPanel.vue'
 import { useStudentApiError } from '../composables/useStudentApiError'
 
-type DetailTab = 'overview' | 'documents' | 'ai'
+type DetailTab = 'overview' | 'content' | 'documents' | 'ai'
 
 const route = useRoute()
 const { handleApiError } = useStudentApiError()
@@ -38,6 +40,7 @@ const loadError = ref('')
 
 const tabs: Array<{ id: DetailTab; label: string; icon: typeof BookOpen }> = [
   { id: 'overview', label: 'Tổng quan', icon: BookOpen },
+  { id: 'content', label: 'Bài học', icon: Layers3 },
   { id: 'documents', label: 'Tài liệu', icon: FileText },
   { id: 'ai', label: 'AI tutor', icon: Bot },
 ]
@@ -85,42 +88,100 @@ onMounted(() => void loadDetail())
     </BaseAlert>
 
     <template v-else-if="course && membership">
-      <header class="rounded-panel bg-primary p-6 text-on-primary shadow-card sm:p-8">
-        <div class="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
-          <div>
-            <p class="text-sm font-semibold text-on-primary/75">Khóa học đang tham gia</p>
-            <h1 class="mt-2 font-heading text-3xl font-bold tracking-tight">{{ course.title }}</h1>
-            <p class="mt-3 max-w-3xl text-sm leading-6 text-on-primary/80">
-              {{ course.description || 'Khóa học chưa có mô tả.' }}
+      <header
+        class="relative overflow-hidden rounded-panel border border-app-border bg-app-surface p-6 shadow-card sm:p-8"
+      >
+        <div
+          class="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-secondary via-primary to-ai"
+        />
+
+        <div
+          class="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between"
+        >
+          <div class="max-w-4xl">
+            <div
+              class="flex flex-wrap items-center gap-2"
+            >
+              <span
+                class="rounded-pill bg-secondary-soft px-3 py-1 text-xs font-semibold text-secondary"
+              >
+                Khóa học đang tham gia
+              </span>
+
+              <span
+                v-if="course.level"
+                class="rounded-pill bg-app-surface-muted px-3 py-1 text-xs font-medium text-app-text-muted"
+              >
+                {{ course.level }}
+              </span>
+            </div>
+
+            <h1
+              class="mt-5 font-heading text-3xl font-bold tracking-tight text-app-text sm:text-4xl"
+            >
+              {{ course.title }}
+            </h1>
+
+            <p
+              class="mt-3 max-w-3xl text-sm leading-7 text-app-text-muted sm:text-base"
+            >
+              {{
+                course.description ||
+                'Khóa học chưa có mô tả.'
+              }}
             </p>
           </div>
-          <span
-            class="inline-flex w-fit items-center gap-2 rounded-pill bg-white/15 px-3 py-1.5 text-sm font-semibold"
-            ><UserRoundCheck :size="17" />{{
-              membership.status === 'ACTIVE' ? 'Thành viên' : membership.status
-            }}</span
+
+          <div
+            class="flex items-center gap-3 rounded-card bg-ai-soft px-4 py-3 text-ai"
           >
+            <UserRoundCheck :size="20" />
+
+            <div>
+              <p class="text-xs opacity-75">
+                Trạng thái
+              </p>
+
+              <p class="text-sm font-bold">
+                Thành viên
+              </p>
+            </div>
+          </div>
         </div>
       </header>
 
       <nav
         aria-label="Nội dung khóa học"
-        class="flex gap-1 overflow-x-auto rounded-card border border-app-border bg-app-surface p-1 shadow-card"
+        class="border-b border-app-border"
       >
-        <button
-          v-for="tab in tabs"
-          :key="tab.id"
-          type="button"
-          class="inline-flex shrink-0 items-center gap-2 rounded-control px-4 py-2.5 text-sm font-semibold transition"
-          :class="
-            activeTab === tab.id
-              ? 'bg-secondary text-white'
-              : 'text-app-text-muted hover:bg-app-surface-muted hover:text-app-text'
-          "
-          @click="activeTab = tab.id"
+        <div
+          class="flex gap-7 overflow-x-auto"
         >
-          <component :is="tab.icon" :size="17" />{{ tab.label }}
-        </button>
+          <button
+            v-for="tab in tabs"
+            :key="tab.id"
+            type="button"
+            class="relative flex h-12 shrink-0 items-center gap-2 text-sm font-semibold transition"
+            :class="
+              activeTab === tab.id
+                ? 'text-secondary'
+                : 'text-app-text-muted hover:text-app-text'
+            "
+            @click="activeTab = tab.id"
+          >
+            <component
+              :is="tab.icon"
+              :size="17"
+            />
+
+            {{ tab.label }}
+
+            <span
+              v-if="activeTab === tab.id"
+              class="absolute inset-x-0 bottom-0 h-0.5 rounded-full bg-secondary"
+            />
+          </button>
+        </div>
       </nav>
 
       <div v-if="activeTab === 'overview'" class="grid gap-5 lg:grid-cols-[minmax(0,1fr)_20rem]">
@@ -169,7 +230,7 @@ onMounted(() => void loadDetail())
           </dl>
         </BaseCard>
       </div>
-
+      <StudentCourseContentPanel v-else-if="activeTab === 'content'":course-id="course.id"/>
       <StudentDocumentsPanel v-else-if="activeTab === 'documents'" :course-id="course.id" />
       <StudentAiTutorPanel v-else :course-id="course.id" />
     </template>

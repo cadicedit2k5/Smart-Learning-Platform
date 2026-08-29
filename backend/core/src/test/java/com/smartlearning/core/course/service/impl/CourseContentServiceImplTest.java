@@ -235,6 +235,7 @@ class CourseContentServiceImplTest {
                 topic.getDescription(),
                 topic.getOrderIndex(),
                 topic.getEstimatedMinutes(),
+                topic.getContent(),
                 topic.getCreatedAt(),
                 topic.getUpdatedAt()
         );

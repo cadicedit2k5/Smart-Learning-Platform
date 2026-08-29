@@ -96,7 +96,11 @@ onMounted(() => void loadCourses())
         :to="{ name: 'student-course-detail', params: { courseId: course.id } }"
         class="group flex min-h-64 flex-col overflow-hidden rounded-card border border-app-border bg-app-surface shadow-card transition hover:-translate-y-0.5 hover:border-secondary/50 hover:shadow-overlay"
       >
-        <div class="h-2 bg-secondary" />
+        <div
+          class="flex h-11 w-11 items-center justify-center rounded-card bg-secondary-soft text-secondary"
+        >
+          <BookOpen :size="21" />
+        </div>
         <div class="flex flex-1 flex-col p-5">
           <span class="w-fit rounded-pill bg-ai-soft px-2.5 py-1 text-xs font-semibold text-ai"
             >Đã tham gia</span
