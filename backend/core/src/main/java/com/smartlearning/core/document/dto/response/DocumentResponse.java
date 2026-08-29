@@ -1,7 +1,5 @@
 package com.smartlearning.core.document.dto.response;
 
-import com.smartlearning.core.document.entity.enums.DocumentLifecycleStatus;
-
 import java.time.Instant;
 import java.util.UUID;
 

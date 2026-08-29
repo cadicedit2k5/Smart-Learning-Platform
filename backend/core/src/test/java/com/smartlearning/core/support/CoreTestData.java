@@ -12,7 +12,6 @@ import com.smartlearning.core.document.dto.response.DocumentResponse;
 import com.smartlearning.core.document.entity.Document;
 import com.smartlearning.core.document.entity.DocumentProcessingJob;
 import com.smartlearning.core.document.entity.DocumentVersion;
-import com.smartlearning.core.document.entity.enums.DocumentLifecycleStatus;
 import com.smartlearning.core.document.entity.enums.DocumentProcessingStatus;
 import com.smartlearning.core.document.entity.enums.ProcessingJobStatus;
 import com.smartlearning.core.document.messaging.event.DocumentIngestionCompletedEvent;
@@ -85,7 +84,6 @@ public final class CoreTestData {
         document.setCourse(course());
         document.setTitle("Document title");
         document.setDescription("Document description");
-        document.setLifecycleStatus(DocumentLifecycleStatus.ACTIVE);
         document.setUploadedBy(OWNER_ID);
         document.setCreatedAt(TEST_TIME);
         document.setUpdatedAt(TEST_TIME);
@@ -121,8 +119,7 @@ public final class CoreTestData {
 
     public static DocumentResponse documentResponse() {
         return new DocumentResponse(
-                DOCUMENT_ID, COURSE_ID, null, null, "Document title", "Document description",
-                DocumentLifecycleStatus.ACTIVE, OWNER_ID, null, TEST_TIME, TEST_TIME
+                DOCUMENT_ID, COURSE_ID, null, null, "Document title", "Document description", OWNER_ID, null, TEST_TIME, TEST_TIME
         );
     }
 

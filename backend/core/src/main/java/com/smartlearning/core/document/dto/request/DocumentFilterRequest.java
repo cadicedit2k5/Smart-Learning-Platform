@@ -2,7 +2,6 @@ package com.smartlearning.core.document.dto.request;
 
 import com.smartlearning.common.dto.request.FilterRequest;
 import com.smartlearning.core.document.entity.Document;
-import com.smartlearning.core.document.entity.enums.DocumentLifecycleStatus;
 import com.smartlearning.core.document.repository.specification.DocumentSpecifications;
 import lombok.Getter;
 import lombok.Setter;

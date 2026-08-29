@@ -1,7 +1,6 @@
 package com.smartlearning.core.document.repository.specification;
 
 import com.smartlearning.core.document.entity.Document;
-import com.smartlearning.core.document.entity.enums.DocumentLifecycleStatus;
 import lombok.NoArgsConstructor;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.util.StringUtils;

@@ -1,8 +1,6 @@
 package com.smartlearning.core.document.dto.request;
 
-import com.smartlearning.core.document.entity.enums.DocumentLifecycleStatus;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 
 import java.util.UUID;

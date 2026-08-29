@@ -214,6 +214,32 @@ const fieldError = (field: string) => localErrors[field] ?? props.serverErrors[f
             </div>
           </div>
 
+          
+
+          <div v-if="!document" class="space-y-2">
+            <p class="text-sm font-semibold text-app-text">
+              Tệp tài liệu <span class="text-danger">*</span>
+            </p>
+            <label
+              for="document-form-file"
+              class="flex cursor-pointer items-center gap-3 rounded-control border border-dashed border-app-border bg-app-surface-muted p-4"
+            >
+              <Upload :size="20" class="text-secondary" />
+              <span class="truncate text-sm text-app-text">{{
+                form.file?.name ?? 'Chọn tệp từ thiết bị'
+              }}</span>
+            </label>
+            <input
+              id="document-form-file"
+              ref="fileInput"
+              type="file"
+              class="sr-only"
+              :disabled="loading"
+              @change="selectFile"
+            />
+            <p v-if="fieldError('file')" class="text-sm text-danger">{{ fieldError('file') }}</p>
+          </div>
+
           <footer class="flex justify-end gap-3 border-t border-app-border pt-5">
             <BaseButton variant="secondary" :disabled="loading" @click="close">Hủy</BaseButton>
             <BaseButton type="submit" :loading="loading">{{

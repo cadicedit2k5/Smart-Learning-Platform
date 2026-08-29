@@ -4,8 +4,6 @@ import com.smartlearning.common.entity.BaseEntity;
 import com.smartlearning.core.course.entity.Course;
 import com.smartlearning.core.course.entity.CourseChapter;
 import com.smartlearning.core.course.entity.CourseTopic;
-import com.smartlearning.core.document.entity.DocumentVersion;
-import com.smartlearning.core.document.entity.enums.DocumentLifecycleStatus;
 
 import jakarta.persistence.*;
 import lombok.Getter;

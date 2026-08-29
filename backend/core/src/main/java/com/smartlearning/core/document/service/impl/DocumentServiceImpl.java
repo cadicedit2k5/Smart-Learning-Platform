@@ -17,7 +17,6 @@ import com.smartlearning.core.document.dto.response.DocumentResponse;
 import com.smartlearning.core.document.entity.Document;
 import com.smartlearning.core.document.entity.DocumentProcessingJob;
 import com.smartlearning.core.document.entity.DocumentVersion;
-import com.smartlearning.core.document.entity.enums.DocumentLifecycleStatus;
 import com.smartlearning.core.document.entity.enums.DocumentProcessingStatus;
 import com.smartlearning.core.document.mapper.DocumentMapper;
 import com.smartlearning.core.document.messaging.event.DocumentDeletionRequestedEvent;
@@ -28,6 +27,7 @@ import com.smartlearning.core.document.repository.DocumentProcessingJobRepositor
 import com.smartlearning.core.document.repository.DocumentRepository;
 import com.smartlearning.core.document.repository.DocumentVersionRepository;
 import com.smartlearning.core.document.repository.specification.DocumentSpecifications;
+import com.smartlearning.core.document.service.DocumentDeletionService;
 import com.smartlearning.core.document.service.DocumentService;
 import com.smartlearning.storage.config.MinioProperties;
 import com.smartlearning.storage.dto.FileUploadResponse;
@@ -42,7 +42,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionTemplate;
 
 import java.time.Instant;
-import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -64,6 +63,7 @@ public class DocumentServiceImpl implements DocumentService {
     private final CourseChapterRepository chapterRepository;
     private final CourseTopicRepository topicRepository;
     private final DocumentDeletionEventPublisher documentDeletionEventPublisher;
+    private final DocumentDeletionService documentDeletionService;
 
     @Override
     @Transactional(readOnly = true)
@@ -242,37 +242,7 @@ public class DocumentServiceImpl implements DocumentService {
     public void handleDeleteDocument(UUID courseId, UUID documentId, UUID currentUserId) {
         courseUtils.requireCourse(courseId);
         courseAccessPolicy.requireOwner(courseId, currentUserId);
-        DocumentDeletionRequestedEvent event = transactionTemplate.execute(status -> {
-            courseUtils.requireCourse(courseId);
-            courseAccessPolicy.requireOwner(courseId, currentUserId);
-
-            Document document = requireDocument(courseId, documentId);
-
-            if (document.getVersion() != null) {
-                DocumentProcessingStatus processingStatus =
-                        document.getVersion().getProcessingStatus();
-
-                if (processingStatus != DocumentProcessingStatus.INDEXED
-                        && processingStatus != DocumentProcessingStatus.FAILED) {
-                    throw new ApplicationException(
-                            CommonErrorCode.DATA_CONFLICT,
-                            "Tài liệu đang được xử lý, chưa thể xóa"
-                    );
-                }
-            }
-
-            document.setDeletedAt(Instant.now());
-
-            return new DocumentDeletionRequestedEvent(
-                    UUID.randomUUID(),
-                    1,
-                    Instant.now(),
-                    courseId,
-                    documentId
-            );
-        });
-
-        documentDeletionEventPublisher.publish(Objects.requireNonNull(event));
+        documentDeletionService.deleteDocument(courseId, documentId);
     }
 
     private Document requireDocument(UUID courseId, UUID documentId) {

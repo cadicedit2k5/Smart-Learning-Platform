@@ -24,4 +24,6 @@ public interface CourseTopicRepository extends JpaRepository<CourseTopic, UUID> 
 
     @Query("select coalesce(max(topic.orderIndex), -1) from CourseTopic topic where topic.chapter.id = :chapterId")
     Integer findMaxOrderIndex(UUID chapterId);
+
+    List<CourseTopic> findAllByChapterIdOrderByOrderIndexAsc(UUID chapterId);
 }

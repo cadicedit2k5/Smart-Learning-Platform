@@ -15,7 +15,6 @@ import com.smartlearning.core.document.dto.response.DocumentResponse;
 import com.smartlearning.core.document.entity.Document;
 import com.smartlearning.core.document.entity.DocumentProcessingJob;
 import com.smartlearning.core.document.entity.DocumentVersion;
-import com.smartlearning.core.document.entity.enums.DocumentLifecycleStatus;
 import com.smartlearning.core.document.entity.enums.DocumentProcessingStatus;
 import com.smartlearning.core.document.mapper.DocumentMapper;
 import com.smartlearning.core.document.messaging.event.DocumentIngestionRequestedEvent;
@@ -24,6 +23,7 @@ import com.smartlearning.core.document.messaging.publisher.DocumentIngestionEven
 import com.smartlearning.core.document.repository.DocumentProcessingJobRepository;
 import com.smartlearning.core.document.repository.DocumentRepository;
 import com.smartlearning.core.document.repository.DocumentVersionRepository;
+import com.smartlearning.core.document.service.DocumentDeletionService;
 import com.smartlearning.storage.config.MinioProperties;
 import com.smartlearning.storage.dto.FileUploadResponse;
 import com.smartlearning.storage.dto.StoredFile;
@@ -100,6 +100,8 @@ class DocumentServiceImplTest {
     private CourseTopicRepository topicRepository;
     @Mock
     private DocumentDeletionEventPublisher documentDeletionEventPublisher;
+    @Mock
+    private DocumentDeletionService documentDeletionService;
 
     private DocumentServiceImpl documentService;
 
@@ -125,7 +127,8 @@ class DocumentServiceImplTest {
                 eventPublisher,
                 chapterRepository,
                 topicRepository,
-                documentDeletionEventPublisher
+                documentDeletionEventPublisher,
+                documentDeletionService
         );
     }
 
@@ -142,7 +145,7 @@ class DocumentServiceImplTest {
         DocumentResponse firstResponse = documentResponse();
         DocumentResponse secondResponse = new DocumentResponse(
                 second.getId(), COURSE_ID, null, null, second.getTitle(), second.getDescription(),
-                second.getLifecycleStatus(), second.getUploadedBy(), null, second.getCreatedAt(), second.getUpdatedAt()
+                 second.getUploadedBy(), null, second.getCreatedAt(), second.getUpdatedAt()
         );
         Page<Document> page = new PageImpl<>(List.of(first, second), pageable, 5);
         when(filter.specification()).thenReturn(filterSpecification);
@@ -217,7 +220,6 @@ class DocumentServiceImplTest {
         assertThat(savedDocument.getCourse()).isSameAs(course);
         assertThat(savedDocument.getTitle()).isEqualTo("Document title");
         assertThat(savedDocument.getDescription()).isEqualTo("Document description");
-        assertThat(savedDocument.getLifecycleStatus()).isEqualTo(DocumentLifecycleStatus.ACTIVE);
         assertThat(savedDocument.getUploadedBy()).isEqualTo(OWNER_ID);
         assertThat(savedDocument.getVersion()).isSameAs(savedVersion);
         assertThat(savedVersion.getDocument()).isSameAs(savedDocument);
@@ -311,7 +313,6 @@ class DocumentServiceImplTest {
 
         assertThat(existing.getTitle()).isEqualTo("Tiêu đề mới");
         assertThat(existing.getDescription()).isEqualTo("Mô tả mới");
-        assertThat(existing.getLifecycleStatus()).isEqualTo(DocumentLifecycleStatus.ARCHIVED);
         verify(courseAccessPolicy).requireOwner(COURSE_ID, OWNER_ID);
     }
 
@@ -379,7 +380,6 @@ class DocumentServiceImplTest {
         documentService.handleDeleteDocument(COURSE_ID, DOCUMENT_ID, OWNER_ID);
         Instant afterCall = Instant.now();
 
-        assertThat(existing.getLifecycleStatus()).isEqualTo(DocumentLifecycleStatus.ARCHIVED);
         assertThat(existing.getDeletedAt()).isBetween(beforeCall, afterCall);
         verify(courseAccessPolicy).requireOwner(COURSE_ID, OWNER_ID);
     }
