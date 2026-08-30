@@ -56,6 +56,9 @@ class RagService:
             if source is None:
                 continue
 
+            if source.document_id is None:
+                continue
+
             citations.append(RagCitation(
                     label=label,
                     chunk_id=source.chunk_id,

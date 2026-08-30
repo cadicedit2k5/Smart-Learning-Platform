@@ -45,6 +45,26 @@ class ChunkRepository:
 
         await self._session.execute(statement)
 
+    async def replace_source_chunks(self, *, course_id: uuid.UUID, source_type: str, source_id: uuid.UUID,
+                                    chunks: Sequence[DocumentChunk]) -> None:
+        statement = delete(DocumentChunk).where(
+            DocumentChunk.course_id == course_id,
+            DocumentChunk.source_type == source_type,
+            DocumentChunk.source_id == source_id,
+        )
+
+        await self._session.execute(statement)
+        self._session.add_all(list(chunks))
+
+    async def delete_source_chunks(self, *, course_id: uuid.UUID, source_type: str, source_id: uuid.UUID) -> None:
+        statement = delete(DocumentChunk).where(
+            DocumentChunk.course_id == course_id,
+            DocumentChunk.source_type == source_type,
+            DocumentChunk.source_id == source_id,
+        )
+
+        await self._session.execute(statement)
+
     async def similarity_search(self, *, course_id: uuid.UUID | None = None,
                          model_key: str,
                          query_vector: list[float],

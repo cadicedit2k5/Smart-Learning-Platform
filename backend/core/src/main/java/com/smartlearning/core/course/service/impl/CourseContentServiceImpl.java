@@ -13,6 +13,8 @@ import com.smartlearning.core.course.entity.CourseChapter;
 import com.smartlearning.core.course.entity.CourseTopic;
 import com.smartlearning.core.course.mapper.CourseChapterMapper;
 import com.smartlearning.core.course.mapper.CourseTopicMapper;
+import com.smartlearning.core.course.messaging.event.TopicKnowledgeIndexRequestedEvent;
+import com.smartlearning.core.course.messaging.event.TopicKnowledgeOperation;
 import com.smartlearning.core.course.repository.CourseChapterRepository;
 import com.smartlearning.core.course.repository.CourseTopicRepository;
 import com.smartlearning.core.course.sercurity.CourseAccessPolicy;
@@ -20,6 +22,7 @@ import com.smartlearning.core.course.service.CourseContentService;
 import com.smartlearning.core.course.utils.CourseUtils;
 import com.smartlearning.core.document.service.DocumentDeletionService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -39,6 +42,7 @@ public class CourseContentServiceImpl implements CourseContentService {
     private final CourseChapterMapper chapterMapper;
     private final CourseTopicMapper topicMapper;
     private final DocumentDeletionService documentDeletionService;
+    private final ApplicationEventPublisher applicationEventPublisher;
 
     @Override
     @Transactional(readOnly = true)
@@ -95,6 +99,14 @@ public class CourseContentServiceImpl implements CourseContentService {
         documentDeletionService.deleteByScope(courseId, chapterId, null);
         List<CourseTopic> topics = topicRepository.findAllByChapterIdOrderByOrderIndexAsc((chapterId));
 
+        for (CourseTopic topic : topics) {
+            publishTopicKnowledgeEvent(
+                    courseId,
+                    chapterId,
+                    topic,
+                    TopicKnowledgeOperation.DELETE
+            );
+        }
         topicRepository.deleteAll(topics);
 
         chapterRepository.delete(chapter);
@@ -127,7 +139,16 @@ public class CourseContentServiceImpl implements CourseContentService {
                 ? topicRepository.findMaxOrderIndex(chapterId) + 1
                 : request.orderIndex());
         requireTopicOrderAvailable(chapterId, topic.getOrderIndex(), null);
-        return topicMapper.toResponse(topicRepository.save(topic));
+        CourseTopic savedTopic = topicRepository.save(topic);
+
+        publishTopicKnowledgeEvent(
+                courseId,
+                chapterId,
+                savedTopic,
+                TopicKnowledgeOperation.UPSERT
+        );
+
+        return topicMapper.toResponse(savedTopic);
     }
 
     @Override
@@ -144,10 +165,26 @@ public class CourseContentServiceImpl implements CourseContentService {
         if (request.orderIndex() != null) {
             requireTopicOrderAvailable(chapterId, request.orderIndex(), topicId);
         }
+
+        boolean knowledgeChanged =
+                request.title() != null ||
+                        request.description() != null ||
+                        request.content() != null;
+
         topicMapper.partialUpdate(request, topic);
         if (request.title() != null) {
             topic.setTitle(request.title().trim());
         }
+
+        if (knowledgeChanged) {
+            publishTopicKnowledgeEvent(
+                    courseId,
+                    chapterId,
+                    topic,
+                    TopicKnowledgeOperation.UPSERT
+            );
+        }
+
         return topicMapper.toResponse(topic);
     }
 
@@ -156,6 +193,13 @@ public class CourseContentServiceImpl implements CourseContentService {
         requireOwnerCourse(courseId, currentUserId);
         requireChapter(courseId, chapterId);
         CourseTopic topic = requireTopic(chapterId, topicId);
+        publishTopicKnowledgeEvent(
+                courseId,
+                chapterId,
+                topic,
+                TopicKnowledgeOperation.DELETE
+        );
+
         topic.setDeletedAt(Instant.now());
         documentDeletionService.deleteByScope(courseId, chapterId, topicId);
         topicRepository.delete(topic);
@@ -210,5 +254,20 @@ public class CourseContentServiceImpl implements CourseContentService {
                     "Thứ tự chủ đề đã được sử dụng"
             );
         }
+    }
+
+    private void publishTopicKnowledgeEvent(UUID courseId, UUID chapterId, CourseTopic topic, TopicKnowledgeOperation operation) {
+        applicationEventPublisher.publishEvent(new TopicKnowledgeIndexRequestedEvent(
+                UUID.randomUUID(),
+                1,
+                Instant.now(),
+                courseId,
+                chapterId,
+                topic.getId(),
+                topic.getTitle(),
+                topic.getDescription(),
+                topic.getContent(),
+                operation
+        ));
     }
 }
