@@ -38,35 +38,7 @@ export interface CourseInput {
   visibility: CourseVisibility
 }
 
-export interface AiCitation {
-  label: string
-  chunkId: string
-  documentId: string
-  documentVersionId: string
-  locator: Record<string, unknown>
-}
 
-export interface AiMessage {
-  id: string
-  role: 'USER' | 'ASSISTANT'
-  accessScope: 'PREVIEW' | 'FULL'
-  content: string
-  citations: AiCitation[]
-  createdAt: string
-}
-
-export interface AiConversation {
-  id: string
-  title: string
-  lastMessageAt: string
-  createdAt: string
-}
-
-export interface AiChatTurn {
-  conversationId: string
-  userMessage: AiMessage
-  assistantMessage: AiMessage
-}
 
 const coursesPath = '/courses'
 
@@ -94,56 +66,4 @@ export const publishCourse = async (courseId: string): Promise<Course> => {
 
 export const deleteCourse = async (courseId: string): Promise<void> => {
   await httpClient.delete(`${coursesPath}/${courseId}`)
-}
-
-export const getConversations = async (
-  courseId: string,
-  page = 1,
-): Promise<PaginatedData<AiConversation>> => {
-  const response = await httpClient.get<ApiResponse<PaginatedData<AiConversation>>>(
-    `${coursesPath}/${courseId}/ai/conversations`,
-    {
-      params: { page },
-    },
-  )
-
-  return response.data.data
-}
-
-export const getConversationMessages = async (
-  courseId: string,
-  conversationId: string,
-  page = 1,
-): Promise<PaginatedData<AiMessage>> => {
-  const response = await httpClient.get<ApiResponse<PaginatedData<AiMessage>>>(
-    `${coursesPath}/${courseId}/ai/conversations/${conversationId}/messages`,
-    { params: { page } },
-  )
-
-  return response.data.data
-}
-
-export const createConversation = async (
-  courseId: string,
-  content: string,
-): Promise<AiChatTurn> => {
-  const response = await httpClient.post<ApiResponse<AiChatTurn>>(
-    `${coursesPath}/${courseId}/ai/conversations`,
-    { content },
-  )
-
-  return response.data.data
-}
-
-export const sendConversationMessage = async (
-  courseId: string,
-  conversationId: string,
-  content: string,
-): Promise<AiChatTurn> => {
-  const response = await httpClient.post<ApiResponse<AiChatTurn>>(
-    `${coursesPath}/${courseId}/ai/conversations/${conversationId}/messages`,
-    { content },
-  )
-
-  return response.data.data
 }

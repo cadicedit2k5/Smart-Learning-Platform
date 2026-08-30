@@ -124,7 +124,7 @@ class ConversationServiceImplPaginationTest {
                 courseId,
                 userId
         )).thenReturn(Optional.of(conversation));
-        when(messageRepository.findAllByConversationIdOrderByCreatedAtAsc(
+        when(messageRepository.readAllByConversationIdOrderByCreatedAtDesc(
                 conversationId,
                 pageable
         )).thenReturn(new PageImpl<>(List.of(message), pageable, 15));
@@ -142,7 +142,7 @@ class ConversationServiceImplPaginationTest {
         assertThat(response.getContent().get(0).citations()).hasSize(1);
         assertThat(response.getPageable().getTotalElements()).isEqualTo(15);
         assertThat(response.getPageable().getTotalPages()).isEqualTo(2);
-        verify(messageRepository).findAllByConversationIdOrderByCreatedAtAsc(
+        verify(messageRepository).readAllByConversationIdOrderByCreatedAtDesc(
                 org.mockito.ArgumentMatchers.eq(conversationId),
                 argThat(request -> request.getPageNumber() == 0 && request.getPageSize() == 10)
         );
