@@ -2,9 +2,9 @@ from functools import lru_cache
 from typing import Annotated
 
 from fastapi import Depends
-from google.genai.live import AsyncSession
 from langchain_core.embeddings import Embeddings
 from langchain_core.language_models import BaseChatModel
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.configs.config import Settings, get_settings
 from app.configs.database import get_db_connection
@@ -13,7 +13,7 @@ from app.infrastructure.ai.embeddings import create_embeddings
 from app.infrastructure.documents.loader import DocumentLoader
 from app.repositories.chunk_repository import ChunkRepository
 from app.services.course_preview_service import CoursePreviewService
-from app.services.ingestion_service import IngestionService
+from app.services.knowledge_ingestion_service import KnowledgeIngestionService
 from app.services.rag_service import RagService
 from app.services.retrieval_service import RetrievalService
 
@@ -101,9 +101,9 @@ def get_ingestion_service(
     embeddings: EmbeddingsDep,
     repository: ChunkRepositoryDep,
     settings: SettingsDep,
-) -> IngestionService:
+) -> KnowledgeIngestionService:
 
-    return IngestionService(
+    return KnowledgeIngestionService(
         session=session,
         loader=loader,
         embeddings=embeddings,
@@ -112,7 +112,7 @@ def get_ingestion_service(
     )
 
 IngestionServiceDep = Annotated[
-    IngestionService,
+    KnowledgeIngestionService,
     Depends(get_ingestion_service),
 ]
 
