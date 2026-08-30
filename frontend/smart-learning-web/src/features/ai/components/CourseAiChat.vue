@@ -33,6 +33,8 @@ import type {
   AiConversation,
   AiMessage,
 } from '../types'
+import AiMessageContent from './AiMessageContent.vue'
+import AiMessageCitations from './AiMessageCitations.vue'
 
 interface ParsedApiError {
   message: string
@@ -449,9 +451,9 @@ const loadMessages = async () => {
      * Infinite scroll vẫn đang bị khóa.
      */
     await new Promise<void>((resolve) => {
-      requestAnimationFrame(() => {
-        requestAnimationFrame(resolve)
-      })
+        requestAnimationFrame(() => {
+            requestAnimationFrame(() => resolve())
+        })
     })
 
     if (
@@ -1284,50 +1286,7 @@ onMounted(() => {
                     v-else
                     class="text-sm leading-7 text-app-text"
                   >
-                    <p
-                      class="whitespace-pre-wrap"
-                    >
-                      {{ message.content }}
-                    </p>
-
-                    <!-- Citations -->
-                    <div
-                      v-if="
-                        message.citations
-                          ?.length
-                      "
-                      class="mt-4"
-                    >
-                      <p
-                        class="mb-2 text-[11px] font-semibold uppercase tracking-[0.12em] text-app-text-muted"
-                      >
-                        Nguồn tham khảo
-                      </p>
-
-                      <div
-                        class="flex flex-wrap gap-2"
-                      >
-                        <button
-                          v-for="
-                            citation in
-                            message.citations
-                          "
-                          :key="
-                            citation.chunkId
-                          "
-                          type="button"
-                          class="inline-flex items-center gap-1.5 rounded-pill border border-ai/20 bg-ai-soft px-3 py-1.5 text-xs font-medium text-ai transition hover:border-ai/40"
-                        >
-                          <FileText
-                            :size="13"
-                          />
-
-                          {{
-                            citation.label
-                          }}
-                        </button>
-                      </div>
-                    </div>
+                    <AiMessageContent :content="message.content" />
                   </div>
 
                   <p

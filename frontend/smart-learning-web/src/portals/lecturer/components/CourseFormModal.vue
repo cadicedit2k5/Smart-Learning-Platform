@@ -6,7 +6,8 @@ import BaseAlert from '@/shared/components/BaseAlert.vue'
 import BaseButton from '@/shared/components/BaseButton.vue'
 import BaseInput from '@/shared/components/BaseInput.vue'
 
-import type { Course, CourseInput } from '../api/courseApi'
+import type { CourseInput } from '../api/courseApi'
+import type { Course } from '@/shared/course'
 
 const props = withDefaults(
   defineProps<{
