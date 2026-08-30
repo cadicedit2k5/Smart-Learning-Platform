@@ -35,6 +35,7 @@ import {
 } from '../api/documentApi'
 import { useLecturerApiError } from '../composables/useLecturerApiError'
 import DocumentFormModal from './DocumentFormModal.vue'
+import { formatDateTime } from '@/shared/utils/date.ts'
 
 const props = withDefaults(
   defineProps<{
@@ -245,11 +246,6 @@ const formatFileSize = (bytes: number) => {
   return (bytes / (1024 * 1024)).toFixed(1) + ' MB'
 }
 
-const formatDate = (value: string) =>
-  new Intl.DateTimeFormat('vi-VN', { dateStyle: 'medium', timeStyle: 'short' }).format(
-    new Date(value),
-  )
-
 const statusLabel: Record<DocumentProcessingStatus, string> = {
   UPLOADED: 'Đã tải lên',
   QUEUED: 'Đang chờ',
@@ -390,7 +386,7 @@ onBeforeUnmount(clearPollTimer)
             <p v-if="item.description" class="mt-2 line-clamp-2 text-sm text-app-text-muted">
               {{ item.description }}
             </p>
-            <p class="mt-2 text-xs text-app-text-muted">Tải lên {{ formatDate(item.createdAt) }}</p>
+            <p class="mt-2 text-xs text-app-text-muted">Tải lên {{ formatDateTime(item.createdAt) }}</p>
           </div>
           <div class="flex shrink-0 items-start gap-1">
             <button

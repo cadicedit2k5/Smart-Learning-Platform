@@ -32,6 +32,7 @@ import {
   type UsersPage,
 } from '../api/userApi'
 import UserFormModal from '../components/UserFormModal.vue'
+import { formatDateTime } from '@/shared/utils/date.ts'
 
 const usersPage = ref<UsersPage>({
   content: [],
@@ -308,13 +309,6 @@ const handleDelete = async () => {
   } finally {
     deleting.value = false
   }
-}
-
-const formatDate = (value: string) => {
-  return new Intl.DateTimeFormat('vi-VN', {
-    dateStyle: 'medium',
-    timeStyle: 'short',
-  }).format(new Date(value))
 }
 
 const roleLabel = (role: UserRole) => {
@@ -640,7 +634,7 @@ onMounted(loadUsers)
               <td
                 class="whitespace-nowrap px-5 py-4 text-app-text-muted"
               >
-                {{ formatDate(user.createdAt) }}
+                {{ formatDateTime(user.createdAt) }}
               </td>
 
               <td class="px-5 py-4">

@@ -24,6 +24,7 @@ import {
   type AiMessage,
 } from '../api/courseApi'
 import { useLecturerApiError } from '../composables/useLecturerApiError'
+import { formatDateTime } from '@/shared/utils'
 
 const props = defineProps<{
   courseId: string
@@ -198,13 +199,6 @@ const handlePromptKeydown = (event: KeyboardEvent) => {
   }
 }
 
-const formatDate = (value: string) => {
-  return new Intl.DateTimeFormat('vi-VN', {
-    dateStyle: 'short',
-    timeStyle: 'short',
-  }).format(new Date(value))
-}
-
 onMounted(() => {
   void loadConversations()
 })
@@ -273,7 +267,7 @@ onMounted(() => {
           >
             <span class="line-clamp-2 text-sm font-semibold">{{ conversation.title }}</span>
             <span class="mt-1 block text-xs opacity-70">{{
-              formatDate(conversation.lastMessageAt)
+              formatDateTime(conversation.lastMessageAt)
             }}</span>
           </button>
         </nav>
@@ -384,7 +378,7 @@ onMounted(() => {
                   class="mt-1 text-xs text-app-text-muted"
                   :class="message.role === 'USER' ? 'text-right' : ''"
                 >
-                  {{ formatDate(message.createdAt) }}
+                  {{ formatDateTime(message.createdAt) }}
                 </p>
               </div>
             </article>

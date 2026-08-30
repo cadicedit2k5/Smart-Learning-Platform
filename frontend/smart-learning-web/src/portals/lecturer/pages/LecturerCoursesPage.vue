@@ -23,14 +23,14 @@ import {
 
 import {
   createCourse,
-  getMyCourses,
-  type Course,
   type CourseInput,
-  type CourseStatus,
-  type CourseVisibility,
 } from '../api/courseApi'
 import CourseFormModal from '../components/CourseFormModal.vue'
 import { useLecturerApiError } from '../composables/useLecturerApiError'
+import type { Course, CourseStatus } from '@/shared/course/types.ts'
+import { getMyCourses } from '@/shared/course/api.ts'
+import { courseStatusLabel, courseStatusTone, courseVisibilityLabel } from '@/shared/course/presentation.ts'
+import { formatDate } from '@/shared/utils/date.ts'
 
 const { handleApiError } = useLecturerApiError()
 
@@ -104,29 +104,6 @@ const submitCreate = async (input: CourseInput) => {
   }
 }
 
-const formatDate = (value: string) => {
-  return new Intl.DateTimeFormat('vi-VN', {
-    dateStyle: 'medium',
-  }).format(new Date(value))
-}
-
-const statusLabel: Record<CourseStatus, string> = {
-  DRAFT: 'Bản nháp',
-  PUBLISHED: 'Đã xuất bản',
-  ARCHIVED: 'Đã lưu trữ',
-}
-
-const statusTone: Record<CourseStatus, 'warning' | 'success' | 'neutral'> = {
-  DRAFT: 'warning',
-  PUBLISHED: 'success',
-  ARCHIVED: 'neutral',
-}
-
-const visibilityLabel: Record<CourseVisibility, string> = {
-  PUBLIC: 'Công khai',
-  PRIVATE: 'Riêng tư',
-  INVITE_ONLY: 'Chỉ người được mời',
-}
 
 onMounted(() => {
   void loadCourses()
@@ -245,14 +222,14 @@ onMounted(() => {
         <div class="h-2 bg-primary" :class="course.status === 'PUBLISHED' ? 'bg-ai' : ''" />
         <div class="flex flex-1 flex-col p-5">
           <div class="flex items-center justify-between gap-3">
-            <BaseBadge :tone="statusTone[course.status]">
-              {{ statusLabel[course.status] }}
+            <BaseBadge :tone="courseStatusTone[course.status]">
+              {{ courseStatusLabel[course.status] }}
             </BaseBadge>
             <span class="flex items-center gap-1.5 text-xs text-app-text-muted">
               <Globe2 v-if="course.visibility === 'PUBLIC'" :size="14" />
               <UsersRound v-else-if="course.visibility === 'INVITE_ONLY'" :size="14" />
               <LockKeyhole v-else :size="14" />
-              {{ visibilityLabel[course.visibility] }}
+              {{ courseVisibilityLabel[course.visibility] }}
             </span>
           </div>
 

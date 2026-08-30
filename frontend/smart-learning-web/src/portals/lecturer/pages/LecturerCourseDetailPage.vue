@@ -5,12 +5,9 @@ import {
   ArrowLeft,
   BookOpen,
   Bot,
-  CalendarDays,
   CheckCircle2,
   FileText,
-  Globe2,
   Layers3,
-  LockKeyhole,
   Pencil,
   Rocket,
   Trash2,
@@ -24,13 +21,9 @@ import BaseButton from '@/shared/components/BaseButton.vue'
 
 import {
   deleteCourse,
-  getCourse,
   publishCourse,
   updateCourse,
-  type Course,
   type CourseInput,
-  type CourseStatus,
-  type CourseVisibility,
 } from '../api/courseApi'
 import CourseAiPanel from '../components/CourseAiPanel.vue'
 import CourseContentPanel from '../components/CourseContentPanel.vue'
@@ -39,6 +32,10 @@ import CourseFormModal from '../components/CourseFormModal.vue'
 import CourseMembersPanel from '../components/CourseMembersPanel.vue'
 import { useLecturerApiError } from '../composables/useLecturerApiError'
 import CourseJoinRequestPanel from '../components/CourseJoinRequestPanel.vue'
+import type { Course } from '@/shared/course/types.ts'
+import { getCourse } from '@/shared/course/api.ts'
+import { courseStatusLabel, courseVisibilityLabel } from '@/shared/course/presentation.ts'
+import { formatDateTime } from '@/shared/utils/date.ts'
 
 type DetailTab = 'overview' | 'members' | 'requests' | 'content' | 'documents' | 'ai'
 
@@ -160,33 +157,6 @@ const handleDelete = async () => {
   }
 }
 
-const formatDate = (value: string | null) => {
-  if (!value) return '—'
-
-  return new Intl.DateTimeFormat('vi-VN', {
-    dateStyle: 'medium',
-    timeStyle: 'short',
-  }).format(new Date(value))
-}
-
-const statusLabel: Record<CourseStatus, string> = {
-  DRAFT: 'Bản nháp',
-  PUBLISHED: 'Đã xuất bản',
-  ARCHIVED: 'Đã lưu trữ',
-}
-
-const statusClass: Record<CourseStatus, string> = {
-  DRAFT: 'bg-amber-50 text-amber-800',
-  PUBLISHED: 'bg-ai-soft text-ai',
-  ARCHIVED: 'bg-app-surface-muted text-app-text-muted',
-}
-
-const visibilityLabel: Record<CourseVisibility, string> = {
-  PUBLIC: 'Công khai',
-  PRIVATE: 'Riêng tư',
-  INVITE_ONLY: 'Chỉ người được mời',
-}
-
 watch(courseId, () => {
   activeTab.value = 'overview'
   void loadCourse()
@@ -290,34 +260,34 @@ onMounted(() => {
           <dl class="mt-4 max-w-3xl divide-y divide-app-border border-y border-app-border text-sm">
             <div class="grid grid-cols-[11rem_1fr] gap-4 py-4">
               <dt class="text-app-text-muted">Trạng thái</dt>
-              <dd class="font-semibold text-app-text">{{ statusLabel[course.status] }}</dd>
+              <dd class="font-semibold text-app-text">{{ courseStatusLabel[course.status] }}</dd>
             </div>
 
             <div class="grid grid-cols-[11rem_1fr] gap-4 py-4">
               <dt class="text-app-text-muted">Quyền truy cập</dt>
               <dd class="font-semibold text-app-text">
-                {{ visibilityLabel[course.visibility] }}
+                {{ courseVisibilityLabel[course.visibility] }}
               </dd>
             </div>
 
             <div class="grid grid-cols-[11rem_1fr] gap-4 py-4">
               <dt class="text-app-text-muted">Cấp độ</dt>
-              <dd class="font-semibold text-app-text">{{ course.level || '—' }}</dd>
+              <dd class="font-semibold text-app-text">{{ course.level || '--' }}</dd>
             </div>
 
             <div class="grid grid-cols-[11rem_1fr] gap-4 py-4">
               <dt class="text-app-text-muted">Ngày tạo</dt>
-              <dd class="font-semibold text-app-text">{{ formatDate(course.createdAt) }}</dd>
+              <dd class="font-semibold text-app-text">{{ formatDateTime(course.createdAt) }}</dd>
             </div>
 
             <div class="grid grid-cols-[11rem_1fr] gap-4 py-4">
               <dt class="text-app-text-muted">Ngày xuất bản</dt>
-              <dd class="font-semibold text-app-text">{{ formatDate(course.publishedAt) }}</dd>
+              <dd class="font-semibold text-app-text">{{ formatDateTime(course.publishedAt) }}</dd>
             </div>
 
             <div class="grid grid-cols-[11rem_1fr] gap-4 py-4">
               <dt class="text-app-text-muted">Cập nhật gần nhất</dt>
-              <dd class="font-semibold text-app-text">{{ formatDate(course.updatedAt) }}</dd>
+              <dd class="font-semibold text-app-text">{{ formatDateTime(course.updatedAt) }}</dd>
             </div>
           </dl>
         </section>

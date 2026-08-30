@@ -17,15 +17,17 @@ import BaseButton from '@/shared/components/BaseButton.vue'
 import BaseCard from '@/shared/components/BaseCard.vue'
 
 import {
-  getCourse,
   getCurrentMembership,
-  type Course,
   type CourseMembership,
 } from '../api/courseApi'
 import StudentAiTutorPanel from '../components/StudentAiTutorPanel.vue'
 import StudentDocumentsPanel from '../components/StudentDocumentsPanel.vue'
 import StudentCourseContentPanel from '../components/StudentCourseContentPanel.vue'
 import { useStudentApiError } from '../composables/useStudentApiError'
+import type { Course } from '@/shared/course/types.ts'
+import { getCourse } from '@/shared/course/api.ts'
+import { BaseTabs } from '@/shared/components/index.ts'
+import { formatDate } from '@/shared/utils/date.ts'
 
 type DetailTab = 'overview' | 'content' | 'documents' | 'ai'
 
@@ -61,9 +63,6 @@ const loadDetail = async () => {
     loading.value = false
   }
 }
-
-const formatDate = (value: string) =>
-  new Intl.DateTimeFormat('vi-VN', { dateStyle: 'medium' }).format(new Date(value))
 
 onMounted(() => void loadDetail())
 </script>
@@ -150,39 +149,11 @@ onMounted(() => void loadDetail())
         </div>
       </header>
 
-      <nav
+      <BaseTabs
+        v-model="activeTab"
+        :tabs="tabs"
         aria-label="Nội dung khóa học"
-        class="border-b border-app-border"
-      >
-        <div
-          class="flex gap-7 overflow-x-auto"
-        >
-          <button
-            v-for="tab in tabs"
-            :key="tab.id"
-            type="button"
-            class="relative flex h-12 shrink-0 items-center gap-2 text-sm font-semibold transition"
-            :class="
-              activeTab === tab.id
-                ? 'text-secondary'
-                : 'text-app-text-muted hover:text-app-text'
-            "
-            @click="activeTab = tab.id"
-          >
-            <component
-              :is="tab.icon"
-              :size="17"
-            />
-
-            {{ tab.label }}
-
-            <span
-              v-if="activeTab === tab.id"
-              class="absolute inset-x-0 bottom-0 h-0.5 rounded-full bg-secondary"
-            />
-          </button>
-        </div>
-      </nav>
+      />
 
       <div v-if="activeTab === 'overview'" class="grid gap-5 lg:grid-cols-[minmax(0,1fr)_20rem]">
         <BaseCard>

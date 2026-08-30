@@ -25,6 +25,7 @@ import {
   type PublicCourse,
 } from '../api/courseApi'
 import { useStudentApiError } from '../composables/useStudentApiError'
+import { formatDate } from '@/shared/utils'
 
 const { handleApiError } = useStudentApiError()
 
@@ -90,14 +91,6 @@ const goToPage = async (page: number) => {
   }
 
   await loadCourses(page)
-}
-
-const formatDate = (value: string | null) => {
-  if (!value) return 'Chưa cập nhật'
-
-  return new Intl.DateTimeFormat('vi-VN', {
-    dateStyle: 'medium',
-  }).format(new Date(value))
 }
 
 onMounted(() => void loadCourses())
@@ -196,7 +189,7 @@ onMounted(() => void loadCourses())
 
             <p class="flex items-center gap-2">
               <CalendarDays :size="16" />
-              Công khai {{ formatDate(course.publishedAt) }}
+              Công khai {{ formatDate(course.publishedAt, "Chưa cập nhật") }}
             </p>
           </div>
 

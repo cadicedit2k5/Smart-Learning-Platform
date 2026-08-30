@@ -344,7 +344,7 @@ const closeModal = () => {
                   </span>
 
                   <span class="text-app-text-muted">
-                    JPG, PNG hoặc WebP — tối đa 50 MB
+                    JPG, PNG hoặc WebP -- tối đa 50 MB
                   </span>
                 </span>
               </label>

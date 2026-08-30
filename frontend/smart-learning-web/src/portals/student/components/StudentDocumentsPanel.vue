@@ -15,6 +15,7 @@ import {
   type CourseDocument,
 } from '../api/documentApi'
 import { useStudentApiError } from '../composables/useStudentApiError'
+import { formatDate } from '@/shared/utils'
 
 const props = defineProps<{
   courseId: string
@@ -105,9 +106,6 @@ const formatFileSize = (bytes: number) => {
   if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`
   return `${(bytes / (1024 * 1024)).toFixed(1)} MB`
 }
-
-const formatDate = (value: string) =>
-  new Intl.DateTimeFormat('vi-VN', { dateStyle: 'medium' }).format(new Date(value))
 
 onMounted(() => void loadDocuments())
 </script>

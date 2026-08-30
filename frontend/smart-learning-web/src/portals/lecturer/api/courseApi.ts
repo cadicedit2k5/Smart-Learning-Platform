@@ -1,4 +1,5 @@
 import { httpClient, type ApiResponse, type PaginatedData } from '@/shared/api'
+import type { Course, CourseVisibility } from '@/shared/course'
 
 export {
   getDocument,
@@ -28,22 +29,7 @@ export {
 } from './memberApi'
 export type { CourseMember, UserLookup } from './memberApi'
 
-export type CourseVisibility = 'PUBLIC' | 'PRIVATE' | 'INVITE_ONLY'
-export type CourseStatus = 'DRAFT' | 'PUBLISHED' | 'ARCHIVED'
 
-export interface Course {
-  id: string
-  title: string
-  description: string | null
-  level: string | null
-  visibility: CourseVisibility
-  status: CourseStatus
-  createdBy: string
-  publishedAt: string | null
-  createdAt: string
-  updatedAt: string
-  currentUserRole: 'OWNER' | 'STUDENT' | null
-}
 
 export interface CourseInput {
   title: string
@@ -83,18 +69,6 @@ export interface AiChatTurn {
 }
 
 const coursesPath = '/courses'
-
-export const getMyCourses = async (): Promise<Course[]> => {
-  const response = await httpClient.get<ApiResponse<Course[]>>(`${coursesPath}/me`)
-
-  return response.data.data
-}
-
-export const getCourse = async (courseId: string): Promise<Course> => {
-  const response = await httpClient.get<ApiResponse<Course>>(`${coursesPath}/${courseId}`)
-
-  return response.data.data
-}
 
 export const createCourse = async (input: CourseInput): Promise<Course> => {
   const response = await httpClient.post<ApiResponse<Course>>(coursesPath, input)

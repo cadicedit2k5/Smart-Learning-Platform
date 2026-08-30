@@ -16,6 +16,7 @@ import {
   type CourseMemberDetail,
 } from '../api/memberApi'
 import { useLecturerApiError } from '../composables/useLecturerApiError'
+import { formatDateTime } from '@/shared/utils'
 
 const props = defineProps<{
   courseId: string
@@ -97,11 +98,6 @@ const handleReject = async (
   }
 }
 
-const formatDate = (value: string) =>
-  new Intl.DateTimeFormat('vi-VN', {
-    dateStyle: 'medium',
-    timeStyle: 'short',
-  }).format(new Date(value))
 
 onMounted(() => {
   void loadRequests()
@@ -191,7 +187,7 @@ onMounted(() => {
             class="mt-1 text-xs text-app-text-muted"
           >
             Gửi yêu cầu
-            {{ formatDate(request.createdAt) }}
+            {{ formatDateTime(request.createdAt) }}
           </p>
         </div>
 

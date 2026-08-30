@@ -16,7 +16,8 @@ import {
   type UserLookup,
 } from '../api/memberApi'
 import { useLecturerApiError } from '../composables/useLecturerApiError'
-import type { CourseStatus, CourseVisibility } from '../api/courseApi'
+import { formatDate } from '@/shared/utils'
+import type { CourseStatus, CourseVisibility } from '@/shared/course'
 
 const props = defineProps<{ 
   courseId: string
@@ -112,10 +113,6 @@ const handleRemove = async (member: CourseMemberDetail) => {
   }
 }
 
-const formatDate = (value: string | null) => {
-  if (!value) return '—'
-  return new Intl.DateTimeFormat('vi-VN', { dateStyle: 'medium' }).format(new Date(value))
-}
 
 onMounted(() => void loadMembers())
 </script>

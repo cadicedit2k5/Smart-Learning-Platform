@@ -6,11 +6,11 @@ import {
   BaseAlert,
   BaseEmptyState,
   BaseInput,
-  BaseCard,
   BasePageHeader,
 } from '@/shared/components'
-import { getMyCourses, type Course } from '../api/courseApi'
 import { useStudentApiError } from '../composables/useStudentApiError'
+import { getMyCourses, type Course } from '@/shared/course'
+import { formatDate } from '@/shared/utils'
 
 const { handleApiError } = useStudentApiError()
 const courses = ref<Course[]>([])
@@ -40,9 +40,6 @@ const loadCourses = async () => {
     loading.value = false
   }
 }
-
-const formatDate = (value: string) =>
-  new Intl.DateTimeFormat('vi-VN', { dateStyle: 'medium' }).format(new Date(value))
 
 onMounted(() => void loadCourses())
 </script>

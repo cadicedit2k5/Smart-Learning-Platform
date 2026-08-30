@@ -1,23 +1,7 @@
 import { httpClient, type ApiResponse , type PaginatedData} from '@/shared/api'
+import type { CourseMemberRole } from '@/shared/course'
 
-export type CourseVisibility = 'PUBLIC' | 'PRIVATE' | 'INVITE_ONLY'
-export type CourseStatus = 'DRAFT' | 'PUBLISHED' | 'ARCHIVED'
-export type CourseMemberRole = 'OWNER' | 'STUDENT'
 export type CourseMemberStatus = 'PENDING' | 'ACTIVE' | 'REJECTED' | 'REMOVED'
-
-export interface Course {
-  id: string
-  title: string
-  description: string | null
-  level: string | null
-  visibility: CourseVisibility
-  status: CourseStatus
-  createdBy: string
-  publishedAt: string | null
-  createdAt: string
-  updatedAt: string
-  currentUserRole: CourseMemberRole | null
-}
 
 export interface CourseMembership {
   id: string
@@ -38,16 +22,6 @@ export interface PublicCourse {
   level: string | null
   publishedAt: string | null
   currentUserMembershipStatus: CourseMemberStatus | null
-}
-
-export const getMyCourses = async (): Promise<Course[]> => {
-  const response = await httpClient.get<ApiResponse<Course[]>>('/courses/me')
-  return response.data.data;
-}
-
-export const getCourse = async (courseId: string): Promise<Course> => {
-  const response = await httpClient.get<ApiResponse<Course>>(`/courses/${courseId}`)
-  return response.data.data;
 }
 
 export const getCurrentMembership = async (courseId: string): Promise<CourseMembership> => {
