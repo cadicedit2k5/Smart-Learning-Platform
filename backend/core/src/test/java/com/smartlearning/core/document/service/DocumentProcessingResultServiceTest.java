@@ -38,7 +38,7 @@ class DocumentProcessingResultServiceTest {
 
     @Test
     void handleCompleted_updatesJobAndVersionAtomicallyThroughManagedEntities() {
-        DocumentProcessingJob job = processingJob(ProcessingJobStatus.PROCESSING);
+        DocumentProcessingJob job = processingJob(ProcessingJobStatus.PENDING);
         DocumentVersion version = job.getDocumentVersion();
         job.setErrorMessage("old job error");
         version.setErrorMessage("old version error");
@@ -79,7 +79,7 @@ class DocumentProcessingResultServiceTest {
                 .isInstanceOf(IllegalStateException.class)
                 .hasMessageContaining(PROCESSING_JOB_ID.toString());
 
-        DocumentProcessingJob job = processingJob(ProcessingJobStatus.PROCESSING);
+        DocumentProcessingJob job = processingJob(ProcessingJobStatus.PENDING);
         when(processingJobRepository.findById(PROCESSING_JOB_ID)).thenReturn(Optional.of(job));
         assertThatThrownBy(() -> resultService.handleCompleted(completedEvent(PROCESSING_JOB_ID, UUID.randomUUID())))
                 .isInstanceOf(IllegalStateException.class)
@@ -88,7 +88,7 @@ class DocumentProcessingResultServiceTest {
 
     @Test
     void handleFailed_updatesJobAndVersionWithSameError() {
-        DocumentProcessingJob job = processingJob(ProcessingJobStatus.PROCESSING);
+        DocumentProcessingJob job = processingJob(ProcessingJobStatus.PENDING);
         when(processingJobRepository.findById(PROCESSING_JOB_ID)).thenReturn(Optional.of(job));
         DocumentIngestionFailedEvent event = failedEvent(PROCESSING_JOB_ID, VERSION_ID);
 
@@ -128,7 +128,7 @@ class DocumentProcessingResultServiceTest {
                 .isInstanceOf(IllegalStateException.class)
                 .hasMessageContaining(PROCESSING_JOB_ID.toString());
 
-        DocumentProcessingJob job = processingJob(ProcessingJobStatus.PROCESSING);
+        DocumentProcessingJob job = processingJob(ProcessingJobStatus.PENDING);
         when(processingJobRepository.findById(PROCESSING_JOB_ID)).thenReturn(Optional.of(job));
         assertThatThrownBy(() -> resultService.handleFailed(failedEvent(PROCESSING_JOB_ID, UUID.randomUUID())))
                 .isInstanceOf(IllegalStateException.class)
