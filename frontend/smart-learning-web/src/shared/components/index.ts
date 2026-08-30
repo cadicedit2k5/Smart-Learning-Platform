@@ -1,3 +1,5 @@
+import DocumentViewer from './DocumentViewer.vue'
+
 export { default as BaseAlert } from './BaseAlert.vue'
 export { default as BaseBadge } from './BaseBadge.vue'
 export { default as BaseButton } from './BaseButton.vue'
@@ -8,4 +10,5 @@ export { default as BasePageHeader } from './BasePageHeader.vue'
 export { default as BasePagination } from './BasePagination.vue'
 export { default as BaseStatCard } from './BaseStatCard.vue'
 export { default as BaseTabs } from './BaseTabs.vue'
+export {default as DocumentViewer} from './DocumentViewer.vue'
 export type { TabItem } from './BaseTabs.vue'

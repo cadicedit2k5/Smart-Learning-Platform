@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
-import { ChevronLeft, ChevronRight, Download, FileText, Info, Search, X } from 'lucide-vue-next'
-
+import { ChevronLeft, ChevronRight, Download, Eye, FileText, Info, Search, X } from 'lucide-vue-next'
+import { DocumentViewer } from '@/shared/components'
 import BaseAlert from '@/shared/components/BaseAlert.vue'
 import BaseButton from '@/shared/components/BaseButton.vue'
 import BaseCard from '@/shared/components/BaseCard.vue'
@@ -32,6 +32,9 @@ const loading = ref(true)
 const loadError = ref('')
 const actionError = ref('')
 const selectedDocument = ref<CourseDocument | null>(null)
+const previewDocument = ref<CourseDocument | null>(null)
+const previewBlob = ref<Blob | null>(null)
+const previewingId = ref('')
 const loadingDetailId = ref('')
 const downloadingId = ref('')
 
@@ -107,10 +110,37 @@ const formatFileSize = (bytes: number) => {
   return `${(bytes / (1024 * 1024)).toFixed(1)} MB`
 }
 
+const openDocument = async (item: CourseDocument) => {
+  previewingId.value = item.id
+  actionError.value = ''
+
+  try {
+    previewBlob.value = await downloadDocument(props.courseId, item.id)
+    previewDocument.value = item
+  } catch (error) {
+    actionError.value = handleApiError(error, 'Không thể mở tài liệu.').message
+  } finally {
+    previewingId.value = ''
+  }
+}
+
+const closeDocument = () => {
+  previewDocument.value = null
+  previewBlob.value = null
+}
+
 onMounted(() => void loadDocuments())
 </script>
 
 <template>
+  <DocumentViewer
+    v-if="previewDocument && previewBlob"
+    :blob="previewBlob"
+    :title="previewDocument.title"
+    :file-name="previewDocument.version.fileName"
+    :mime-type="previewDocument.version.mimeType"
+    @close="closeDocument"
+  />
   <section class="space-y-5">
     <header>
       <h2 class="font-heading text-xl font-bold text-app-text">Tài liệu khóa học</h2>
@@ -181,6 +211,15 @@ onMounted(() => void loadDocuments())
             </p>
           </div>
           <div class="flex shrink-0 items-start gap-1">
+            <button
+              type="button"
+              class="rounded-control p-2 text-ai hover:bg-ai-soft disabled:opacity-50"
+              :disabled="previewingId === item.id"
+              aria-label="Đọc tài liệu"
+              @click="openDocument(item)"
+            >
+              <Eye :size="18" />
+            </button>
             <button
               type="button"
               class="rounded-control p-2 text-app-text-muted hover:bg-app-surface-muted disabled:opacity-50"
