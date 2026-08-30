@@ -6,6 +6,7 @@ from app.configs.config import get_settings
 from app.configs.database import AsyncSessionLocal
 from app.infrastructure.ai.embeddings import create_embeddings
 from app.infrastructure.documents.loader import DocumentLoader
+from app.infrastructure.documents.topic_content_loader import TopicContentLoader
 from app.infrastructure.storage.minio_storage import MinioStorage
 from app.messaging.consumers.document_deletion_consumer import DocumentDeletionConsumer
 from app.messaging.consumers.document_ingestion_consumer import DocumentIngestionConsumer
@@ -13,7 +14,6 @@ from app.messaging.consumers.topic_knowledge_consumer import TopicKnowledgeConsu
 from app.messaging.publisher.document_ingestion_result_publisher import DocumentIngestionResultPublisher
 from app.services.document_deletion_handler import DocumentDeletionHandler
 from app.services.document_ingestion_handler import DocumentIngestionHandler
-from app.services.topic_knowledge_extractor import TopicKnowledgeExtractor
 from app.services.topic_knowledge_handler import TopicKnowledgeHandler
 
 logger = logging.getLogger(__name__)
@@ -26,12 +26,12 @@ async def main() -> None:
     loader = DocumentLoader()
     embeddings = create_embeddings(settings)
 
-    topic_extractor = TopicKnowledgeExtractor()
+    topic_loader = TopicContentLoader()
 
     topic_handler = TopicKnowledgeHandler(
         session_factory=AsyncSessionLocal,
         embeddings=embeddings,
-        extractor=topic_extractor,
+        loader=topic_loader,
         settings=settings,
     )
 
@@ -72,22 +72,21 @@ async def main() -> None:
     )
 
     await result_publisher.start()
-    await consumer.start()
-    await deletion_consumer.start()
-    await topic_consumer.start()
+    consumers = [
+        consumer,
+        deletion_consumer,
+        topic_consumer,
+    ]
+
+    for item in consumers:
+        await item.start()
 
     try:
-        await asyncio.gather(
-            consumer.consume(),
-            deletion_consumer.consume(),
-            topic_consumer.consume()
-        )
+        await asyncio.gather(*(item.consume() for item in consumers))
 
     finally:
-        await consumer.stop()
-        await result_publisher.stop()
-        await deletion_consumer.stop()
-        await topic_consumer.stop()
+        for item in reversed(consumers):
+            await item.stop()
 
 if __name__ == "__main__":
 

@@ -11,18 +11,13 @@ from app.repositories.chunk_repository import ChunkRepository
 @dataclass(frozen=True, slots=True)
 class RetrievedChunk:
     chunk_id: uuid.UUID
-
     source_type: str
     source_id: uuid.UUID
-
-    document_id: uuid.UUID
+    document_id: uuid.UUID | None
     document_version_id: uuid.UUID | None
-
     topic_id: uuid.UUID | None
-
     content: str
     source_locator: dict | None
-
     distance: float
 
 class RetrievalService:
@@ -41,7 +36,7 @@ class RetrievalService:
 
         effective_top_k = (top_k if top_k is not None else self._settings.retrieve_top_k)
 
-        if effective_top_k < 0:
+        if effective_top_k <= 0:
             raise ValueError("top_k must be greater than 0!")
 
         query_vector = await self._embeddings.aembed_query(question)

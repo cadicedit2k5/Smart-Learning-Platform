@@ -9,8 +9,8 @@ from app.infrastructure.documents.loader import DocumentLoader
 from app.infrastructure.storage.minio_storage import MinioStorage
 from app.messaging.events.document import DocumentIngestionRequestedEvent
 from app.repositories.chunk_repository import ChunkRepository
-from app.services.knowledge_ingestion_service import IngestionResult, KnowledgeIngestionService
-from app.services.knowledge_source import KnowledgeSource, KnowledgeSourceType
+from app.services.knowledge_ingestion_service import IngestionResult, KnowledgeIngestionService, KnowledgeSource, \
+    KnowledgeSourceType
 
 
 class DocumentIngestionHandler:

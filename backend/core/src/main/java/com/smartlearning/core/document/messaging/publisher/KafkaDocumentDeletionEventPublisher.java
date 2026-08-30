@@ -1,7 +1,7 @@
 package com.smartlearning.core.document.messaging.publisher;
 
 import com.smartlearning.core.document.messaging.event.DocumentDeletionRequestedEvent;
-import com.smartlearning.core.document.messaging.kafka.KafkaTopics;
+import com.smartlearning.core.document.messaging.kafka.DocumentKafkaTopics;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.core.KafkaTemplate;
@@ -21,7 +21,7 @@ public class KafkaDocumentDeletionEventPublisher implements DocumentDeletionEven
         String payload = jsonMapper.writeValueAsString(event);
 
         kafkaTemplate.send(
-                KafkaTopics.DOCUMENT_DELETION_REQUESTED,
+                DocumentKafkaTopics.DOCUMENT_DELETION_REQUESTED,
                 event.documentId().toString(),
                 payload
         ).whenComplete((result, exception) -> {

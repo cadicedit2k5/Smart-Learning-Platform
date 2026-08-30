@@ -9,6 +9,10 @@ from app.services.chat_history import to_langchain_messages
 from app.services.rag_context import build_rag_context
 from app.services.retrieval_service import RetrievalService
 
+import logging
+import time
+
+logger = logging.getLogger(__name__)
 
 class RagService:
     def __init__(self, *, retrieval_service: RetrievalService, chat_model: BaseChatModel):
@@ -22,8 +26,15 @@ class RagService:
             raise ValueError("Vui lòng cung cấp câu hỏi")
 
         retrieval_query = self._build_retrieval_query(history=history, question=question)
-
+        start = time.perf_counter()
+        logger.info("RAG started: course_id=%s", course_id)
         retrieval_chunks = await self._retrieval_service.retrieve(course_id=course_id, question=retrieval_query)
+
+        logger.info(
+            "Retrieval completed: chunks=%d elapsed=%.2fs",
+            len(retrieval_chunks),
+            time.perf_counter() - start,
+        )
         if not retrieval_chunks:
             search_scope = (
                 "trong tài liệu của khóa học."
@@ -37,17 +48,24 @@ class RagService:
         langchain_history = to_langchain_messages(history=history)
         rag_context = build_rag_context(chunks=retrieval_chunks)
         messages = RAG_PROMPT.format_messages(question=question, history=langchain_history, context=rag_context.text)
+        logger.info(
+            "LLM request started: elapsed=%.2fs",
+            time.perf_counter() - start,
+        )
         raw_output = await self._structured_model.ainvoke(messages)
-
+        logger.info(
+            "LLM request completed: elapsed=%.2fs",
+            time.perf_counter() - start,
+        )
         if isinstance(raw_output, RagOutputModel):
-            model_ouput = raw_output
+            model_output = raw_output
         else:
-            model_ouput = RagOutputModel.model_validate(raw_output)
+            model_output = RagOutputModel.model_validate(raw_output)
 
         citations: list[RagCitation] = []
         used_labels: set[str] = set()
 
-        for raw_label in model_ouput.citation_labels:
+        for raw_label in model_output.citation_labels:
             label = raw_label.strip().upper().removeprefix("[").removesuffix("]")
             if label in used_labels:
                 continue
@@ -67,7 +85,7 @@ class RagService:
                     locator=source.source_locator))
             used_labels.add(label)
 
-        return RagAnswer(answer=model_ouput.answer, citations=citations)
+        return RagAnswer(answer=model_output.answer, citations=citations)
 
     def _build_retrieval_query(self, *,
             history: list[ChatHistoryMessage], question: str) -> str:

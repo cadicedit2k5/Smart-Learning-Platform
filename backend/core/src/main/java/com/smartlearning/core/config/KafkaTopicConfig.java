@@ -1,6 +1,7 @@
-package com.smartlearning.core.document.messaging.kafka.config;
+package com.smartlearning.core.config;
 
-import com.smartlearning.core.document.messaging.kafka.KafkaTopics;
+import com.smartlearning.core.course.messaging.kafka.CourseKafkaTopics;
+import com.smartlearning.core.document.messaging.kafka.DocumentKafkaTopics;
 import org.apache.kafka.clients.admin.NewTopic;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -18,35 +19,32 @@ public class KafkaTopicConfig {
 
     @Bean
     NewTopic documentIngestionRequestedTopic() {
-        return TopicBuilder
-                .name(KafkaTopics.DOCUMENT_INGESTION_REQUESTED)
-                .partitions(partitions)
-                .replicas(replicationFactor)
-                .build();
+        return topic(DocumentKafkaTopics.DOCUMENT_INGESTION_REQUESTED);
     }
 
     @Bean
     NewTopic documentIngestionCompletedTopic() {
-        return TopicBuilder
-                .name(KafkaTopics.DOCUMENT_INGESTION_COMPLETED)
-                .partitions(partitions)
-                .replicas(replicationFactor)
-                .build();
+        return topic(DocumentKafkaTopics.DOCUMENT_INGESTION_COMPLETED);
     }
 
     @Bean
     NewTopic documentIngestionFailedTopic() {
-        return TopicBuilder
-                .name(KafkaTopics.DOCUMENT_INGESTION_FAILED)
-                .partitions(partitions)
-                .replicas(replicationFactor)
-                .build();
+        return topic(DocumentKafkaTopics.DOCUMENT_INGESTION_FAILED);
     }
 
     @Bean
     NewTopic documentDeletionRequestedTopic() {
+        return topic(DocumentKafkaTopics.DOCUMENT_DELETION_REQUESTED);
+    }
+
+    @Bean
+    NewTopic topicKnowledgeIndexRequestedTopic() {
+        return topic(CourseKafkaTopics.TOPIC_KNOWLEDGE_INDEX_REQUESTED);
+    }
+
+    private NewTopic topic(String topicName) {
         return TopicBuilder
-                .name(KafkaTopics.DOCUMENT_DELETION_REQUESTED)
+                .name(topicName)
                 .partitions(partitions)
                 .replicas(replicationFactor)
                 .build();

@@ -2,6 +2,7 @@ from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
 from app.messaging.events.document import DocumentDeletionRequestedEvent
 from app.repositories.chunk_repository import ChunkRepository
+from app.services.knowledge_ingestion_service import KnowledgeSourceType
 
 
 class DocumentDeletionHandler:
@@ -16,6 +17,8 @@ class DocumentDeletionHandler:
             repository = ChunkRepository(session)
 
             async with session.begin():
-                await repository.delete_document_chunks(
+                await repository.delete_source_chunks(
                     course_id=event.course_id,
-                    document_id=event.document_id)
+                    source_type=KnowledgeSourceType.DOCUMENT.value,
+                    source_id=event.document_id,
+                )

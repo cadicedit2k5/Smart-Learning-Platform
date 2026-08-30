@@ -2,7 +2,7 @@ package com.smartlearning.core.document.messaging.consumer;
 
 import com.smartlearning.core.document.messaging.event.DocumentIngestionCompletedEvent;
 import com.smartlearning.core.document.messaging.event.DocumentIngestionFailedEvent;
-import com.smartlearning.core.document.messaging.kafka.KafkaTopics;
+import com.smartlearning.core.document.messaging.kafka.DocumentKafkaTopics;
 import com.smartlearning.core.document.service.DocumentProcessingResultService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -21,7 +21,7 @@ public class DocumentIngestionResultConsumer {
     private final DocumentProcessingResultService resultService;
 
     @KafkaListener(
-            topics = KafkaTopics.DOCUMENT_INGESTION_COMPLETED,
+            topics = DocumentKafkaTopics.DOCUMENT_INGESTION_COMPLETED,
             groupId = "core-document-ingestion-status",
             ackMode = "RECORD"
     )
@@ -41,7 +41,7 @@ public class DocumentIngestionResultConsumer {
     }
 
     @KafkaListener(
-            topics = KafkaTopics.DOCUMENT_INGESTION_FAILED,
+            topics = DocumentKafkaTopics.DOCUMENT_INGESTION_FAILED,
             groupId = "core-document-ingestion-status",
             ackMode = "RECORD"
     )

@@ -2,19 +2,18 @@ from langchain_core.embeddings import Embeddings
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
 from app.configs.config import Settings
+from app.infrastructure.documents.topic_content_loader import TopicContentLoader
 from app.messaging.events.topic import TopicKnowledgeIndexRequestedEvent
 from app.repositories.chunk_repository import ChunkRepository
-from app.services.knowledge_ingestion_service import KnowledgeIngestionService, IngestionResult
-from app.services.knowledge_source import KnowledgeSource, KnowledgeSourceType
-from app.services.topic_knowledge_extractor import TopicKnowledgeExtractor
-
+from app.services.knowledge_ingestion_service import KnowledgeIngestionService, IngestionResult, KnowledgeSource, \
+    KnowledgeSourceType
 
 class TopicKnowledgeHandler:
 
-    def __init__(self, *, session_factory: async_sessionmaker[AsyncSession], embeddings: Embeddings, extractor: TopicKnowledgeExtractor, settings: Settings):
+    def __init__(self, *, session_factory: async_sessionmaker[AsyncSession], embeddings: Embeddings, loader: TopicContentLoader, settings: Settings):
         self._session_factory = session_factory
         self._embeddings = embeddings
-        self._extractor = extractor
+        self._loader = loader
         self._settings = settings
 
     async def handle(self, event: TopicKnowledgeIndexRequestedEvent) -> IngestionResult | None:
@@ -39,7 +38,13 @@ class TopicKnowledgeHandler:
 
                 return None
 
-            documents = self._extractor.extract(event)
+            documents = self._loader.load(
+                topic_id=event.topic_id,
+                chapter_id=event.chapter_id,
+                title=event.title,
+                description=event.description,
+                content=event.content,
+            )
 
             ingestion_service = KnowledgeIngestionService(
                 session=session,

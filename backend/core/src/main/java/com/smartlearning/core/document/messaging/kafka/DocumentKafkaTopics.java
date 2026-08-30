@@ -1,8 +1,8 @@
 package com.smartlearning.core.document.messaging.kafka;
 
-public final class KafkaTopics {
+public final class DocumentKafkaTopics {
 
-    private KafkaTopics() {
+    private DocumentKafkaTopics() {
     }
 
     public static final String DOCUMENT_INGESTION_REQUESTED =

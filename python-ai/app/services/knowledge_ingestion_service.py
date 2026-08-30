@@ -1,4 +1,6 @@
+import uuid
 from dataclasses import dataclass
+from enum import StrEnum
 
 from langchain_core.documents import Document
 from langchain_core.embeddings import Embeddings
@@ -9,13 +11,33 @@ from app.infrastructure.ai.embeddings import get_embedding_model_key
 from app.infrastructure.documents.source_locator import extract_source_locator
 from app.models import DocumentChunk, ChunkEmbedding
 from app.repositories.chunk_repository import ChunkRepository
-from app.services.knowledge_source import KnowledgeSource
 
+import logging
+
+logger = logging.getLogger(__name__)
 
 @dataclass(frozen=True)
 class IngestionResult:
     chunk_count: int
     model_key: str
+
+class KnowledgeSourceType(StrEnum):
+    DOCUMENT = "DOCUMENT"
+    TOPIC = "TOPIC"
+
+
+@dataclass(frozen=True, slots=True)
+class KnowledgeSource:
+    course_id: uuid.UUID
+    source_type: KnowledgeSourceType
+    source_id: uuid.UUID
+    source_version_id: uuid.UUID | None = None
+
+    document_id: uuid.UUID | None = None
+    document_version_id: uuid.UUID | None = None
+
+    chapter_id: uuid.UUID | None = None
+    topic_id: uuid.UUID | None = None
 
 
 class KnowledgeIngestionService:
@@ -42,7 +64,13 @@ class KnowledgeIngestionService:
             return IngestionResult(chunk_count=0, model_key=model_key)
 
         texts = [document.page_content.strip() for document in documents]
+        logger.info("Texts prepared: count=%d lengths=%s", len(texts), [len(text) for text in texts])
         vectors = await self._embeddings.aembed_documents(texts)
+        logger.info(
+            "Embedding completed: vectors=%d dimensions=%s",
+            len(vectors),
+            [len(vector) for vector in vectors],
+        )
 
         if len(vectors) != len(documents):
             raise RuntimeError("Embedding provider returned an unexpected vector count")
@@ -79,5 +107,14 @@ class KnowledgeIngestionService:
                 source_id=source.source_id,
                 chunks=chunks,
             )
+
+            await self._session.flush()
+
+        logger.info(
+            "Knowledge chunks persisted: type=%s id=%s chunks=%d",
+            source.source_type.value,
+            source.source_id,
+            len(chunks),
+        )
 
         return IngestionResult(chunk_count=len(chunks), model_key=model_key)
