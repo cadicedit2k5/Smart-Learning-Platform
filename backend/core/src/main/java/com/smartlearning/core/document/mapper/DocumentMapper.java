@@ -29,10 +29,8 @@ public interface DocumentMapper extends CreateMapper<Document, DocumentCreateReq
     @Mapping(target = "courseId", source = "course.id")
     @Mapping(target = "chapterId", source = "chapter.id")
     @Mapping(target = "topicId", source = "topic.id")
-    @Mapping(
-            target = "version",
-            source = "version"
-    )
+    @Mapping(target = "version", source = "version")
+    @Mapping(target = "courseTitle", source = "course.title")
     DocumentResponse toResponse(Document document);
 
 //    @Override

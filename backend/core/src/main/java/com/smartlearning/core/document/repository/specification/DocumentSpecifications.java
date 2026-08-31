@@ -1,6 +1,7 @@
 package com.smartlearning.core.document.repository.specification;
 
 import com.smartlearning.core.document.entity.Document;
+import com.smartlearning.core.document.entity.enums.DocumentProcessingStatus;
 import lombok.NoArgsConstructor;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.util.StringUtils;
@@ -28,6 +29,28 @@ public final class DocumentSpecifications {
                                 pattern
                         )
                 );
+    }
+
+    public static Specification<Document> courseKeyword(String keyword) {
+        if (!StringUtils.hasText(keyword)) {
+            return Specification.unrestricted();
+        }
+
+        String pattern = "%" + keyword.trim().toLowerCase() + "%";
+
+        return (root, query, criteriaBuilder) ->
+                criteriaBuilder.like(
+                        criteriaBuilder.lower(root.get("course").get("title")),
+                        pattern);
+    }
+
+    public static Specification<Document> processingStatus(DocumentProcessingStatus status) {
+        if (status == null) {
+            return Specification.unrestricted();
+        }
+
+        return (root, query, criteriaBuilder) ->
+                criteriaBuilder.equal(root.get("version").get("processingStatus"), status);
     }
 
     public static Specification<Document> courseId(UUID courseId) {

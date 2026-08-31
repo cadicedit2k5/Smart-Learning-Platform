@@ -144,7 +144,7 @@ class DocumentServiceImplTest {
         second.setTitle("Second document");
         DocumentResponse firstResponse = documentResponse();
         DocumentResponse secondResponse = new DocumentResponse(
-                second.getId(), COURSE_ID, null, null, second.getTitle(), second.getDescription(),
+                second.getId(), COURSE_ID, second.getCourse().getTitle(), null, null, second.getTitle(), second.getDescription(),
                  second.getUploadedBy(), null, second.getCreatedAt(), second.getUpdatedAt()
         );
         Page<Document> page = new PageImpl<>(List.of(first, second), pageable, 5);
