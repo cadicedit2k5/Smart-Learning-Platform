@@ -35,25 +35,11 @@ public class RoleController {
         return ApiResponses.ok(roleService.getRole(id));
     }
 
-    @PostMapping
-    public ResponseEntity<ApiResponse<RoleDetailResponse>> createRole(
-            @Valid @RequestBody RoleCreateRequest request) {
-        return ApiResponses.created(roleService.createRole(request));
-    }
-
     @PatchMapping("/{id}")
     public ResponseEntity<ApiResponse<RoleDetailResponse>> updateRole(
             @PathVariable Long id,
             @Valid
             @RequestBody RoleUpdateRequest request) {
         return ApiResponses.ok(roleService.updateRole(id, request));
-    }
-
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteRole(@PathVariable Long id) {
-
-        roleService.deleteRole(id);
-
-        return ApiResponses.noContent();
     }
 }

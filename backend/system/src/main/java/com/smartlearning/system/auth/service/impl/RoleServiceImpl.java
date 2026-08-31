@@ -49,27 +49,6 @@ public class RoleServiceImpl implements RoleService {
     }
 
     @Override
-    public RoleDetailResponse createRole(RoleCreateRequest request) {
-
-        String code = request.code().trim().toUpperCase(Locale.ROOT);
-
-        if (roleRepository.existsByCodeIgnoreCase(code)) {
-            throw new ApplicationException(AuthErrorCode.ROLE_ALREADY_EXISTS);
-        }
-
-        Role role = new Role();
-
-        role.setCode(code);
-        role.setName(request.name().trim());
-
-        role.setPermissions(new HashSet<>(resolvePermissions(request.permissionIds())));
-
-        Role savedRole = roleRepository.save(role);
-
-        return RoleDetailResponse.from(savedRole);
-    }
-
-    @Override
     public RoleDetailResponse updateRole(Long roleId, RoleUpdateRequest request) {
 
         Role role = requireRole(roleId);
@@ -85,23 +64,6 @@ public class RoleServiceImpl implements RoleService {
         role.setPermissions(new HashSet<>(resolvePermissions(request.permissionIds())));
 
         return RoleDetailResponse.from(role);
-    }
-
-    @Override
-    public void deleteRole(Long roleId) {
-        Set<String> PROTECTED_ROLE_CODES = Set.of("ADMIN", "LECTURER", "STUDENT");
-
-        Role role = requireRole(roleId);
-
-        if (PROTECTED_ROLE_CODES.contains(role.getCode().toUpperCase(Locale.ROOT))) {
-            throw new ApplicationException(AuthErrorCode.SYSTEM_ROLE_PROTECTED);
-        }
-
-        if (userRepository.existsByRoleId(roleId)) {
-            throw new ApplicationException(AuthErrorCode.ROLE_IN_USE);
-        }
-
-        roleRepository.delete(role);
     }
 
     private List<Permission> resolvePermissions(Set<Long> permissionIds) {

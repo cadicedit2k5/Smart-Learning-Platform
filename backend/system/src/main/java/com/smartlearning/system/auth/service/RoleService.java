@@ -15,9 +15,5 @@ public interface RoleService {
 
     RoleDetailResponse getRole(Long roleId);
 
-    RoleDetailResponse createRole(RoleCreateRequest request);
-
     RoleDetailResponse updateRole(Long roleId, RoleUpdateRequest request);
-
-    void deleteRole(Long roleId);
 }

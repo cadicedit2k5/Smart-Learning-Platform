@@ -12,10 +12,6 @@ import java.util.Optional;
 public interface RoleRepository extends JpaRepository<Role, Long> {
     Optional<Role> findByCode(String code);
 
-    boolean existsByCode(String code);
-
-    boolean existsByCodeIgnoreCase(String code);
-
     @EntityGraph(attributePaths = "permissions")
     @Query("""
             select distinct role
