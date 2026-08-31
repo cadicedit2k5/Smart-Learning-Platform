@@ -22,6 +22,17 @@ export const adminRoutes: RouteRecordRaw[] = [
     },
   },
   {
+  path: 'roles',
+  name: 'admin-roles',
+  component: () =>
+    import(
+      './pages/AdminRolesPage.vue'
+    ),
+  meta: {
+    title: 'Vai trò & phân quyền',
+  },
+},
+  {
     path: 'profile',
     name: 'admin-profile',
     component: () =>

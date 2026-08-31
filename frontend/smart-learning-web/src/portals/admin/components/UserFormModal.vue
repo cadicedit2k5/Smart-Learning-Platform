@@ -15,6 +15,7 @@ import type {
   AdminCreateUserRequest,
   AdminUpdateUserRequest,
 } from '../api/userApi'
+import { BaseAlert, BaseModal } from '@/shared/components'
 
 const props = defineProps<{
   open: boolean
@@ -172,233 +173,202 @@ const closeModal = () => {
 </script>
 
 <template>
-  <Teleport to="body">
-    <Transition
-      enter-active-class="transition duration-200"
-      enter-from-class="opacity-0"
-      leave-active-class="transition duration-150"
-      leave-to-class="opacity-0"
+  <BaseModal
+    :open="open"
+    :title="
+      isEditing
+        ? 'Cập nhật người dùng'
+        : 'Thêm người dùng'
+    "
+    :description="
+      isEditing
+        ? 'Cập nhật thông tin và vai trò của tài khoản.'
+        : 'Tạo tài khoản mới trong hệ thống.'
+    "
+    :loading="loading"
+    @close="closeModal"
+  >
+    <BaseAlert
+      v-if="serverMessage"
+      variant="error"
+      class="mb-5"
     >
+      {{ serverMessage }}
+    </BaseAlert>
+
+    <form
+      id="user-form"
+      class="space-y-5"
+      @submit.prevent="submit"
+    >
+      <BaseInput
+        v-model="form.fullName"
+        label="Họ và tên"
+        placeholder="Nguyễn Văn An"
+        autocomplete="name"
+        required
+        :disabled="loading"
+        :error="getError('fullName')"
+      />
+
+      <BaseInput
+        v-model="form.email"
+        label="Email"
+        type="email"
+        placeholder="user@example.com"
+        autocomplete="email"
+        required
+        :disabled="loading"
+        :error="getError('email')"
+      />
+
       <div
-        v-if="open"
-        class="fixed inset-0 z-[70] flex items-center justify-center bg-slate-950/50 p-4"
-        @mousedown.self="closeModal"
+        class="grid gap-5 sm:grid-cols-2"
       >
-        <section
-          role="dialog"
-          aria-modal="true"
-          aria-labelledby="user-form-title"
-          class="max-h-[calc(100vh-2rem)] w-full max-w-xl overflow-y-auto rounded-panel bg-app-surface shadow-overlay"
-        >
-          <header
-            class="flex items-start justify-between gap-4 border-b border-app-border px-5 py-4 sm:px-6"
+        <BaseInput
+          v-model="form.password"
+          label="Mật khẩu"
+          type="password"
+          autocomplete="new-password"
+          :required="!isEditing"
+          :disabled="loading"
+          :placeholder="
+            isEditing
+              ? 'Để trống nếu không đổi'
+              : '8–36 ký tự'
+          "
+          :error="getError('password')"
+        />
+
+        <div class="space-y-2">
+          <label
+            for="user-role"
+            class="block text-sm font-semibold text-app-text"
           >
-            <div>
-              <h2
-                id="user-form-title"
-                class="font-heading text-xl font-bold text-app-text"
-              >
-                {{
-                  isEditing
-                    ? 'Cập nhật người dùng'
-                    : 'Thêm người dùng'
-                }}
-              </h2>
+            Vai trò
 
-              <p class="mt-1 text-sm text-app-text-muted">
-                {{
-                  isEditing
-                    ? 'Chỉ các trường thay đổi mới được cập nhật.'
-                    : 'Tạo tài khoản mới và phân quyền truy cập.'
-                }}
-              </p>
-            </div>
+            <span class="text-danger">
+              *
+            </span>
+          </label>
 
-            <button
-              type="button"
-              aria-label="Đóng"
-              class="flex h-9 w-9 shrink-0 items-center justify-center rounded-control text-app-text-muted transition hover:bg-app-surface-muted"
-              :disabled="loading"
-              @click="closeModal"
-            >
-              <X :size="20" />
-            </button>
-          </header>
-
-          <form
-            class="space-y-5 p-5 sm:p-6"
-            @submit.prevent="submit"
+          <select
+            id="user-role"
+            v-model="form.roleCode"
+            class="h-11 w-full rounded-control border border-app-border bg-app-surface px-3 text-sm text-app-text outline-none transition focus:border-secondary focus:ring-2 focus:ring-secondary/20 disabled:opacity-60"
+            :disabled="loading"
           >
-            <p
-              v-if="serverMessage"
-              role="alert"
-              class="rounded-control border border-danger/20 bg-danger-soft px-4 py-3 text-sm text-on-danger-soft"
-            >
-              {{ serverMessage }}
-            </p>
+            <option value="STUDENT">
+              Học viên
+            </option>
 
-            <BaseInput
-              v-model="form.fullName"
-              label="Họ và tên"
-              placeholder="Nguyễn Văn An"
-              autocomplete="name"
-              required
-              :disabled="loading"
-              :error="getError('fullName')"
-            />
+            <option value="LECTURER">
+              Giảng viên
+            </option>
 
-            <BaseInput
-              v-model="form.email"
-              label="Email"
-              type="email"
-              placeholder="user@example.com"
-              autocomplete="email"
-              required
-              :disabled="loading"
-              :error="getError('email')"
-            />
-
-            <div class="grid gap-5 sm:grid-cols-2">
-              <BaseInput
-                v-model="form.password"
-                label="Mật khẩu"
-                type="password"
-                autocomplete="new-password"
-                :required="!isEditing"
-                :disabled="loading"
-                :placeholder="
-                  isEditing
-                    ? 'Để trống nếu không đổi'
-                    : '8–36 ký tự'
-                "
-                :error="getError('password')"
-              />
-
-              <div class="space-y-2">
-                <label
-                  for="user-role"
-                  class="block text-sm font-semibold text-app-text"
-                >
-                  Vai trò
-                  <span class="text-danger">*</span>
-                </label>
-
-                <select
-                  id="user-role"
-                  v-model="form.roleCode"
-                  class="h-11 w-full rounded-control border border-app-border bg-app-surface px-3 text-sm text-app-text outline-none transition focus:border-secondary focus:ring-2 focus:ring-secondary/20 disabled:opacity-60"
-                  :disabled="loading"
-                >
-                  <option value="STUDENT">
-                    Học viên
-                  </option>
-
-                  <option value="LECTURER">
-                    Giảng viên
-                  </option>
-
-                  <option value="ADMIN">
-                    Quản trị viên
-                  </option>
-                </select>
-              </div>
-            </div>
-
-            <div class="space-y-2">
-              <div>
-                <p class="text-sm font-semibold text-app-text">
-                  Ảnh đại diện
-                </p>
-
-                <p class="mt-1 text-xs text-app-text-muted">
-                  {{
-                    isEditing
-                      ? 'Chọn ảnh mới nếu muốn thay ảnh hiện tại.'
-                      : 'Không bắt buộc, tối đa 50 MB.'
-                  }}
-                </p>
-              </div>
-
-              <label
-                for="user-avatar"
-                class="flex cursor-pointer items-center gap-3 rounded-control border border-dashed border-app-border bg-app-surface-muted px-4 py-4 transition hover:border-secondary"
-              >
-                <span
-                  class="flex h-10 w-10 shrink-0 items-center justify-center rounded-control bg-secondary-soft text-secondary"
-                >
-                  <Upload :size="19" />
-                </span>
-
-                <span class="min-w-0 text-sm">
-                  <span
-                    class="block truncate font-medium text-app-text"
-                  >
-                    {{
-                      avatar?.name ??
-                      (
-                        isEditing
-                          ? 'Chọn ảnh đại diện mới'
-                          : 'Chọn tệp ảnh'
-                      )
-                    }}
-                  </span>
-
-                  <span class="text-app-text-muted">
-                    JPG, PNG hoặc WebP -- tối đa 50 MB
-                  </span>
-                </span>
-              </label>
-
-              <input
-                id="user-avatar"
-                type="file"
-                accept="image/jpeg,image/png,image/webp"
-                class="sr-only"
-                :disabled="loading"
-                @change="selectAvatar"
-              />
-
-              <p
-                v-if="getError('avatar')"
-                role="alert"
-                class="text-sm text-danger"
-              >
-                {{ getError('avatar') }}
-              </p>
-
-              <p
-                v-if="isEditing && user?.avatar"
-                class="text-xs text-app-text-muted"
-              >
-                Tài khoản hiện đã có ảnh đại diện.
-              </p>
-            </div>
-
-            <footer
-              class="flex flex-col-reverse gap-3 border-t border-app-border pt-5 sm:flex-row sm:justify-end"
-            >
-              <BaseButton
-                variant="secondary"
-                :disabled="loading"
-                @click="closeModal"
-              >
-                Hủy
-              </BaseButton>
-
-              <BaseButton
-                type="submit"
-                :loading="loading"
-              >
-                {{
-                  isEditing
-                    ? 'Lưu thay đổi'
-                    : 'Tạo người dùng'
-                }}
-              </BaseButton>
-            </footer>
-          </form>
-        </section>
+            <option value="ADMIN">
+              Quản trị viên
+            </option>
+          </select>
+        </div>
       </div>
-    </Transition>
-  </Teleport>
+
+      <!-- Avatar -->
+      <div class="space-y-2">
+        <div>
+          <p
+            class="text-sm font-semibold text-app-text"
+          >
+            Ảnh đại diện
+          </p>
+
+          <p
+            class="mt-1 text-xs text-app-text-muted"
+          >
+            {{
+              isEditing
+                ? 'Chọn ảnh mới nếu muốn thay ảnh hiện tại.'
+                : 'Không bắt buộc.'
+            }}
+          </p>
+        </div>
+
+        <label
+          for="user-avatar"
+          class="flex cursor-pointer items-center gap-3 rounded-control border border-dashed border-app-border bg-app-surface-muted px-4 py-4 transition hover:border-secondary"
+        >
+          <span
+            class="flex h-10 w-10 shrink-0 items-center justify-center rounded-control bg-secondary-soft text-secondary"
+          >
+            <Upload :size="19" />
+          </span>
+
+          <span
+            class="min-w-0 text-sm"
+          >
+            <span
+              class="block truncate font-medium text-app-text"
+            >
+              {{
+                avatar?.name ??
+                  (
+                    isEditing
+                      ? 'Chọn ảnh đại diện mới'
+                      : 'Chọn tệp ảnh'
+                  )
+              }}
+            </span>
+
+            <span
+              class="text-app-text-muted"
+            >
+              JPG, PNG hoặc WebP
+            </span>
+          </span>
+        </label>
+
+        <input
+          id="user-avatar"
+          type="file"
+          accept="image/jpeg,image/png,image/webp"
+          class="sr-only"
+          :disabled="loading"
+          @change="selectAvatar"
+        />
+
+        <p
+          v-if="getError('avatar')"
+          class="text-sm text-danger"
+        >
+          {{ getError('avatar') }}
+        </p>
+      </div>
+    </form>
+
+    <template #footer>
+      <div
+        class="flex justify-end gap-3"
+      >
+        <BaseButton
+          variant="secondary"
+          :disabled="loading"
+          @click="closeModal"
+        >
+          Hủy
+        </BaseButton>
+
+        <BaseButton
+          type="submit"
+          form="user-form"
+          :loading="loading"
+        >
+          {{
+            isEditing
+              ? 'Lưu thay đổi'
+              : 'Tạo người dùng'
+          }}
+        </BaseButton>
+      </div>
+    </template>
+  </BaseModal>
 </template>
