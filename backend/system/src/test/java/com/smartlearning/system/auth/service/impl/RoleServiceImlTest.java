@@ -21,7 +21,7 @@ class RoleServiceImlTest {
     private RoleRepository roleRepository;
 
     @InjectMocks
-    private RoleServiceIml roleService;
+    private RoleServiceImpl roleService;
 
     @Test
     void handleGetRoleByCode_returnsRoleWhenItExists() {

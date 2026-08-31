@@ -25,4 +25,6 @@ public interface UserRepository extends JpaRepository<User, UUID>,
     List<User> findAllByIdInAndStatus(Collection<UUID> ids, UserStatus status);
 
     boolean existsByEmailIgnoreCase(String email);
+
+    boolean existsByRoleId(Long roleId);
 }
