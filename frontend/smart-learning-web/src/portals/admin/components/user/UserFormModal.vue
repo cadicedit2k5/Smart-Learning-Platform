@@ -14,7 +14,7 @@ import type { AuthUser } from '@/features/auth/types'
 import type {
   AdminCreateUserRequest,
   AdminUpdateUserRequest,
-} from '../api/userApi'
+} from '../../api/userApi'
 import { BaseAlert, BaseModal } from '@/shared/components'
 
 const props = defineProps<{

@@ -23,10 +23,10 @@ import {
   type AdminUpdateUserRequest,
   type UsersPage,
 } from '../api/userApi'
-import UserFormModal from '../components/UserFormModal.vue'
-import UserTable from '../components/UserTable.vue'
+import UserFormModal from '../components/user/UserFormModal.vue'
+import UserTable from '../components/user/UserTable.vue'
 import { BaseAlert, BasePageHeader, BasePagination, ConfirmDialog } from '@/shared/components/index.ts'
-import UserFilters from '../components/UserFilters.vue'
+import UserFilters from '../components/user/UserFilters.vue'
 
 const usersPage = ref<UsersPage>({
   content: [],

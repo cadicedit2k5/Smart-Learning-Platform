@@ -19,7 +19,7 @@ import {
 
 import type {
   AdminUpdateRoleRequest,
-} from '../api/roleApi'
+} from '../../api/roleApi.ts'
 
 import PermissionChecklist
   from './PermissionChecklist.vue'

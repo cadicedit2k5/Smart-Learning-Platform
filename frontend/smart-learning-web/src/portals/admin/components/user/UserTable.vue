@@ -20,7 +20,7 @@ import {
 import {
   roleLabel,
   roleTone,
-} from '../utils/roleUi'
+} from '../../utils/roleUi'
 
 defineProps<{
   users: AuthUser[]

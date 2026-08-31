@@ -18,7 +18,7 @@ import {
   isAdminRole,
   roleLabel,
   roleTone,
-} from '../utils/roleUi'
+} from '../../utils/roleUi'
 
 defineProps<{
   roles: AuthRole[]

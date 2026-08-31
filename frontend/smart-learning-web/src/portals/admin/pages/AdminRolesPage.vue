@@ -26,10 +26,10 @@ import {
 } from '../api/roleApi.ts'
 
 import RoleFormModal
-  from '../components/RoleFormModal.vue'
+  from '../components/role/RoleFormModal.vue'
 
 import RoleTable
-  from '../components/RoleTable.vue'
+  from '../components/role/RoleTable.vue'
 
 const roles = ref<AuthRole[]>([])
 const permissions = ref<Permission[]>([])
