@@ -118,7 +118,7 @@ export const updateUser = async (
   return response.data.data
 }
 
-export const deleteUser = async (
+export const disableUser = async (
     id: string,
 ): Promise<void> => {
     await httpClient.delete(

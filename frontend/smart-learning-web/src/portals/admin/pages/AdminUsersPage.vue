@@ -16,7 +16,7 @@ import BaseButton from '@/shared/components/BaseButton.vue'
 
 import {
   createUser,
-  deleteUser,
+  disableUser,
   getUsers,
   updateUser,
   type AdminCreateUserRequest,
@@ -25,7 +25,7 @@ import {
 } from '../api/userApi'
 import UserFormModal from '../components/UserFormModal.vue'
 import UserTable from '../components/UserTable.vue'
-import { BaseAlert, BasePageHeader, BasePagination } from '@/shared/components/index.ts'
+import { BaseAlert, BasePageHeader, BasePagination, ConfirmDialog } from '@/shared/components/index.ts'
 import UserFilters from '../components/UserFilters.vue'
 
 const usersPage = ref<UsersPage>({
@@ -41,15 +41,15 @@ const usersPage = ref<UsersPage>({
 const currentPage = ref(1)
 const loading = ref(false)
 const saving = ref(false)
-const deleting = ref(false)
+const disabling = ref(false)
 
 const errorMessage = ref('')
 const successMessage = ref('')
-const deleteError = ref('')
+const disableError = ref('')
 
 const formOpen = ref(false)
 const editingUser = ref<AuthUser | null>(null)
-const deleteTarget = ref<AuthUser | null>(null)
+const disableTarget = ref<AuthUser | null>(null)
 
 const serverErrors =
   ref<Record<string, string>>({})
@@ -240,26 +240,26 @@ const handleUpdate = async (
   }
 }
 
-const openDelete = (user: AuthUser) => {
-  deleteTarget.value = user
-  deleteError.value = ''
+const openDisable = (user: AuthUser) => {
+  disableTarget.value = user
+  disableError.value = ''
   successMessage.value = ''
 }
 
-const handleDelete = async () => {
-  if (!deleteTarget.value || deleting.value) {
+const handleDisable = async () => {
+  if (!disableTarget.value || disabling.value) {
     return
   }
 
-  const target = deleteTarget.value
+  const target = disableTarget.value
 
-  deleting.value = true
-  deleteError.value = ''
+  disabling.value = true
+  disableError.value = ''
 
   try {
-    await deleteUser(target.id)
+    await disableUser(target.id)
 
-    deleteTarget.value = null
+    disableTarget.value = null
     successMessage.value =
       `Đã xóa tài khoản ${target.email}.`
 
@@ -274,12 +274,12 @@ const handleDelete = async () => {
   } catch (error) {
     const parsed = parseApiError(error)
 
-    deleteError.value =
+    disableError.value =
       parsed.statusCode === 404
         ? 'Người dùng không tồn tại hoặc đã bị xóa.'
         : parsed.message
   } finally {
-    deleting.value = false
+    disabling.value = false
   }
 }
 
@@ -331,7 +331,7 @@ onMounted(loadUsers)
         usersPage.pageable.totalElements
       "
       @edit="openEdit"
-      @disable="openDelete"
+      @disable="openDisable"
     />
 
     <BasePagination
@@ -362,69 +362,22 @@ onMounted(loadUsers)
       @update="handleUpdate"
     />
 
-    <Teleport to="body">
-      <div
-        v-if="deleteTarget"
-        class="fixed inset-0 z-[80] flex items-center justify-center bg-slate-950/50 p-4"
-        @mousedown.self="
-          !deleting && (deleteTarget = null)
-        "
-      >
-        <section
-          role="alertdialog"
-          aria-modal="true"
-          aria-labelledby="delete-title"
-          class="w-full max-w-md rounded-panel bg-app-surface p-6 shadow-overlay"
-        >
-          <h2
-            id="delete-title"
-            class="font-heading text-xl font-bold text-app-text"
-          >
-            Xóa người dùng?
-          </h2>
-
-          <p
-            class="mt-2 text-sm leading-6 text-app-text-muted"
-          >
-            Tài khoản
-            <strong class="text-app-text">
-              {{ deleteTarget.email }}
-            </strong>
-            sẽ bị vô hiệu hóa.
-          </p>
-
-          <p
-            v-if="deleteError"
-            role="alert"
-            class="mt-4 rounded-control bg-danger-soft p-3 text-sm text-danger"
-          >
-            {{ deleteError }}
-          </p>
-
-          <div class="mt-6 flex justify-end gap-3">
-            <BaseButton
-              variant="secondary"
-              :disabled="deleting"
-              @click="deleteTarget = null"
-            >
-              Hủy
-            </BaseButton>
-
-            <button
-              type="button"
-              class="inline-flex h-11 items-center justify-center rounded-control bg-danger px-4 text-sm font-semibold text-white disabled:opacity-60"
-              :disabled="deleting"
-              @click="handleDelete"
-            >
-              {{
-                deleting
-                  ? 'Đang xóa...'
-                  : 'Xóa người dùng'
-              }}
-            </button>
-          </div>
-        </section>
-      </div>
-    </Teleport>
+    <ConfirmDialog
+      :open="disableTarget !== null"
+      title="Vô hiệu hóa tài khoản?"
+      :description="
+        disableTarget
+          ? `Tài khoản ${disableTarget.email} sẽ không còn khả năng truy cập hệ thống.`
+          : ''
+      "
+      confirm-text="Vô hiệu hóa"
+      :loading="disabling"
+      :error="disableError"
+      @close="
+        !disabling &&
+          (disableTarget = null)
+      "
+      @confirm="handleDisable"
+    />
   </section>
 </template>
