@@ -67,7 +67,7 @@ public class CourseServiceImpl implements CourseService {
 
         memberRepository.save(owner);
 
-        return withRole(courseMapper.toResponse(savedCourse), CourseMemberRole.OWNER);
+        return courseUtils.withRole(courseMapper.toResponse(savedCourse), CourseMemberRole.OWNER);
     }
 
     public CourseResponse getCourse(
@@ -91,7 +91,7 @@ public class CourseServiceImpl implements CourseService {
         }
 
         CourseMemberRole role = member == null ? null : member.getRole();
-        return withRole(courseMapper.toResponse(course), role);
+        return courseUtils.withRole(courseMapper.toResponse(course), role);
     }
 
     @Override
@@ -102,7 +102,7 @@ public class CourseServiceImpl implements CourseService {
                         CourseMemberStatus.ACTIVE
                 )
                 .stream()
-                .map(member -> withRole(
+                .map(member -> courseUtils.withRole(
                         courseMapper.toResponse(member.getCourse()),
                         member.getRole()
                 ))
@@ -161,7 +161,7 @@ public class CourseServiceImpl implements CourseService {
             course.setTitle(course.getTitle().trim());
         }
 
-        return withRole(
+        return courseUtils.withRole(
                 courseMapper.toResponse(course),
                 member == null ? null : member.getRole()
         );
@@ -185,7 +185,7 @@ public class CourseServiceImpl implements CourseService {
         course.setStatus(CourseStatus.PUBLISHED);
         course.setPublishedAt(Instant.now());
 
-        return withRole(
+        return courseUtils.withRole(
                 courseMapper.toResponse(course),
                 owner == null ? null : owner.getRole()
         );
@@ -199,21 +199,5 @@ public class CourseServiceImpl implements CourseService {
         Course course = courseUtils.requireCourse(courseId);
         courseAccessPolicy.requireOwner(courseId, currentUserId);
         course.setDeletedAt(Instant.now());
-    }
-
-    private CourseResponse withRole(CourseResponse response, CourseMemberRole role) {
-        return new CourseResponse(
-                response.id(),
-                response.title(),
-                response.description(),
-                response.level(),
-                response.visibility(),
-                response.status(),
-                response.createdBy(),
-                response.publishedAt(),
-                response.createdAt(),
-                response.updatedAt(),
-                role
-        );
     }
 }

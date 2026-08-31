@@ -39,11 +39,6 @@ public interface CourseService {
             UUID currentUserId
     );
 
-//    CourseResponse archiveCourse(
-//            UUID courseId,
-//            UUID currentUserId
-//    );
-
     void deleteCourse(
             UUID courseId,
             UUID currentUserId
