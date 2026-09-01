@@ -29,6 +29,7 @@ import com.smartlearning.core.document.repository.DocumentVersionRepository;
 import com.smartlearning.core.document.repository.specification.DocumentSpecifications;
 import com.smartlearning.core.document.service.DocumentDeletionService;
 import com.smartlearning.core.document.service.DocumentService;
+import com.smartlearning.core.document.utils.DocumentUtils;
 import com.smartlearning.storage.config.MinioProperties;
 import com.smartlearning.storage.dto.FileUploadResponse;
 import com.smartlearning.storage.dto.StoredFile;
@@ -64,6 +65,7 @@ public class DocumentServiceImpl implements DocumentService {
     private final CourseTopicRepository topicRepository;
     private final DocumentDeletionEventPublisher documentDeletionEventPublisher;
     private final DocumentDeletionService documentDeletionService;
+    private final DocumentUtils documentUtils;
 
     @Override
     @Transactional(readOnly = true)
@@ -227,14 +229,7 @@ public class DocumentServiceImpl implements DocumentService {
         courseAccessPolicy.requireActiveMember(courseId, currentUserId);
         Document document = requireDocument(courseId, documentId);
 
-        if (document.getVersion() == null) {
-            throw new ApplicationException(
-                    CommonErrorCode.RESOURCE_NOT_FOUND,
-                    "Không tìm thấy phiên bản tài liệu"
-            );
-        }
-
-        return fileStorageService.download(document.getVersion().getStorageKey());
+        return documentUtils.downloadDocument(document);
     }
 
     @Override

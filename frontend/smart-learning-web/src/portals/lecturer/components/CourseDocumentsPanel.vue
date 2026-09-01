@@ -28,14 +28,14 @@ import {
   getDocuments,
   updateDocument,
   uploadDocument,
-  type CourseDocument,
-  type DocumentProcessingStatus,
   type DocumentUpdateInput,
   type DocumentUploadInput,
 } from '../api/documentApi'
 import { useLecturerApiError } from '../composables/useLecturerApiError'
 import DocumentFormModal from './DocumentFormModal.vue'
 import { formatDateTime } from '@/shared/utils/date.ts'
+import type { CourseDocument, DocumentProcessingStatus } from '@/shared/document/types.ts'
+import { documentStatusLabel, formatFileSize } from '@/shared/document/presentation.ts'
 
 const props = withDefaults(
   defineProps<{
@@ -240,24 +240,9 @@ const handleDelete = async (item: CourseDocument) => {
   }
 }
 
-const formatFileSize = (bytes: number) => {
-  if (bytes < 1024) return bytes + ' B'
-  if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB'
-  return (bytes / (1024 * 1024)).toFixed(1) + ' MB'
-}
-
-const statusLabel: Record<DocumentProcessingStatus, string> = {
-  UPLOADED: 'Đã tải lên',
-  QUEUED: 'Đang chờ',
-  PROCESSING: 'Đang lập chỉ mục',
-  INDEXED: 'Sẵn sàng cho AI',
-  FAILED: 'Xử lý thất bại',
-}
-
 const statusClass: Record<DocumentProcessingStatus, string> = {
   UPLOADED: 'bg-amber-50 text-amber-800',
   QUEUED: 'bg-amber-50 text-amber-800',
-  PROCESSING: 'bg-secondary-soft text-secondary',
   INDEXED: 'bg-ai-soft text-ai',
   FAILED: 'bg-danger-soft text-on-danger-soft',
 }
@@ -380,7 +365,7 @@ onBeforeUnmount(clearPollTimer)
                 <CheckCircle2 v-if="item.version.processingStatus === 'INDEXED'" :size="13" />
                 <AlertTriangle v-else-if="item.version.processingStatus === 'FAILED'" :size="13" />
                 <Clock3 v-else :size="13" />
-                {{ statusLabel[item.version.processingStatus] }}
+                {{ documentStatusLabel[item.version.processingStatus] }}
               </span>
             </div>
             <p v-if="item.description" class="mt-2 line-clamp-2 text-sm text-app-text-muted">

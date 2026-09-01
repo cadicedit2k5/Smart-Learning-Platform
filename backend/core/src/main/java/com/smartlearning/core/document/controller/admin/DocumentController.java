@@ -6,11 +6,17 @@ import com.smartlearning.common.entity.Authorities;
 import com.smartlearning.core.document.dto.request.AdminDocumentFilterRequest;
 import com.smartlearning.core.document.dto.response.DocumentResponse;
 import com.smartlearning.core.document.service.DocumentAdminService;
+import com.smartlearning.storage.dto.StoredFile;
 import lombok.RequiredArgsConstructor;
+import org.springframework.core.io.InputStreamResource;
+import org.springframework.http.ContentDisposition;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.nio.charset.StandardCharsets;
 import java.util.UUID;
 
 @RestController
@@ -31,6 +37,28 @@ public class DocumentController {
     public ResponseEntity<ApiResponse<DocumentResponse>> getDocument(
             @PathVariable UUID documentId) {
         return ApiResponses.ok(documentAdminService.handleGetDocumentForAdmin(documentId));
+    }
+
+    @GetMapping("/{documentId}/download")
+    public ResponseEntity<InputStreamResource>
+    downloadDocument(@PathVariable UUID documentId) {
+        StoredFile file = documentAdminService.handleDownloadDocumentForAdmin(documentId);
+
+        MediaType contentType;
+
+        try {
+            contentType = MediaType.parseMediaType(file.contentType());
+        } catch (IllegalArgumentException exception) {
+            contentType = MediaType.APPLICATION_OCTET_STREAM;
+        }
+
+        return ResponseEntity.ok().contentType(contentType)
+            .contentLength(file.size()).header(
+            HttpHeaders.CONTENT_DISPOSITION,
+            ContentDisposition.attachment()
+                    .filename(file.fileName(), StandardCharsets.UTF_8)
+                    .build()
+                    .toString()).body(new InputStreamResource(file.inputStream()));
     }
 
     @DeleteMapping("/{documentId}")

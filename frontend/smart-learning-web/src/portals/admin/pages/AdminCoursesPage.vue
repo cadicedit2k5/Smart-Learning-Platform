@@ -21,6 +21,7 @@ import {
 } from '../api/courseApi'
 import CourseTable from '../components/course/CourseTable.vue'
 import CourseFormModal from '../components/course/CourseFormModal.vue'
+import CourseFilters from '../components/course/CourseFilters.vue'
 
 const coursesPage = ref<CoursesPage>({
   content: [],

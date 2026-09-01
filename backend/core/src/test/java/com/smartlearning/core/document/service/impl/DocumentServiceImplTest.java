@@ -24,6 +24,7 @@ import com.smartlearning.core.document.repository.DocumentProcessingJobRepositor
 import com.smartlearning.core.document.repository.DocumentRepository;
 import com.smartlearning.core.document.repository.DocumentVersionRepository;
 import com.smartlearning.core.document.service.DocumentDeletionService;
+import com.smartlearning.core.document.utils.DocumentUtils;
 import com.smartlearning.storage.config.MinioProperties;
 import com.smartlearning.storage.dto.FileUploadResponse;
 import com.smartlearning.storage.dto.StoredFile;
@@ -102,8 +103,10 @@ class DocumentServiceImplTest {
     private DocumentDeletionEventPublisher documentDeletionEventPublisher;
     @Mock
     private DocumentDeletionService documentDeletionService;
-
+    @Mock
     private DocumentServiceImpl documentService;
+    @Mock
+    private DocumentUtils documentUtils;
 
     @BeforeEach
     void setUp() {
@@ -128,7 +131,8 @@ class DocumentServiceImplTest {
                 chapterRepository,
                 topicRepository,
                 documentDeletionEventPublisher,
-                documentDeletionService
+                documentDeletionService,
+                documentUtils
         );
     }
 

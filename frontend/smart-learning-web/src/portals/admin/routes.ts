@@ -43,6 +43,17 @@ export const adminRoutes: RouteRecordRaw[] = [
       title: 'Quản lý môn học',
     },
   },
+    {
+    path: 'documents',
+    name: 'admin-documents',
+    component: () =>
+      import(
+        './pages/AdminDocumentsPage.vue'
+      ),
+    meta: {
+      title: 'Quản lý tài liệu',
+    },
+  },
   {
     path: 'profile',
     name: 'admin-profile',

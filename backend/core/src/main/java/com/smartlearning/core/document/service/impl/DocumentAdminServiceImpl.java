@@ -9,6 +9,7 @@ import com.smartlearning.core.document.repository.DocumentRepository;
 import com.smartlearning.core.document.service.DocumentAdminService;
 import com.smartlearning.core.document.service.DocumentDeletionService;
 import com.smartlearning.core.document.utils.DocumentUtils;
+import com.smartlearning.storage.dto.StoredFile;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
@@ -41,6 +42,13 @@ public class DocumentAdminServiceImpl implements DocumentAdminService {
         Document document = documentUtils.requireDocument(documentId);
 
         return documentMapper.toResponse(document);
+    }
+
+    @Override
+    public StoredFile handleDownloadDocumentForAdmin(UUID documentId) {
+        Document document = documentUtils.requireDocument(documentId);
+
+        return documentUtils.downloadDocument(document);
     }
 
     @Override
