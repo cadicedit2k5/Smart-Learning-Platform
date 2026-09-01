@@ -19,8 +19,12 @@ import com.smartlearning.core.course.repository.CourseMemberRepository;
 import com.smartlearning.core.course.repository.CourseRepository;
 import com.smartlearning.core.course.sercurity.CourseAccessPolicy;
 import com.smartlearning.core.course.utils.CourseUtils;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InOrder;
 import org.mockito.InjectMocks;
@@ -31,7 +35,9 @@ import org.springframework.data.domain.PageRequest;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Stream;
 
 import static com.smartlearning.core.support.CoreTestData.COURSE_ID;
 import static com.smartlearning.core.support.CoreTestData.OWNER_ID;
@@ -41,7 +47,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.nullable;
 import static org.mockito.Mockito.inOrder;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
@@ -63,6 +71,18 @@ class CourseServiceImplTest {
     @InjectMocks
     private CourseServiceImpl courseService;
 
+    @BeforeEach
+    void mapRoleLikeTheRealUtility() {
+        lenient().when(courseUtils.withRole(
+                        any(CourseResponse.class),
+                        nullable(CourseMemberRole.class)
+                ))
+                .thenAnswer(invocation -> withRole(
+                        invocation.getArgument(0),
+                        invocation.getArgument(1)
+                ));
+    }
+
     @Test
     void createCourse_persistsCourseThenCreatesActiveOwner() {
         CourseCreateRequest request = new CourseCreateRequest(
@@ -72,20 +92,17 @@ class CourseServiceImplTest {
         mappedCourse.setVisibility(null);
         mappedCourse.setStatus(null);
         mappedCourse.setCreatedBy(null);
-        CourseResponse expected = courseResponse(course());
 
         when(courseMapper.toEntity(request)).thenReturn(mappedCourse);
         when(courseRepository.save(mappedCourse)).thenReturn(mappedCourse);
-        when(courseMapper.toResponse(mappedCourse)).thenReturn(expected);
+        when(courseMapper.toResponse(mappedCourse))
+                .thenAnswer(invocation -> courseResponse(mappedCourse));
 
         Instant beforeCall = Instant.now();
         CourseResponse result = courseService.createCourse(request, OWNER_ID);
         Instant afterCall = Instant.now();
 
-        assertThat(result)
-                .usingRecursiveComparison()
-                .ignoringFields("currentUserRole")
-                .isEqualTo(expected);
+        assertThat(result.id()).isEqualTo(COURSE_ID);
         assertThat(result.currentUserRole()).isEqualTo(CourseMemberRole.OWNER);
         assertThat(mappedCourse.getCreatedBy()).isEqualTo(OWNER_ID);
         assertThat(mappedCourse.getStatus()).isEqualTo(CourseStatus.DRAFT);
@@ -105,58 +122,75 @@ class CourseServiceImplTest {
         assertThat(owner.getJoinedAt()).isBetween(beforeCall, afterCall);
     }
 
-    @Test
-    void getCourse_skipsMembershipCheckForPublicCourse() {
+    @ParameterizedTest(name = "public course with membership {0} returns role {1}")
+    @MethodSource("publicMembershipScenarios")
+    void getCourse_publicPublishedCourseUsesOptionalMembership(
+            CourseMemberStatus membershipStatus,
+            CourseMemberRole expectedRole
+    ) {
         Course publicCourse = course();
         publicCourse.setVisibility(CourseVisibility.PUBLIC);
         publicCourse.setStatus(CourseStatus.PUBLISHED);
-        CourseResponse expected = courseResponse(publicCourse);
+        CourseMember membership = membershipStatus == null
+                ? null
+                : com.smartlearning.core.support.CoreTestData.member(
+                        CourseMemberRole.STUDENT,
+                        membershipStatus
+                );
         when(courseUtils.requireCourse(COURSE_ID)).thenReturn(publicCourse);
-        when(courseMapper.toResponse(publicCourse)).thenReturn(expected);
+        when(courseMapper.toResponse(publicCourse)).thenReturn(courseResponse(publicCourse));
+        when(memberRepository.findByCourseIdAndUserId(COURSE_ID, OWNER_ID))
+                .thenReturn(Optional.ofNullable(membership));
 
-        assertThat(courseService.getCourse(COURSE_ID, OWNER_ID)).isEqualTo(expected);
+        CourseResponse result = courseService.getCourse(COURSE_ID, OWNER_ID);
+
+        assertThat(result.currentUserRole()).isEqualTo(expectedRole);
 
         verifyNoInteractions(courseAccessPolicy);
         verify(memberRepository).findByCourseIdAndUserId(COURSE_ID, OWNER_ID);
     }
 
-    @Test
-    void getCourse_requiresActiveMembershipForInviteOnlyOrUnpublishedCourse() {
-        Course inviteOnlyCourse = course();
-        CourseResponse expected = courseResponse(inviteOnlyCourse);
+    static Stream<Arguments> publicMembershipScenarios() {
+        return Stream.of(
+                Arguments.of(null, null),
+                Arguments.of(CourseMemberStatus.ACTIVE, CourseMemberRole.STUDENT),
+                Arguments.of(CourseMemberStatus.PENDING, null)
+        );
+    }
+
+    @ParameterizedTest(name = "{0}/{1} requires an active member")
+    @MethodSource("restrictedCourseScenarios")
+    void getCourse_nonPublicOrUnpublishedCourseRequiresActiveMembership(
+            CourseVisibility visibility,
+            CourseStatus status
+    ) {
+        Course restrictedCourse = course();
+        restrictedCourse.setVisibility(visibility);
+        restrictedCourse.setStatus(status);
         CourseMember activeOwner = com.smartlearning.core.support.CoreTestData.member(
                 CourseMemberRole.OWNER,
                 CourseMemberStatus.ACTIVE
         );
-        when(courseUtils.requireCourse(COURSE_ID)).thenReturn(inviteOnlyCourse);
+        when(courseUtils.requireCourse(COURSE_ID)).thenReturn(restrictedCourse);
         when(courseAccessPolicy.requireActiveMember(COURSE_ID, OWNER_ID)).thenReturn(activeOwner);
-        when(courseMapper.toResponse(inviteOnlyCourse)).thenReturn(expected);
+        when(courseMapper.toResponse(restrictedCourse)).thenReturn(courseResponse(restrictedCourse));
 
         CourseResponse result = courseService.getCourse(COURSE_ID, OWNER_ID);
+
         assertThat(result.currentUserRole()).isEqualTo(CourseMemberRole.OWNER);
 
         InOrder order = inOrder(courseUtils, courseAccessPolicy, courseMapper);
         order.verify(courseUtils).requireCourse(COURSE_ID);
         order.verify(courseAccessPolicy).requireActiveMember(COURSE_ID, OWNER_ID);
-        order.verify(courseMapper).toResponse(inviteOnlyCourse);
+        order.verify(courseMapper).toResponse(restrictedCourse);
     }
 
-    @Test
-    void getCourse_requiresMembershipForPublicDraft() {
-        Course publicDraft = course();
-        publicDraft.setVisibility(CourseVisibility.PUBLIC);
-        CourseMember activeOwner = com.smartlearning.core.support.CoreTestData.member(
-                CourseMemberRole.OWNER,
-                CourseMemberStatus.ACTIVE
+    static Stream<Arguments> restrictedCourseScenarios() {
+        return Stream.of(
+                Arguments.of(CourseVisibility.INVITE_ONLY, CourseStatus.DRAFT),
+                Arguments.of(CourseVisibility.INVITE_ONLY, CourseStatus.PUBLISHED),
+                Arguments.of(CourseVisibility.PUBLIC, CourseStatus.DRAFT)
         );
-        when(courseUtils.requireCourse(COURSE_ID)).thenReturn(publicDraft);
-        when(courseAccessPolicy.requireActiveMember(COURSE_ID, OWNER_ID)).thenReturn(activeOwner);
-        when(courseMapper.toResponse(publicDraft)).thenReturn(courseResponse(publicDraft));
-
-        assertThat(courseService.getCourse(COURSE_ID, OWNER_ID).currentUserRole())
-                .isEqualTo(CourseMemberRole.OWNER);
-
-        verify(courseAccessPolicy).requireActiveMember(COURSE_ID, OWNER_ID);
     }
 
     @Test
@@ -237,17 +271,25 @@ class CourseServiceImplTest {
                 "  Updated title  ", null, null, CourseVisibility.PUBLIC
         );
         Course existing = course();
-        CourseResponse expected = courseResponse(existing);
         when(courseUtils.requireCourse(COURSE_ID)).thenReturn(existing);
+        when(courseAccessPolicy.requireOwner(COURSE_ID, OWNER_ID)).thenReturn(
+                com.smartlearning.core.support.CoreTestData.member(
+                        CourseMemberRole.OWNER,
+                        CourseMemberStatus.ACTIVE
+                )
+        );
         org.mockito.Mockito.doAnswer(invocation -> {
             existing.setTitle(request.title());
             existing.setVisibility(request.visibility());
             return null;
         }).when(courseMapper).partialUpdate(request, existing);
-        when(courseMapper.toResponse(existing)).thenReturn(expected);
+        when(courseMapper.toResponse(existing))
+                .thenAnswer(invocation -> courseResponse(existing));
 
-        assertThat(courseService.updateCourse(COURSE_ID, request, OWNER_ID)).isEqualTo(expected);
+        CourseResponse result = courseService.updateCourse(COURSE_ID, request, OWNER_ID);
 
+        assertThat(result.title()).isEqualTo("Updated title");
+        assertThat(result.currentUserRole()).isEqualTo(CourseMemberRole.OWNER);
         assertThat(existing.getTitle()).isEqualTo("Updated title");
         assertThat(existing.getVisibility()).isEqualTo(CourseVisibility.PUBLIC);
         InOrder order = inOrder(courseUtils, courseMapper);
@@ -260,14 +302,22 @@ class CourseServiceImplTest {
     @Test
     void publishCourse_marksDraftAsPublished() {
         Course existing = course();
-        CourseResponse expected = courseResponse(existing);
         when(courseUtils.requireCourse(COURSE_ID)).thenReturn(existing);
-        when(courseMapper.toResponse(existing)).thenReturn(expected);
+        when(courseAccessPolicy.requireOwner(COURSE_ID, OWNER_ID)).thenReturn(
+                com.smartlearning.core.support.CoreTestData.member(
+                        CourseMemberRole.OWNER,
+                        CourseMemberStatus.ACTIVE
+                )
+        );
+        when(courseMapper.toResponse(existing))
+                .thenAnswer(invocation -> courseResponse(existing));
 
         Instant beforeCall = Instant.now();
-        assertThat(courseService.publishCourse(COURSE_ID, OWNER_ID)).isEqualTo(expected);
+        CourseResponse result = courseService.publishCourse(COURSE_ID, OWNER_ID);
         Instant afterCall = Instant.now();
 
+        assertThat(result.status()).isEqualTo(CourseStatus.PUBLISHED);
+        assertThat(result.currentUserRole()).isEqualTo(CourseMemberRole.OWNER);
         assertThat(existing.getStatus()).isEqualTo(CourseStatus.PUBLISHED);
         assertThat(existing.getPublishedAt()).isBetween(beforeCall, afterCall);
         verify(courseRepository, never()).save(any());
@@ -305,5 +355,13 @@ class CourseServiceImplTest {
                 .isInstanceOf(ApplicationException.class)
                 .extracting(exception -> ((ApplicationException) exception).getErrorCode())
                 .isEqualTo(expectedCode);
+    }
+
+    private static CourseResponse withRole(CourseResponse response, CourseMemberRole role) {
+        return new CourseResponse(
+                response.id(), response.title(), response.description(), response.level(),
+                response.visibility(), response.status(), response.createdBy(), response.publishedAt(),
+                response.createdAt(), response.updatedAt(), role
+        );
     }
 }

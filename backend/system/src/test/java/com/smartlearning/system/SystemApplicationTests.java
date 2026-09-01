@@ -1,12 +1,9 @@
 package com.smartlearning.system;
 
+import com.smartlearning.system.support.SystemIntegrationTest;
 import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.ActiveProfiles;
 
-@SpringBootTest
-@ActiveProfiles("test")
-class SystemApplicationTests {
+class SystemApplicationTests extends SystemIntegrationTest {
 
     @Test
     void contextLoads() {

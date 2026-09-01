@@ -3,6 +3,7 @@ package com.smartlearning.core.course.service.impl;
 import com.smartlearning.common.error.ApplicationException;
 import com.smartlearning.common.error.CommonErrorCode;
 import com.smartlearning.core.course.dto.request.CourseMemberCreateRequest;
+import com.smartlearning.core.course.dto.response.CourseMemberDetailResponse;
 import com.smartlearning.core.course.dto.response.CourseMemberResponse;
 import com.smartlearning.core.course.entity.Course;
 import com.smartlearning.core.course.entity.CourseMember;
@@ -14,8 +15,14 @@ import com.smartlearning.core.course.mapper.CourseMemberMapper;
 import com.smartlearning.core.course.repository.CourseMemberRepository;
 import com.smartlearning.core.course.sercurity.CourseAccessPolicy;
 import com.smartlearning.core.course.utils.CourseUtils;
+import com.smartlearning.core.infrastructure.dto.SystemUserResponse;
+import com.smartlearning.core.infrastructure.http.SystemClient;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.EnumSource;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -24,6 +31,7 @@ import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Stream;
 
 import static com.smartlearning.core.support.CoreTestData.COURSE_ID;
 import static com.smartlearning.core.support.CoreTestData.MEMBER_ID;
@@ -50,6 +58,8 @@ class CourseMemberServiceImplTest {
     private CourseUtils courseUtils;
     @Mock
     private CourseAccessPolicy courseAccessPolicy;
+    @Mock
+    private SystemClient systemClient;
     @InjectMocks
     private CourseMemberServiceImpl memberService;
 
@@ -93,22 +103,16 @@ class CourseMemberServiceImplTest {
         assertThat(result.invitedBy()).isEqualTo(OWNER_ID);
     }
 
-    @Test
-    void addMember_rejectsDraftAndPublicCourses() {
-        Course draftCourse = course();
-        when(courseUtils.requireCourse(COURSE_ID)).thenReturn(draftCourse);
-
-        assertError(
-                () -> memberService.addMember(
-                        COURSE_ID,
-                        new CourseMemberCreateRequest(STUDENT_ID),
-                        OWNER_ID
-                ),
-                CommonErrorCode.DATA_CONFLICT
-        );
-
-        Course publicCourse = publishedCourse(CourseVisibility.PUBLIC);
-        when(courseUtils.requireCourse(COURSE_ID)).thenReturn(publicCourse);
+    @ParameterizedTest(name = "rejects invitation for {0}/{1} course")
+    @MethodSource("nonInvitableCourses")
+    void addMember_rejectsCoursesThatCannotAcceptInvitations(
+            CourseStatus status,
+            CourseVisibility visibility
+    ) {
+        Course nonInvitableCourse = course();
+        nonInvitableCourse.setStatus(status);
+        nonInvitableCourse.setVisibility(visibility);
+        when(courseUtils.requireCourse(COURSE_ID)).thenReturn(nonInvitableCourse);
 
         assertError(
                 () -> memberService.addMember(
@@ -120,6 +124,13 @@ class CourseMemberServiceImplTest {
         );
 
         verify(memberRepository, never()).save(any());
+    }
+
+    static Stream<Arguments> nonInvitableCourses() {
+        return Stream.of(
+                Arguments.of(CourseStatus.DRAFT, CourseVisibility.INVITE_ONLY),
+                Arguments.of(CourseStatus.PUBLISHED, CourseVisibility.PUBLIC)
+        );
     }
 
     @Test
@@ -157,31 +168,40 @@ class CourseMemberServiceImplTest {
         assertThat(result.joinedAt()).isNull();
     }
 
-    @Test
-    void requestToJoin_rejectsDraftInviteOnlyActiveAndDuplicatePendingCases() {
-        Course draftCourse = course();
-        when(courseUtils.requireCourse(COURSE_ID)).thenReturn(draftCourse);
+    @ParameterizedTest(name = "rejects join request for {0}/{1} course")
+    @MethodSource("coursesClosedForJoinRequests")
+    void requestToJoin_rejectsCoursesClosedForPublicRequests(
+            CourseStatus status,
+            CourseVisibility visibility
+    ) {
+        Course closedCourse = course();
+        closedCourse.setStatus(status);
+        closedCourse.setVisibility(visibility);
+        when(courseUtils.requireCourse(COURSE_ID)).thenReturn(closedCourse);
+
         assertError(
                 () -> memberService.requestToJoin(COURSE_ID, STUDENT_ID),
                 CommonErrorCode.DATA_CONFLICT
         );
 
-        Course inviteOnlyCourse = publishedCourse(CourseVisibility.INVITE_ONLY);
-        when(courseUtils.requireCourse(COURSE_ID)).thenReturn(inviteOnlyCourse);
-        assertError(
-                () -> memberService.requestToJoin(COURSE_ID, STUDENT_ID),
-                CommonErrorCode.DATA_CONFLICT
-        );
+        verify(memberRepository, never()).save(any());
+    }
 
+    static Stream<Arguments> coursesClosedForJoinRequests() {
+        return Stream.of(
+                Arguments.of(CourseStatus.DRAFT, CourseVisibility.PUBLIC),
+                Arguments.of(CourseStatus.PUBLISHED, CourseVisibility.INVITE_ONLY)
+        );
+    }
+
+    @ParameterizedTest(name = "rejects duplicate membership with status {0}")
+    @EnumSource(value = CourseMemberStatus.class, names = {"ACTIVE", "PENDING"})
+    void requestToJoin_rejectsActiveOrPendingMembership(CourseMemberStatus status) {
         Course publicCourse = publishedCourse(CourseVisibility.PUBLIC);
         when(courseUtils.requireCourse(COURSE_ID)).thenReturn(publicCourse);
         when(memberRepository.findByCourseIdAndUserId(COURSE_ID, STUDENT_ID))
-                .thenReturn(Optional.of(member(CourseMemberRole.STUDENT, CourseMemberStatus.ACTIVE)))
-                .thenReturn(Optional.of(member(CourseMemberRole.STUDENT, CourseMemberStatus.PENDING)));
-        assertError(
-                () -> memberService.requestToJoin(COURSE_ID, STUDENT_ID),
-                CommonErrorCode.DATA_CONFLICT
-        );
+                .thenReturn(Optional.of(member(CourseMemberRole.STUDENT, status)));
+
         assertError(
                 () -> memberService.requestToJoin(COURSE_ID, STUDENT_ID),
                 CommonErrorCode.DATA_CONFLICT
@@ -191,17 +211,32 @@ class CourseMemberServiceImplTest {
     }
 
     @Test
-    void getJoinRequests_returnsOnlyPendingRequests() {
+    void getJoinRequests_enrichesPendingRequestsWithSystemUsers() {
         CourseMember pending = member(CourseMemberRole.STUDENT, CourseMemberStatus.PENDING);
-        CourseMemberResponse response = memberResponse(pending);
+        SystemUserResponse user = new SystemUserResponse(
+                STUDENT_ID,
+                "student@example.com",
+                "Student"
+        );
+        when(courseUtils.requireCourse(COURSE_ID)).thenReturn(course());
         when(memberRepository.findAllByCourseIdAndStatus(COURSE_ID, CourseMemberStatus.PENDING))
                 .thenReturn(List.of(pending));
-        when(memberMapper.toResponse(pending)).thenReturn(response);
+        when(systemClient.lookupUsers(List.of(STUDENT_ID), "access-token"))
+                .thenReturn(List.of(user));
 
-//        assertThat(memberService.getJoinRequests(COURSE_ID, OWNER_ID))
-//                .containsExactly(response);
+        List<CourseMemberDetailResponse> result = memberService.getJoinRequests(
+                COURSE_ID,
+                OWNER_ID,
+                "access-token"
+        );
 
+        assertThat(result).singleElement().satisfies(detail -> {
+            assertThat(detail.status()).isEqualTo(CourseMemberStatus.PENDING);
+            assertThat(detail.user().email()).isEqualTo("student@example.com");
+            assertThat(detail.user().fullName()).isEqualTo("Student");
+        });
         verify(courseAccessPolicy).requireOwner(COURSE_ID, OWNER_ID);
+        verify(systemClient).lookupUsers(List.of(STUDENT_ID), "access-token");
     }
 
     @Test

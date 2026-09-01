@@ -10,37 +10,45 @@ import com.smartlearning.core.course.entity.CourseChapter;
 import com.smartlearning.core.course.entity.CourseTopic;
 import com.smartlearning.core.course.mapper.CourseChapterMapper;
 import com.smartlearning.core.course.mapper.CourseTopicMapper;
+import com.smartlearning.core.course.messaging.event.TopicKnowledgeIndexRequestedEvent;
+import com.smartlearning.core.course.messaging.event.TopicKnowledgeOperation;
 import com.smartlearning.core.course.repository.CourseChapterRepository;
 import com.smartlearning.core.course.repository.CourseTopicRepository;
 import com.smartlearning.core.course.sercurity.CourseAccessPolicy;
 import com.smartlearning.core.course.utils.CourseUtils;
+import com.smartlearning.core.document.service.DocumentDeletionService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.context.ApplicationEventPublisher;
 
-import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import static com.smartlearning.core.support.CoreTestData.CHAPTER_ID;
 import static com.smartlearning.core.support.CoreTestData.COURSE_ID;
 import static com.smartlearning.core.support.CoreTestData.OWNER_ID;
 import static com.smartlearning.core.support.CoreTestData.STUDENT_ID;
+import static com.smartlearning.core.support.CoreTestData.TOPIC_ID;
+import static com.smartlearning.core.support.CoreTestData.chapter;
+import static com.smartlearning.core.support.CoreTestData.chapterResponse;
 import static com.smartlearning.core.support.CoreTestData.course;
+import static com.smartlearning.core.support.CoreTestData.topic;
+import static com.smartlearning.core.support.CoreTestData.topicResponse;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class CourseContentServiceImplTest {
-
-    private static final UUID CHAPTER_ID = UUID.fromString("90000000-0000-0000-0000-000000000001");
-    private static final UUID TOPIC_ID = UUID.fromString("91000000-0000-0000-0000-000000000001");
 
     @Mock
     private CourseUtils courseUtils;
@@ -54,6 +62,10 @@ class CourseContentServiceImplTest {
     private CourseChapterMapper chapterMapper;
     @Mock
     private CourseTopicMapper topicMapper;
+    @Mock
+    private DocumentDeletionService documentDeletionService;
+    @Mock
+    private ApplicationEventPublisher eventPublisher;
     @InjectMocks
     private CourseContentServiceImpl contentService;
 
@@ -172,10 +184,18 @@ class CourseContentServiceImplTest {
         assertThat(result.orderIndex()).isZero();
         assertThat(result.chapterId()).isEqualTo(CHAPTER_ID);
         assertThat(result.title()).isEqualTo("Chủ đề 1");
+        ArgumentCaptor<Object> eventCaptor = ArgumentCaptor.forClass(Object.class);
+        verify(eventPublisher).publishEvent(eventCaptor.capture());
+        TopicKnowledgeIndexRequestedEvent knowledgeEvent =
+                (TopicKnowledgeIndexRequestedEvent) eventCaptor.getValue();
+        assertThat(knowledgeEvent.courseId()).isEqualTo(COURSE_ID);
+        assertThat(knowledgeEvent.chapterId()).isEqualTo(CHAPTER_ID);
+        assertThat(knowledgeEvent.topicId()).isEqualTo(TOPIC_ID);
+        assertThat(knowledgeEvent.operation()).isEqualTo(TopicKnowledgeOperation.UPSERT);
     }
 
     @Test
-    void deleteChapter_softDeletesChapterAndItsTopics() {
+    void deleteChapter_cleansDocumentsAndPublishesTopicDeletionEvents() {
         CourseChapter chapter = chapter();
         CourseTopic first = topic(chapter);
         CourseTopic second = topic(chapter);
@@ -183,61 +203,21 @@ class CourseContentServiceImplTest {
         when(courseUtils.requireCourse(COURSE_ID)).thenReturn(course());
         when(chapterRepository.findByIdAndCourseIdAndDeletedAtIsNull(CHAPTER_ID, COURSE_ID))
                 .thenReturn(Optional.of(chapter));
-        when(topicRepository.findAllByChapterIdAndDeletedAtIsNullOrderByOrderIndexAsc(CHAPTER_ID))
+        when(topicRepository.findAllByChapterIdOrderByOrderIndexAsc(CHAPTER_ID))
                 .thenReturn(List.of(first, second));
 
-        Instant beforeCall = Instant.now();
         contentService.deleteChapter(COURSE_ID, CHAPTER_ID, OWNER_ID);
-        Instant afterCall = Instant.now();
 
-        assertThat(chapter.getDeletedAt()).isBetween(beforeCall, afterCall);
-        assertThat(List.of(first, second))
-                .allSatisfy(topic -> assertThat(topic.getDeletedAt()).isEqualTo(chapter.getDeletedAt()));
-    }
+        assertThat(chapter.getDeletedAt()).isNotNull();
+        verify(documentDeletionService).deleteByScope(COURSE_ID, CHAPTER_ID, null);
+        verify(topicRepository).deleteAll(List.of(first, second));
+        verify(chapterRepository).delete(chapter);
 
-    private static CourseChapter chapter() {
-        CourseChapter chapter = new CourseChapter();
-        chapter.setId(CHAPTER_ID);
-        chapter.setCourse(course());
-        chapter.setTitle("Chương 1");
-        chapter.setOrderIndex(0);
-        return chapter;
-    }
-
-    private static CourseTopic topic(CourseChapter chapter) {
-        CourseTopic topic = new CourseTopic();
-        topic.setId(TOPIC_ID);
-        topic.setChapter(chapter);
-        topic.setTitle("Chủ đề 1");
-        topic.setOrderIndex(0);
-        return topic;
-    }
-
-    private static CourseChapterResponse chapterResponse(CourseChapter chapter) {
-        return new CourseChapterResponse(
-                chapter.getId(),
-                chapter.getCourse().getId(),
-                chapter.getTitle(),
-                chapter.getDescription(),
-                chapter.getLearningObjectives(),
-                chapter.getOrderIndex(),
-                chapter.getCreatedAt(),
-                chapter.getUpdatedAt()
-        );
-    }
-
-    private static CourseTopicResponse topicResponse(CourseTopic topic) {
-        return new CourseTopicResponse(
-                topic.getId(),
-                topic.getChapter().getCourse().getId(),
-                topic.getChapter().getId(),
-                topic.getTitle(),
-                topic.getDescription(),
-                topic.getOrderIndex(),
-                topic.getEstimatedMinutes(),
-                topic.getContent(),
-                topic.getCreatedAt(),
-                topic.getUpdatedAt()
-        );
+        ArgumentCaptor<Object> events = ArgumentCaptor.forClass(Object.class);
+        verify(eventPublisher, times(2)).publishEvent(events.capture());
+        assertThat(events.getAllValues())
+                .allSatisfy(event -> assertThat(
+                        ((TopicKnowledgeIndexRequestedEvent) event).operation()
+                ).isEqualTo(TopicKnowledgeOperation.DELETE));
     }
 }

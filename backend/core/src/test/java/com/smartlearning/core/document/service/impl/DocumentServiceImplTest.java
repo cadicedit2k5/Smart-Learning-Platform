@@ -103,7 +103,6 @@ class DocumentServiceImplTest {
     private DocumentDeletionEventPublisher documentDeletionEventPublisher;
     @Mock
     private DocumentDeletionService documentDeletionService;
-    @Mock
     private DocumentServiceImpl documentService;
     @Mock
     private DocumentUtils documentUtils;
@@ -366,26 +365,23 @@ class DocumentServiceImplTest {
         when(courseUtils.requireCourse(COURSE_ID)).thenReturn(course());
         when(documentRepository.findByIdAndCourseIdAndDeletedAtIsNull(DOCUMENT_ID, COURSE_ID))
                 .thenReturn(Optional.of(existing));
-        when(fileStorageService.download(version.getStorageKey())).thenReturn(expected);
+        when(documentUtils.downloadDocument(existing)).thenReturn(expected);
 
         assertThat(documentService.handleDownloadDocument(COURSE_ID, DOCUMENT_ID, OWNER_ID))
                 .isSameAs(expected);
         verify(courseAccessPolicy).requireActiveMember(COURSE_ID, OWNER_ID);
+        verify(documentUtils).downloadDocument(existing);
     }
 
     @Test
-    void handleDeleteDocument_softDeletesAndArchivesDocument() {
-        Document existing = document();
+    void handleDeleteDocument_delegatesToTransactionalDeletionService() {
         when(courseUtils.requireCourse(COURSE_ID)).thenReturn(course());
-        when(documentRepository.findByIdAndCourseIdAndDeletedAtIsNull(DOCUMENT_ID, COURSE_ID))
-                .thenReturn(Optional.of(existing));
 
-        Instant beforeCall = Instant.now();
         documentService.handleDeleteDocument(COURSE_ID, DOCUMENT_ID, OWNER_ID);
-        Instant afterCall = Instant.now();
 
-        assertThat(existing.getDeletedAt()).isBetween(beforeCall, afterCall);
         verify(courseAccessPolicy).requireOwner(COURSE_ID, OWNER_ID);
+        verify(documentDeletionService).deleteDocument(COURSE_ID, DOCUMENT_ID);
+        verify(documentRepository, never()).delete(any(Document.class));
     }
 
     private void executeTransactionCallback() {
