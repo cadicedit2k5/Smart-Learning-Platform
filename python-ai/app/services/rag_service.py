@@ -9,10 +9,7 @@ from app.services.chat_history import to_langchain_messages
 from app.services.rag_context import build_rag_context
 from app.services.retrieval_service import RetrievalService
 
-import logging
-import time
 
-logger = logging.getLogger(__name__)
 
 class RagService:
     def __init__(self, *, retrieval_service: RetrievalService, chat_model: BaseChatModel):
@@ -26,37 +23,14 @@ class RagService:
             raise ValueError("Vui lòng cung cấp câu hỏi")
 
         retrieval_query = self._build_retrieval_query(history=history, question=question)
-        start = time.perf_counter()
-        logger.info("RAG started: course_id=%s", course_id)
         retrieval_chunks = await self._retrieval_service.retrieve(course_id=course_id, question=retrieval_query)
 
-        logger.info(
-            "Retrieval completed: chunks=%d elapsed=%.2fs",
-            len(retrieval_chunks),
-            time.perf_counter() - start,
-        )
-        if not retrieval_chunks:
-            search_scope = (
-                "trong tài liệu của khóa học."
-                if course_id is not None
-                else "trong kho tài liệu."
-            )
-            return RagAnswer(
-                answer=f"Không tìm thấy thông tin phù hợp {search_scope}",
-                citations=[],
-            )
         langchain_history = to_langchain_messages(history=history)
         rag_context = build_rag_context(chunks=retrieval_chunks)
         messages = RAG_PROMPT.format_messages(question=question, history=langchain_history, context=rag_context.text)
-        logger.info(
-            "LLM request started: elapsed=%.2fs",
-            time.perf_counter() - start,
-        )
+
         raw_output = await self._structured_model.ainvoke(messages)
-        logger.info(
-            "LLM request completed: elapsed=%.2fs",
-            time.perf_counter() - start,
-        )
+
         if isinstance(raw_output, RagOutputModel):
             model_output = raw_output
         else:
