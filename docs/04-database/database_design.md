@@ -399,7 +399,7 @@ Bảng này thay cho mô hình ghi danh nặng kiểu LMS. Một người dùng 
 
 | Trường | Giá trị |
 | --- | --- |
-| role_in_course | OWNER, LECTURER, ASSISTANT, STUDENT |
+| role_in_course | OWNER, STUDENT |
 | status | PENDING, ACTIVE, REJECTED, REMOVED |
 
 #### Quan hệ
@@ -1145,7 +1145,7 @@ User 1 --- N CourseMember theo logic
 Ý nghĩa:
 
 Sinh viên phải là thành viên môn học mới được chat AI trong môn đó.
-Giảng viên phải là thành viên có vai trò OWNER hoặc LECTURER mới được upload tài liệu.
+Giảng viên phải là OWNER của môn học mới được upload tài liệu.
 Admin có quyền quản trị hệ thống nhưng không nhất thiết là thành viên của từng môn học.
 ### 8.3. Course Outline
 Course 1 --- N CourseChapter
@@ -1261,7 +1261,7 @@ Dữ liệu liên quan:
 ### 10.1. Ràng buộc phân quyền
 Người dùng phải đăng nhập mới dùng chức năng học tập.
 Sinh viên phải tham gia môn học mới được chat AI trong môn đó.
-Giảng viên phải là OWNER hoặc LECTURER của môn học mới được upload tài liệu.
+Giảng viên phải là OWNER của môn học mới được upload tài liệu.
 Admin có quyền quản trị theo permission.
 ### 10.2. Ràng buộc tài liệu
 File tài liệu không lưu trực tiếp trong PostgreSQL.

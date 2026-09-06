@@ -1,0 +1,104 @@
+name: Backend Tests
+
+on:
+  push:
+    paths:
+      - "backend/**"
+      - ".github/workflows/backend-tests.yml"
+  pull_request:
+    paths:
+      - "backend/**"
+      - ".github/workflows/backend-tests.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: backend-tests-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  core-tests:
+    name: Core module tests (Java 21)
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    defaults:
+      run:
+        working-directory: backend
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Set up Java 21
+        uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: "21"
+          cache: maven
+          cache-dependency-path: |
+            backend/pom.xml
+            backend/**/pom.xml
+
+      - name: Make Maven Wrapper executable
+        run: chmod +x mvnw
+
+      - name: Run core tests
+        run: >
+          ./mvnw -B -ntp -pl core -am
+          "-Dtest=com.smartlearning.core.**.*Test*"
+          "-Dsurefire.failIfNoSpecifiedTests=false"
+          test
+
+      - name: Upload Surefire reports
+        if: always()
+        uses: actions/upload-artifact@v5
+        with:
+          name: core-test-reports-${{ github.run_attempt }}
+          path: backend/core/target/surefire-reports/
+          if-no-files-found: warn
+          retention-days: 7
+
+  system-tests:
+    name: System module tests (Java 21)
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    defaults:
+      run:
+        working-directory: backend
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Set up Java 21
+        uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: "21"
+          cache: maven
+          cache-dependency-path: |
+            backend/pom.xml
+            backend/**/pom.xml
+
+      - name: Make Maven Wrapper executable
+        run: chmod +x mvnw
+
+      - name: Run system tests
+        run: >
+          ./mvnw -B -ntp -pl system -am
+          "-Dtest=com.smartlearning.system.**.*Test*"
+          "-Dsurefire.failIfNoSpecifiedTests=false"
+          test
+
+      - name: Upload Surefire reports
+        if: always()
+        uses: actions/upload-artifact@v5
+        with:
+          name: system-test-reports-${{ github.run_attempt }}
+          path: backend/system/target/surefire-reports/
+          if-no-files-found: warn
+          retention-days: 7

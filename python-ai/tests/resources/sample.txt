@@ -1,0 +1,3 @@
+Dependency Injection là một kỹ thuật giúp giảm sự phụ thuộc giữa các thành phần phần mềm.
+
+Spring Framework sử dụng IoC Container để quản lý dependency.

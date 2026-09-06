@@ -1,0 +1,46 @@
+api:
+  version: v1
+
+spring:
+  application:
+    name: core-test
+  datasource:
+    url: "jdbc:h2:mem:core_test;MODE=PostgreSQL;DATABASE_TO_LOWER=TRUE;DEFAULT_NULL_ORDERING=HIGH;DB_CLOSE_DELAY=-1;INIT=CREATE SCHEMA IF NOT EXISTS core"
+    username: sa
+    password: ""
+    driver-class-name: org.h2.Driver
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    open-in-view: false
+    properties:
+      hibernate:
+        default_schema: core
+    show-sql: false
+  kafka:
+    bootstrap-servers: localhost:1
+    listener:
+      auto-startup: false
+    admin:
+      auto-create: false
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          public-key-location: classpath:keys/core-test-public-key.pem
+
+app:
+  services:
+    system:
+      base-url: http://localhost:8081/api/v1
+  storage:
+    minio:
+      endpoint: http://localhost:9000
+      access-key: test-access-key
+      secret-key: test-secret-key
+      bucket: smart-learning-test
+      presigned-url-expiry: 15m
+  kafka:
+    topic:
+      partitions: 1
+      replication-factor: 1
