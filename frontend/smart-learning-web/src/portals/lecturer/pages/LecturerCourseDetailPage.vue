@@ -284,11 +284,6 @@ onMounted(() => {
               <dt class="text-app-text-muted">Ngày xuất bản</dt>
               <dd class="font-semibold text-app-text">{{ formatDateTime(course.publishedAt) }}</dd>
             </div>
-
-            <div class="grid grid-cols-[11rem_1fr] gap-4 py-4">
-              <dt class="text-app-text-muted">Cập nhật gần nhất</dt>
-              <dd class="font-semibold text-app-text">{{ formatDateTime(course.updatedAt) }}</dd>
-            </div>
           </dl>
         </section>
       </div>

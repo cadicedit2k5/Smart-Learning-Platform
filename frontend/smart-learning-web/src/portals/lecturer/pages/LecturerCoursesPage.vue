@@ -113,9 +113,7 @@ onMounted(() => {
 <template>
   <section class="mx-auto max-w-app space-y-6">
     <BasePageHeader
-      eyebrow="Không gian giảng dạy"
       title="Khóa học của tôi"
-      description="Xây dựng nội dung, quản lý quyền truy cập và khai thác trợ lý AI cho từng khóa học."
     >
       <template #actions>
         <BaseButton @click="openCreate">

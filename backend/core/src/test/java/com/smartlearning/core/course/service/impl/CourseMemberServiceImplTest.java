@@ -63,11 +63,12 @@ class CourseMemberServiceImplTest {
     @InjectMocks
     private CourseMemberServiceImpl memberService;
 
-    @Test
-    void addMember_invitesStudentIntoPublishedInviteOnlyCourse() {
-        Course inviteOnlyCourse = publishedCourse(CourseVisibility.INVITE_ONLY);
+    @ParameterizedTest(name = "invites student into published {0} course")
+    @EnumSource(CourseVisibility.class)
+    void addMember_invitesStudentIntoPublishedCourse(CourseVisibility visibility) {
+        Course publishedCourse = publishedCourse(visibility);
         CourseMemberCreateRequest request = new CourseMemberCreateRequest(STUDENT_ID);
-        when(courseUtils.requireCourse(COURSE_ID)).thenReturn(inviteOnlyCourse);
+        when(courseUtils.requireCourse(COURSE_ID)).thenReturn(publishedCourse);
         when(memberRepository.findByCourseIdAndUserId(COURSE_ID, STUDENT_ID))
                 .thenReturn(Optional.empty());
         stubSavedResponse();
@@ -80,6 +81,7 @@ class CourseMemberServiceImplTest {
         assertThat(result.role()).isEqualTo(CourseMemberRole.STUDENT);
         assertThat(result.invitedBy()).isEqualTo(OWNER_ID);
         assertThat(result.joinedAt()).isBetween(beforeCall, afterCall);
+        verify(courseAccessPolicy).requireOwner(COURSE_ID, OWNER_ID);
     }
 
     @Test
@@ -129,7 +131,9 @@ class CourseMemberServiceImplTest {
     static Stream<Arguments> nonInvitableCourses() {
         return Stream.of(
                 Arguments.of(CourseStatus.DRAFT, CourseVisibility.INVITE_ONLY),
-                Arguments.of(CourseStatus.PUBLISHED, CourseVisibility.PUBLIC)
+                Arguments.of(CourseStatus.DRAFT, CourseVisibility.PUBLIC),
+                Arguments.of(CourseStatus.ARCHIVED, CourseVisibility.INVITE_ONLY),
+                Arguments.of(CourseStatus.ARCHIVED, CourseVisibility.PUBLIC)
         );
     }
 

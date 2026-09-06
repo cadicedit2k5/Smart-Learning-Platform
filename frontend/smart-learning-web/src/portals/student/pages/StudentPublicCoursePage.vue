@@ -99,9 +99,7 @@ onMounted(() => void loadCourses())
 <template>
   <section class="mx-auto max-w-app space-y-6">
     <BasePageHeader
-      eyebrow="Khám phá"
       title="Khóa học công khai"
-      description="Khám phá các khóa học công khai và gửi yêu cầu tham gia. Bạn có thể truy cập khóa học sau khi được giảng viên chấp nhận."
     />
 
     <BaseAlert

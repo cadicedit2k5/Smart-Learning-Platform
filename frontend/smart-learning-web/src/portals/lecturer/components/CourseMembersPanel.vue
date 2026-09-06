@@ -40,7 +40,7 @@ const results = ref<PaginatedData<UserLookup>>({
 })
 
 const canInviteStudent = computed(() =>
-    props.visibility === 'INVITE_ONLY' && props.status === 'PUBLISHED'
+    props.status === 'PUBLISHED'
 )
 const memberUserIds = computed(() => new Set(members.value.map((member) => member.userId)))
 const availableStudents = computed(() =>
@@ -197,7 +197,6 @@ onMounted(() => void loadMembers())
         class="rounded-card border border-app-border bg-app-surface p-5 shadow-card"
       >
       <h2 class="font-heading text-lg font-bold text-app-text">Thêm học viên</h2>
-      <p class="mt-1 text-sm text-app-text-muted">Tìm tài khoản có system role STUDENT.</p>
 
       <form class="mt-5 flex gap-2" @submit.prevent="runSearch(1)">
         <BaseInput v-model="keyword" class="min-w-0 flex-1" placeholder="Tên hoặc email học viên">

@@ -13,7 +13,7 @@ import java.util.Map;
 
 @Getter
 public class PagingRequest {
-    private static final int PAGE_SIZE = 5;
+    private static final int PAGE_SIZE = 6;
 
     int page = 1;
     private Map<String, String> orders = new HashMap<>();

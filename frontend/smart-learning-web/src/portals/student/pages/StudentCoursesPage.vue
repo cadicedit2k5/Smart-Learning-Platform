@@ -47,9 +47,7 @@ onMounted(() => void loadCourses())
 <template>
   <section class="mx-auto max-w-app space-y-6">
     <BasePageHeader
-      eyebrow="Không gian học tập"
       title="Khóa học của tôi"
-      description="Tiếp tục học tập và truy cập các khóa học bạn đang tham gia."
     />
 
     <BaseAlert v-if="loadError">

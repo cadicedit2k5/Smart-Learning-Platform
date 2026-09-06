@@ -48,13 +48,6 @@ public class CourseMemberServiceImpl implements CourseMemberService {
         courseAccessPolicy.requireOwner(courseId, currentUserId);
         requirePublished(course);
 
-//        if (course.getVisibility() != CourseVisibility.INVITE_ONLY) {
-//            throw new ApplicationException(
-//                    CommonErrorCode.DATA_CONFLICT,
-//                    "Chỉ có thể mời trực tiếp thành viên vào khóa học giới hạn theo lời mời"
-//            );
-//        }
-
         Optional<CourseMember> existing =
                 memberRepository.findByCourseIdAndUserId(
                         courseId,
