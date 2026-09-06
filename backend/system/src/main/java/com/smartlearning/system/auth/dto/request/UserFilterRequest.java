@@ -14,24 +14,24 @@ import java.time.Instant;
 @Setter
 @Getter
 public class UserFilterRequest extends FilterRequest<User> {
-        String keyword;
-
-        String roleCode;
-
-        @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
-        Instant createdFrom;
+        private String keyword;
+        private String roleCode;
+        private UserStatus status;
 
         @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
-        Instant createdTo;
+        private Instant createdFrom;
+
+        @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
+        private Instant createdTo;
 
         @Override
         public Specification<User> specification() {
-                return  Specification.allOf(
-                        UserSpecifications.containsKeyword(this.keyword),
-                        UserSpecifications.hasRoleCode(this.roleCode),
-                        UserSpecifications.createdFrom(this.createdFrom),
-                        UserSpecifications.createdTo(this.createdTo),
-                        UserSpecifications.status(UserStatus.ACTIVE)
+                return Specification.allOf(
+                        UserSpecifications.containsKeyword(keyword),
+                        UserSpecifications.hasRoleCode(roleCode),
+                        UserSpecifications.status(status),
+                        UserSpecifications.createdFrom(createdFrom),
+                        UserSpecifications.createdTo(createdTo)
                 );
         }
 }

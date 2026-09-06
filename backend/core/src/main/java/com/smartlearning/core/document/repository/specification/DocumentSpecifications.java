@@ -1,8 +1,7 @@
 package com.smartlearning.core.document.repository.specification;
 
-
 import com.smartlearning.core.document.entity.Document;
-import com.smartlearning.core.document.entity.enums.DocumentLifecycleStatus;
+import com.smartlearning.core.document.entity.enums.DocumentProcessingStatus;
 import lombok.NoArgsConstructor;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.util.StringUtils;
@@ -21,14 +20,37 @@ public final class DocumentSpecifications {
 
         return (root, query, criteriaBuilder) ->
                 criteriaBuilder.or(
-                        criteriaBuilder.like(root.get("title"), pattern),
-                        criteriaBuilder.like(root.get("description"), pattern)
+                        criteriaBuilder.like(
+                                criteriaBuilder.lower(root.get("title")),
+                                pattern
+                        ),
+                        criteriaBuilder.like(
+                                criteriaBuilder.lower(root.get("description")),
+                                pattern
+                        )
                 );
     }
 
-    public static Specification<Document> lifecycleStatus(DocumentLifecycleStatus lifecycleStatus) {
+    public static Specification<Document> courseKeyword(String keyword) {
+        if (!StringUtils.hasText(keyword)) {
+            return Specification.unrestricted();
+        }
+
+        String pattern = "%" + keyword.trim().toLowerCase() + "%";
+
         return (root, query, criteriaBuilder) ->
-                criteriaBuilder.equal(root.get("lifecycleStatus"), lifecycleStatus);
+                criteriaBuilder.like(
+                        criteriaBuilder.lower(root.get("course").get("title")),
+                        pattern);
+    }
+
+    public static Specification<Document> processingStatus(DocumentProcessingStatus status) {
+        if (status == null) {
+            return Specification.unrestricted();
+        }
+
+        return (root, query, criteriaBuilder) ->
+                criteriaBuilder.equal(root.get("version").get("processingStatus"), status);
     }
 
     public static Specification<Document> courseId(UUID courseId) {
@@ -53,5 +75,10 @@ public final class DocumentSpecifications {
         }
         return (root, query, criteriaBuilder) ->
                 criteriaBuilder.equal(root.get("topic").get("id"), topicId);
+    }
+
+    public static Specification<Document> notDeleted() {
+        return (root, query, criteriaBuilder) ->
+                criteriaBuilder.isNull(root.get("deletedAt"));
     }
 }

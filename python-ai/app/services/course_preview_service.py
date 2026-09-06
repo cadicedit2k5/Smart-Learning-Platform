@@ -39,7 +39,7 @@ class CoursePreviewService:
         lines = [
             f"Course: {course.title}",
             f"Level: {course.level or 'N/A'}",
-            "Description: {course.description or 'N/A'}",
+            f"Description: {course.description or 'N/A'}",
             "",
             "COURSE STRUCTURE:",
         ]

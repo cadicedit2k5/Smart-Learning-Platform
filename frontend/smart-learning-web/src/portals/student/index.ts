@@ -9,9 +9,9 @@ export const studentPortal: PortalDefinition = {
   basePath: '/student',
   routes: studentRoutes,
   navigation: studentNavigation,
-   topbar: {
+  topbar: {
     search: {
-      placeholder: 'Search courses and learning materials...',
+      placeholder: 'Tìm khóa học và tài liệu...',
     },
   },
 }

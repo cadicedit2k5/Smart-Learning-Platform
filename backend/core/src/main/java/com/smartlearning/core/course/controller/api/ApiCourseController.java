@@ -1,11 +1,14 @@
 package com.smartlearning.core.course.controller.api;
 
 import com.smartlearning.common.entity.Authorities;
+import com.smartlearning.common.dto.request.PagingRequest;
 import com.smartlearning.common.dto.response.ApiResponse;
 import com.smartlearning.common.dto.response.ApiResponses;
+import com.smartlearning.common.dto.response.pagination.PagingResponse;
 import com.smartlearning.core.course.dto.request.CourseCreateRequest;
 import com.smartlearning.core.course.dto.request.CourseUpdateRequest;
 import com.smartlearning.core.course.dto.response.CourseResponse;
+import com.smartlearning.core.course.dto.response.PublicCourseResponse;
 import com.smartlearning.core.course.service.CourseService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -34,6 +37,20 @@ public class ApiCourseController {
 
         return ApiResponses.created(
                 courseService.createCourse(request, userId)
+        );
+    }
+
+    @PreAuthorize(Authorities.COURSE_READ)
+    @GetMapping("/public")
+    public ResponseEntity<ApiResponse<PagingResponse<PublicCourseResponse>>> publicCourses(
+            PagingRequest pagingRequest,
+            @AuthenticationPrincipal Jwt jwt
+    ) {
+        return ApiResponses.ok(
+                courseService.getPublicCourses(
+                        pagingRequest,
+                        UUID.fromString(jwt.getSubject())
+                )
         );
     }
 

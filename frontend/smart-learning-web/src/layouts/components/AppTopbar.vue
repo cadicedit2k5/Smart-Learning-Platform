@@ -44,24 +44,6 @@ const initials = computed(() => {
         <Menu :size="21" />
       </button>
 
-      <div
-        v-if="config.search"
-        class="relative min-w-0 flex-1 lg:max-w-[600px]"
-      >
-        <Search
-          :size="17"
-          :stroke-width="1.8"
-          class="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-app-text-muted"
-        />
-
-        <input
-          type="search"
-          :placeholder="config.search.placeholder"
-          aria-label="Search"
-          class="h-10 w-full rounded-control border border-transparent bg-app-surface-muted pl-10 pr-4 text-sm text-app-text outline-none transition focus:border-secondary focus:bg-app-surface focus:ring-2 focus:ring-secondary/20"
-        />
-      </div>
-
       <div class="ml-auto flex items-center gap-3">
         <RouterLink
           v-if="config.primaryAction"

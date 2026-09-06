@@ -10,9 +10,9 @@ spring:
     password: ""
     driver-class-name: org.h2.Driver
   jpa:
-    database-platform: org.hibernate.dialect.H2Dialect
     hibernate:
       ddl-auto: create-drop
+    open-in-view: false
     properties:
       hibernate:
         default_schema: core
@@ -30,6 +30,9 @@ spring:
           public-key-location: classpath:keys/core-test-public-key.pem
 
 app:
+  services:
+    system:
+      base-url: http://localhost:8081/api/v1
   storage:
     minio:
       endpoint: http://localhost:9000

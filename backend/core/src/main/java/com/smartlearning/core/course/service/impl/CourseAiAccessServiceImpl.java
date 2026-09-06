@@ -4,7 +4,6 @@ import com.smartlearning.core.course.dto.response.CourseAiAccessResponse;
 import com.smartlearning.core.course.entity.Course;
 import com.smartlearning.core.course.entity.CourseChapter;
 import com.smartlearning.core.course.entity.CourseMember;
-import com.smartlearning.core.course.entity.enums.CourseContentStatus;
 import com.smartlearning.core.course.entity.enums.CourseMemberStatus;
 import com.smartlearning.core.course.entity.enums.CourseStatus;
 import com.smartlearning.core.course.entity.enums.CourseVisibility;
@@ -59,10 +58,8 @@ public class CourseAiAccessServiceImpl implements CourseAiAccessService {
 
     private CourseAiAccessResponse.CoursePreviewContext buildPreviewContext(Course course) {
 
-        List<CourseChapter> chapters = chapterRepository.findAllByCourseIdAndStatusAndDeletedAtIsNullOrderByOrderIndexAsc(
-                                course.getId(),
-                                CourseContentStatus.PUBLISHED
-                        );
+        List<CourseChapter> chapters = chapterRepository
+                .findAllByCourseIdAndDeletedAtIsNullOrderByOrderIndexAsc(course.getId());
 
         List<CourseAiAccessResponse.ChapterPreview> chapterResponses = chapters.stream()
                         .map(this::toChapterPreview).toList();
@@ -79,9 +76,8 @@ public class CourseAiAccessServiceImpl implements CourseAiAccessService {
 
     private CourseAiAccessResponse.ChapterPreview toChapterPreview(CourseChapter chapter) {
 
-        List<CourseAiAccessResponse.TopicPreview> topics = topicRepository.findAllByChapterIdAndStatusAndDeletedAtIsNullOrderByOrderIndexAsc(
-                                chapter.getId(),
-                                CourseContentStatus.PUBLISHED)
+        List<CourseAiAccessResponse.TopicPreview> topics = topicRepository
+                .findAllByChapterIdAndDeletedAtIsNullOrderByOrderIndexAsc(chapter.getId())
                 .stream().map(topic ->
                                 new CourseAiAccessResponse.TopicPreview(
                                         topic.getId(),

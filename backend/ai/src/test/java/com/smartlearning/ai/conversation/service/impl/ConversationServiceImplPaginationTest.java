@@ -7,7 +7,6 @@ import com.smartlearning.ai.conversation.entity.AiConversation;
 import com.smartlearning.ai.conversation.entity.ChatMessage;
 import com.smartlearning.ai.conversation.entity.MessageCitation;
 import com.smartlearning.ai.conversation.entity.enums.ChatAccessScope;
-import com.smartlearning.ai.conversation.entity.enums.ChatMessageRole;
 import com.smartlearning.ai.conversation.repository.AiConversationRepository;
 import com.smartlearning.ai.conversation.repository.ChatMessageRepository;
 import com.smartlearning.ai.conversation.repository.MessageCitationRepository;
@@ -25,12 +24,16 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.transaction.support.TransactionTemplate;
 
-import java.time.Instant;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
-import java.util.UUID;
 
+import static com.smartlearning.ai.support.AiTestData.CONVERSATION_ID;
+import static com.smartlearning.ai.support.AiTestData.COURSE_ID;
+import static com.smartlearning.ai.support.AiTestData.USER_ID;
+import static com.smartlearning.ai.support.AiTestData.assistantMessage;
+import static com.smartlearning.ai.support.AiTestData.citation;
+import static com.smartlearning.ai.support.AiTestData.conversation;
+import static com.smartlearning.ai.support.AiTestData.fullAccess;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.Mockito.verify;
@@ -69,21 +72,19 @@ class ConversationServiceImplPaginationTest {
 
     @Test
     void paginatesConversations() {
-        UUID courseId = UUID.randomUUID();
-        UUID userId = UUID.randomUUID();
-        AiConversation conversation = conversation(courseId, userId);
-        Pageable pageable = PageRequest.of(0, 10);
+        AiConversation conversation = conversation();
+        Pageable pageable = PageRequest.of(0, 5);
 
-        when(courseAccessClient.getAiAccess(courseId, "token")).thenReturn(fullAccess());
+        when(courseAccessClient.getAiAccess(COURSE_ID, "token")).thenReturn(fullAccess());
         when(conversationRepository.findAllByCourseIdAndUserIdAndDeletedAtIsNullOrderByLastMessageAtDesc(
-                courseId,
-                userId,
+                COURSE_ID,
+                USER_ID,
                 pageable
         )).thenReturn(new PageImpl<>(List.of(conversation), pageable, 12));
 
         PagingResponse<ConversationSummaryResponse> response = conversationService.getConversations(
-                courseId,
-                userId,
+                COURSE_ID,
+                USER_ID,
                 "token",
                 new PagingRequest()
         );
@@ -91,49 +92,32 @@ class ConversationServiceImplPaginationTest {
         assertThat(response.getContent()).hasSize(1);
         assertThat(response.getContent().get(0).id()).isEqualTo(conversation.getId());
         assertThat(response.getPageable().getTotalElements()).isEqualTo(12);
-        assertThat(response.getPageable().getTotalPages()).isEqualTo(2);
+        assertThat(response.getPageable().getTotalPages()).isEqualTo(3);
     }
 
     @Test
     void paginatesMessagesAndMapsCitations() {
-        UUID courseId = UUID.randomUUID();
-        UUID userId = UUID.randomUUID();
-        UUID conversationId = UUID.randomUUID();
-        AiConversation conversation = conversation(courseId, userId);
-        conversation.setId(conversationId);
+        AiConversation conversation = conversation();
+        ChatMessage message = assistantMessage(conversation, ChatAccessScope.FULL);
+        MessageCitation citation = citation(message);
 
-        ChatMessage message = new ChatMessage();
-        message.setId(UUID.randomUUID());
-        message.setConversation(conversation);
-        message.setRole(ChatMessageRole.ASSISTANT);
-        message.setAccessScope(ChatAccessScope.FULL);
-        message.setContent("Answer");
-        message.setCreatedAt(Instant.now());
-
-        MessageCitation citation = new MessageCitation();
-        citation.setMessage(message);
-        citation.setLabel("Source 1");
-        citation.setChunkId(UUID.randomUUID());
-        citation.setDocumentId(UUID.randomUUID());
-        citation.setLocator(Map.of("page", 1));
-
-        Pageable pageable = PageRequest.of(0, 10);
-        when(courseAccessClient.getAiAccess(courseId, "token")).thenReturn(fullAccess());
+        Pageable pageable = PageRequest.of(0, 5);
+        when(courseAccessClient.getAiAccess(COURSE_ID, "token")).thenReturn(fullAccess());
         when(conversationRepository.findByIdAndCourseIdAndUserIdAndDeletedAtIsNull(
-                conversationId,
-                courseId,
-                userId
+                CONVERSATION_ID,
+                COURSE_ID,
+                USER_ID
         )).thenReturn(Optional.of(conversation));
-        when(messageRepository.findAllByConversationIdOrderByCreatedAtAsc(
-                conversationId,
+        when(messageRepository.readAllByConversationIdOrderByCreatedAtDesc(
+                CONVERSATION_ID,
                 pageable
         )).thenReturn(new PageImpl<>(List.of(message), pageable, 15));
         when(citationRepository.findAllByMessageIdIn(List.of(message.getId()))).thenReturn(List.of(citation));
 
         PagingResponse<ChatMessageResponse> response = conversationService.getMessages(
-                courseId,
-                conversationId,
-                userId,
+                COURSE_ID,
+                CONVERSATION_ID,
+                USER_ID,
                 "token",
                 new PagingRequest()
         );
@@ -141,25 +125,10 @@ class ConversationServiceImplPaginationTest {
         assertThat(response.getContent()).hasSize(1);
         assertThat(response.getContent().get(0).citations()).hasSize(1);
         assertThat(response.getPageable().getTotalElements()).isEqualTo(15);
-        assertThat(response.getPageable().getTotalPages()).isEqualTo(2);
-        verify(messageRepository).findAllByConversationIdOrderByCreatedAtAsc(
-                org.mockito.ArgumentMatchers.eq(conversationId),
-                argThat(request -> request.getPageNumber() == 0 && request.getPageSize() == 10)
+        assertThat(response.getPageable().getTotalPages()).isEqualTo(3);
+        verify(messageRepository).readAllByConversationIdOrderByCreatedAtDesc(
+                org.mockito.ArgumentMatchers.eq(CONVERSATION_ID),
+                argThat(request -> request.getPageNumber() == 0 && request.getPageSize() == 5)
         );
-    }
-
-    private AiConversation conversation(UUID courseId, UUID userId) {
-        AiConversation conversation = new AiConversation();
-        conversation.setId(UUID.randomUUID());
-        conversation.setCourseId(courseId);
-        conversation.setUserId(userId);
-        conversation.setTitle("Conversation");
-        conversation.setLastMessageAt(Instant.now());
-        conversation.setCreatedAt(Instant.now());
-        return conversation;
-    }
-
-    private CoreCourseAccessClient.CourseAiAccess fullAccess() {
-        return new CoreCourseAccessClient.CourseAiAccess(CoreCourseAccessClient.AccessLevel.FULL, null);
     }
 }

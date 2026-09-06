@@ -17,33 +17,34 @@ public class CourseAccessPolicy {
     private final CourseMemberRepository memberRepository;
     private final CurrentUserAccess currentUserAccess;
 
-    public void requireActiveMember(
+    public CourseMember requireActiveMember(
             UUID courseId,
             UUID userId
     ) {
         if (currentUserAccess.isAdmin()) {
-            return;
+            return null;
         }
 
-        requireActiveMembership(courseId, userId);
+        return requireActiveMembership(courseId, userId);
     }
 
-    public void requireTeachingMember(
+    public CourseMember requireOwner(
             UUID courseId,
             UUID userId
     ) {
         if (currentUserAccess.isAdmin()) {
-            return;
+            return null;
         }
 
         CourseMember member = requireActiveMembership(courseId, userId);
 
-        if (member.getRole() != CourseMemberRole.OWNER
-                && member.getRole() != CourseMemberRole.LECTURER) {
+        if (member.getRole() != CourseMemberRole.OWNER) {
             throw new ApplicationException(
                     CommonErrorCode.FORBIDDEN
             );
         }
+
+        return member;
     }
 
     private CourseMember requireActiveMembership(

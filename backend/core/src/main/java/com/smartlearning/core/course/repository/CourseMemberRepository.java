@@ -1,10 +1,8 @@
 package com.smartlearning.core.course.repository;
 
-import com.smartlearning.core.course.entity.Course;
 import com.smartlearning.core.course.entity.CourseMember;
 import com.smartlearning.core.course.entity.enums.CourseMemberStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Query;
 
 import java.util.List;
 import java.util.Optional;
@@ -19,16 +17,14 @@ public interface CourseMemberRepository extends JpaRepository<CourseMember, UUID
             CourseMemberStatus status
     );
 
-    @Query("""
-    select member.course
-    from CourseMember member
-    where member.userId = :userId
-      and member.status = :status
-      and member.course.deletedAt is null
-    order by member.course.updatedAt desc
-    """)
-    List<Course> findCoursesByUserIdAndStatus(
+    List<CourseMember> findAllByCourseIdInAndUserId(
+            List<UUID> courseIds,
+            UUID userId
+    );
+
+    List<CourseMember> findAllByUserIdAndStatusAndCourseDeletedAtIsNullOrderByCourseUpdatedAtDesc(
             UUID userId,
             CourseMemberStatus status
     );
+
 }

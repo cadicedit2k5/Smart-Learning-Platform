@@ -19,7 +19,6 @@ public interface DocumentMapper extends CreateMapper<Document, DocumentCreateReq
     @Mapping(target = "chapter", ignore = true)
     @Mapping(target = "topic", ignore = true)
     @Mapping(target = "version", ignore = true)
-    @Mapping(target = "lifecycleStatus", ignore = true)
     @Mapping(target = "uploadedBy", ignore = true)
     @Mapping(target = "deletedAt", ignore = true)
     @Mapping(target = "createdAt", ignore = true)
@@ -30,10 +29,8 @@ public interface DocumentMapper extends CreateMapper<Document, DocumentCreateReq
     @Mapping(target = "courseId", source = "course.id")
     @Mapping(target = "chapterId", source = "chapter.id")
     @Mapping(target = "topicId", source = "topic.id")
-    @Mapping(
-            target = "version",
-            source = "version"
-    )
+    @Mapping(target = "version", source = "version")
+    @Mapping(target = "courseTitle", source = "course.title")
     DocumentResponse toResponse(Document document);
 
 //    @Override

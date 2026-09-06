@@ -27,7 +27,7 @@ public class Course extends BaseEntity {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 30)
-    private CourseVisibility visibility = CourseVisibility.PRIVATE;
+    private CourseVisibility visibility = CourseVisibility.INVITE_ONLY;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 30)

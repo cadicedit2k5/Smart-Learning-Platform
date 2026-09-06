@@ -4,6 +4,7 @@ import { computed } from 'vue'
 type AlertVariant =
   | 'error'
   | 'info'
+  | 'success'
   | 'ai'
 
 const props = withDefaults(
@@ -23,6 +24,9 @@ const variantClasses: Record<AlertVariant, string> = {
 
   info:
     'border-secondary/20 bg-secondary-soft text-app-text',
+    
+   success:
+    'border-emerald-200 bg-emerald-50 text-emerald-800',
 
   ai:
     'border-ai/20 bg-ai-soft text-ai',

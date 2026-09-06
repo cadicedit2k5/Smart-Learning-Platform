@@ -40,15 +40,16 @@ public class UserController {
         return ApiResponses.created(createdUser);
     }
 
-    @PatchMapping("/{id}")
+    @PatchMapping(
+            value = "/{id}",
+            consumes = MediaType.MULTIPART_FORM_DATA_VALUE,
+            produces = MediaType.APPLICATION_JSON_VALUE
+    )
     public ResponseEntity<ApiResponse<UserResponse>> updateUser(
             @PathVariable UUID id,
-            @Valid @RequestBody AdminUserUpdateRequest request
+            @Valid @ModelAttribute AdminUserUpdateRequest request
     ) {
-        UserResponse updatedUser =
-                userService.handleUpdateUser(id, request);
-
-        return ApiResponses.ok(updatedUser);
+        return ApiResponses.ok(userService.handleUpdateUser(id, request));
     }
 
     @DeleteMapping("/{id}")

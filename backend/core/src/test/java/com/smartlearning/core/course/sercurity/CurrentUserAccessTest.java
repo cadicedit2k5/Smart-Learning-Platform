@@ -2,11 +2,15 @@ package com.smartlearning.core.course.sercurity;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 
 import java.util.List;
+import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -19,18 +23,12 @@ class CurrentUserAccessTest {
         SecurityContextHolder.clearContext();
     }
 
-    @Test
-    void recognizesAdminRole() {
-        authenticateWith("ROLE_ADMIN", "COURSE_READ");
+    @ParameterizedTest(name = "authorities {0} => admin {1}")
+    @MethodSource("authorityScenarios")
+    void recognizesOnlyAdminRole(List<String> authorities, boolean expected) {
+        authenticateWith(authorities);
 
-        assertThat(currentUserAccess.isAdmin()).isTrue();
-    }
-
-    @Test
-    void doesNotTreatCoursePermissionAsAdminRole() {
-        authenticateWith("ROLE_LECTURER", "COURSE_MANAGE", "COURSE_READ");
-
-        assertThat(currentUserAccess.isAdmin()).isFalse();
+        assertThat(currentUserAccess.isAdmin()).isEqualTo(expected);
     }
 
     @Test
@@ -38,13 +36,20 @@ class CurrentUserAccessTest {
         assertThat(currentUserAccess.isAdmin()).isFalse();
     }
 
-    private static void authenticateWith(String... authorities) {
+    static Stream<Arguments> authorityScenarios() {
+        return Stream.of(
+                Arguments.of(List.of("ROLE_ADMIN", "COURSE_READ"), true),
+                Arguments.of(List.of("ROLE_LECTURER", "COURSE_MANAGE"), false),
+                Arguments.of(List.of("ADMIN", "COURSE_READ"), false)
+        );
+    }
+
+    private static void authenticateWith(List<String> authorities) {
         UsernamePasswordAuthenticationToken authentication =
                 new UsernamePasswordAuthenticationToken(
                         "user",
                         null,
-                        List.of(authorities)
-                                .stream()
+                        authorities.stream()
                                 .map(SimpleGrantedAuthority::new)
                                 .toList()
                 );

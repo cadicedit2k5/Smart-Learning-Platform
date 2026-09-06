@@ -13,6 +13,8 @@ import com.smartlearning.system.auth.dto.request.admin.AdminUserCreateRequest;
 import com.smartlearning.system.auth.dto.request.admin.AdminUserUpdateRequest;
 import com.smartlearning.system.auth.dto.response.LoginResponse;
 import com.smartlearning.system.auth.dto.response.UserResponse;
+import com.smartlearning.system.auth.dto.response.UserLookupResponse;
+import com.smartlearning.system.auth.dto.response.UserSummaryResponse;
 import com.smartlearning.system.auth.entity.Role;
 import com.smartlearning.system.auth.entity.User;
 import com.smartlearning.system.auth.entity.enums.UserStatus;
@@ -33,7 +35,9 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
+import java.util.List;
 import java.util.Locale;
+import java.util.Set;
 import java.util.UUID;
 
 @Service
@@ -52,6 +56,41 @@ public class UserServiceImpl implements UserService {
         Page<UserResponse> pages = userRepository.findAll(filter.specification(), filter.pageable())
                 .map(this.userMapper::toResponse);
         return PagingResponse.from(pages);
+    }
+
+    @Override
+    public PagingResponse<UserLookupResponse> handleSearchUsers(UserFilterRequest filter) {
+        filter.setRoleCode("STUDENT");
+        filter.setStatus(UserStatus.ACTIVE);
+
+        Page<UserLookupResponse> pages = userRepository
+                .findAll(filter.specification(), filter.pageable())
+                .map(UserLookupResponse::from);
+
+        return PagingResponse.from(pages);
+    }
+
+    @Override
+    public List<UserSummaryResponse> handleLookupUsers(Set<UUID> userIds) {
+        if (userIds.isEmpty()) {
+            return List.of();
+        }
+
+        return userRepository.findAllByIdInAndStatus(
+                        userIds,
+                        UserStatus.ACTIVE).stream()
+                .map(UserSummaryResponse::from).toList();
+    }
+
+    @Override
+    public UserLookupResponse handleGetUserLookup(UUID id) {
+        User user = userRepository.findByIdAndStatusNot(id, UserStatus.DELETED)
+                .orElseThrow(() -> new ApplicationException(
+                        CommonErrorCode.RESOURCE_NOT_FOUND,
+                        "Không tìm thấy người dùng"
+                ));
+
+        return UserLookupResponse.from(user);
     }
 
     @Override
@@ -105,9 +144,20 @@ public class UserServiceImpl implements UserService {
         User user = userRepository.findByIdAndStatusNot(id, UserStatus.DELETED).orElseThrow(
                         () -> new ApplicationException(
                                 CommonErrorCode.RESOURCE_NOT_FOUND,
-                                "User không tồn tại!")
-                        );
+                                "User không tồn tại!"));
 
+        if (StringUtils.hasText(request.getEmail())) {
+            String normalizedEmail = request.getEmail().trim().toLowerCase(Locale.ROOT);
+
+            if (!normalizedEmail.equals(user.getEmail())
+                    && userRepository.existsByEmailIgnoreCase(normalizedEmail)) {
+                throw new ApplicationException(CommonErrorCode.DATA_CONFLICT,
+                        "Email đã được sử dụng"
+                );
+            }
+
+            request.setEmail(normalizedEmail);
+        }
         userMapper.partialUpdate(request, user);
 
         // Logic update riêng cho admin
@@ -128,6 +178,13 @@ public class UserServiceImpl implements UserService {
                             request.getPassword()
                     )
             );
+        }
+
+        if (request.getAvatar() != null && !request.getAvatar().isEmpty()) {
+            String folder = "system/users/" + user.getId() + "/avatar";
+
+            FileUploadResponse uploadedFile = fileStorageService.upload(request.getAvatar(), folder);
+            user.setAvatar(uploadedFile.objectName());
         }
 
         User savedUser = userRepository.save(user);

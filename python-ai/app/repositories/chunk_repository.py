@@ -19,28 +19,22 @@ class ChunkRepository:
     def __init__(self, session: AsyncSession):
         self._session = session
 
-    async def replace_document_chunks(self, *,
-                                      course_id: uuid.UUID,
-                                      document_id: uuid.UUID,
-                                      document_version_id: uuid.UUID | None,
-                                      chunks: Sequence[DocumentChunk]) -> None:
-        statement = delete(DocumentChunk).where(DocumentChunk.course_id == course_id,
-                                                DocumentChunk.document_id == document_id)
-
-        if document_version_id is None:
-            statement = statement.where(DocumentChunk.document_version_id.is_(None))
-        else:
-            statement = statement.where(DocumentChunk.document_version_id == document_version_id)
-
-        await self._session.execute(statement)
-
-        self._session.add_all(list(chunks))
-
-    async def delete_document_chunks(self, *, course_id: uuid.UUID, document_id: uuid.UUID) -> None:
-
+    async def replace_source_chunks(self, *, course_id: uuid.UUID, source_type: str, source_id: uuid.UUID,
+                                    chunks: Sequence[DocumentChunk]) -> None:
         statement = delete(DocumentChunk).where(
             DocumentChunk.course_id == course_id,
-            DocumentChunk.document_id == document_id
+            DocumentChunk.source_type == source_type,
+            DocumentChunk.source_id == source_id,
+        )
+
+        await self._session.execute(statement)
+        self._session.add_all(list(chunks))
+
+    async def delete_source_chunks(self, *, course_id: uuid.UUID, source_type: str, source_id: uuid.UUID) -> None:
+        statement = delete(DocumentChunk).where(
+            DocumentChunk.course_id == course_id,
+            DocumentChunk.source_type == source_type,
+            DocumentChunk.source_id == source_id,
         )
 
         await self._session.execute(statement)

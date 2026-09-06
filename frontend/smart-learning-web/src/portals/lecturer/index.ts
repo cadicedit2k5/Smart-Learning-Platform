@@ -12,7 +12,7 @@ export const lecturerPortal: PortalDefinition = {
   navigation: lecturerNavigation,
   topbar: {
     search: {
-      placeholder: 'Search students, courses, or insights...',
+      placeholder: 'Tìm khóa học, học viên hoặc nội dung...',
     },
 
     // primaryAction: {

@@ -1,7 +1,7 @@
 package com.smartlearning.core.course.service;
 
 import com.smartlearning.core.course.dto.request.CourseMemberCreateRequest;
-import com.smartlearning.core.course.dto.request.JoinCourseRequest;
+import com.smartlearning.core.course.dto.response.CourseMemberDetailResponse;
 import com.smartlearning.core.course.dto.response.CourseMemberResponse;
 
 import java.util.List;
@@ -12,11 +12,21 @@ public interface CourseMemberService {
             CourseMemberCreateRequest request,
             UUID currentUserId);
 
-    List<CourseMemberResponse> getMembers(
+    List<CourseMemberDetailResponse> getMembers(
             UUID courseId,
-            UUID currentUserId
+            UUID currentUserId,
+            String accessToken
     );
 
+    CourseMemberResponse getCurrentMember(UUID courseId, UUID currentUserId);
+
     void removeMember(UUID courseId, UUID memberId, UUID currentUserId);
-    CourseMemberResponse joinByCode(JoinCourseRequest request, UUID currentUserId);
+
+    CourseMemberResponse requestToJoin(UUID courseId, UUID currentUserId);
+
+    List<CourseMemberDetailResponse> getJoinRequests(UUID courseId, UUID currentUserId, String accessToken);
+
+    CourseMemberResponse approveJoinRequest(UUID courseId, UUID memberId, UUID currentUserId);
+
+    CourseMemberResponse rejectJoinRequest(UUID courseId, UUID memberId, UUID currentUserId);
 }

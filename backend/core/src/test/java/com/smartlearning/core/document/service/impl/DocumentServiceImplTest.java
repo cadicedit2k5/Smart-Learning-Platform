@@ -2,24 +2,32 @@ package com.smartlearning.core.document.service.impl;
 
 import com.smartlearning.common.dto.response.pagination.PagingResponse;
 import com.smartlearning.core.course.entity.Course;
+import com.smartlearning.core.course.entity.CourseChapter;
+import com.smartlearning.core.course.entity.CourseTopic;
 import com.smartlearning.core.course.sercurity.CourseAccessPolicy;
+import com.smartlearning.core.course.repository.CourseChapterRepository;
+import com.smartlearning.core.course.repository.CourseTopicRepository;
 import com.smartlearning.core.course.utils.CourseUtils;
 import com.smartlearning.core.document.dto.request.DocumentCreateRequest;
 import com.smartlearning.core.document.dto.request.DocumentFilterRequest;
+import com.smartlearning.core.document.dto.request.DocumentUpdateRequest;
 import com.smartlearning.core.document.dto.response.DocumentResponse;
 import com.smartlearning.core.document.entity.Document;
 import com.smartlearning.core.document.entity.DocumentProcessingJob;
 import com.smartlearning.core.document.entity.DocumentVersion;
-import com.smartlearning.core.document.entity.enums.DocumentLifecycleStatus;
 import com.smartlearning.core.document.entity.enums.DocumentProcessingStatus;
 import com.smartlearning.core.document.mapper.DocumentMapper;
 import com.smartlearning.core.document.messaging.event.DocumentIngestionRequestedEvent;
+import com.smartlearning.core.document.messaging.publisher.DocumentDeletionEventPublisher;
 import com.smartlearning.core.document.messaging.publisher.DocumentIngestionEventPublisher;
 import com.smartlearning.core.document.repository.DocumentProcessingJobRepository;
 import com.smartlearning.core.document.repository.DocumentRepository;
 import com.smartlearning.core.document.repository.DocumentVersionRepository;
+import com.smartlearning.core.document.service.DocumentDeletionService;
+import com.smartlearning.core.document.utils.DocumentUtils;
 import com.smartlearning.storage.config.MinioProperties;
 import com.smartlearning.storage.dto.FileUploadResponse;
+import com.smartlearning.storage.dto.StoredFile;
 import com.smartlearning.storage.service.FileStorageService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -39,9 +47,12 @@ import org.springframework.transaction.support.TransactionCallback;
 import org.springframework.transaction.support.TransactionTemplate;
 
 import java.nio.charset.StandardCharsets;
+import java.io.ByteArrayInputStream;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 
 import static com.smartlearning.core.support.CoreTestData.COURSE_ID;
 import static com.smartlearning.core.support.CoreTestData.DOCUMENT_ID;
@@ -51,6 +62,7 @@ import static com.smartlearning.core.support.CoreTestData.VERSION_ID;
 import static com.smartlearning.core.support.CoreTestData.course;
 import static com.smartlearning.core.support.CoreTestData.document;
 import static com.smartlearning.core.support.CoreTestData.documentResponse;
+import static com.smartlearning.core.support.CoreTestData.documentVersion;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
@@ -83,8 +95,17 @@ class DocumentServiceImplTest {
     private DocumentProcessingJobRepository processingJobRepository;
     @Mock
     private DocumentIngestionEventPublisher eventPublisher;
-
+    @Mock
+    private CourseChapterRepository chapterRepository;
+    @Mock
+    private CourseTopicRepository topicRepository;
+    @Mock
+    private DocumentDeletionEventPublisher documentDeletionEventPublisher;
+    @Mock
+    private DocumentDeletionService documentDeletionService;
     private DocumentServiceImpl documentService;
+    @Mock
+    private DocumentUtils documentUtils;
 
     @BeforeEach
     void setUp() {
@@ -105,7 +126,12 @@ class DocumentServiceImplTest {
                 versionRepository,
                 documentMapper,
                 processingJobRepository,
-                eventPublisher
+                eventPublisher,
+                chapterRepository,
+                topicRepository,
+                documentDeletionEventPublisher,
+                documentDeletionService,
+                documentUtils
         );
     }
 
@@ -121,8 +147,8 @@ class DocumentServiceImplTest {
         second.setTitle("Second document");
         DocumentResponse firstResponse = documentResponse();
         DocumentResponse secondResponse = new DocumentResponse(
-                second.getId(), COURSE_ID, null, null, second.getTitle(), second.getDescription(),
-                second.getLifecycleStatus(), second.getUploadedBy(), null, second.getCreatedAt(), second.getUpdatedAt()
+                second.getId(), COURSE_ID, second.getCourse().getTitle(), null, null, second.getTitle(), second.getDescription(),
+                 second.getUploadedBy(), null, second.getCreatedAt(), second.getUpdatedAt()
         );
         Page<Document> page = new PageImpl<>(List.of(first, second), pageable, 5);
         when(filter.specification()).thenReturn(filterSpecification);
@@ -134,7 +160,7 @@ class DocumentServiceImplTest {
         PagingResponse<DocumentResponse> result = documentService.handleGetAll(COURSE_ID, OWNER_ID, filter);
 
         assertThat(result.getContent()).containsExactly(firstResponse, secondResponse);
-        assertThat(result.getPageable().getPage()).isEqualTo(1);
+        assertThat(result.getPageable().getPage()).isEqualTo(2);
         assertThat(result.getPageable().getSize()).isEqualTo(2);
         assertThat(result.getPageable().getTotalElements()).isEqualTo(5);
         assertThat(result.getPageable().getTotalPages()).isEqualTo(3);
@@ -175,11 +201,11 @@ class DocumentServiceImplTest {
         assertThat(result).isSameAs(expected);
         InOrder outerOrder = inOrder(courseUtils, courseAccessPolicy, fileStorageService, transactionTemplate, eventPublisher);
         outerOrder.verify(courseUtils).requireCourse(COURSE_ID);
-        outerOrder.verify(courseAccessPolicy).requireTeachingMember(COURSE_ID, OWNER_ID);
+        outerOrder.verify(courseAccessPolicy).requireOwner(COURSE_ID, OWNER_ID);
         outerOrder.verify(fileStorageService).upload(request.getFile(), documentFolder());
         outerOrder.verify(transactionTemplate).execute(any(TransactionCallback.class));
         outerOrder.verify(courseUtils).requireCourse(COURSE_ID);
-        outerOrder.verify(courseAccessPolicy).requireTeachingMember(COURSE_ID, OWNER_ID);
+        outerOrder.verify(courseAccessPolicy).requireOwner(COURSE_ID, OWNER_ID);
 
         ArgumentCaptor<Document> documentCaptor = ArgumentCaptor.forClass(Document.class);
         ArgumentCaptor<DocumentVersion> versionCaptor = ArgumentCaptor.forClass(DocumentVersion.class);
@@ -197,7 +223,6 @@ class DocumentServiceImplTest {
         assertThat(savedDocument.getCourse()).isSameAs(course);
         assertThat(savedDocument.getTitle()).isEqualTo("Document title");
         assertThat(savedDocument.getDescription()).isEqualTo("Document description");
-        assertThat(savedDocument.getLifecycleStatus()).isEqualTo(DocumentLifecycleStatus.ACTIVE);
         assertThat(savedDocument.getUploadedBy()).isEqualTo(OWNER_ID);
         assertThat(savedDocument.getVersion()).isSameAs(savedVersion);
         assertThat(savedVersion.getDocument()).isSameAs(savedDocument);
@@ -256,6 +281,107 @@ class DocumentServiceImplTest {
                 .satisfies(exception -> assertThat(exception.getSuppressed()).containsExactly(cleanupFailure));
 
         verifyNoInteractions(eventPublisher);
+    }
+
+    @Test
+    void handleGetDocument_checksMembershipAndReturnsDocument() {
+        Document existing = document();
+        DocumentResponse expected = documentResponse();
+        when(courseUtils.requireCourse(COURSE_ID)).thenReturn(course());
+        when(documentRepository.findByIdAndCourseIdAndDeletedAtIsNull(DOCUMENT_ID, COURSE_ID))
+                .thenReturn(Optional.of(existing));
+        when(documentMapper.toResponse(existing)).thenReturn(expected);
+
+        assertThat(documentService.handleGetDocument(COURSE_ID, DOCUMENT_ID, OWNER_ID))
+                .isSameAs(expected);
+
+        verify(courseAccessPolicy).requireActiveMember(COURSE_ID, OWNER_ID);
+    }
+
+    @Test
+    void handleUpdateDocument_updatesMetadataAfterTeachingAccessCheck() {
+        Document existing = document();
+        DocumentUpdateRequest request = new DocumentUpdateRequest(
+                "  Tiêu đề mới  ",
+                "Mô tả mới",
+                null,
+                null
+        );
+        when(courseUtils.requireCourse(COURSE_ID)).thenReturn(course());
+        when(documentRepository.findByIdAndCourseIdAndDeletedAtIsNull(DOCUMENT_ID, COURSE_ID))
+                .thenReturn(Optional.of(existing));
+        when(documentMapper.toResponse(existing)).thenAnswer(invocation -> documentResponse());
+
+        documentService.handleUpdateDocument(COURSE_ID, DOCUMENT_ID, OWNER_ID, request);
+
+        assertThat(existing.getTitle()).isEqualTo("Tiêu đề mới");
+        assertThat(existing.getDescription()).isEqualTo("Mô tả mới");
+        verify(courseAccessPolicy).requireOwner(COURSE_ID, OWNER_ID);
+    }
+
+    @Test
+    void handleUpdateDocument_placesDocumentOnlyInTopicWithActiveChapter() {
+        UUID chapterId = UUID.fromString("90000000-0000-0000-0000-000000000001");
+        UUID topicId = UUID.fromString("91000000-0000-0000-0000-000000000001");
+        CourseChapter chapter = new CourseChapter();
+        chapter.setId(chapterId);
+        chapter.setCourse(course());
+        CourseTopic topic = new CourseTopic();
+        topic.setId(topicId);
+        topic.setChapter(chapter);
+        Document existing = document();
+        DocumentUpdateRequest request = new DocumentUpdateRequest(null, null, null, topicId);
+
+        when(courseUtils.requireCourse(COURSE_ID)).thenReturn(course());
+        when(documentRepository.findByIdAndCourseIdAndDeletedAtIsNull(DOCUMENT_ID, COURSE_ID))
+                .thenReturn(Optional.of(existing));
+        when(topicRepository.findByIdAndChapterCourseIdAndDeletedAtIsNullAndChapterDeletedAtIsNull(
+                topicId,
+                COURSE_ID
+        )).thenReturn(Optional.of(topic));
+        when(documentMapper.toResponse(existing)).thenReturn(documentResponse());
+
+        documentService.handleUpdateDocument(COURSE_ID, DOCUMENT_ID, OWNER_ID, request);
+
+        assertThat(existing.getChapter()).isSameAs(chapter);
+        assertThat(existing.getTopic()).isSameAs(topic);
+        verify(topicRepository).findByIdAndChapterCourseIdAndDeletedAtIsNullAndChapterDeletedAtIsNull(
+                topicId,
+                COURSE_ID
+        );
+    }
+
+    @Test
+    void handleDownloadDocument_returnsStoredFileForCurrentVersion() {
+        Document existing = document();
+        DocumentVersion version = documentVersion();
+        existing.setVersion(version);
+        StoredFile expected = new StoredFile(
+                new ByteArrayInputStream("file".getBytes(StandardCharsets.UTF_8)),
+                "application/pdf",
+                4,
+                "lesson.pdf"
+        );
+        when(courseUtils.requireCourse(COURSE_ID)).thenReturn(course());
+        when(documentRepository.findByIdAndCourseIdAndDeletedAtIsNull(DOCUMENT_ID, COURSE_ID))
+                .thenReturn(Optional.of(existing));
+        when(documentUtils.downloadDocument(existing)).thenReturn(expected);
+
+        assertThat(documentService.handleDownloadDocument(COURSE_ID, DOCUMENT_ID, OWNER_ID))
+                .isSameAs(expected);
+        verify(courseAccessPolicy).requireActiveMember(COURSE_ID, OWNER_ID);
+        verify(documentUtils).downloadDocument(existing);
+    }
+
+    @Test
+    void handleDeleteDocument_delegatesToTransactionalDeletionService() {
+        when(courseUtils.requireCourse(COURSE_ID)).thenReturn(course());
+
+        documentService.handleDeleteDocument(COURSE_ID, DOCUMENT_ID, OWNER_ID);
+
+        verify(courseAccessPolicy).requireOwner(COURSE_ID, OWNER_ID);
+        verify(documentDeletionService).deleteDocument(COURSE_ID, DOCUMENT_ID);
+        verify(documentRepository, never()).delete(any(Document.class));
     }
 
     private void executeTransactionCallback() {

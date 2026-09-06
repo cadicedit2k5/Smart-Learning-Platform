@@ -1,11 +1,12 @@
 import { computed, ref } from "vue";
-import type { AuthUser, LoginRequest } from "./types";
+import type { AuthUser, LoginRequest, RegisterRequest, UpdateCurrentUserRequest } from "./types";
 import { defineStore } from "pinia";
-import { getCurrentUser, login as loginApi } from "./authApi";
+import { getCurrentUser, login as loginApi, updateCurrentUser } from "./authApi";
 import { tokenStorage } from "./tokenStorage";
 
 export const useAuthStore = defineStore('auth', () => {
     const user = ref<AuthUser | null>(null);
+    const initialized = ref(false);
 
     const isAuthenticated = computed(() => user.value !== null);
 
@@ -15,11 +16,9 @@ export const useAuthStore = defineStore('auth', () => {
         tokenStorage.set(res.accessToken, res.expiresIn);
         
         try {
-            const currentUser = await getCurrentUser()
+            user.value = await getCurrentUser()
 
-            user.value = currentUser
-
-            return currentUser
+            return user.value;
         } catch (error) {
             tokenStorage.clear()
             user.value = null
@@ -28,6 +27,32 @@ export const useAuthStore = defineStore('auth', () => {
         }
     };
 
+    const initialize = async () => {
+        if (initialized.value) return;
+
+        try {
+            if (tokenStorage.get()) {
+                user.value = await getCurrentUser();
+            }
+        } catch (error) {
+            tokenStorage.clear();
+            user.value = null;
+        }
+        finally {
+            initialized.value = true;
+        }
+    }
+
+    const updateProfile = async (
+        request: UpdateCurrentUserRequest,
+        ) => {
+        const updatedUser = await updateCurrentUser(request);
+
+        user.value = updatedUser;
+
+        return updatedUser;
+    }
+
     const logout = () => {
         tokenStorage.clear();
         user.value = null;
@@ -35,8 +60,11 @@ export const useAuthStore = defineStore('auth', () => {
 
     return {
       user,
+      initialized,
       isAuthenticated,
       login,
+      initialize,
       logout,
+      updateProfile
     }
 });

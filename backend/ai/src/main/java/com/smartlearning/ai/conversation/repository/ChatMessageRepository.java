@@ -10,13 +10,19 @@ import java.util.List;
 import java.util.UUID;
 
 public interface ChatMessageRepository extends JpaRepository<ChatMessage, UUID> {
-    Page<ChatMessage> findAllByConversationIdOrderByCreatedAtAsc(UUID conversationId, Pageable pageable);
+    Page<ChatMessage>
+    readAllByConversationIdOrderByCreatedAtDesc(
+            UUID conversationId,
+            Pageable pageable
+    );
 
-    Page<ChatMessage> findAllByConversationIdAndAccessScopeOrderByCreatedAtAsc(
+    Page<ChatMessage>
+    readAllByConversationIdAndAccessScopeOrderByCreatedAtDesc(
             UUID conversationId,
             ChatAccessScope accessScope,
             Pageable pageable
     );
+
 
     List<ChatMessage>
     findAllByConversationIdOrderByCreatedAtDesc(

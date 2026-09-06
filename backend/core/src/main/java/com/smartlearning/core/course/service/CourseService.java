@@ -3,6 +3,9 @@ package com.smartlearning.core.course.service;
 import com.smartlearning.core.course.dto.request.CourseCreateRequest;
 import com.smartlearning.core.course.dto.request.CourseUpdateRequest;
 import com.smartlearning.core.course.dto.response.CourseResponse;
+import com.smartlearning.core.course.dto.response.PublicCourseResponse;
+import com.smartlearning.common.dto.request.PagingRequest;
+import com.smartlearning.common.dto.response.pagination.PagingResponse;
 
 import java.util.List;
 import java.util.UUID;
@@ -20,6 +23,11 @@ public interface CourseService {
 
     List<CourseResponse> getMyCourses(UUID currentUserId);
 
+    PagingResponse<PublicCourseResponse> getPublicCourses(
+            PagingRequest pagingRequest,
+            UUID currentUserId
+    );
+
     CourseResponse updateCourse(
             UUID courseId,
             CourseUpdateRequest request,
@@ -30,11 +38,6 @@ public interface CourseService {
             UUID courseId,
             UUID currentUserId
     );
-
-//    CourseResponse archiveCourse(
-//            UUID courseId,
-//            UUID currentUserId
-//    );
 
     void deleteCourse(
             UUID courseId,

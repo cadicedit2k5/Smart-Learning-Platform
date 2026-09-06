@@ -1,7 +1,7 @@
 package com.smartlearning.core.document.messaging.publisher;
 
 import com.smartlearning.core.document.messaging.event.DocumentIngestionRequestedEvent;
-import com.smartlearning.core.document.messaging.kafka.KafkaTopics;
+import com.smartlearning.core.document.messaging.kafka.DocumentKafkaTopics;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.core.KafkaTemplate;
@@ -22,7 +22,7 @@ public class KafkaDocumentIngestionEventPublisher implements DocumentIngestionEv
 
         String messageKey = event.documentVersionId().toString();
 
-        kafkaTemplate.send(KafkaTopics.DOCUMENT_INGESTION_REQUESTED,
+        kafkaTemplate.send(DocumentKafkaTopics.DOCUMENT_INGESTION_REQUESTED,
                         messageKey,
                         payload)
                 .whenComplete((result, exception) -> {

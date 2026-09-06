@@ -171,14 +171,14 @@ public class ConversationServiceImpl implements ConversationService {
 
     private Page<ChatMessage> loadMessages(UUID conversationId, ChatAccessScope scope, Pageable pageable) {
         if (scope == ChatAccessScope.PREVIEW) {
-            return messageRepository.findAllByConversationIdAndAccessScopeOrderByCreatedAtAsc(
+            return messageRepository.readAllByConversationIdAndAccessScopeOrderByCreatedAtDesc(
                     conversationId,
                     ChatAccessScope.PREVIEW,
                     pageable
             );
         }
 
-        return messageRepository.findAllByConversationIdOrderByCreatedAtAsc(conversationId, pageable);
+        return messageRepository.readAllByConversationIdOrderByCreatedAtDesc(conversationId, pageable);
     }
 
     private PythonAiEngineClient.AiAnswer executeAi(

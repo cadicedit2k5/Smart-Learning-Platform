@@ -1,75 +1,70 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700&family=Plus+Jakarta+Sans:wght@600;700&display=swap');
 
 @import 'tailwindcss';
 @import './base.css';
+@import './rich-text.css';
 
 @theme {
-    --font-heading: 'Plus Jakarta Sans', ui-sans-serif, system-ui, sans-serif;
-    --font-body: Inter, ui-sans-serif, system-ui, sans-serif;
+    --font-heading:
+        'Plus Jakarta Sans',
+        ui-sans-serif,
+        system-ui,
+        sans-serif;
 
-    /*
-    * Background và surface
-    */
-    --color-app-bg: #f7f9fb;
+    --font-body:
+        Inter,
+        ui-sans-serif,
+        system-ui,
+        sans-serif;
+
+    /* Surface */
+    --color-app-bg: #f8fafc;
     --color-app-surface: #ffffff;
-    --color-app-surface-muted: #f2f4f6;
+    --color-app-surface-muted: #f1f5f9;
 
-        /*
-    * Text và border
-    */
-    --color-app-text: #191c1e;
-    --color-app-text-muted: #43474e;
-    --color-app-border: #c4c6cf;
-    
-    /*
-    * Primary — action chính
-    */
-    --color-primary: #002045;
-    --color-primary-hover: #1a365d;
+    /* Text */
+    --color-app-text: #0f172a;
+    --color-app-text-muted: #64748b;
+    --color-app-border: #e2e8f0;
+
+    /* Primary */
+    --color-primary: #0f2d52;
+    --color-primary-hover: #173f70;
     --color-on-primary: #ffffff;
 
-    /*
-    * Secondary — navigation active, focus, action phụ
-    */
-    --color-secondary: #6b46c1;
-    --color-secondary-hover: #522aa7;
-    --color-secondary-soft: #e9ddff;
+    /* Secondary */
+    --color-secondary: #6d4aff;
+    --color-secondary-hover: #5635e8;
+    --color-secondary-soft: #f0edff;
     --color-on-secondary: #ffffff;
 
-    /*
-    * AI — chỉ dùng cho AI feature
-    */
-    --color-ai: #003e28;
-    --color-ai-hover: #005236;
-    --color-ai-soft: #e0f7ed;
+    /* AI */
+    --color-ai: #08745b;
+    --color-ai-hover: #05604b;
+    --color-ai-soft: #e8f8f3;
     --color-on-ai: #ffffff;
 
-    /*
-    * Error
-    */
-    --color-danger: #ba1a1a;
-    --color-danger-soft: #ffdad6;
-    --color-on-danger-soft: #93000a;
+    /* Danger */
+    --color-danger: #dc2626;
+    --color-danger-soft: #fef2f2;
+    --color-on-danger-soft: #991b1b;
 
-    /*
-    * Shape
-    */
-    --radius-control: 0.5rem;
-    --radius-card: 0.75rem;
+    /* Shapes */
+    --radius-control: 0.625rem;
+    --radius-card: 0.875rem;
     --radius-panel: 1rem;
     --radius-pill: 9999px;
 
-    /*
-    * Layout
-    */
-    --spacing-sidebar: 17.5rem;
+    --spacing-sidebar: 17rem;
     --spacing-sidebar-collapsed: 5rem;
 
     --container-app: 90rem;
 
-    /*
-    * Elevation
-    */
-    --shadow-card: 0 4px 6px -1px rgb(0 0 0 / 0.05);
-    --shadow-overlay: 0 10px 15px -3px rgb(0 0 0 / 0.1);
+    /* Elevation */
+    --shadow-card:
+        0 1px 2px rgb(15 23 42 / 0.04),
+        0 2px 8px rgb(15 23 42 / 0.04);
+
+    --shadow-overlay:
+        0 20px 40px -12px rgb(15 23 42 / 0.18);
 }

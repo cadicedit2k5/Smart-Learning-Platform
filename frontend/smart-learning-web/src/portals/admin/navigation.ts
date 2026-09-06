@@ -1,5 +1,5 @@
 import type { NavigationItem } from '@/portals/types'
-import { LayoutDashboard, UserIcon } from 'lucide-vue-next'
+import { BookOpen, CircleUserRound, Files, LayoutDashboard, ShieldCheck, UserIcon } from 'lucide-vue-next'
 import { markRaw } from 'vue'
 
 export const adminNavigation: NavigationItem[] = [
@@ -12,5 +12,25 @@ export const adminNavigation: NavigationItem[] = [
     label: 'Quản lý người dùng',
     routeName: 'admin-users',
     icon: markRaw(UserIcon),
+  },
+  {
+    label: 'Vai trò & phân quyền',
+    routeName: 'admin-roles',
+    icon: markRaw(ShieldCheck),
+  },
+  {
+    label: 'Quản lý môn học',
+    routeName: 'admin-courses',
+    icon: markRaw(BookOpen),
+  },
+  {
+    label: 'Quản lý tài liệu',
+    routeName: 'admin-documents',
+    icon: markRaw(Files),
+  },
+  {
+    label: 'Tài khoản',
+    routeName: 'admin-profile',
+    icon: markRaw(CircleUserRound),
   },
 ]

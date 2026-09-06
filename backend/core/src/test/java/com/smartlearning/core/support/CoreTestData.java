@@ -1,10 +1,13 @@
 package com.smartlearning.core.support;
 
 import com.smartlearning.core.course.dto.response.CourseMemberResponse;
+import com.smartlearning.core.course.dto.response.CourseChapterResponse;
 import com.smartlearning.core.course.dto.response.CourseResponse;
-import com.smartlearning.core.course.entity.AccessCode;
+import com.smartlearning.core.course.dto.response.CourseTopicResponse;
 import com.smartlearning.core.course.entity.Course;
+import com.smartlearning.core.course.entity.CourseChapter;
 import com.smartlearning.core.course.entity.CourseMember;
+import com.smartlearning.core.course.entity.CourseTopic;
 import com.smartlearning.core.course.entity.enums.CourseMemberRole;
 import com.smartlearning.core.course.entity.enums.CourseMemberStatus;
 import com.smartlearning.core.course.entity.enums.CourseStatus;
@@ -13,13 +16,13 @@ import com.smartlearning.core.document.dto.response.DocumentResponse;
 import com.smartlearning.core.document.entity.Document;
 import com.smartlearning.core.document.entity.DocumentProcessingJob;
 import com.smartlearning.core.document.entity.DocumentVersion;
-import com.smartlearning.core.document.entity.enums.DocumentLifecycleStatus;
 import com.smartlearning.core.document.entity.enums.DocumentProcessingStatus;
 import com.smartlearning.core.document.entity.enums.ProcessingJobStatus;
 import com.smartlearning.core.document.messaging.event.DocumentIngestionCompletedEvent;
 import com.smartlearning.core.document.messaging.event.DocumentIngestionFailedEvent;
 
 import java.time.Instant;
+import java.util.Map;
 import java.util.UUID;
 
 public final class CoreTestData {
@@ -28,7 +31,8 @@ public final class CoreTestData {
     public static final UUID OWNER_ID = UUID.fromString("20000000-0000-0000-0000-000000000001");
     public static final UUID STUDENT_ID = UUID.fromString("20000000-0000-0000-0000-000000000002");
     public static final UUID MEMBER_ID = UUID.fromString("30000000-0000-0000-0000-000000000001");
-    public static final UUID ACCESS_CODE_ID = UUID.fromString("40000000-0000-0000-0000-000000000001");
+    public static final UUID CHAPTER_ID = UUID.fromString("40000000-0000-0000-0000-000000000001");
+    public static final UUID TOPIC_ID = UUID.fromString("40000000-0000-0000-0000-000000000002");
     public static final UUID DOCUMENT_ID = UUID.fromString("50000000-0000-0000-0000-000000000001");
     public static final UUID VERSION_ID = UUID.fromString("60000000-0000-0000-0000-000000000001");
     public static final UUID PROCESSING_JOB_ID = UUID.fromString("70000000-0000-0000-0000-000000000001");
@@ -44,7 +48,7 @@ public final class CoreTestData {
         course.setTitle("Smart Learning");
         course.setDescription("Core course test data");
         course.setLevel("BEGINNER");
-        course.setVisibility(CourseVisibility.PRIVATE);
+        course.setVisibility(CourseVisibility.INVITE_ONLY);
         course.setStatus(CourseStatus.DRAFT);
         course.setCreatedBy(OWNER_ID);
         course.setCreatedAt(TEST_TIME);
@@ -53,10 +57,61 @@ public final class CoreTestData {
     }
 
     public static CourseResponse courseResponse(Course course) {
+        return courseResponse(course, null);
+    }
+
+    public static CourseResponse courseResponse(Course course, CourseMemberRole currentUserRole) {
         return new CourseResponse(
                 course.getId(), course.getTitle(), course.getDescription(), course.getLevel(),
                 course.getVisibility(), course.getStatus(), course.getCreatedBy(), course.getPublishedAt(),
-                course.getCreatedAt(), course.getUpdatedAt()
+                course.getCreatedAt(), course.getUpdatedAt(), currentUserRole
+        );
+    }
+
+    public static CourseChapter chapter() {
+        CourseChapter chapter = new CourseChapter();
+        chapter.setId(CHAPTER_ID);
+        chapter.setCourse(course());
+        chapter.setTitle("Chapter 1");
+        chapter.setDescription("Chapter description");
+        chapter.setLearningObjectives("Chapter objectives");
+        chapter.setOrderIndex(0);
+        chapter.setCreatedAt(TEST_TIME);
+        chapter.setUpdatedAt(TEST_TIME);
+        return chapter;
+    }
+
+    public static CourseChapterResponse chapterResponse(CourseChapter chapter) {
+        return new CourseChapterResponse(
+                chapter.getId(), chapter.getCourse().getId(), chapter.getTitle(),
+                chapter.getDescription(), chapter.getLearningObjectives(), chapter.getOrderIndex(),
+                chapter.getCreatedAt(), chapter.getUpdatedAt()
+        );
+    }
+
+    public static CourseTopic topic() {
+        return topic(chapter());
+    }
+
+    public static CourseTopic topic(CourseChapter chapter) {
+        CourseTopic topic = new CourseTopic();
+        topic.setId(TOPIC_ID);
+        topic.setChapter(chapter);
+        topic.setTitle("Topic 1");
+        topic.setDescription("Topic description");
+        topic.setContent(Map.of("text", "Topic content"));
+        topic.setOrderIndex(0);
+        topic.setEstimatedMinutes(30);
+        topic.setCreatedAt(TEST_TIME);
+        topic.setUpdatedAt(TEST_TIME);
+        return topic;
+    }
+
+    public static CourseTopicResponse topicResponse(CourseTopic topic) {
+        return new CourseTopicResponse(
+                topic.getId(), topic.getChapter().getCourse().getId(), topic.getChapter().getId(),
+                topic.getTitle(), topic.getDescription(), topic.getOrderIndex(),
+                topic.getEstimatedMinutes(), topic.getContent(), topic.getCreatedAt(), topic.getUpdatedAt()
         );
     }
 
@@ -81,26 +136,12 @@ public final class CoreTestData {
         );
     }
 
-    public static AccessCode accessCode() {
-        AccessCode code = new AccessCode();
-        code.setId(ACCESS_CODE_ID);
-        code.setCourse(course());
-        code.setCodeHash("encoded-code");
-        code.setCodeHint("1234");
-        code.setActive(true);
-        code.setCreatedBy(OWNER_ID);
-        code.setCreatedAt(TEST_TIME);
-        code.setUpdatedAt(TEST_TIME);
-        return code;
-    }
-
     public static Document document() {
         Document document = new Document();
         document.setId(DOCUMENT_ID);
         document.setCourse(course());
         document.setTitle("Document title");
         document.setDescription("Document description");
-        document.setLifecycleStatus(DocumentLifecycleStatus.ACTIVE);
         document.setUploadedBy(OWNER_ID);
         document.setCreatedAt(TEST_TIME);
         document.setUpdatedAt(TEST_TIME);
@@ -136,8 +177,7 @@ public final class CoreTestData {
 
     public static DocumentResponse documentResponse() {
         return new DocumentResponse(
-                DOCUMENT_ID, COURSE_ID, null, null, "Document title", "Document description",
-                DocumentLifecycleStatus.ACTIVE, OWNER_ID, null, TEST_TIME, TEST_TIME
+                DOCUMENT_ID, COURSE_ID,  "courseTitle", null, null, "Document title", "Document description", OWNER_ID, null, TEST_TIME, TEST_TIME
         );
     }
 

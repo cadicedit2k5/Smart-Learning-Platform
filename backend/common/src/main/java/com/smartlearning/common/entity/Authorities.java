@@ -12,4 +12,7 @@ public final class Authorities {
 
     public static final String COURSE_MANAGE =
             "hasAuthority('COURSE_MANAGE')";
+
+    public static final String ROLE_MANAGE =
+            "hasAuthority('ROLE_MANAGE')";
 }

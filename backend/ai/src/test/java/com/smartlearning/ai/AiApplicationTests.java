@@ -1,10 +1,9 @@
 package com.smartlearning.ai;
 
+import com.smartlearning.ai.support.AiIntegrationTest;
 import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.context.SpringBootTest;
 
-@SpringBootTest
-class AiApplicationTests {
+class AiApplicationTests extends AiIntegrationTest {
 
     @Test
     void contextLoads() {

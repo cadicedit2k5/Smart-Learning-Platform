@@ -8,6 +8,8 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.UUID;
+
 @Getter
 @Setter
 @NoArgsConstructor
@@ -22,4 +24,8 @@ public class DocumentCreateRequest {
 
     @NotNull(message = "Vui lòng cung cấp tài liệu!!")
     private MultipartFile file;
+
+    private UUID chapterId;
+
+    private UUID topicId;
 }
