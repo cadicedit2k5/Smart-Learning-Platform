@@ -34,7 +34,7 @@ const form = reactive<CourseInput>({
   title: '',
   description: '',
   level: '',
-  visibility: 'PRIVATE',
+  visibility: 'INVITE_ONLY',
 })
 
 const localErrors = reactive<Record<string, string>>({})
@@ -51,7 +51,7 @@ const resetForm = () => {
   form.title = props.course?.title ?? ''
   form.description = props.course?.description ?? ''
   form.level = props.course?.level ?? ''
-  form.visibility = props.course?.visibility ?? 'PRIVATE'
+  form.visibility = props.course?.visibility ?? 'INVITE_ONLY'
   clearLocalErrors()
 }
 
@@ -216,7 +216,6 @@ const close = () => {
                   class="h-11 w-full rounded-control border border-app-border bg-app-surface px-3 text-sm outline-none focus:border-secondary focus:ring-2 focus:ring-secondary/20 disabled:bg-app-surface-muted"
                   :disabled="loading"
                 >
-                  <option value="PRIVATE">Riêng tư</option>
                   <option value="INVITE_ONLY">Chỉ người được mời</option>
                   <option value="PUBLIC">Công khai</option>
                 </select>

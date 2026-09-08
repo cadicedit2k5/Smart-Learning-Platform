@@ -329,12 +329,6 @@ onMounted(() => void loadChapters())
               min="0"
               label="Thứ tự"
             />
-
-            <label class="block">
-              <span class="mb-1.5 block text-sm font-medium text-app-text">
-                Trạng thái
-              </span>
-            </label>
           </div>
 
           <label class="block">

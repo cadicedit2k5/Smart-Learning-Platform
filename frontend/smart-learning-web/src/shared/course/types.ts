@@ -1,4 +1,4 @@
-export type CourseVisibility = 'PUBLIC' | 'PRIVATE' | 'INVITE_ONLY'
+export type CourseVisibility = 'PUBLIC'| 'INVITE_ONLY'
 export type CourseStatus = 'DRAFT' | 'PUBLISHED' | 'ARCHIVED'
 export type CourseMemberRole = 'OWNER' | 'STUDENT'
 

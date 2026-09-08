@@ -120,15 +120,6 @@ onMounted(() => void loadDetail())
             >
               {{ course.title }}
             </h1>
-
-            <p
-              class="mt-3 max-w-3xl text-sm leading-7 text-app-text-muted sm:text-base"
-            >
-              {{
-                course.description ||
-                'Khóa học chưa có mô tả.'
-              }}
-            </p>
           </div>
 
           <div
@@ -157,49 +148,109 @@ onMounted(() => void loadDetail())
 
       <div v-if="activeTab === 'overview'" class="grid gap-5 lg:grid-cols-[minmax(0,1fr)_20rem]">
         <BaseCard>
-          <template #header
-            ><h2 class="font-heading text-xl font-bold text-app-text">
-              Thông tin khóa học
-            </h2></template
+          <template #header>
+            <h2
+              class="font-heading text-xl font-bold text-app-text"
+            >
+              Giới thiệu khóa học
+            </h2>
+          </template>
+
+          <p
+            class="whitespace-pre-wrap text-sm leading-7 text-app-text-muted sm:text-base"
           >
-          <dl class="grid gap-5 sm:grid-cols-2">
-            <div>
-              <dt class="flex items-center gap-2 text-sm text-app-text-muted">
-                <GraduationCap :size="17" />Cấp độ
-              </dt>
-              <dd class="mt-2 font-semibold text-app-text">
-                {{ course.level || 'Chưa cập nhật' }}
-              </dd>
-            </div>
-            <div>
-              <dt class="flex items-center gap-2 text-sm text-app-text-muted">
-                <CalendarDays :size="17" />Cập nhật gần nhất
-              </dt>
-              <dd class="mt-2 font-semibold text-app-text">{{ formatDate(course.updatedAt) }}</dd>
-            </div>
-          </dl>
+            {{
+              course.description ||
+              'Khóa học chưa có mô tả.'
+            }}
+          </p>
         </BaseCard>
-        <BaseCard>
-          <template #header
-            ><h2 class="font-heading text-lg font-bold text-app-text">Membership</h2></template
-          >
-          <dl class="space-y-4 text-sm">
-            <div>
-              <dt class="text-app-text-muted">Vai trò</dt>
-              <dd class="mt-1 font-semibold text-app-text">{{ membership.role }}</dd>
-            </div>
-            <div>
-              <dt class="text-app-text-muted">Trạng thái</dt>
-              <dd class="mt-1 font-semibold text-app-text">{{ membership.status }}</dd>
-            </div>
-            <div v-if="membership.joinedAt">
-              <dt class="text-app-text-muted">Tham gia ngày</dt>
-              <dd class="mt-1 font-semibold text-app-text">
-                {{ formatDate(membership.joinedAt) }}
-              </dd>
-            </div>
-          </dl>
-        </BaseCard>
+
+        <div
+          class="grid gap-5 lg:grid-cols-[minmax(0,1fr)_20rem]"
+        >
+          <!-- Thông tin khóa học -->
+          <BaseCard>
+            <template #header>
+              <h2
+                class="font-heading text-xl font-bold text-app-text"
+              >
+                Thông tin khóa học
+              </h2>
+            </template>
+
+            <dl class="grid gap-5 sm:grid-cols-2">
+              <div>
+                <dt
+                  class="flex items-center gap-2 text-sm text-app-text-muted"
+                >
+                  <GraduationCap :size="17" />
+                  Cấp độ
+                </dt>
+
+                <dd class="mt-2 font-semibold text-app-text">
+                  {{ course.level || 'Chưa cập nhật' }}
+                </dd>
+              </div>
+
+              <div>
+                <dt
+                  class="flex items-center gap-2 text-sm text-app-text-muted"
+                >
+                  <CalendarDays :size="17" />
+                  Cập nhật gần nhất
+                </dt>
+
+                <dd class="mt-2 font-semibold text-app-text">
+                  {{ formatDate(course.updatedAt) }}
+                </dd>
+              </div>
+            </dl>
+          </BaseCard>
+
+          <!-- Membership -->
+          <BaseCard>
+            <template #header>
+              <h2
+                class="font-heading text-lg font-bold text-app-text"
+              >
+                Thành viên
+              </h2>
+            </template>
+
+            <dl class="space-y-4 text-sm">
+              <div>
+                <dt class="text-app-text-muted">
+                  Vai trò
+                </dt>
+
+                <dd class="mt-1 font-semibold text-app-text">
+                  {{ membership.role }}
+                </dd>
+              </div>
+
+              <div>
+                <dt class="text-app-text-muted">
+                  Trạng thái
+                </dt>
+
+                <dd class="mt-1 font-semibold text-app-text">
+                  {{ membership.status }}
+                </dd>
+              </div>
+
+              <div v-if="membership.joinedAt">
+                <dt class="text-app-text-muted">
+                  Tham gia ngày
+                </dt>
+
+                <dd class="mt-1 font-semibold text-app-text">
+                  {{ formatDate(membership.joinedAt) }}
+                </dd>
+              </div>
+            </dl>
+          </BaseCard>
+        </div>
       </div>
       <StudentCourseContentPanel v-else-if="activeTab === 'content'":course-id="course.id"/>
       <StudentDocumentsPanel v-else-if="activeTab === 'documents'" :course-id="course.id" />
