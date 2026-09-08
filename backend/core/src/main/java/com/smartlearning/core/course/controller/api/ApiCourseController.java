@@ -7,6 +7,8 @@ import com.smartlearning.common.dto.response.ApiResponses;
 import com.smartlearning.common.dto.response.pagination.PagingResponse;
 import com.smartlearning.core.course.dto.request.CourseCreateRequest;
 import com.smartlearning.core.course.dto.request.CourseUpdateRequest;
+import com.smartlearning.core.course.dto.request.MyCourseFilterRequest;
+import com.smartlearning.core.course.dto.request.PublicCourseFilterRequest;
 import com.smartlearning.core.course.dto.response.CourseResponse;
 import com.smartlearning.core.course.dto.response.PublicCourseResponse;
 import com.smartlearning.core.course.service.CourseService;
@@ -44,12 +46,12 @@ public class ApiCourseController {
     @PreAuthorize(Authorities.COURSE_READ)
     @GetMapping("/public")
     public ResponseEntity<ApiResponse<PagingResponse<PublicCourseResponse>>> publicCourses(
-            PagingRequest pagingRequest,
+            @ModelAttribute PublicCourseFilterRequest request,
             @AuthenticationPrincipal Jwt jwt
     ) {
         return ApiResponses.ok(
                 courseService.getPublicCourses(
-                        pagingRequest,
+                        request,
                         UUID.fromString(jwt.getSubject())
                 )
         );
@@ -72,7 +74,7 @@ public class ApiCourseController {
     @PreAuthorize(Authorities.COURSE_READ)
     @GetMapping("/me")
     public ResponseEntity<ApiResponse<PagingResponse<CourseResponse>>> myCourses(
-            @ModelAttribute PagingRequest request,
+            @ModelAttribute MyCourseFilterRequest request,
             @AuthenticationPrincipal Jwt jwt
     ) {
         return ApiResponses.ok(courseService.getMyCourses(UUID.fromString(Objects.requireNonNull(jwt.getSubject())), request));

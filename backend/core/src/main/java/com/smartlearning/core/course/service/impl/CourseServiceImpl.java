@@ -6,6 +6,8 @@ import com.smartlearning.common.dto.request.PagingRequest;
 import com.smartlearning.common.dto.response.pagination.PagingResponse;
 import com.smartlearning.core.course.dto.request.CourseCreateRequest;
 import com.smartlearning.core.course.dto.request.CourseUpdateRequest;
+import com.smartlearning.core.course.dto.request.MyCourseFilterRequest;
+import com.smartlearning.core.course.dto.request.PublicCourseFilterRequest;
 import com.smartlearning.core.course.dto.response.CourseResponse;
 import com.smartlearning.core.course.dto.response.PublicCourseResponse;
 import com.smartlearning.core.course.entity.Course;
@@ -17,12 +19,14 @@ import com.smartlearning.core.course.entity.enums.CourseVisibility;
 import com.smartlearning.core.course.mapper.CourseMapper;
 import com.smartlearning.core.course.repository.CourseMemberRepository;
 import com.smartlearning.core.course.repository.CourseRepository;
+import com.smartlearning.core.course.repository.specification.CourseSpecifications;
 import com.smartlearning.core.course.sercurity.CourseAccessPolicy;
 import com.smartlearning.core.course.service.CourseService;
 import com.smartlearning.core.course.utils.CourseUtils;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
@@ -96,26 +100,24 @@ public class CourseServiceImpl implements CourseService {
     }
 
     @Override
-    public PagingResponse<CourseResponse> getMyCourses(UUID currentUserId, PagingRequest request) {
-        Page<CourseResponse> courses = memberRepository.findCoursesByUserIdAndStatus(
-                        currentUserId,
-                        CourseMemberStatus.ACTIVE,
-                        request.pageable()).map(courseMapper::toResponse);
+    public PagingResponse<CourseResponse> getMyCourses(UUID currentUserId, MyCourseFilterRequest request) {
+
+        Specification<Course> specifications = Specification.allOf(
+                request.specification(),
+                CourseSpecifications.members(currentUserId)
+        );
+
+        Page<CourseResponse> courses = courseRepository.findAll(specifications, request.pageable()).map(courseMapper::toResponse);
 
         return PagingResponse.from(courses);
     }
 
     @Override
     public PagingResponse<PublicCourseResponse> getPublicCourses(
-            PagingRequest pagingRequest,
+            PublicCourseFilterRequest request,
             UUID currentUserId
     ) {
-        var courses = courseRepository
-                .findAllByVisibilityAndStatusAndDeletedAtIsNullOrderByPublishedAtDesc(
-                        CourseVisibility.PUBLIC,
-                        CourseStatus.PUBLISHED,
-                        pagingRequest.pageable()
-                );
+        var courses = courseRepository.findAll(request.specification(), request.pageable());
 
         List<UUID> courseIds = courses.getContent().stream()
                 .map(Course::getId)

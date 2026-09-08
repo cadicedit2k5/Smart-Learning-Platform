@@ -26,18 +26,4 @@ public interface CourseMemberRepository extends JpaRepository<CourseMember, UUID
             List<UUID> courseIds,
             UUID userId
     );
-
-    @Query("""
-    select member.course
-    from CourseMember member
-    where member.userId = :userId
-      and member.status = :status
-      and member.course.deletedAt is null
-    """)
-    Page<Course> findCoursesByUserIdAndStatus(
-            UUID userId,
-            CourseMemberStatus status,
-            Pageable pageable
-    );
-
 }

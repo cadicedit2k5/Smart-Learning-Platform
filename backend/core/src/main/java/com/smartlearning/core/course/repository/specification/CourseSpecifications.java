@@ -1,13 +1,18 @@
 package com.smartlearning.core.course.repository.specification;
 
 import com.smartlearning.core.course.entity.Course;
+import com.smartlearning.core.course.entity.CourseMember;
+import com.smartlearning.core.course.entity.enums.CourseMemberStatus;
 import com.smartlearning.core.course.entity.enums.CourseStatus;
 import com.smartlearning.core.course.entity.enums.CourseVisibility;
+import jakarta.persistence.criteria.Join;
+import jakarta.persistence.criteria.JoinType;
 import lombok.NoArgsConstructor;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.util.StringUtils;
 
 import java.util.Locale;
+import java.util.UUID;
 
 @NoArgsConstructor
 public class CourseSpecifications {
@@ -46,5 +51,15 @@ public class CourseSpecifications {
     public static Specification<Course> notDeleted() {
         return (root, query, criteriaBuilder) ->
                 criteriaBuilder.isNull(root.get("deletedAt"));
+    }
+
+    public static Specification<Course> members(UUID userId) {
+        return (root, query, criteriaBuilder) -> {
+            Join<Course, CourseMember> member = root.join("members", JoinType.INNER);
+
+            return criteriaBuilder.and(
+                    criteriaBuilder.equal(member.get("userId"), userId),
+                    criteriaBuilder.equal(member.get("status"), CourseMemberStatus.ACTIVE));
+        };
     }
 }

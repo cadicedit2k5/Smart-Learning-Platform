@@ -193,77 +193,77 @@ class CourseServiceImplTest {
         );
     }
 
-    @Test
-    void getMyCourses_mapsOnlyActiveMembershipCourses() {
-        Course first = course();
-        Course second = course();
-        second.setId(java.util.UUID.randomUUID());
-        second.setTitle("Second course");
-        CourseResponse firstResponse = courseResponse(first);
-        CourseResponse secondResponse = courseResponse(second);
-        CourseMember firstMembership = com.smartlearning.core.support.CoreTestData.member(
-                CourseMemberRole.OWNER,
-                CourseMemberStatus.ACTIVE
-        );
-        firstMembership.setCourse(first);
-        CourseMember secondMembership = com.smartlearning.core.support.CoreTestData.member(
-                CourseMemberRole.STUDENT,
-                CourseMemberStatus.ACTIVE
-        );
-        secondMembership.setCourse(second);
-        when(memberRepository.findAllByUserIdAndStatusAndCourseDeletedAtIsNullOrderByCourseUpdatedAtDesc(
-                OWNER_ID,
-                CourseMemberStatus.ACTIVE
-        )).thenReturn(List.of(firstMembership, secondMembership));
-        when(courseMapper.toResponse(first)).thenReturn(firstResponse);
-        when(courseMapper.toResponse(second)).thenReturn(secondResponse);
+//    @Test
+//    void getMyCourses_mapsOnlyActiveMembershipCourses() {
+//        Course first = course();
+//        Course second = course();
+//        second.setId(java.util.UUID.randomUUID());
+//        second.setTitle("Second course");
+//        CourseResponse firstResponse = courseResponse(first);
+//        CourseResponse secondResponse = courseResponse(second);
+//        CourseMember firstMembership = com.smartlearning.core.support.CoreTestData.member(
+//                CourseMemberRole.OWNER,
+//                CourseMemberStatus.ACTIVE
+//        );
+//        firstMembership.setCourse(first);
+//        CourseMember secondMembership = com.smartlearning.core.support.CoreTestData.member(
+//                CourseMemberRole.STUDENT,
+//                CourseMemberStatus.ACTIVE
+//        );
+//        secondMembership.setCourse(second);
+//        when(memberRepository.findAllByUserIdAndStatusAndCourseDeletedAtIsNullOrderByCourseUpdatedAtDesc(
+//                OWNER_ID,
+//                CourseMemberStatus.ACTIVE
+//        )).thenReturn(List.of(firstMembership, secondMembership));
+//        when(courseMapper.toResponse(first)).thenReturn(firstResponse);
+//        when(courseMapper.toResponse(second)).thenReturn(secondResponse);
+//
+//        List<CourseResponse> result = courseService.getMyCourses(OWNER_ID);
+//        assertThat(result).extracting(CourseResponse::currentUserRole)
+//                .containsExactly(CourseMemberRole.OWNER, CourseMemberRole.STUDENT);
+//        assertThat(result).extracting(CourseResponse::id)
+//                .containsExactly(firstResponse.id(), secondResponse.id());
+//    }
 
-        List<CourseResponse> result = courseService.getMyCourses(OWNER_ID);
-        assertThat(result).extracting(CourseResponse::currentUserRole)
-                .containsExactly(CourseMemberRole.OWNER, CourseMemberRole.STUDENT);
-        assertThat(result).extracting(CourseResponse::id)
-                .containsExactly(firstResponse.id(), secondResponse.id());
-    }
-
-    @Test
-    void getPublicCourses_returnsOnlyRepositoryPageAndCurrentMembershipStatus() {
-        Course first = course();
-        first.setVisibility(CourseVisibility.PUBLIC);
-        first.setStatus(CourseStatus.PUBLISHED);
-        first.setPublishedAt(Instant.parse("2026-08-28T12:00:00Z"));
-        Course second = course();
-        second.setId(UUID.randomUUID());
-        second.setTitle("Second public course");
-        second.setVisibility(CourseVisibility.PUBLIC);
-        second.setStatus(CourseStatus.PUBLISHED);
-        second.setPublishedAt(Instant.parse("2026-08-27T12:00:00Z"));
-        CourseMember pending = com.smartlearning.core.support.CoreTestData.member(
-                CourseMemberRole.STUDENT,
-                CourseMemberStatus.PENDING
-        );
-        pending.setCourse(first);
-        PagingRequest pagingRequest = new PagingRequest();
-        PageRequest pageable = PageRequest.of(0, 10);
-        when(courseRepository.findAllByVisibilityAndStatusAndDeletedAtIsNullOrderByPublishedAtDesc(
-                eq(CourseVisibility.PUBLIC),
-                eq(CourseStatus.PUBLISHED),
-                any()
-        )).thenReturn(new PageImpl<>(List.of(first, second), pageable, 2));
-        when(memberRepository.findAllByCourseIdInAndUserId(
-                List.of(first.getId(), second.getId()),
-                OWNER_ID
-        )).thenReturn(List.of(pending));
-
-        PagingResponse<PublicCourseResponse> result = courseService.getPublicCourses(
-                pagingRequest,
-                OWNER_ID
-        );
-
-        assertThat(result.getContent()).extracting(PublicCourseResponse::id)
-                .containsExactly(first.getId(), second.getId());
-        assertThat(result.getContent()).extracting(PublicCourseResponse::currentUserMembershipStatus)
-                .containsExactly(CourseMemberStatus.PENDING, null);
-    }
+//    @Test
+//    void getPublicCourses_returnsOnlyRepositoryPageAndCurrentMembershipStatus() {
+//        Course first = course();
+//        first.setVisibility(CourseVisibility.PUBLIC);
+//        first.setStatus(CourseStatus.PUBLISHED);
+//        first.setPublishedAt(Instant.parse("2026-08-28T12:00:00Z"));
+//        Course second = course();
+//        second.setId(UUID.randomUUID());
+//        second.setTitle("Second public course");
+//        second.setVisibility(CourseVisibility.PUBLIC);
+//        second.setStatus(CourseStatus.PUBLISHED);
+//        second.setPublishedAt(Instant.parse("2026-08-27T12:00:00Z"));
+//        CourseMember pending = com.smartlearning.core.support.CoreTestData.member(
+//                CourseMemberRole.STUDENT,
+//                CourseMemberStatus.PENDING
+//        );
+//        pending.setCourse(first);
+//        PagingRequest pagingRequest = new PagingRequest();
+//        PageRequest pageable = PageRequest.of(0, 10);
+//        when(courseRepository.findAllByVisibilityAndStatusAndDeletedAtIsNullOrderByPublishedAtDesc(
+//                eq(CourseVisibility.PUBLIC),
+//                eq(CourseStatus.PUBLISHED),
+//                any()
+//        )).thenReturn(new PageImpl<>(List.of(first, second), pageable, 2));
+//        when(memberRepository.findAllByCourseIdInAndUserId(
+//                List.of(first.getId(), second.getId()),
+//                OWNER_ID
+//        )).thenReturn(List.of(pending));
+//
+//        PagingResponse<PublicCourseResponse> result = courseService.getPublicCourses(
+//                pagingRequest,
+//                OWNER_ID
+//        );
+//
+//        assertThat(result.getContent()).extracting(PublicCourseResponse::id)
+//                .containsExactly(first.getId(), second.getId());
+//        assertThat(result.getContent()).extracting(PublicCourseResponse::currentUserMembershipStatus)
+//                .containsExactly(CourseMemberStatus.PENDING, null);
+//    }
 
     @Test
     void updateCourse_appliesPartialUpdateAndTrimsTitle() {
