@@ -10,10 +10,7 @@ export {
   deleteDocument,
 } from './documentApi'
 export type {
-  CourseDocument,
-  CourseDocumentVersion,
   DocumentFilters,
-  DocumentProcessingStatus,
   DocumentUpdateInput,
   DocumentUploadInput,
 } from './documentApi'
@@ -22,7 +19,7 @@ export {
   getCourseMembers,
   getUserLookup,
   removeCourseMember,
-  searchStudents,
+  getStudents,
   getJoinRequests,
   approveJoinRequest,
   rejectJoinRequest

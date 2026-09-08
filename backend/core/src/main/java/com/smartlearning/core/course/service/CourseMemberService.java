@@ -1,5 +1,7 @@
 package com.smartlearning.core.course.service;
 
+import com.smartlearning.common.dto.request.PagingRequest;
+import com.smartlearning.common.dto.response.pagination.PagingResponse;
 import com.smartlearning.core.course.dto.request.CourseMemberCreateRequest;
 import com.smartlearning.core.course.dto.response.CourseMemberDetailResponse;
 import com.smartlearning.core.course.dto.response.CourseMemberResponse;
@@ -12,10 +14,11 @@ public interface CourseMemberService {
             CourseMemberCreateRequest request,
             UUID currentUserId);
 
-    List<CourseMemberDetailResponse> getMembers(
+    PagingResponse<CourseMemberDetailResponse> getMembers(
             UUID courseId,
             UUID currentUserId,
-            String accessToken
+            String accessToken,
+            PagingRequest request
     );
 
     CourseMemberResponse getCurrentMember(UUID courseId, UUID currentUserId);
@@ -24,7 +27,7 @@ public interface CourseMemberService {
 
     CourseMemberResponse requestToJoin(UUID courseId, UUID currentUserId);
 
-    List<CourseMemberDetailResponse> getJoinRequests(UUID courseId, UUID currentUserId, String accessToken);
+    PagingResponse<CourseMemberDetailResponse> getJoinRequests(UUID courseId, UUID currentUserId, String accessToken, PagingRequest request);
 
     CourseMemberResponse approveJoinRequest(UUID courseId, UUID memberId, UUID currentUserId);
 
