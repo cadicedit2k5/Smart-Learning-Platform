@@ -19,6 +19,7 @@ import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 
 @RestController
@@ -70,14 +71,11 @@ public class ApiCourseController {
 
     @PreAuthorize(Authorities.COURSE_READ)
     @GetMapping("/me")
-    public ResponseEntity<ApiResponse<List<CourseResponse>>> myCourses(
+    public ResponseEntity<ApiResponse<PagingResponse<CourseResponse>>> myCourses(
+            @ModelAttribute PagingRequest request,
             @AuthenticationPrincipal Jwt jwt
     ) {
-        return ApiResponses.ok(
-                courseService.getMyCourses(
-                        UUID.fromString(jwt.getSubject())
-                )
-        );
+        return ApiResponses.ok(courseService.getMyCourses(UUID.fromString(Objects.requireNonNull(jwt.getSubject())), request));
     }
 
     @PreAuthorize(Authorities.COURSE_MANAGE)

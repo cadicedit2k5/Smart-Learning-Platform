@@ -21,7 +21,10 @@ public interface CourseService {
             UUID currentUserId
     );
 
-    List<CourseResponse> getMyCourses(UUID currentUserId);
+    PagingResponse<CourseResponse> getMyCourses(
+            UUID currentUserId,
+            PagingRequest request
+    );
 
     PagingResponse<PublicCourseResponse> getPublicCourses(
             PagingRequest pagingRequest,

@@ -22,6 +22,7 @@ import com.smartlearning.core.course.service.CourseService;
 import com.smartlearning.core.course.utils.CourseUtils;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
@@ -95,18 +96,13 @@ public class CourseServiceImpl implements CourseService {
     }
 
     @Override
-    public List<CourseResponse> getMyCourses(UUID currentUserId) {
-        return memberRepository
-                .findAllByUserIdAndStatusAndCourseDeletedAtIsNullOrderByCourseUpdatedAtDesc(
+    public PagingResponse<CourseResponse> getMyCourses(UUID currentUserId, PagingRequest request) {
+        Page<CourseResponse> courses = memberRepository.findCoursesByUserIdAndStatus(
                         currentUserId,
-                        CourseMemberStatus.ACTIVE
-                )
-                .stream()
-                .map(member -> courseUtils.withRole(
-                        courseMapper.toResponse(member.getCourse()),
-                        member.getRole()
-                ))
-                .toList();
+                        CourseMemberStatus.ACTIVE,
+                        request.pageable()).map(courseMapper::toResponse);
+
+        return PagingResponse.from(courses);
     }
 
     @Override

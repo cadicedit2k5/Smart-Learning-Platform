@@ -18,7 +18,7 @@ import {
   BaseEmptyState,
   BaseInput,
   BasePageHeader,
-  BaseStatCard,
+  BasePagination,
 } from '@/shared/components'
 
 import {
@@ -31,10 +31,26 @@ import type { Course, CourseStatus } from '@/shared/course/types.ts'
 import { getMyCourses } from '@/shared/course/api.ts'
 import { courseStatusLabel, courseStatusTone, courseVisibilityLabel } from '@/shared/course/presentation.ts'
 import { formatDate } from '@/shared/utils/date.ts'
+import type { PaginatedData } from '@/shared/api/types.ts'
 
 const { handleApiError } = useLecturerApiError()
 
-const courses = ref<Course[]>([])
+const coursesPage = ref<PaginatedData<Course>>({
+  content: [],
+  pageable: {
+    page: 1,
+    size: 10,
+    totalElements: 0,
+    totalPages: 0,
+  },
+})
+
+const currentPage = ref(1)
+
+const totalPages = computed(
+  () => coursesPage.value.pageable.totalPages,
+)
+
 const loading = ref(true)
 const loadError = ref('')
 const keyword = ref('')
@@ -44,40 +60,27 @@ const saving = ref(false)
 const formMessage = ref('')
 const formErrors = ref<Record<string, string>>({})
 
-const filteredCourses = computed(() => {
-  const query = keyword.value.trim().toLocaleLowerCase('vi')
-
-  return courses.value.filter((course) => {
-    const matchesStatus = !statusFilter.value || course.status === statusFilter.value
-    const matchesKeyword =
-      !query ||
-      course.title.toLocaleLowerCase('vi').includes(query) ||
-      course.description?.toLocaleLowerCase('vi').includes(query) ||
-      course.level?.toLocaleLowerCase('vi').includes(query)
-
-    return matchesStatus && Boolean(matchesKeyword)
-  })
-})
-
-const publishedCount = computed(() => {
-  return courses.value.filter((course) => course.status === 'PUBLISHED').length
-})
-
-const draftCount = computed(() => {
-  return courses.value.filter((course) => course.status === 'DRAFT').length
-})
-
 const loadCourses = async () => {
   loading.value = true
   loadError.value = ''
 
   try {
-    courses.value = await getMyCourses()
+    coursesPage.value = await getMyCourses(currentPage.value)
   } catch (error) {
     loadError.value = handleApiError(error, 'Không thể tải danh sách khóa học.').message
   } finally {
     loading.value = false
   }
+}
+
+const goToPage = (page: number) => {
+  if (page < 1 || page > totalPages.value || page === currentPage.value) {
+    return
+  }
+
+  currentPage.value = page;
+
+  void loadCourses()
 }
 
 const openCreate = () => {
@@ -93,7 +96,7 @@ const submitCreate = async (input: CourseInput) => {
 
   try {
     const created = await createCourse(input)
-    courses.value.unshift(created)
+    coursesPage.value.content.unshift(created)
     formOpen.value = false
   } catch (error) {
     const parsed = handleApiError(error, 'Không thể tạo khóa học.')
@@ -125,25 +128,6 @@ onMounted(() => {
         </BaseButton>
       </template>
     </BasePageHeader>
-
-    <div class="grid gap-4 sm:grid-cols-3">
-      <BaseStatCard
-        label="Tổng khóa học"
-        :value="courses.length"
-      />
-
-      <BaseStatCard
-        label="Đã xuất bản"
-        :value="publishedCount"
-        tone="success"
-      />
-
-      <BaseStatCard
-        label="Đang soạn"
-        :value="draftCount"
-        tone="warning"
-      />
-    </div>
 
     <BaseAlert v-if="loadError">
       <div class="flex flex-wrap items-center justify-between gap-3">
@@ -180,14 +164,14 @@ onMounted(() => {
     </div>
 
     <BaseEmptyState
-      v-else-if="filteredCourses.length === 0"
+      v-else-if="totalPages === 0"
       :title="
-        courses.length === 0
+        totalPages === 0
           ? 'Chưa có khóa học nào'
           : 'Không tìm thấy khóa học phù hợp'
       "
       :description="
-        courses.length === 0
+        totalPages === 0
           ? 'Tạo khóa học đầu tiên để bắt đầu xây dựng nội dung và mời học viên.'
           : 'Thử thay đổi từ khóa hoặc bộ lọc trạng thái.'
       "
@@ -197,7 +181,7 @@ onMounted(() => {
       </template>
 
       <template
-        v-if="courses.length === 0"
+        v-if="totalPages === 0"
         #actions
       >
         <BaseButton @click="openCreate">
@@ -212,7 +196,7 @@ onMounted(() => {
 
     <div v-else class="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
       <RouterLink
-        v-for="course in filteredCourses"
+        v-for="course in coursesPage.content"
         :key="course.id"
         :to="{ name: 'lecturer-course-detail', params: { courseId: course.id } }"
         class="group flex min-h-72 flex-col overflow-hidden rounded-card border border-app-border bg-app-surface shadow-card transition hover:-translate-y-0.5 hover:border-secondary/50 hover:shadow-overlay"
@@ -256,6 +240,25 @@ onMounted(() => {
         </div>
       </RouterLink>
     </div>
+
+    <BasePagination
+      v-if="
+        !loading &&
+        coursesPage.pageable.totalElements > 0
+      "
+      class="mt-6"
+      :page="currentPage"
+      :total-pages="totalPages"
+      :total-elements="
+        coursesPage.pageable.totalElements
+      "
+      @previous="
+        goToPage(currentPage - 1)
+      "
+      @next="
+        goToPage(currentPage + 1)
+      "
+    />
 
     <CourseFormModal
       :open="formOpen"
