@@ -4,7 +4,7 @@ export const studentRoutes: RouteRecordRaw[] = [
   {
     path: '',
     redirect: {
-      name: 'student-dashboard',
+      name: 'student-public-courses',
     },
   },
   {

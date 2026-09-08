@@ -15,7 +15,7 @@ import authBrain from '@/assets/images/auth-brain.png'
 
     <header class="relative z-10 px-10 py-8 xl:px-14">
       <RouterLink
-        to="/login"
+        to="/"
         class="inline-flex items-center gap-2 text-sm font-semibold text-app-text"
       >
         <span class="flex h-8 w-8 items-center justify-center rounded-control bg-primary text-on-primary">
