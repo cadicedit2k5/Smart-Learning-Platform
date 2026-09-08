@@ -5,6 +5,7 @@ import {
   CalendarDays,
   CheckCircle2,
   Clock3,
+  Search,
   Send,
 } from 'lucide-vue-next'
 
@@ -14,10 +15,11 @@ import {
   BaseButton,
   BaseCard,
   BaseEmptyState,
+  BaseInput,
   BasePageHeader,
   BasePagination,
 } from '@/shared/components'
-import type { PageableData } from '@/shared/api'
+import type { PageableData, PaginatedData } from '@/shared/api'
 
 import {
   getPublicCourses,
@@ -29,17 +31,21 @@ import { formatDate } from '@/shared/utils'
 
 const { handleApiError } = useStudentApiError()
 
-const courses = ref<PublicCourse[]>([])
-
-const pageable = ref<PageableData>({
-  page: 1,
-  size: 10,
-  totalElements: 0,
-  totalPages: 0,
+const coursesPage = ref<PaginatedData<PublicCourse>>({
+  content: [],
+  pageable: {
+    page: 1,
+    size: 6,
+    totalElements: 0,
+    totalPages: 0,
+  },
 })
 
 const loading = ref(true)
 const loadError = ref('')
+
+const keyword = ref('')
+const appliedKeyword = ref('')
 
 const requestingCourseId = ref<string | null>(null)
 const actionError = ref('')
@@ -49,10 +55,12 @@ const loadCourses = async (page = 1) => {
   loadError.value = ''
 
   try {
-    const result = await getPublicCourses(page)
+    const result = await getPublicCourses({
+      page,
+      keyword: appliedKeyword.value || undefined
+    })
 
-    courses.value = result.content
-    pageable.value = result.pageable
+    coursesPage.value = result
   } catch (error) {
     loadError.value = handleApiError(
       error,
@@ -61,6 +69,19 @@ const loadCourses = async (page = 1) => {
   } finally {
     loading.value = false
   }
+}
+
+const applySearch = () => {
+  appliedKeyword.value = keyword.value.trim()
+
+  void loadCourses(1)
+}
+
+const resetSearch = () => {
+  keyword.value = ''
+  appliedKeyword.value = ''
+
+  void loadCourses(1)
 }
 
 const requestJoin = async (course: PublicCourse) => {
@@ -82,11 +103,7 @@ const requestJoin = async (course: PublicCourse) => {
 }
 
 const goToPage = async (page: number) => {
-  if (
-    page < 1 ||
-    page > pageable.value.totalPages ||
-    page === pageable.value.page
-  ) {
+  if ( page < 1 || page > coursesPage.value.pageable.totalPages || page === coursesPage.value.pageable.page) {
     return
   }
 
@@ -101,6 +118,51 @@ onMounted(() => void loadCourses())
     <BasePageHeader
       title="Khóa học công khai"
     />
+
+    <section
+      class="
+        rounded-card
+        border border-app-border
+        bg-app-surface
+        p-4 shadow-card
+      "
+    >
+      <form
+        class="flex gap-3"
+        @submit.prevent="applySearch"
+      >
+        <div class="min-w-0 flex-1">
+          <BaseInput
+            v-model="keyword"
+            placeholder="Tìm theo tên, mô tả hoặc cấp độ..."
+          >
+            <template #leading>
+              <Search :size="18" />
+            </template>
+          </BaseInput>
+        </div>
+
+        <BaseButton
+          type="submit"
+          variant="secondary"
+        >
+          Tìm
+        </BaseButton>
+      </form>
+
+      <button
+        v-if="appliedKeyword"
+        type="button"
+        class="
+          mt-3 text-sm font-semibold
+          text-secondary
+          hover:underline
+        "
+        @click="resetSearch"
+      >
+        Xóa tìm kiếm
+      </button>
+    </section>
 
     <BaseAlert
       v-if="actionError"
@@ -117,7 +179,7 @@ onMounted(() => void loadCourses())
 
         <BaseButton
           variant="secondary"
-          @click="loadCourses(pageable.page)"
+          @click="loadCourses(coursesPage.pageable.page)"
         >
           Thử lại
         </BaseButton>
@@ -136,9 +198,17 @@ onMounted(() => void loadCourses())
     </div>
 
     <BaseEmptyState
-      v-else-if="courses.length === 0"
-      title="Chưa có khóa học công khai"
-      description="Hiện chưa có khóa học nào được công khai."
+      v-else-if="coursesPage.content.length === 0"
+      :title="
+        appliedKeyword
+          ? 'Không tìm thấy khóa học phù hợp'
+          : 'Chưa có khóa học công khai'
+      "
+      :description="
+        appliedKeyword
+          ? 'Thử tìm kiếm bằng từ khóa khác.'
+          : 'Hiện chưa có khóa học nào được công khai.'
+      "
     >
       <template #icon>
         <BookOpen :size="24" />
@@ -150,7 +220,7 @@ onMounted(() => void loadCourses())
       class="grid gap-5 md:grid-cols-2 xl:grid-cols-3"
     >
       <BaseCard
-        v-for="course in courses"
+        v-for="course in coursesPage.content"
         :key="course.id"
       >
         <div class="flex h-full flex-col">
@@ -263,14 +333,13 @@ onMounted(() => void loadCourses())
     <BasePagination
       v-if="
         !loading &&
-        courses.length > 0 &&
-        pageable.totalPages > 1
+        coursesPage.pageable.totalElements > 0
       "
-      :page="pageable.page"
-      :total-pages="pageable.totalPages"
-      :total-elements="pageable.totalElements"
-      @previous="goToPage(pageable.page - 1)"
-      @next="goToPage(pageable.page + 1)"
+      :page="coursesPage.pageable.page"
+      :total-pages="coursesPage.pageable.totalPages"
+      :total-elements="coursesPage.pageable.totalElements"
+      @previous="goToPage(coursesPage.pageable.page - 1)"
+      @next="goToPage(coursesPage.pageable.page + 1)"
     />
   </section>
 </template>

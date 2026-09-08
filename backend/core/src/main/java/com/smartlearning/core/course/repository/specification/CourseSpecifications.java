@@ -27,7 +27,8 @@ public class CourseSpecifications {
         return (root, query, criteriaBuilder) ->
                 criteriaBuilder.or(
                         criteriaBuilder.like(criteriaBuilder.lower(root.get("title")), pattern),
-                        criteriaBuilder.like(criteriaBuilder.lower(root.get("description")), pattern));
+                        criteriaBuilder.like(criteriaBuilder.lower(root.get("description")), pattern),
+                        criteriaBuilder.like(criteriaBuilder.lower(root.get("level")), pattern));
     }
 
     public static Specification<Course> status(CourseStatus status) {
@@ -53,7 +54,7 @@ public class CourseSpecifications {
                 criteriaBuilder.isNull(root.get("deletedAt"));
     }
 
-    public static Specification<Course> members(UUID userId) {
+    public static Specification<Course> activeMembers(UUID userId) {
         return (root, query, criteriaBuilder) -> {
             Join<Course, CourseMember> member = root.join("members", JoinType.INNER);
 

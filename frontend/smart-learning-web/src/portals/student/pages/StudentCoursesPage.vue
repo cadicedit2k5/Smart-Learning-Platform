@@ -4,41 +4,80 @@ import { ArrowRight, BookOpen, CalendarDays, Search } from 'lucide-vue-next'
 
 import {
   BaseAlert,
+  BaseButton,
   BaseEmptyState,
   BaseInput,
   BasePageHeader,
+  BasePagination,
 } from '@/shared/components'
 import { useStudentApiError } from '../composables/useStudentApiError'
 import { getMyCourses, type Course } from '@/shared/course'
 import { formatDate } from '@/shared/utils'
+import type { PaginatedData } from '@/shared/api'
 
 const { handleApiError } = useStudentApiError()
-const courses = ref<Course[]>([])
+const coursesPage = ref<PaginatedData<Course>>({
+  content: [],
+  pageable: {
+    page: 1,
+    size: 6,
+    totalElements: 0,
+    totalPages: 0,
+  },
+})
 const loading = ref(true)
 const loadError = ref('')
 const keyword = ref('')
+const appliedKeyword = ref('')
 
-const filteredCourses = computed(() => {
-  const query = keyword.value.trim().toLocaleLowerCase('vi')
-  if (!query) return courses.value
-  return courses.value.filter(
-    (course) =>
-      course.title.toLocaleLowerCase('vi').includes(query) ||
-      course.description?.toLocaleLowerCase('vi').includes(query) ||
-      course.level?.toLocaleLowerCase('vi').includes(query),
-  )
-})
+const currentPage = ref(1)
+
+const totalPages = computed(() =>
+    coursesPage.value.pageable.totalPages
+)
+
+const hasSearch = computed(() => appliedKeyword.value !== '')
 
 const loadCourses = async () => {
   loading.value = true
   loadError.value = ''
   try {
-    courses.value = await getMyCourses()
+    coursesPage.value = await getMyCourses({
+      page: currentPage.value,
+      keyword: appliedKeyword.value || undefined
+    })
   } catch (error) {
     loadError.value = handleApiError(error, 'Không thể tải danh sách khóa học.').message
   } finally {
     loading.value = false
   }
+}
+
+const applySearch = () => {
+  appliedKeyword.value = keyword.value.trim()
+
+  currentPage.value = 1
+
+  void loadCourses()
+}
+
+const resetSearch = () => {
+  keyword.value = ''
+  appliedKeyword.value = ''
+
+  currentPage.value = 1
+
+  void loadCourses()
+}
+
+const goToPage = (page: number) => {
+  if (page < 1 || page > totalPages.value || page === currentPage.value) {
+    return
+  }
+
+  currentPage.value = page
+
+  void loadCourses()
 }
 
 onMounted(() => void loadCourses())
@@ -57,12 +96,19 @@ onMounted(() => void loadCourses())
       </div>
     </BaseAlert>
 
-    <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-      <h2 class="font-heading text-xl font-bold text-app-text">Danh sách khóa học</h2>
-      <BaseInput v-model="keyword" class="w-full sm:max-w-sm" placeholder="Tìm khóa học..."
-        ><template #leading><Search :size="18" /></template
-      ></BaseInput>
-    </div>
+    <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between"> <h2 class="font-heading text-xl font-bold text-app-text"> Danh sách khóa học </h2>
+
+    <form class="flex w-full gap-3 sm:max-w-lg" @submit.prevent="applySearch"> <BaseInput v-model="keyword" class="flex-1" placeholder="Tìm khóa học..."> <template #leading> <Search :size="18" /> </template> </BaseInput>
+
+    <BaseButton type="submit" variant="secondary">
+      Tìm
+    </BaseButton>
+
+    </form> </div>
+
+    <button v-if="hasSearch" type="button" class="text-sm font-semibold text-secondary hover" @click="resetSearch">
+    Xóa tìm kiếm
+    </button>
 
     <div v-if="loading" class="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
       <div
@@ -72,14 +118,16 @@ onMounted(() => void loadCourses())
       />
     </div>
     <BaseEmptyState
-      v-else-if="filteredCourses.length === 0"
+      v-else-if="
+        coursesPage.content.length === 0
+      "
       :title="
-        courses.length
+        hasSearch
           ? 'Không tìm thấy khóa học phù hợp'
           : 'Bạn chưa tham gia khóa học nào'
       "
       :description="
-        courses.length
+        hasSearch
           ? 'Thử thay đổi từ khóa tìm kiếm.'
           : 'Khám phá các khóa học công khai để gửi yêu cầu tham gia.'
       "
@@ -88,9 +136,10 @@ onMounted(() => void loadCourses())
         <BookOpen :size="24" />
       </template>
     </BaseEmptyState>
+
     <div v-else class="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
       <RouterLink
-        v-for="course in filteredCourses"
+        v-for="course in coursesPage.content"
         :key="course.id"
         :to="{ name: 'student-course-detail', params: { courseId: course.id } }"
         class="group flex min-h-64 flex-col overflow-hidden rounded-card border border-app-border bg-app-surface shadow-card transition hover:-translate-y-0.5 hover:border-secondary/50 hover:shadow-overlay"
@@ -125,4 +174,21 @@ onMounted(() => void loadCourses())
       </RouterLink>
     </div>
   </section>
+  <BasePagination
+    v-if="
+      !loading &&
+      coursesPage.pageable.totalElements > 0
+    "
+    :page="currentPage"
+    :total-pages="totalPages"
+    :total-elements="
+      coursesPage.pageable.totalElements
+    "
+    @previous="
+      goToPage(currentPage - 1)
+    "
+    @next="
+      goToPage(currentPage + 1)
+    "
+  />
 </template>

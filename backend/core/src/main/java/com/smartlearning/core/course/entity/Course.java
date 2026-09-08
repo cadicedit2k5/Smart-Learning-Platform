@@ -8,6 +8,8 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.time.Instant;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.UUID;
 
 @Getter
@@ -41,4 +43,7 @@ public class Course extends BaseEntity {
 
     @Column(name = "deleted_at")
     private Instant deletedAt;
+
+    @OneToMany(mappedBy = "course", fetch = FetchType.LAZY)
+    private Set<CourseMember> members = new HashSet<>();
 }

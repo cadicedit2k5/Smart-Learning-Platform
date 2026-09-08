@@ -55,22 +55,54 @@ const loading = ref(true)
 const loadError = ref('')
 const keyword = ref('')
 const statusFilter = ref<CourseStatus | ''>('')
+const appliedKeyword = ref('')
+const appliedStatus = ref<CourseStatus | ''>('')
 const formOpen = ref(false)
 const saving = ref(false)
 const formMessage = ref('')
 const formErrors = ref<Record<string, string>>({})
+
+const hasActiveFilters = computed(() =>
+    appliedKeyword.value !== '' || appliedStatus.value !== ''
+)
 
 const loadCourses = async () => {
   loading.value = true
   loadError.value = ''
 
   try {
-    coursesPage.value = await getMyCourses(currentPage.value)
+    coursesPage.value = await getMyCourses({
+      page: currentPage.value,
+      keyword: appliedKeyword.value || undefined,
+      status: appliedStatus.value || undefined,
+    })
   } catch (error) {
     loadError.value = handleApiError(error, 'Không thể tải danh sách khóa học.').message
   } finally {
     loading.value = false
   }
+}
+
+const applyFilters = () => {
+  appliedKeyword.value = keyword.value.trim()
+
+  appliedStatus.value = statusFilter.value
+
+  currentPage.value = 1
+
+  void loadCourses()
+}
+
+const resetFilters = () => {
+  keyword.value = ''
+  statusFilter.value = ''
+
+  appliedKeyword.value = ''
+  appliedStatus.value = ''
+
+  currentPage.value = 1
+
+  void loadCourses()
 }
 
 const goToPage = (page: number) => {
@@ -96,8 +128,11 @@ const submitCreate = async (input: CourseInput) => {
 
   try {
     const created = await createCourse(input)
-    coursesPage.value.content.unshift(created)
     formOpen.value = false
+
+    currentPage.value = 1
+
+    await loadCourses()
   } catch (error) {
     const parsed = handleApiError(error, 'Không thể tạo khóa học.')
     formMessage.value = parsed.message
@@ -136,24 +171,17 @@ onMounted(() => {
       </div>
     </BaseAlert>
 
-    <section class="rounded-card border border-app-border bg-app-surface p-4 shadow-card sm:p-5">
-      <div class="grid gap-3 sm:grid-cols-[minmax(0,1fr)_13rem]">
-        <BaseInput v-model="keyword" placeholder="Tìm theo tên, mô tả hoặc cấp độ...">
-          <template #leading><Search :size="18" /></template>
-        </BaseInput>
+    <form class="grid gap-3 sm:grid-cols-[minmax(0,1fr)_13rem_auto]" @submit.prevent="applyFilters"> <BaseInput v-model="keyword" placeholder="Tìm theo tên, mô tả hoặc cấp độ..."> <template #leading> <Search :size="18" /> </template> </BaseInput>
 
-        <select
-          v-model="statusFilter"
-          aria-label="Lọc theo trạng thái"
-          class="h-11 rounded-control border border-app-border bg-app-surface px-3 text-sm outline-none focus:border-secondary focus:ring-2 focus:ring-secondary/20"
-        >
-          <option value="">Tất cả trạng thái</option>
-          <option value="DRAFT">Bản nháp</option>
-          <option value="PUBLISHED">Đã xuất bản</option>
-          <option value="ARCHIVED">Đã lưu trữ</option>
-        </select>
-      </div>
-    </section>
+      <select v-model="statusFilter" aria-label="Lọc theo trạng thái" class="h-11 rounded-control border border-app-border bg-app-surface px-3 text-sm outline-none focus:border-secondary focus:ring-2 focus:ring-secondary/20"> <option value="">Tất cả trạng thái</option> <option value="DRAFT">Bản nháp</option> <option value="PUBLISHED">Đã xuất bản</option> <option value="ARCHIVED">Đã lưu trữ</option> </select>
+
+      <BaseButton type="submit" variant="secondary">Lọc</BaseButton>
+
+    </form>
+
+    <button v-if="hasActiveFilters" type="button" class="mt-3 text-sm font-semibold text-secondary hover" @click="resetFilters">
+    Xóa bộ lọc
+    </button>
 
     <div v-if="loading" class="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
       <div
@@ -164,16 +192,18 @@ onMounted(() => {
     </div>
 
     <BaseEmptyState
-      v-else-if="totalPages === 0"
+      v-else-if="
+        coursesPage.content.length === 0
+      "
       :title="
-        totalPages === 0
-          ? 'Chưa có khóa học nào'
-          : 'Không tìm thấy khóa học phù hợp'
+        hasActiveFilters
+          ? 'Không tìm thấy khóa học phù hợp'
+          : 'Chưa có khóa học nào'
       "
       :description="
-        totalPages === 0
-          ? 'Tạo khóa học đầu tiên để bắt đầu xây dựng nội dung và mời học viên.'
-          : 'Thử thay đổi từ khóa hoặc bộ lọc trạng thái.'
+        hasActiveFilters
+          ? 'Thử thay đổi từ khóa hoặc trạng thái.'
+          : 'Tạo khóa học đầu tiên để bắt đầu xây dựng nội dung và mời học viên.'
       "
     >
       <template #icon>
@@ -181,7 +211,7 @@ onMounted(() => {
       </template>
 
       <template
-        v-if="totalPages === 0"
+        v-if="!hasActiveFilters"
         #actions
       >
         <BaseButton @click="openCreate">

@@ -24,6 +24,11 @@ export interface PublicCourse {
   currentUserMembershipStatus: CourseMemberStatus | null
 }
 
+export interface PublicCourseParams {
+  page?: number
+  keyword?: string
+}
+
 export const getCurrentMembership = async (courseId: string): Promise<CourseMembership> => {
   const response = await httpClient.get<ApiResponse<CourseMembership>>(
     `/courses/${courseId}/members/me`,
@@ -31,9 +36,9 @@ export const getCurrentMembership = async (courseId: string): Promise<CourseMemb
   return response.data.data;
 }
 
-export const getPublicCourses = async (page = 1): Promise<PaginatedData<PublicCourse>> => {
+export const getPublicCourses = async (params: PublicCourseParams = {}): Promise<PaginatedData<PublicCourse>> => {
   const response = await httpClient.get<ApiResponse<PaginatedData<PublicCourse>>>('/courses/public', {
-    params: { page },
+    params,
   });
 
   return response.data.data;

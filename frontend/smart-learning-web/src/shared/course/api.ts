@@ -1,14 +1,22 @@
 import { httpClient, type ApiResponse, type PaginatedData } from "../api"
-import type { Course } from "./types"
+import type { Course, CourseStatus } from "./types"
 
 const coursesPath = '/courses'
 
-export const getMyCourses = async (page = 1): Promise<PaginatedData<Course>> => {
+export interface MyCourseParams {
+  page?: number
+  keyword?: string
+  status?: CourseStatus
+}
+
+export const getMyCourses = async (params: MyCourseParams = {}): Promise<PaginatedData<Course>> => {
   const response = await httpClient.get<ApiResponse<PaginatedData<Course>>>(
       `${coursesPath}/me`,
       {
         params: {
-          page,
+          page: params.page,
+          keyword: params.keyword,
+          status: params.status,
         },
       },
     )

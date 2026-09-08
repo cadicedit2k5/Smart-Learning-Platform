@@ -26,6 +26,9 @@ import com.smartlearning.core.course.utils.CourseUtils;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
@@ -104,7 +107,7 @@ public class CourseServiceImpl implements CourseService {
 
         Specification<Course> specifications = Specification.allOf(
                 request.specification(),
-                CourseSpecifications.members(currentUserId)
+                CourseSpecifications.activeMembers(currentUserId)
         );
 
         Page<CourseResponse> courses = courseRepository.findAll(specifications, request.pageable()).map(courseMapper::toResponse);
@@ -117,7 +120,16 @@ public class CourseServiceImpl implements CourseService {
             PublicCourseFilterRequest request,
             UUID currentUserId
     ) {
-        var courses = courseRepository.findAll(request.specification(), request.pageable());
+
+        Pageable pageable = request.pageable();
+
+        if (pageable.getSort().isUnsorted()) {
+            pageable = PageRequest.of(
+                    pageable.getPageNumber(),
+                    pageable.getPageSize(),
+                    Sort.by(Sort.Direction.DESC, "publishedAt"));
+        }
+        var courses = courseRepository.findAll(request.specification(), pageable);
 
         List<UUID> courseIds = courses.getContent().stream()
                 .map(Course::getId)
