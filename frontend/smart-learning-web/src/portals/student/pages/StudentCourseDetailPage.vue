@@ -12,6 +12,11 @@ import {
 } from 'lucide-vue-next'
 import { useRoute } from 'vue-router'
 
+import {
+  getCourseProgress,
+  type CourseLearningProgress,
+} from '../api/learningProgressApi'
+
 import BaseAlert from '@/shared/components/BaseAlert.vue'
 import BaseButton from '@/shared/components/BaseButton.vue'
 import BaseCard from '@/shared/components/BaseCard.vue'
@@ -39,6 +44,8 @@ const membership = ref<CourseMembership | null>(null)
 const activeTab = ref<DetailTab>('overview')
 const loading = ref(true)
 const loadError = ref('')
+const progress =
+  ref<CourseLearningProgress | null>(null)
 
 const tabs: Array<{ id: DetailTab; label: string; icon: typeof BookOpen }> = [
   { id: 'overview', label: 'Tổng quan', icon: BookOpen },
@@ -51,12 +58,14 @@ const loadDetail = async () => {
   loading.value = true
   loadError.value = ''
   try {
-    const [courseData, membershipData] = await Promise.all([
+    const [courseData, membershipData, progressData] = await Promise.all([
       getCourse(courseId.value),
       getCurrentMembership(courseId.value),
+      getCourseProgress(courseId.value),
     ])
     course.value = courseData
     membership.value = membershipData
+    progress.value = progressData
   } catch (error) {
     loadError.value = handleApiError(error, 'Không thể tải thông tin khóa học.').message
   } finally {
@@ -146,7 +155,11 @@ onMounted(() => void loadDetail())
         aria-label="Nội dung khóa học"
       />
 
-      <div v-if="activeTab === 'overview'" class="grid gap-5 lg:grid-cols-[minmax(0,1fr)_20rem]">
+      <div
+        v-if="activeTab === 'overview'"
+        class="space-y-5"
+      >
+        <!-- Description -->
         <BaseCard>
           <template #header>
             <h2
@@ -166,10 +179,88 @@ onMounted(() => void loadDetail())
           </p>
         </BaseCard>
 
+        <!-- Progress -->
+        <BaseCard v-if="progress">
+          <template #header>
+            <div
+              class="flex flex-wrap items-center justify-between gap-3"
+            >
+              <div>
+                <h2
+                  class="font-heading text-xl font-bold text-app-text"
+                >
+                  Tiến độ học tập
+                </h2>
+
+                <p
+                  class="mt-1 text-sm text-app-text-muted"
+                >
+                  {{
+                    progress.completedTopics
+                  }}/{{ progress.totalTopics }}
+                  bài học đã hoàn thành
+                </p>
+              </div>
+
+              <span
+                class="font-heading text-2xl font-bold text-secondary"
+              >
+                {{ progress.progressPercentage }}%
+              </span>
+            </div>
+          </template>
+
+          <div>
+            <div
+              class="h-3 overflow-hidden rounded-pill bg-app-surface-muted"
+            >
+              <div
+                class="h-full rounded-pill bg-secondary transition-all"
+                :style="{
+                  width: `${progress.progressPercentage}%`,
+                }"
+              />
+            </div>
+
+            <div
+              class="mt-5 flex flex-wrap items-center justify-between gap-3"
+            >
+              <p
+                class="text-sm text-app-text-muted"
+              >
+                <template
+                  v-if="progress.progressPercentage === 100"
+                >
+                  Bạn đã hoàn thành khóa học.
+                </template>
+
+                <template v-else-if="progress.lastTopicId">
+                  Tiếp tục bài học gần nhất của bạn.
+                </template>
+
+                <template v-else>
+                  Bắt đầu bài học đầu tiên để ghi nhận
+                  tiến độ.
+                </template>
+              </p>
+
+              <BaseButton
+                @click="activeTab = 'content'"
+              >
+                {{
+                  progress.lastTopicId
+                    ? 'Tiếp tục học'
+                    : 'Bắt đầu học'
+                }}
+              </BaseButton>
+            </div>
+          </div>
+        </BaseCard>
+
         <div
           class="grid gap-5 lg:grid-cols-[minmax(0,1fr)_20rem]"
         >
-          <!-- Thông tin khóa học -->
+          <!-- Course info -->
           <BaseCard>
             <template #header>
               <h2
@@ -188,7 +279,9 @@ onMounted(() => void loadDetail())
                   Cấp độ
                 </dt>
 
-                <dd class="mt-2 font-semibold text-app-text">
+                <dd
+                  class="mt-2 font-semibold text-app-text"
+                >
                   {{ course.level || 'Chưa cập nhật' }}
                 </dd>
               </div>
@@ -201,7 +294,9 @@ onMounted(() => void loadDetail())
                   Cập nhật gần nhất
                 </dt>
 
-                <dd class="mt-2 font-semibold text-app-text">
+                <dd
+                  class="mt-2 font-semibold text-app-text"
+                >
                   {{ formatDate(course.updatedAt) }}
                 </dd>
               </div>
@@ -224,8 +319,10 @@ onMounted(() => void loadDetail())
                   Vai trò
                 </dt>
 
-                <dd class="mt-1 font-semibold text-app-text">
-                  {{ membership.role }}
+                <dd
+                  class="mt-1 font-semibold text-app-text"
+                >
+                  Học viên
                 </dd>
               </div>
 
@@ -234,8 +331,10 @@ onMounted(() => void loadDetail())
                   Trạng thái
                 </dt>
 
-                <dd class="mt-1 font-semibold text-app-text">
-                  {{ membership.status }}
+                <dd
+                  class="mt-1 font-semibold text-app-text"
+                >
+                  Đang tham gia
                 </dd>
               </div>
 
@@ -244,7 +343,9 @@ onMounted(() => void loadDetail())
                   Tham gia ngày
                 </dt>
 
-                <dd class="mt-1 font-semibold text-app-text">
+                <dd
+                  class="mt-1 font-semibold text-app-text"
+                >
                   {{ formatDate(membership.joinedAt) }}
                 </dd>
               </div>
@@ -252,7 +353,7 @@ onMounted(() => void loadDetail())
           </BaseCard>
         </div>
       </div>
-      <StudentCourseContentPanel v-else-if="activeTab === 'content'":course-id="course.id"/>
+      <StudentCourseContentPanel v-else-if="activeTab === 'content'" :course-id="course.id"/>
       <StudentDocumentsPanel v-else-if="activeTab === 'documents'" :course-id="course.id" />
       <StudentAiTutorPanel v-else :course-id="course.id" />
     </template>

@@ -2,22 +2,35 @@
 import { computed, onMounted, ref } from 'vue'
 import {
   BookOpen,
+  Check,
+  CheckCircle2,
   ChevronDown,
+  ChevronLeft,
   ChevronRight,
   Clock3,
   GraduationCap,
 } from 'lucide-vue-next'
 
 import BaseAlert from '@/shared/components/BaseAlert.vue'
+import BaseButton from '@/shared/components/BaseButton.vue'
 
-import { useStudentApiError } from '../composables/useStudentApiError'
-import TopicContentViewer from './StudentTopicContentViewer.vue'
 import {
   getChapters,
   getTopics,
   type CourseChapter,
   type CourseTopic,
 } from '@/shared/course-content'
+
+import {
+  completeTopic,
+  getCourseProgress,
+  startTopic,
+  type CourseLearningProgress,
+  type TopicLearningProgress,
+} from '../api/learningProgressApi'
+
+import { useStudentApiError } from '../composables/useStudentApiError'
+import TopicContentViewer from './StudentTopicContentViewer.vue'
 
 const props = defineProps<{
   courseId: string
@@ -32,17 +45,20 @@ interface ChapterWithTopics extends CourseChapter {
 const chapters = ref<ChapterWithTopics[]>([])
 const loading = ref(true)
 const message = ref('')
+const progress = ref<CourseLearningProgress | null>(null)
 
+const completingTopicId = ref('')
 const selectedTopic = ref<CourseTopic | null>(null)
 const expandedChapters = ref<Set<string>>(new Set())
 
 const selectedChapter = computed(() => {
-  if (!selectedTopic.value) return null
+  if (!selectedTopic.value) {
+    return null
+  }
 
   return (
     chapters.value.find(
-      (chapter) =>
-        chapter.id === selectedTopic.value?.chapterId,
+      (chapter) => chapter.id === selectedTopic.value?.chapterId,
     ) ?? null
   )
 })
@@ -51,6 +67,57 @@ const hasContent = computed(() => {
   const nodes = selectedTopic.value?.content?.content
 
   return Array.isArray(nodes) && nodes.length > 0
+})
+
+const progressByTopic = computed(() => {
+  const map = new Map<string, TopicLearningProgress>()
+
+  for (const item of progress.value?.topics ?? []) {
+    map.set(item.topicId, item)
+  }
+
+  return map
+})
+
+const topicProgress = (topicId: string) =>
+  progressByTopic.value.get(topicId)
+
+const isTopicCompleted = (topicId: string) =>
+  topicProgress(topicId)?.status === 'COMPLETED'
+
+const allTopics = computed(() =>
+  chapters.value.flatMap((chapter) => chapter.topics),
+)
+
+const selectedTopicIndex = computed(() => {
+  if (!selectedTopic.value) {
+    return -1
+  }
+
+  return allTopics.value.findIndex(
+    (topic) => topic.id === selectedTopic.value?.id,
+  )
+})
+
+const previousTopic = computed(() => {
+  const index = selectedTopicIndex.value
+
+  return index > 0
+    ? allTopics.value[index - 1]
+    : null
+})
+
+const nextTopic = computed(() => {
+  const index = selectedTopicIndex.value
+
+  if (
+    index < 0 ||
+    index >= allTopics.value.length - 1
+  ) {
+    return null
+  }
+
+  return allTopics.value[index + 1]
 })
 
 const toggleChapter = (chapterId: string) => {
@@ -65,7 +132,41 @@ const toggleChapter = (chapterId: string) => {
   expandedChapters.value = next
 }
 
-const selectTopic = (
+const updateLocalProgress = (
+  updated: TopicLearningProgress,
+) => {
+  if (!progress.value) {
+    return
+  }
+
+  const index = progress.value.topics.findIndex(
+    (item) => item.topicId === updated.topicId,
+  )
+
+  if (index >= 0) {
+    progress.value.topics[index] = updated
+  } else {
+    progress.value.topics.push(updated)
+  }
+
+  const completed = progress.value.topics.filter(
+    (item) => item.status === 'COMPLETED',
+  ).length
+
+  progress.value.completedTopics = completed
+
+  progress.value.progressPercentage =
+    progress.value.totalTopics === 0
+      ? 0
+      : Math.round(
+          (completed * 100) /
+            progress.value.totalTopics,
+        )
+
+  progress.value.lastTopicId = updated.topicId
+}
+
+const selectTopic = async (
   chapter: ChapterWithTopics,
   topic: CourseTopic,
 ) => {
@@ -75,6 +176,69 @@ const selectTopic = (
   ])
 
   selectedTopic.value = topic
+  message.value = ''
+
+  try {
+    const updated = await startTopic(
+      props.courseId,
+      topic.id,
+    )
+
+    updateLocalProgress(updated)
+  } catch (error) {
+    message.value = handleApiError(
+      error,
+      'Không thể cập nhật tiến độ học tập.',
+    ).message
+  }
+}
+
+const findChapterByTopic = (topicId: string) =>
+  chapters.value.find((chapter) =>
+    chapter.topics.some(
+      (topic) => topic.id === topicId,
+    ),
+  )
+
+const goToTopic = async (
+  topic: CourseTopic | null,
+) => {
+  if (!topic) {
+    return
+  }
+
+  const chapter = findChapterByTopic(topic.id)
+
+  if (!chapter) {
+    return
+  }
+
+  await selectTopic(chapter, topic)
+}
+
+const handleCompleteTopic = async () => {
+  if (!selectedTopic.value) {
+    return
+  }
+
+  completingTopicId.value = selectedTopic.value.id
+  message.value = ''
+
+  try {
+    const updated = await completeTopic(
+      props.courseId,
+      selectedTopic.value.id,
+    )
+
+    updateLocalProgress(updated)
+  } catch (error) {
+    message.value = handleApiError(
+      error,
+      'Không thể hoàn thành bài học.',
+    ).message
+  } finally {
+    completingTopicId.value = ''
+  }
 }
 
 const loadContent = async () => {
@@ -82,38 +246,78 @@ const loadContent = async () => {
   message.value = ''
 
   try {
-    const chapterData =
-      await getChapters(props.courseId)
+    const [chapterData, progressData] =
+      await Promise.all([
+        getChapters(props.courseId),
+        getCourseProgress(props.courseId),
+      ])
 
-    const chaptersWithTopics =
-      await Promise.all(
-        chapterData.map(async (chapter) => ({
-          ...chapter,
-          topics: await getTopics(
-            props.courseId,
-            chapter.id,
-          ),
-        })),
-      )
+    const chaptersWithTopics = await Promise.all(
+      chapterData.map(async (chapter) => ({
+        ...chapter,
+        topics: await getTopics(
+          props.courseId,
+          chapter.id,
+        ),
+      })),
+    )
 
     chapters.value = chaptersWithTopics
-    console.log(
-        'TOPIC CONTENT:',
-        chaptersWithTopics[0]?.topics[0]?.content,
-        )
+    progress.value = progressData
 
-    const firstChapter =
-      chaptersWithTopics.find(
+    let topicToOpen: CourseTopic | undefined
+    let chapterToOpen:
+      | ChapterWithTopics
+      | undefined
+
+    // Ưu tiên bài học gần nhất.
+    if (progressData.lastTopicId) {
+      chapterToOpen = chaptersWithTopics.find(
+        (chapter) =>
+          chapter.topics.some(
+            (topic) =>
+              topic.id === progressData.lastTopicId,
+          ),
+      )
+
+      topicToOpen = chapterToOpen?.topics.find(
+        (topic) =>
+          topic.id === progressData.lastTopicId,
+      )
+    }
+
+    // Chưa từng học → mở bài đầu tiên.
+    if (!topicToOpen) {
+      chapterToOpen = chaptersWithTopics.find(
         (chapter) => chapter.topics.length > 0,
       )
 
-    const firstTopic = firstChapter?.topics[0]
+      topicToOpen = chapterToOpen?.topics[0]
+    }
 
-    if (firstChapter && firstTopic) {
+    if (chapterToOpen && topicToOpen) {
       expandedChapters.value =
-        new Set([firstChapter.id])
+        new Set([chapterToOpen.id])
 
-      selectedTopic.value = firstTopic
+      selectedTopic.value = topicToOpen
+
+      /*
+       * Khi mở màn hình học, ghi nhận topic
+       * đang được truy cập.
+       */
+      try {
+        const updated = await startTopic(
+          props.courseId,
+          topicToOpen.id,
+        )
+
+        updateLocalProgress(updated)
+      } catch {
+        /*
+         * Không làm hỏng toàn bộ màn hình
+         * nếu cập nhật progress thất bại.
+         */
+      }
     }
   } catch (error) {
     message.value = handleApiError(
@@ -125,7 +329,9 @@ const loadContent = async () => {
   }
 }
 
-onMounted(() => void loadContent())
+onMounted(() => {
+  void loadContent()
+})
 </script>
 
 <template>
@@ -138,13 +344,8 @@ onMounted(() => void loadContent())
       v-if="loading"
       class="grid gap-5 lg:grid-cols-[19rem_minmax(0,1fr)]"
     >
-      <div
-        class="h-[36rem] animate-pulse rounded-panel bg-app-surface-muted"
-      />
-
-      <div
-        class="h-[36rem] animate-pulse rounded-panel bg-app-surface-muted"
-      />
+      <div class="h-[36rem] animate-pulse rounded-panel bg-app-surface-muted" />
+      <div class="h-[36rem] animate-pulse rounded-panel bg-app-surface-muted" />
     </div>
 
     <div
@@ -156,9 +357,7 @@ onMounted(() => void loadContent())
         class="mx-auto text-app-text-muted/40"
       />
 
-      <h2
-        class="mt-4 font-heading text-xl font-bold text-app-text"
-      >
+      <h2 class="mt-4 font-heading text-xl font-bold text-app-text">
         Khóa học chưa có bài học
       </h2>
 
@@ -172,9 +371,7 @@ onMounted(() => void loadContent())
       class="overflow-hidden rounded-panel border border-app-border bg-app-surface shadow-card lg:grid lg:min-h-[40rem] lg:grid-cols-[20rem_minmax(0,1fr)]"
     >
       <!-- Curriculum -->
-      <aside
-        class="border-b border-app-border bg-app-surface-muted/35 lg:border-r lg:border-b-0"
-      >
+      <aside class="border-b border-app-border bg-app-surface-muted/35 lg:border-r lg:border-b-0">
         <header class="border-b border-app-border px-5 py-5">
           <div class="flex items-center gap-2">
             <GraduationCap
@@ -182,23 +379,48 @@ onMounted(() => void loadContent())
               class="text-secondary"
             />
 
-            <h2
-              class="font-heading font-bold text-app-text"
-            >
+            <h2 class="font-heading font-bold text-app-text">
               Nội dung khóa học
             </h2>
           </div>
 
-          <p
-            class="mt-1.5 text-xs leading-5 text-app-text-muted"
-          >
+          <p class="mt-1.5 text-xs leading-5 text-app-text-muted">
             Chọn một chủ đề để bắt đầu học.
           </p>
         </header>
 
-        <nav
-          class="max-h-[42rem] overflow-y-auto py-2"
+        <div
+          v-if="progress"
+          class="mx-5 mt-4"
         >
+          <div class="flex items-center justify-between gap-3 text-xs">
+            <span class="text-app-text-muted">
+              Tiến độ
+            </span>
+
+            <span class="font-semibold text-secondary">
+              {{ progress.progressPercentage }}%
+            </span>
+          </div>
+
+          <div class="mt-2 h-2 overflow-hidden rounded-pill bg-app-surface">
+            <div
+              class="h-full rounded-pill bg-secondary transition-all"
+              :style="{
+                width: `${progress.progressPercentage}%`,
+              }"
+            />
+          </div>
+
+          <p class="mt-2 text-xs text-app-text-muted">
+            {{ progress.completedTopics }}
+            /
+            {{ progress.totalTopics }}
+            bài hoàn thành
+          </p>
+        </div>
+
+        <nav class="max-h-[42rem] overflow-y-auto py-2">
           <section
             v-for="(chapter, chapterIndex) in chapters"
             :key="chapter.id"
@@ -219,15 +441,11 @@ onMounted(() => void loadContent())
               />
 
               <div class="min-w-0">
-                <p
-                  class="text-[11px] font-semibold uppercase tracking-wider text-secondary"
-                >
+                <p class="text-[11px] font-semibold uppercase tracking-wider text-secondary">
                   Chương {{ chapterIndex + 1 }}
                 </p>
 
-                <p
-                  class="mt-0.5 truncate text-sm font-semibold text-app-text"
-                >
+                <p class="mt-0.5 truncate text-sm font-semibold text-app-text">
                   {{ chapter.title }}
                 </p>
               </div>
@@ -252,12 +470,21 @@ onMounted(() => void loadContent())
                 <span
                   class="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full border text-[11px] font-bold"
                   :class="
-                    selectedTopic?.id === topic.id
-                      ? 'border-secondary bg-secondary text-white'
-                      : 'border-app-border bg-app-surface'
+                    isTopicCompleted(topic.id)
+                      ? 'border-ai bg-ai text-white'
+                      : selectedTopic?.id === topic.id
+                        ? 'border-secondary bg-secondary text-white'
+                        : 'border-app-border bg-app-surface'
                   "
                 >
-                  {{ topicIndex + 1 }}
+                  <Check
+                    v-if="isTopicCompleted(topic.id)"
+                    :size="13"
+                  />
+
+                  <span v-else>
+                    {{ topicIndex + 1 }}
+                  </span>
                 </span>
 
                 <div class="min-w-0 flex-1">
@@ -272,6 +499,25 @@ onMounted(() => void loadContent())
                     <Clock3 :size="12" />
                     {{ topic.estimatedMinutes }} phút
                   </p>
+                </div>
+
+                <div class="mt-1 flex flex-wrap items-center gap-2 text-[11px]">
+                  <span
+                    v-if="isTopicCompleted(topic.id)"
+                    class="font-medium text-ai"
+                  >
+                    Đã hoàn thành
+                  </span>
+
+                  <span
+                    v-else-if="
+                      topicProgress(topic.id)?.status ===
+                      'IN_PROGRESS'
+                    "
+                    class="font-medium text-secondary"
+                  >
+                    Đang học
+                  </span>
                 </div>
               </button>
 
@@ -291,15 +537,9 @@ onMounted(() => void loadContent())
         v-if="selectedTopic"
         class="min-w-0 bg-app-surface"
       >
-        <article
-          class="mx-auto max-w-4xl px-6 py-8 sm:px-10 lg:px-12 lg:py-10"
-        >
-          <header
-            class="border-b border-app-border pb-7"
-          >
-            <div
-              class="flex flex-wrap items-center gap-2 text-xs font-medium text-app-text-muted"
-            >
+        <article class="mx-auto max-w-4xl px-6 py-8 sm:px-10 lg:px-12 lg:py-10">
+          <header class="border-b border-app-border pb-7">
+            <div class="flex flex-wrap items-center gap-2 text-xs font-medium text-app-text-muted">
               <span v-if="selectedChapter">
                 {{ selectedChapter.title }}
               </span>
@@ -315,9 +555,7 @@ onMounted(() => void loadContent())
               </span>
             </div>
 
-            <h1
-              class="mt-3 font-heading text-3xl font-bold tracking-tight text-app-text"
-            >
+            <h1 class="mt-3 font-heading text-3xl font-bold tracking-tight text-app-text">
               {{ selectedTopic.title }}
             </h1>
 
@@ -344,19 +582,68 @@ onMounted(() => void loadContent())
                 class="mx-auto text-app-text-muted/40"
               />
 
-              <p
-                class="mt-3 font-semibold text-app-text"
-              >
+              <p class="mt-3 font-semibold text-app-text">
                 Nội dung đang được cập nhật
               </p>
 
-              <p
-                class="mt-1 text-sm text-app-text-muted"
-              >
+              <p class="mt-1 text-sm text-app-text-muted">
                 Giảng viên chưa soạn nội dung cho chủ đề này.
               </p>
             </div>
           </div>
+
+          <footer class="mt-10 flex flex-col gap-4 border-t border-app-border pt-6 sm:flex-row sm:items-center sm:justify-between">
+            <BaseButton
+              variant="secondary"
+              :disabled="!previousTopic"
+              @click="goToTopic(previousTopic)"
+            >
+              <template #leading>
+                <ChevronLeft :size="17" />
+              </template>
+
+              Bài trước
+            </BaseButton>
+
+            <div class="flex flex-col gap-3 sm:flex-row sm:items-center">
+              <div
+                v-if="
+                  selectedTopic &&
+                  isTopicCompleted(selectedTopic.id)
+                "
+                class="inline-flex h-11 items-center gap-2 rounded-control bg-ai-soft px-4 text-sm font-semibold text-ai"
+              >
+                <CheckCircle2 :size="18" />
+                Đã hoàn thành
+              </div>
+
+              <BaseButton
+                v-else
+                :loading="
+                  completingTopicId === selectedTopic?.id
+                "
+                @click="handleCompleteTopic"
+              >
+                <template #leading>
+                  <CheckCircle2 :size="17" />
+                </template>
+
+                Hoàn thành bài học
+              </BaseButton>
+
+              <BaseButton
+                variant="secondary"
+                :disabled="!nextTopic"
+                @click="goToTopic(nextTopic)"
+              >
+                Bài tiếp theo
+
+                <template #trailing>
+                  <ChevronRight :size="17" />
+                </template>
+              </BaseButton>
+            </div>
+          </footer>
         </article>
       </main>
 
@@ -370,9 +657,7 @@ onMounted(() => void loadContent())
             class="mx-auto text-app-text-muted/30"
           />
 
-          <p
-            class="mt-3 font-semibold text-app-text"
-          >
+          <p class="mt-3 font-semibold text-app-text">
             Chưa có chủ đề để hiển thị
           </p>
         </div>
