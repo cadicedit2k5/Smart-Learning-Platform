@@ -12,6 +12,7 @@ import {
   Rocket,
   Trash2,
   UserRoundCheck,
+  MessagesSquare,
   UsersRound,
   X,
 } from 'lucide-vue-next'
@@ -43,8 +44,9 @@ import type { Course } from '@/shared/course/types.ts'
 import { getCourse } from '@/shared/course/api.ts'
 import { courseStatusLabel, courseVisibilityLabel } from '@/shared/course/presentation.ts'
 import { formatDateTime } from '@/shared/utils/date.ts'
+import DiscussionPanel from '@/features/discusstion/components/DiscussionPanel.vue'
 
-type DetailTab = 'overview' | 'members' | 'requests' | 'content' | 'assignments' | 'documents' | 'ai'
+type DetailTab = 'overview' | 'members' | 'requests' | 'content' | 'assignments' | 'documents' | 'discussion' | 'ai'
 
 const route = useRoute()
 const router = useRouter()
@@ -92,6 +94,7 @@ const tabs = computed<Array<{ id: DetailTab; label: string; icon: typeof BookOpe
     icon: ClipboardList,
   },
   { id: 'documents', label: 'Tài liệu', icon: FileText },
+  { id: 'discussion', label: 'Thảo luận', icon: MessagesSquare },
   { id: 'ai', label: 'Trợ lý AI', icon: Bot },
 ])
 
@@ -332,6 +335,12 @@ onMounted(() => {
         :course-id="course.id"
         :can-manage="canManageCourse"
       />
+
+      <DiscussionPanel
+        v-else-if="activeTab === 'discussion'"
+        :course-id="course.id"
+      />
+
 
       <CourseAiPanel v-else-if="activeTab === 'ai'" :course-id="course.id" />
 

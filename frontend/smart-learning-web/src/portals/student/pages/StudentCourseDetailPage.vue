@@ -9,6 +9,7 @@ import {
   GraduationCap,
   Layers3,
   UserRoundCheck,
+  MessagesSquare,
 } from 'lucide-vue-next'
 import { useRoute } from 'vue-router'
 import { ClipboardList } from 'lucide-vue-next'
@@ -37,8 +38,9 @@ import type { Course } from '@/shared/course/types.ts'
 import { getCourse } from '@/shared/course/api.ts'
 import { BaseTabs } from '@/shared/components/index.ts'
 import { formatDate } from '@/shared/utils/date.ts'
+import DiscussionPanel from '@/features/discusstion/components/DiscussionPanel.vue'
 
-type DetailTab = 'overview' | 'content' | 'assignments' | 'documents' | 'ai'
+type DetailTab = 'overview' | 'content' | 'assignments' | 'documents' | 'discussion' | 'ai'
 
 const route = useRoute()
 const { handleApiError } = useStudentApiError()
@@ -56,6 +58,7 @@ const tabs: Array<{ id: DetailTab; label: string; icon: typeof BookOpen }> = [
   { id: 'content', label: 'Bài học', icon: Layers3 },
   { id: 'assignments', label: 'Bài tập', icon: ClipboardList },
   { id: 'documents', label: 'Tài liệu', icon: FileText },
+  { id: 'discussion', label: 'Thảo luận', icon: MessagesSquare },
   { id: 'ai', label: 'AI tutor', icon: Bot },
 ]
 
@@ -366,7 +369,11 @@ onMounted(() => void loadDetail())
         :course-id="course.id"
       />
       <StudentDocumentsPanel v-else-if="activeTab === 'documents'" :course-id="course.id" />
-      <StudentAiTutorPanel v-else :course-id="course.id" />
+      <DiscussionPanel
+        v-else-if="activeTab === 'discussion'"
+        :course-id="course.id"
+      />
+      <StudentAiTutorPanel v-else-if="activeTab === 'ai'" :course-id="course.id" />
     </template>
   </section>
 </template>

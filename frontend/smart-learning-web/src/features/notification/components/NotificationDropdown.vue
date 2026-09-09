@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { onMounted, ref } from 'vue'
-import { Bell, CheckCheck, ClipboardList, GraduationCap, Megaphone } from 'lucide-vue-next'
+import { Bell, CheckCheck, ClipboardList, GraduationCap, Megaphone, MessageCircle, } from 'lucide-vue-next'
 import { useRouter } from 'vue-router'
 
 import { useAuthStore } from '@/features/auth/stores'
@@ -50,6 +50,7 @@ const toggle = async () => {
 const iconFor = (type: NotificationType) => {
   if (type === 'ANNOUNCEMENT_CREATED') return Megaphone
   if (type === 'ASSIGNMENT_CREATED' || type === 'ASSIGNMENT_GRADED') return ClipboardList
+  if (type === 'DISCUSSION_CREATED' || type === 'DISCUSSION_REPLIED') return MessageCircle
   return GraduationCap
 }
 

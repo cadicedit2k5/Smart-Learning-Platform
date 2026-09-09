@@ -3,6 +3,8 @@ export type NotificationType =
   | 'ASSIGNMENT_CREATED'
   | 'ASSIGNMENT_GRADED'
   | 'COURSE_JOIN_APPROVED'
+  | 'DISCUSSION_CREATED'
+  | 'DISCUSSION_REPLIED'
 
 export interface Notification {
   id: string
