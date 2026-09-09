@@ -21,6 +21,7 @@ import {
 
 import CourseAssignmentsPanel
   from '../components/CourseAssignmentsPanel.vue'
+import CourseAnnouncementsPanel from '../components/CourseAnnouncementsPanel.vue'
 
 import BaseAlert from '@/shared/components/BaseAlert.vue'
 import BaseButton from '@/shared/components/BaseButton.vue'
@@ -263,6 +264,11 @@ onMounted(() => {
             {{ course.description || 'Chưa có mô tả cho khóa học này.' }}
           </p>
         </section>
+
+        <CourseAnnouncementsPanel
+          v-if="canManageCourse"
+          :course-id="course.id"
+        />
 
         <section>
           <h2 class="font-heading text-xl font-bold text-app-text">Thông tin khóa học</h2>

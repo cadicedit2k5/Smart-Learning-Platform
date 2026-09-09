@@ -12,6 +12,7 @@ import {
 } from 'lucide-vue-next'
 import { useRoute } from 'vue-router'
 import { ClipboardList } from 'lucide-vue-next'
+import StudentAnnouncementsPanel from '../components/StudentAnnouncementsPanel.vue'
 
 import StudentAssignmentsPanel
   from '../components/StudentAssignmentsPanel.vue'
@@ -261,6 +262,8 @@ onMounted(() => void loadDetail())
           </div>
         </BaseCard>
 
+        <!-- Announcements -->
+        <StudentAnnouncementsPanel :course-id="course.id" />
         <div
           class="grid gap-5 lg:grid-cols-[minmax(0,1fr)_20rem]"
         >
