@@ -64,3 +64,12 @@ export const submitAssignment = async (
 
   return response.data.data
 }
+
+export const deleteMySubmission = async (
+  courseId: string,
+  assignmentId: string,
+): Promise<void> => {
+  await httpClient.delete(
+    `${path(courseId)}/${assignmentId}/submission`,
+  )
+}

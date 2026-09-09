@@ -63,4 +63,10 @@ public interface AssignmentService {
             UUID userId,
             AssignmentGradeRequest request
     );
+
+    void deleteMySubmission(
+            UUID courseId,
+            UUID assignmentId,
+            UUID userId
+    );
 }

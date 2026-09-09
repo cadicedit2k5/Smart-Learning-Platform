@@ -383,6 +383,36 @@ public class AssignmentServiceImpl
         );
     }
 
+    @Override
+    public void deleteMySubmission(
+            UUID courseId,
+            UUID assignmentId,
+            UUID userId
+    ) {
+        requireStudent(courseId, userId);
+
+        Assignment assignment = requireAssignment(courseId, assignmentId);
+
+        AssignmentSubmission submission = submissionRepository
+                .findByAssignmentIdAndStudentId(assignment.getId(), userId)
+                .orElseThrow(() -> new ApplicationException(
+                        CommonErrorCode.RESOURCE_NOT_FOUND
+                ));
+
+        if (submission.getStatus() == AssignmentSubmissionStatus.GRADED) {
+            throw new ApplicationException(
+                    CommonErrorCode.DATA_CONFLICT,
+                    "Bài làm đã được chấm và không thể xóa."
+            );
+        }
+
+        if (submission.getFileObjectName() != null) {
+            fileStorageService.delete(submission.getFileObjectName());
+        }
+
+        submissionRepository.delete(submission);
+    }
+
     private Assignment requireAssignment(
             UUID courseId,
             UUID assignmentId

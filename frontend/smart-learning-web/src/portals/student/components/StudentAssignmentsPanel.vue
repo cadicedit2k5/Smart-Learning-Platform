@@ -11,23 +11,25 @@ import {
   FileText,
   Paperclip,
   Upload,
+  Trash2 
 } from 'lucide-vue-next'
-
 import {
   BaseAlert,
   BaseButton,
+  ConfirmDialog,
 } from '@/shared/components'
+
+import {
+  deleteMySubmission,
+  getAssignments,
+  getMySubmissions,
+  submitAssignment,
+} from '../api/assignmentApi'
 
 import type {
   Assignment,
   AssignmentSubmission,
 } from '@/shared/assignment/types'
-
-import {
-  getAssignments,
-  getMySubmissions,
-  submitAssignment,
-} from '../api/assignmentApi'
 
 import { useStudentApiError }
   from '../composables/useStudentApiError'
@@ -49,6 +51,8 @@ const submissions =
 const loading = ref(true)
 const submitting = ref(false)
 const message = ref('')
+const deleteOpen = ref(false)
+const deleting = ref(false)
 
 const selected =
   ref<Assignment | null>(null)
@@ -172,6 +176,40 @@ const submit = async () => {
     ).message
   } finally {
     submitting.value = false
+  }
+}
+
+const openDeleteSubmission = () => {
+  if (!currentSubmission.value) return
+  deleteOpen.value = true
+}
+
+const handleDeleteSubmission = async () => {
+  if (!selected.value || !currentSubmission.value) return
+
+  deleting.value = true
+  message.value = ''
+
+  try {
+    await deleteMySubmission(
+      props.courseId,
+      selected.value.id,
+    )
+
+    submissions.value = submissions.value.filter(
+      (item) => item.assignmentId !== selected.value?.id,
+    )
+
+    content.value = ''
+    file.value = null
+    deleteOpen.value = false
+  } catch (error) {
+    message.value = handleApiError(
+      error,
+      'Không thể xóa bài đã nộp.',
+    ).message
+  } finally {
+    deleting.value = false
   }
 }
 
@@ -398,35 +436,54 @@ onMounted(() => void load())
             }}
           </a>
 
-          <div
-            class="flex items-center justify-between gap-4"
-          >
+          <div class="flex flex-wrap items-center justify-between gap-4">
             <p
-              v-if="currentSubmission?.late"
-              class="text-sm font-medium text-danger"
+                v-if="currentSubmission?.late"
+                class="text-sm font-medium text-danger"
             >
-              Bài được nộp sau hạn.
+                Bài được nộp sau hạn.
             </p>
 
             <span v-else />
 
-            <BaseButton
-              type="submit"
-              :loading="submitting"
-            >
-              <template #leading>
-                <Upload :size="16" />
-              </template>
+            <div class="flex items-center gap-3">
+                <button
+                v-if="currentSubmission"
+                type="button"
+                class="inline-flex h-11 items-center gap-2 rounded-control bg-danger-soft px-4 text-sm font-semibold text-danger transition hover:opacity-80"
+                @click="openDeleteSubmission"
+                >
+                <Trash2 :size="16" />
+                Xóa bài đã nộp
+                </button>
 
-              {{
-                currentSubmission
-                  ? 'Cập nhật bài nộp'
-                  : 'Nộp bài'
-              }}
-            </BaseButton>
-          </div>
+                <BaseButton
+                type="submit"
+                :loading="submitting"
+                >
+                <template #leading>
+                    <Upload :size="16" />
+                </template>
+
+                {{
+                    currentSubmission
+                    ? 'Cập nhật bài nộp'
+                    : 'Nộp bài'
+                }}
+                </BaseButton>
+            </div>
+            </div>
         </form>
       </article>
     </div>
+    <ConfirmDialog
+    :open="deleteOpen"
+    title="Xóa bài đã nộp?"
+    description="Bài làm hiện tại và tệp đính kèm sẽ bị xóa. Bạn có thể nộp lại bài sau đó nếu cần."
+    confirm-text="Xóa bài đã nộp"
+    :loading="deleting"
+    @close="!deleting && (deleteOpen = false)"
+    @confirm="handleDeleteSubmission"
+    />
   </section>
 </template>

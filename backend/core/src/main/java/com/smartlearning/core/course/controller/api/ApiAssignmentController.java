@@ -180,4 +180,20 @@ public class ApiAssignmentController {
                 )
         );
     }
+
+    @DeleteMapping("/{assignmentId}/submission")
+    @PreAuthorize(Authorities.COURSE_READ)
+    public ResponseEntity<Void> deleteMySubmission(
+            @PathVariable UUID courseId,
+            @PathVariable UUID assignmentId,
+            @AuthenticationPrincipal Jwt jwt
+    ) {
+        assignmentService.deleteMySubmission(
+                courseId,
+                assignmentId,
+                JwtUtils.getUserId(jwt)
+        );
+
+        return ApiResponses.noContent();
+    }
 }
