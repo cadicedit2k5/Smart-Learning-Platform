@@ -11,6 +11,8 @@ import com.smartlearning.core.course.repository.CourseAnnouncementRepository;
 import com.smartlearning.core.course.repository.CourseRepository;
 import com.smartlearning.core.course.sercurity.CourseAccessPolicy;
 import com.smartlearning.core.course.service.CourseAnnouncementService;
+import com.smartlearning.core.notification.entity.enums.NotificationType;
+import com.smartlearning.core.notification.service.NotificationService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -27,6 +29,7 @@ public class CourseAnnouncementServiceImpl implements CourseAnnouncementService 
     private final CourseAnnouncementRepository announcementRepository;
     private final CourseRepository courseRepository;
     private final CourseAccessPolicy courseAccessPolicy;
+    private final NotificationService notificationService;
 
     @Override
     public List<AnnouncementResponse> getAnnouncements(UUID courseId, UUID userId) {
@@ -56,7 +59,16 @@ public class CourseAnnouncementServiceImpl implements CourseAnnouncementService 
         announcement.setTitle(request.title().trim());
         announcement.setContent(request.content().trim());
 
-        return toResponse(announcementRepository.save(announcement));
+        CourseAnnouncement saved = announcementRepository.save(announcement);
+
+        notificationService.createForCourseStudents(
+                courseId,
+                NotificationType.ANNOUNCEMENT_CREATED,
+                "Thông báo mới",
+                saved.getTitle()
+        );
+
+        return toResponse(saved);
     }
 
     @Override

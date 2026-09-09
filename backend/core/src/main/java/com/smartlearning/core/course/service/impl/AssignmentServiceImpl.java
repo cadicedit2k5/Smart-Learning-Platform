@@ -19,6 +19,8 @@ import com.smartlearning.core.course.repository.AssignmentSubmissionRepository;
 import com.smartlearning.core.course.repository.CourseRepository;
 import com.smartlearning.core.course.sercurity.CourseAccessPolicy;
 import com.smartlearning.core.course.service.AssignmentService;
+import com.smartlearning.core.notification.entity.enums.NotificationType;
+import com.smartlearning.core.notification.service.NotificationService;
 import com.smartlearning.storage.dto.FileUploadResponse;
 import com.smartlearning.storage.service.FileStorageService;
 import jakarta.transaction.Transactional;
@@ -41,6 +43,7 @@ public class AssignmentServiceImpl
     private final CourseRepository courseRepository;
     private final CourseAccessPolicy courseAccessPolicy;
     private final FileStorageService fileStorageService;
+    private final NotificationService notificationService;
 
     @Override
     public List<AssignmentResponse> getAssignments(
@@ -91,9 +94,16 @@ public class AssignmentServiceImpl
         assignment.setMaxScore(request.maxScore());
         assignment.setCreatedBy(userId);
 
-        return toAssignmentResponse(
-                assignmentRepository.save(assignment)
+        Assignment saved = assignmentRepository.save(assignment);
+
+        notificationService.createForCourseStudents(
+                courseId,
+                NotificationType.ASSIGNMENT_CREATED,
+                "Bài tập mới",
+                "Giảng viên đã giao bài tập: " + saved.getTitle()
         );
+
+        return toAssignmentResponse(saved);
     }
 
     @Override
@@ -360,6 +370,9 @@ public class AssignmentServiceImpl
             );
         }
 
+        boolean alreadyGraded =
+                submission.getStatus() == AssignmentSubmissionStatus.GRADED;
+
         submission.setScore(
                 request.score()
         );
@@ -376,11 +389,17 @@ public class AssignmentServiceImpl
                 userId
         );
 
-        return toSubmissionResponse(
-                submissionRepository.save(
-                        submission
-                )
+        AssignmentSubmission saved = submissionRepository.save(submission);
+
+        notificationService.create(
+                saved.getStudentId(),
+                NotificationType.ASSIGNMENT_GRADED,
+                alreadyGraded ? "Điểm bài tập đã được cập nhật" : "Bài tập đã được chấm",
+                assignment.getTitle() + ": " + saved.getScore() + "/" + assignment.getMaxScore(),
+                courseId
         );
+
+        return toSubmissionResponse(saved);
     }
 
     @Override

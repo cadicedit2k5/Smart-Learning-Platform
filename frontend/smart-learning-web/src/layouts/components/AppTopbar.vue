@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
-import { Bell, CircleHelp, Grid3X3, Menu, Search, UserRound } from 'lucide-vue-next'
+import { Menu } from 'lucide-vue-next'
+import NotificationDropdown from '@/features/notification/components/NotificationDropdown.vue'
 import type { TopbarConfig } from '@/portals/types';
 import { useAuthStore } from '@/features/auth/stores';
 
@@ -60,7 +61,7 @@ const initials = computed(() => {
             {{ config.primaryAction.label }}
           </span>
         </RouterLink>
-
+        <NotificationDropdown />
         <div class="flex items-center gap-2">
           <div
             class="flex h-9 w-9 items-center justify-center rounded-full bg-secondary-soft text-xs font-bold text-secondary"
