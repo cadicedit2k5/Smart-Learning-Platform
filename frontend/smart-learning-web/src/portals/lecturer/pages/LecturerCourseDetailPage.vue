@@ -15,6 +15,12 @@ import {
   UsersRound,
   X,
 } from 'lucide-vue-next'
+import {
+  ClipboardList,
+} from 'lucide-vue-next'
+
+import CourseAssignmentsPanel
+  from '../components/CourseAssignmentsPanel.vue'
 
 import BaseAlert from '@/shared/components/BaseAlert.vue'
 import BaseButton from '@/shared/components/BaseButton.vue'
@@ -37,7 +43,7 @@ import { getCourse } from '@/shared/course/api.ts'
 import { courseStatusLabel, courseVisibilityLabel } from '@/shared/course/presentation.ts'
 import { formatDateTime } from '@/shared/utils/date.ts'
 
-type DetailTab = 'overview' | 'members' | 'requests' | 'content' | 'documents' | 'ai'
+type DetailTab = 'overview' | 'members' | 'requests' | 'content' | 'assignments' | 'documents' | 'ai'
 
 const route = useRoute()
 const router = useRouter()
@@ -79,7 +85,11 @@ const tabs = computed<Array<{ id: DetailTab; label: string; icon: typeof BookOpe
         { id: 'content' as const, label: 'Nội dung', icon: Layers3 },
       ]
     : []),
-
+  {
+    id: 'assignments' as const,
+    label: 'Bài tập',
+    icon: ClipboardList,
+  },
   { id: 'documents', label: 'Tài liệu', icon: FileText },
   { id: 'ai', label: 'Trợ lý AI', icon: Bot },
 ])
@@ -303,6 +313,11 @@ onMounted(() => {
 
       <CourseContentPanel
         v-else-if="activeTab === 'content'"
+        :course-id="course.id"
+      />
+
+      <CourseAssignmentsPanel
+        v-else-if="activeTab === 'assignments'"
         :course-id="course.id"
       />
 

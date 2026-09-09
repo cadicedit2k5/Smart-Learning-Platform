@@ -11,7 +11,10 @@ import {
   UserRoundCheck,
 } from 'lucide-vue-next'
 import { useRoute } from 'vue-router'
+import { ClipboardList } from 'lucide-vue-next'
 
+import StudentAssignmentsPanel
+  from '../components/StudentAssignmentsPanel.vue'
 import {
   getCourseProgress,
   type CourseLearningProgress,
@@ -34,7 +37,7 @@ import { getCourse } from '@/shared/course/api.ts'
 import { BaseTabs } from '@/shared/components/index.ts'
 import { formatDate } from '@/shared/utils/date.ts'
 
-type DetailTab = 'overview' | 'content' | 'documents' | 'ai'
+type DetailTab = 'overview' | 'content' | 'assignments' | 'documents' | 'ai'
 
 const route = useRoute()
 const { handleApiError } = useStudentApiError()
@@ -50,6 +53,7 @@ const progress =
 const tabs: Array<{ id: DetailTab; label: string; icon: typeof BookOpen }> = [
   { id: 'overview', label: 'Tổng quan', icon: BookOpen },
   { id: 'content', label: 'Bài học', icon: Layers3 },
+  { id: 'assignments', label: 'Bài tập', icon: ClipboardList },
   { id: 'documents', label: 'Tài liệu', icon: FileText },
   { id: 'ai', label: 'AI tutor', icon: Bot },
 ]
@@ -354,6 +358,10 @@ onMounted(() => void loadDetail())
         </div>
       </div>
       <StudentCourseContentPanel v-else-if="activeTab === 'content'" :course-id="course.id"/>
+      <StudentAssignmentsPanel
+        v-else-if="activeTab === 'assignments'"
+        :course-id="course.id"
+      />
       <StudentDocumentsPanel v-else-if="activeTab === 'documents'" :course-id="course.id" />
       <StudentAiTutorPanel v-else :course-id="course.id" />
     </template>
