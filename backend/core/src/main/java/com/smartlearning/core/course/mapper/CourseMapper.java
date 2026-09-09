@@ -19,6 +19,7 @@ public interface CourseMapper extends CrudMapper<Course, CourseCreateRequest,
     @Mapping(target = "deletedAt", ignore = true)
     @Mapping(target = "createdAt", ignore = true)
     @Mapping(target = "updatedAt", ignore = true)
+    @Mapping(target = "members", ignore = true)
     Course toEntity(CourseCreateRequest request);
 
     @Override
@@ -36,6 +37,7 @@ public interface CourseMapper extends CrudMapper<Course, CourseCreateRequest,
     @Mapping(target = "deletedAt", ignore = true)
     @Mapping(target = "createdAt", ignore = true)
     @Mapping(target = "updatedAt", ignore = true)
+    @Mapping(target = "members", ignore = true)
     void partialUpdate(
             CourseUpdateRequest request,
             @MappingTarget Course course
