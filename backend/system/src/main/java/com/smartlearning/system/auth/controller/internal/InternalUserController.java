@@ -20,7 +20,7 @@ public class InternalUserController {
     private final UserService userService;
 
     @PostMapping("/lookup")
-    @PreAuthorize(Authorities.USER_READ)
+    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<List<UserSummaryResponse>> lookupUsers(
             @Valid @RequestBody UserBatchLookupRequest request) {
         return ResponseEntity.ok(userService.handleLookupUsers(request.userIds()));
