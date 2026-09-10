@@ -15,6 +15,7 @@ import {
   MessagesSquare,
   UsersRound,
   X,
+  ChartNoAxesColumnIncreasing,
 } from 'lucide-vue-next'
 import {
   ClipboardList,
@@ -45,8 +46,9 @@ import { getCourse } from '@/shared/course/api.ts'
 import { courseStatusLabel, courseVisibilityLabel } from '@/shared/course/presentation.ts'
 import { formatDateTime } from '@/shared/utils/date.ts'
 import DiscussionPanel from '@/features/discusstion/components/DiscussionPanel.vue'
+import CourseLearningProgressPanel from '../components/CourseLearningProgressPanel.vue'
 
-type DetailTab = 'overview' | 'members' | 'requests' | 'content' | 'assignments' | 'documents' | 'discussion' | 'ai'
+type DetailTab = 'overview' | 'members' | 'requests' | 'content' | 'progress' | 'assignments' | 'documents' | 'discussion' | 'ai'
 
 const route = useRoute()
 const router = useRouter()
@@ -86,6 +88,7 @@ const tabs = computed<Array<{ id: DetailTab; label: string; icon: typeof BookOpe
           ? [{ id: 'requests' as const, label: 'Yêu cầu tham gia', icon: UserRoundCheck }]
           : []),
         { id: 'content' as const, label: 'Nội dung', icon: Layers3 },
+        { id: 'progress' as const, label: 'Tiến độ', icon: ChartNoAxesColumnIncreasing },
       ]
     : []),
   {
@@ -322,6 +325,11 @@ onMounted(() => {
 
       <CourseContentPanel
         v-else-if="activeTab === 'content'"
+        :course-id="course.id"
+      />
+
+      <CourseLearningProgressPanel
+        v-else-if="activeTab === 'progress'"
         :course-id="course.id"
       />
 
