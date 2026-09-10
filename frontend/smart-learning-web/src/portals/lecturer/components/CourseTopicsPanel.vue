@@ -96,16 +96,18 @@ const loadTopics = async () => {
 
 const openCreate = () => {
   editingTopic.value = null
+  editorMessage.value = ''
 
   Object.assign(form, emptyForm(), {
     orderIndex: String(nextOrderIndex.value),
   })
 
-  editorOpen.value = true;
+  editorOpen.value = true
 }
 
 const openEdit = (topic: CourseTopic) => {
   editingTopic.value = topic
+  editorMessage.value = ''
 
   Object.assign(form, {
     title: topic.title,
@@ -143,21 +145,28 @@ const toInput = (): TopicInput => ({
   content: form.content,
 })
 
+const editorMessage = ref('')
+const successMessage = ref('')
+
 const handleSubmit = async () => {
   if (!form.title.trim()) {
-    message.value = 'Tên chủ đề không được để trống.'
+    editorMessage.value = 'Tên chủ đề không được để trống.'
     return
   }
 
+  const topicId = editingTopic.value?.id ?? null
+  const isEditing = topicId !== null
+
   saving.value = true
-  message.value = ''
+  editorMessage.value = ''
+  successMessage.value = ''
 
   try {
-    if (editingTopic.value) {
+    if (topicId) {
       await updateTopic(
         props.courseId,
         props.chapterId,
-        editingTopic.value.id,
+        topicId,
         toInput(),
       )
     } else {
@@ -168,12 +177,19 @@ const handleSubmit = async () => {
       )
     }
 
-    closeEditor()
+    editorOpen.value = false
+    editingTopic.value = null
+    Object.assign(form, emptyForm())
+
     await loadTopics()
+
+    successMessage.value = isEditing
+      ? 'Đã cập nhật bài học.'
+      : 'Đã tạo bài học.'
   } catch (error) {
-    message.value = handleApiError(
+    editorMessage.value = handleApiError(
       error,
-      editingTopic.value
+      isEditing
         ? 'Không thể cập nhật chủ đề.'
         : 'Không thể tạo chủ đề.',
     ).message
@@ -218,6 +234,10 @@ onMounted(() => void loadTopics())
   >
     <BaseAlert v-if="message">
       {{ message }}
+    </BaseAlert>
+
+    <BaseAlert v-if="successMessage" variant="ai">
+      {{ successMessage }}
     </BaseAlert>
 
     <header
@@ -391,6 +411,12 @@ onMounted(() => void loadTopics())
           </button>
         </header>
 
+        <BaseAlert
+          v-if="editorMessage"
+          class="mx-6 mt-4"
+        >
+          {{ editorMessage }}
+        </BaseAlert>
         <!-- Main -->
         <div
           class="grid min-h-0 flex-1 overflow-y-auto lg:grid-cols-[minmax(0,1fr)_20rem]"

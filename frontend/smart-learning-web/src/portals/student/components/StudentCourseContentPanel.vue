@@ -63,11 +63,32 @@ const selectedChapter = computed(() => {
   )
 })
 
-const hasContent = computed(() => {
-  const nodes = selectedTopic.value?.content?.content
+const hasMeaningfulContent = (value: unknown): boolean => {
+  if (Array.isArray(value)) {
+    return value.some(hasMeaningfulContent)
+  }
 
-  return Array.isArray(nodes) && nodes.length > 0
-})
+  if (value && typeof value === 'object') {
+    const record = value as Record<string, unknown>
+
+    if (
+      typeof record.text === 'string' &&
+      record.text.trim().length > 0
+    ) {
+      return true
+    }
+
+    if (record.content) {
+      return hasMeaningfulContent(record.content)
+    }
+  }
+
+  return false
+}
+
+const hasContent = computed(() =>
+  hasMeaningfulContent(selectedTopic.value?.content),
+)
 
 const progressByTopic = computed(() => {
   const map = new Map<string, TopicLearningProgress>()
