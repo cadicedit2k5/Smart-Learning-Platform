@@ -1,5 +1,6 @@
 package com.smartlearning.core.course.controller.api;
 
+import com.smartlearning.common.dto.request.PagingRequest;
 import com.smartlearning.common.dto.response.ApiResponse;
 import com.smartlearning.common.dto.response.ApiResponses;
 import com.smartlearning.common.entity.Authorities;
@@ -64,13 +65,15 @@ public class ApiLearningProgressController {
     @PreAuthorize(Authorities.COURSE_READ)
     public ResponseEntity<ApiResponse<LecturerCourseProgressResponse>> getCourseStudentProgress(
             @PathVariable UUID courseId,
+            @ModelAttribute PagingRequest pagingRequest,
             @AuthenticationPrincipal Jwt jwt
     ) {
         return ApiResponses.ok(
                 progressService.getCourseStudentProgress(
                         courseId,
                         JwtUtils.getUserId(jwt),
-                        jwt.getTokenValue()
+                        jwt.getTokenValue(),
+                        pagingRequest
                 )
         );
     }

@@ -1,4 +1,4 @@
-import { httpClient, type ApiResponse } from '@/shared/api'
+import { httpClient, type ApiResponse, type PaginatedData } from '@/shared/api'
 
 export type LecturerTopicProgressStatus = 'NOT_STARTED' | 'IN_PROGRESS' | 'COMPLETED'
 
@@ -18,7 +18,7 @@ export interface LecturerCourseProgress {
   totalTopics: number
   averageProgressPercentage: number
   completedStudents: number
-  students: StudentProgressSummary[]
+  students: PaginatedData<StudentProgressSummary>
 }
 
 export interface StudentTopicProgress {
@@ -54,9 +54,18 @@ export interface StudentProgressDetail {
 
 const learningPath = (courseId: string) => `/courses/${courseId}/learning`
 
-export const getCourseStudentProgress = async (courseId: string): Promise<LecturerCourseProgress> => {
+export const getCourseStudentProgress = async (
+  courseId: string,
+  page = 1,
+): Promise<LecturerCourseProgress> => {
   const response = await httpClient.get<ApiResponse<LecturerCourseProgress>>(
     `${learningPath(courseId)}/progress/students`,
+    {
+      params: {
+        page,
+        'orders[createdAt]': 'ASC',
+      },
+    },
   )
 
   return response.data.data

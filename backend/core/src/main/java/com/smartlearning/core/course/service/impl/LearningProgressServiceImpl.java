@@ -1,5 +1,7 @@
 package com.smartlearning.core.course.service.impl;
 
+import com.smartlearning.common.dto.request.PagingRequest;
+import com.smartlearning.common.dto.response.pagination.PagingResponse;
 import com.smartlearning.common.error.ApplicationException;
 import com.smartlearning.common.error.CommonErrorCode;
 import com.smartlearning.core.course.dto.response.CourseLearningProgressResponse;
@@ -24,10 +26,14 @@ import com.smartlearning.core.infrastructure.dto.SystemUserResponse;
 import com.smartlearning.core.infrastructure.http.SystemClient;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
-import java.util.*;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -122,103 +128,82 @@ public class LearningProgressServiceImpl implements LearningProgressService {
     public LecturerCourseProgressResponse getCourseStudentProgress(
             UUID courseId,
             UUID lecturerId,
-            String accessToken
+            String accessToken,
+            PagingRequest pagingRequest
     ) {
         courseUtils.requireCourse(courseId);
         courseAccessPolicy.requireOwner(courseId, lecturerId);
 
-        List<CourseMember> students = memberRepository.findAllByCourseIdAndRoleAndStatus(
+        Page<CourseMember> studentPage = memberRepository.findAllByCourseIdAndRoleAndStatus(
                 courseId,
                 CourseMemberRole.STUDENT,
-                CourseMemberStatus.ACTIVE
+                CourseMemberStatus.ACTIVE,
+                pagingRequest.pageable()
         );
 
+        long totalStudents = studentPage.getTotalElements();
         long totalTopics = topicRepository
                 .countByChapterCourseIdAndDeletedAtIsNullAndChapterDeletedAtIsNull(courseId);
 
-        if (students.isEmpty()) {
-            return new LecturerCourseProgressResponse(
-                    courseId,
-                    0,
-                    totalTopics,
-                    0,
-                    0,
-                    List.of()
-            );
-        }
+        List<LearningProgressRepository.StudentCompletionSummary> completionSummary =
+                totalStudents == 0 || totalTopics == 0
+                        ? List.of()
+                        : progressRepository.findStudentCompletionSummary(
+                        courseId,
+                        LearningProgressStatus.COMPLETED,
+                        CourseMemberRole.STUDENT,
+                        CourseMemberStatus.ACTIVE
+                );
 
-        List<UUID> studentIds = students.stream()
+        long totalCompletedTopics = completionSummary.stream()
+                .mapToLong(LearningProgressRepository.StudentCompletionSummary::getCompletedTopics)
+                .sum();
+
+        int averageProgress = totalStudents == 0 || totalTopics == 0
+                ? 0
+                : (int) Math.round(totalCompletedTopics * 100.0 / (totalStudents * totalTopics));
+
+        long completedStudents = totalTopics == 0
+                ? 0
+                : completionSummary.stream()
+                .filter(summary -> summary.getCompletedTopics() == totalTopics)
+                .count();
+
+        List<UUID> studentIds = studentPage.getContent().stream()
                 .map(CourseMember::getUserId)
                 .toList();
 
-        List<LearningProgress> allProgress =
-                progressRepository.findCourseProgressForUsers(studentIds, courseId);
+        List<LearningProgress> pageProgress = studentIds.isEmpty()
+                ? List.of()
+                : progressRepository.findCourseProgressForUsers(studentIds, courseId);
 
-        Map<UUID, List<LearningProgress>> progressByUser = allProgress.stream()
+        Map<UUID, List<LearningProgress>> progressByUser = pageProgress.stream()
                 .collect(Collectors.groupingBy(LearningProgress::getUserId));
 
-        Map<UUID, SystemUserResponse> users = systemClient.lookupUsers(studentIds, accessToken).stream()
+        Map<UUID, SystemUserResponse> users = studentIds.isEmpty()
+                ? Map.of()
+                : systemClient.lookupUsers(studentIds, accessToken).stream()
                 .collect(Collectors.toMap(
                         SystemUserResponse::id,
                         Function.identity(),
                         (first, second) -> first
                 ));
 
-        List<LecturerCourseProgressResponse.StudentSummary> summaries = students.stream()
-                .map(member -> {
-                    UUID studentId = member.getUserId();
-                    List<LearningProgress> studentProgress =
-                            progressByUser.getOrDefault(studentId, List.of());
+        Page<LecturerCourseProgressResponse.StudentSummary> summaries = studentPage.map(member -> {
+            UUID studentId = member.getUserId();
+            List<LearningProgress> studentProgress = progressByUser.getOrDefault(studentId, List.of());
+            SystemUserResponse user = users.get(studentId);
 
-                    long completedTopics = studentProgress.stream()
-                            .filter(progress -> progress.getStatus() == LearningProgressStatus.COMPLETED)
-                            .count();
-
-                    long inProgressTopics = studentProgress.stream()
-                            .filter(progress -> progress.getStatus() == LearningProgressStatus.IN_PROGRESS)
-                            .count();
-
-                    int percentage = calculatePercentage(completedTopics, totalTopics);
-                    SystemUserResponse user = users.get(studentId);
-
-                    return new LecturerCourseProgressResponse.StudentSummary(
-                            studentId,
-                            displayName(user, studentId),
-                            user == null ? null : user.email(),
-                            totalTopics,
-                            completedTopics,
-                            inProgressTopics,
-                            percentage
-                    );
-                })
-                .sorted(Comparator.comparing(
-                        LecturerCourseProgressResponse.StudentSummary::fullName,
-                        String.CASE_INSENSITIVE_ORDER
-                ))
-                .toList();
-
-        int averageProgress = summaries.isEmpty()
-                ? 0
-                : (int) Math.round(
-                summaries.stream()
-                        .mapToInt(LecturerCourseProgressResponse.StudentSummary::progressPercentage)
-                        .average()
-                        .orElse(0)
-        );
-
-        long completedStudents = totalTopics == 0
-                ? 0
-                : summaries.stream()
-                .filter(student -> student.progressPercentage() == 100)
-                .count();
+            return buildStudentSummary(studentId, user, studentProgress, totalTopics);
+        });
 
         return new LecturerCourseProgressResponse(
                 courseId,
-                summaries.size(),
+                totalStudents,
                 totalTopics,
                 averageProgress,
                 completedStudents,
-                summaries
+                PagingResponse.from(summaries)
         );
     }
 
@@ -287,6 +272,31 @@ public class LearningProgressServiceImpl implements LearningProgressService {
                 inProgressTopics,
                 percentage,
                 chapterResponses
+        );
+    }
+
+    private LecturerCourseProgressResponse.StudentSummary buildStudentSummary(
+            UUID studentId,
+            SystemUserResponse user,
+            List<LearningProgress> progress,
+            long totalTopics
+    ) {
+        long completedTopics = progress.stream()
+                .filter(item -> item.getStatus() == LearningProgressStatus.COMPLETED)
+                .count();
+
+        long inProgressTopics = progress.stream()
+                .filter(item -> item.getStatus() == LearningProgressStatus.IN_PROGRESS)
+                .count();
+
+        return new LecturerCourseProgressResponse.StudentSummary(
+                studentId,
+                displayName(user, studentId),
+                user == null ? null : user.email(),
+                totalTopics,
+                completedTopics,
+                inProgressTopics,
+                calculatePercentage(completedTopics, totalTopics)
         );
     }
 

@@ -1,13 +1,11 @@
 package com.smartlearning.core.course.repository;
 
-import com.smartlearning.core.course.entity.Course;
 import com.smartlearning.core.course.entity.CourseMember;
 import com.smartlearning.core.course.entity.enums.CourseMemberRole;
 import com.smartlearning.core.course.entity.enums.CourseMemberStatus;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Query;
 
 import java.util.List;
 import java.util.Optional;
@@ -32,5 +30,12 @@ public interface CourseMemberRepository extends JpaRepository<CourseMember, UUID
             UUID courseId,
             CourseMemberRole role,
             CourseMemberStatus status
+    );
+
+    Page<CourseMember> findAllByCourseIdAndRoleAndStatus(
+            UUID courseId,
+            CourseMemberRole role,
+            CourseMemberStatus status,
+            Pageable pageable
     );
 }

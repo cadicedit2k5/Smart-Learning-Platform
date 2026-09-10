@@ -1,6 +1,7 @@
 package com.smartlearning.core.course.dto.response;
 
-import java.util.List;
+import com.smartlearning.common.dto.response.pagination.PagingResponse;
+
 import java.util.UUID;
 
 public record LecturerCourseProgressResponse(
@@ -9,7 +10,7 @@ public record LecturerCourseProgressResponse(
         long totalTopics,
         int averageProgressPercentage,
         long completedStudents,
-        List<StudentSummary> students
+        PagingResponse<StudentSummary> students
 ) {
     public record StudentSummary(
             UUID studentId,

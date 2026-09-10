@@ -1,5 +1,6 @@
 package com.smartlearning.core.course.service;
 
+import com.smartlearning.common.dto.request.PagingRequest;
 import com.smartlearning.core.course.dto.response.CourseLearningProgressResponse;
 import com.smartlearning.core.course.dto.response.LecturerCourseProgressResponse;
 import com.smartlearning.core.course.dto.response.StudentLearningProgressDetailResponse;
@@ -18,7 +19,8 @@ public interface LearningProgressService {
     LecturerCourseProgressResponse getCourseStudentProgress(
             UUID courseId,
             UUID lecturerId,
-            String accessToken
+            String accessToken,
+            PagingRequest pagingRequest
     );
 
     StudentLearningProgressDetailResponse getStudentProgress(

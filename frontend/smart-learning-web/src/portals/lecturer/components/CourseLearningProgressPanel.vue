@@ -7,12 +7,11 @@ import {
   Circle,
   CircleDot,
   GraduationCap,
-  Search,
   TrendingUp,
   UsersRound,
 } from 'lucide-vue-next'
 
-import { BaseAlert, BaseButton, BaseInput, BaseStatCard } from '@/shared/components'
+import { BaseAlert, BasePagination, BaseStatCard } from '@/shared/components'
 import { formatDateTime } from '@/shared/utils/date'
 import { useLecturerApiError } from '../composables/useLecturerApiError'
 import {
@@ -34,23 +33,14 @@ const progress = ref<LecturerCourseProgress | null>(null)
 const selectedStudent = ref<StudentProgressSummary | null>(null)
 const studentDetail = ref<StudentProgressDetail | null>(null)
 
+const page = ref(1)
 const loading = ref(true)
 const loadingDetail = ref(false)
 const message = ref('')
 const detailMessage = ref('')
-const search = ref('')
 
-const filteredStudents = computed(() => {
-  if (!progress.value) return []
-
-  const keyword = search.value.trim().toLowerCase()
-  if (!keyword) return progress.value.students
-
-  return progress.value.students.filter((student) => {
-    return student.fullName.toLowerCase().includes(keyword) ||
-      student.email?.toLowerCase().includes(keyword)
-  })
-})
+const students = computed(() => progress.value?.students.content ?? [])
+const totalPages = computed(() => progress.value?.students.pageable.totalPages ?? 0)
 
 const notStartedTopics = (student: StudentProgressSummary) => {
   return Math.max(0, student.totalTopics - student.completedTopics - student.inProgressTopics)
@@ -85,15 +75,19 @@ const loadProgress = async () => {
   message.value = ''
 
   try {
-    progress.value = await getCourseStudentProgress(props.courseId)
+    progress.value = await getCourseStudentProgress(props.courseId, page.value)
   } catch (error) {
-    message.value = handleApiError(
-      error,
-      'Không thể tải tiến độ học tập.',
-    ).message
+    message.value = handleApiError(error, 'Không thể tải tiến độ học tập.').message
   } finally {
     loading.value = false
   }
+}
+
+const goToPage = (newPage: number) => {
+  if (newPage < 1 || newPage > totalPages.value || newPage === page.value) return
+
+  page.value = newPage
+  void loadProgress()
 }
 
 const openStudent = async (student: StudentProgressSummary) => {
@@ -127,10 +121,10 @@ const retryStudent = () => {
 }
 
 const reset = () => {
+  page.value = 1
   progress.value = null
   selectedStudent.value = null
   studentDetail.value = null
-  search.value = ''
   message.value = ''
   detailMessage.value = ''
   void loadProgress()
@@ -143,9 +137,6 @@ onMounted(() => void loadProgress())
 
 <template>
   <section class="space-y-5">
-    <!-- =====================================================
-         STUDENT LIST
-         ===================================================== -->
     <template v-if="!selectedStudent">
       <header>
         <h2 class="font-heading text-xl font-bold text-app-text">
@@ -163,7 +154,11 @@ onMounted(() => void loadProgress())
 
       <div v-if="loading" class="space-y-4">
         <div class="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-          <div v-for="index in 4" :key="index" class="h-28 animate-pulse rounded-panel bg-app-surface-muted" />
+          <div
+            v-for="index in 4"
+            :key="index"
+            class="h-28 animate-pulse rounded-panel bg-app-surface-muted"
+          />
         </div>
 
         <div class="h-72 animate-pulse rounded-card bg-app-surface-muted" />
@@ -193,7 +188,11 @@ onMounted(() => void loadProgress())
             </template>
           </BaseStatCard>
 
-          <BaseStatCard label="Đã hoàn thành" :value="progress.completedStudents" tone="success">
+          <BaseStatCard
+            label="Đã hoàn thành"
+            :value="progress.completedStudents"
+            tone="success"
+          >
             <template #icon>
               <GraduationCap :size="19" />
             </template>
@@ -201,7 +200,7 @@ onMounted(() => void loadProgress())
         </div>
 
         <div
-          v-if="progress.students.length === 0"
+          v-if="progress.totalStudents === 0"
           class="rounded-panel border border-dashed border-app-border bg-app-surface px-6 py-14 text-center"
         >
           <UsersRound :size="40" class="mx-auto text-app-text-muted/40" />
@@ -215,110 +214,102 @@ onMounted(() => void loadProgress())
           </p>
         </div>
 
-        <template v-else>
-          <div class="max-w-md">
-            <BaseInput v-model="search" placeholder="Tìm theo tên hoặc email...">
-              <template #leading>
-                <Search :size="17" />
-              </template>
-            </BaseInput>
-          </div>
+        <div
+          v-else
+          class="overflow-hidden rounded-card border border-app-border bg-app-surface shadow-card"
+        >
+          <button
+            v-for="student in students"
+            :key="student.studentId"
+            type="button"
+            class="group block w-full border-b border-app-border px-5 py-5 text-left transition last:border-b-0 hover:bg-app-surface-muted/40"
+            @click="openStudent(student)"
+          >
+            <div class="flex flex-col gap-4 lg:flex-row lg:items-center">
+              <div class="flex min-w-0 flex-1 items-center gap-3">
+                <span
+                  class="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-secondary-soft font-bold text-secondary"
+                >
+                  {{ student.fullName.trim().charAt(0).toUpperCase() }}
+                </span>
+
+                <div class="min-w-0">
+                  <p class="truncate font-semibold text-app-text">
+                    {{ student.fullName }}
+                  </p>
+
+                  <p v-if="student.email" class="truncate text-xs text-app-text-muted">
+                    {{ student.email }}
+                  </p>
+                </div>
+              </div>
+
+              <div class="w-full lg:w-72">
+                <div class="mb-2 flex items-center justify-between gap-3 text-xs">
+                  <span class="text-app-text-muted">
+                    {{ student.completedTopics }} / {{ student.totalTopics }} bài hoàn thành
+                  </span>
+
+                  <span class="font-bold text-app-text">
+                    {{ student.progressPercentage }}%
+                  </span>
+                </div>
+
+                <div class="h-2 overflow-hidden rounded-full bg-app-surface-muted">
+                  <div
+                    class="h-full rounded-full transition-all"
+                    :class="student.progressPercentage === 100 ? 'bg-ai' : 'bg-secondary'"
+                    :style="{ width: `${student.progressPercentage}%` }"
+                  />
+                </div>
+              </div>
+
+              <div class="flex min-w-36 items-center justify-between gap-3 lg:justify-end">
+                <span
+                  class="rounded-pill px-2.5 py-1 text-xs font-semibold"
+                  :class="studentStatusClass(student)"
+                >
+                  {{ studentStatus(student) }}
+                </span>
+
+                <span
+                  class="text-sm font-semibold text-secondary transition group-hover:translate-x-1"
+                >
+                  Xem chi tiết →
+                </span>
+              </div>
+            </div>
+
+            <div
+              v-if="student.inProgressTopics > 0 || notStartedTopics(student) > 0"
+              class="mt-3 flex flex-wrap gap-x-4 gap-y-1 pl-14 text-xs text-app-text-muted"
+            >
+              <span v-if="student.inProgressTopics > 0">
+                {{ student.inProgressTopics }} đang học
+              </span>
+
+              <span v-if="notStartedTopics(student) > 0">
+                {{ notStartedTopics(student) }} chưa bắt đầu
+              </span>
+            </div>
+          </button>
 
           <div
-            v-if="filteredStudents.length === 0"
-            class="rounded-card border border-dashed border-app-border bg-app-surface px-6 py-10 text-center"
+            v-if="progress.students.pageable.totalElements > 0"
+            class="border-t border-app-border p-4"
           >
-            <p class="font-semibold text-app-text">
-              Không tìm thấy học viên
-            </p>
-
-            <p class="mt-1 text-sm text-app-text-muted">
-              Thử tìm kiếm bằng tên hoặc email khác.
-            </p>
+            <BasePagination
+              :page="page"
+              :total-pages="totalPages"
+              :total-elements="progress.students.pageable.totalElements"
+              @previous="goToPage(page - 1)"
+              @next="goToPage(page + 1)"
+            />
           </div>
-
-          <div v-else class="overflow-hidden rounded-card border border-app-border bg-app-surface shadow-card">
-            <button
-              v-for="student in filteredStudents"
-              :key="student.studentId"
-              type="button"
-              class="group block w-full border-b border-app-border px-5 py-5 text-left transition last:border-b-0 hover:bg-app-surface-muted/40"
-              @click="openStudent(student)"
-            >
-              <div class="flex flex-col gap-4 lg:flex-row lg:items-center">
-                <div class="flex min-w-0 flex-1 items-center gap-3">
-                  <span
-                    class="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-secondary-soft font-bold text-secondary"
-                  >
-                    {{ student.fullName.trim().charAt(0).toUpperCase() }}
-                  </span>
-
-                  <div class="min-w-0">
-                    <p class="truncate font-semibold text-app-text">
-                      {{ student.fullName }}
-                    </p>
-
-                    <p v-if="student.email" class="truncate text-xs text-app-text-muted">
-                      {{ student.email }}
-                    </p>
-                  </div>
-                </div>
-
-                <div class="w-full lg:w-72">
-                  <div class="mb-2 flex items-center justify-between gap-3 text-xs">
-                    <span class="text-app-text-muted">
-                      {{ student.completedTopics }} / {{ student.totalTopics }} bài hoàn thành
-                    </span>
-
-                    <span class="font-bold text-app-text">
-                      {{ student.progressPercentage }}%
-                    </span>
-                  </div>
-
-                  <div class="h-2 overflow-hidden rounded-full bg-app-surface-muted">
-                    <div
-                      class="h-full rounded-full transition-all"
-                      :class="student.progressPercentage === 100 ? 'bg-ai' : 'bg-secondary'"
-                      :style="{ width: `${student.progressPercentage}%` }"
-                    />
-                  </div>
-                </div>
-
-                <div class="flex min-w-36 items-center justify-between gap-3 lg:justify-end">
-                  <span
-                    class="rounded-pill px-2.5 py-1 text-xs font-semibold"
-                    :class="studentStatusClass(student)"
-                  >
-                    {{ studentStatus(student) }}
-                  </span>
-
-                  <span class="text-sm font-semibold text-secondary transition group-hover:translate-x-1">
-                    Xem chi tiết →
-                  </span>
-                </div>
-              </div>
-
-              <div
-                v-if="student.inProgressTopics > 0 || notStartedTopics(student) > 0"
-                class="mt-3 flex flex-wrap gap-x-4 gap-y-1 pl-14 text-xs text-app-text-muted"
-              >
-                <span v-if="student.inProgressTopics > 0">
-                  {{ student.inProgressTopics }} đang học
-                </span>
-
-                <span v-if="notStartedTopics(student) > 0">
-                  {{ notStartedTopics(student) }} chưa bắt đầu
-                </span>
-              </div>
-            </button>
-          </div>
-        </template>
+        </div>
       </template>
     </template>
 
-    <!-- =====================================================
-         STUDENT DETAIL
-         ===================================================== -->
     <template v-else>
       <button
         type="button"
@@ -333,7 +324,11 @@ onMounted(() => void loadProgress())
         <div class="flex items-center justify-between gap-3">
           <span>{{ detailMessage }}</span>
 
-          <button type="button" class="font-semibold underline" @click="retryStudent">
+          <button
+            type="button"
+            class="font-semibold underline"
+            @click="retryStudent"
+          >
             Thử lại
           </button>
         </div>
@@ -341,7 +336,12 @@ onMounted(() => void loadProgress())
 
       <div v-if="loadingDetail" class="space-y-4">
         <div class="h-36 animate-pulse rounded-card bg-app-surface-muted" />
-        <div v-for="index in 3" :key="index" class="h-48 animate-pulse rounded-card bg-app-surface-muted" />
+
+        <div
+          v-for="index in 3"
+          :key="index"
+          class="h-48 animate-pulse rounded-card bg-app-surface-muted"
+        />
       </div>
 
       <template v-else-if="studentDetail">
@@ -397,7 +397,14 @@ onMounted(() => void loadProgress())
 
             <span>
               <strong class="text-app-text">
-                {{ Math.max(0, studentDetail.totalTopics - studentDetail.completedTopics - studentDetail.inProgressTopics) }}
+                {{
+                  Math.max(
+                    0,
+                    studentDetail.totalTopics -
+                      studentDetail.completedTopics -
+                      studentDetail.inProgressTopics,
+                  )
+                }}
               </strong>
               chưa bắt đầu
             </span>
@@ -444,7 +451,10 @@ onMounted(() => void loadProgress())
                 </div>
               </div>
 
-              <div v-if="chapter.totalTopics > 0" class="mt-3 h-1.5 overflow-hidden rounded-full bg-app-surface-muted">
+              <div
+                v-if="chapter.totalTopics > 0"
+                class="mt-3 h-1.5 overflow-hidden rounded-full bg-app-surface-muted"
+              >
                 <div
                   class="h-full rounded-full"
                   :class="chapter.progressPercentage === 100 ? 'bg-ai' : 'bg-secondary'"
@@ -490,7 +500,10 @@ onMounted(() => void loadProgress())
                       {{ topic.title }}
                     </p>
 
-                    <p v-if="topic.lastAccessedAt" class="mt-1 text-xs text-app-text-muted">
+                    <p
+                      v-if="topic.lastAccessedAt"
+                      class="mt-1 text-xs text-app-text-muted"
+                    >
                       Truy cập gần nhất {{ formatDateTime(topic.lastAccessedAt) }}
                     </p>
 
