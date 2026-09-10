@@ -116,8 +116,13 @@ const submit = () => {
       </label>
 
       <div class="flex justify-end gap-3 border-t border-app-border pt-5">
-        <BaseButton variant="secondary" :disabled="loading" @click="emit('close')">
-          Hủy
+        <BaseButton
+        type="button"
+        variant="secondary"
+        :disabled="loading"
+        @click="emit('close')"
+        >
+        Hủy
         </BaseButton>
 
         <BaseButton type="submit" :loading="loading">

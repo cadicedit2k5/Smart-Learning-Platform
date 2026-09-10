@@ -4,6 +4,7 @@ import { useRoute, useRouter } from 'vue-router'
 import {
   ArrowLeft,
   BookOpen,
+  Bell,
   Bot,
   CheckCircle2,
   FileText,
@@ -48,7 +49,7 @@ import { formatDateTime } from '@/shared/utils/date.ts'
 import DiscussionPanel from '@/features/discusstion/components/DiscussionPanel.vue'
 import CourseLearningProgressPanel from '../components/CourseLearningProgressPanel.vue'
 
-type DetailTab = 'overview' | 'members' | 'requests' | 'content' | 'progress' | 'assignments' | 'documents' | 'discussion' | 'ai'
+type DetailTab = 'overview' | 'announcements' | 'members' | 'requests' | 'content' | 'progress' | 'assignments' | 'documents' | 'discussion' | 'ai'
 
 const route = useRoute()
 const router = useRouter()
@@ -80,6 +81,7 @@ const canReviewJoinRequests = computed(
 
 const tabs = computed<Array<{ id: DetailTab; label: string; icon: typeof BookOpen }>>(() => [
   { id: 'overview', label: 'Tổng quan', icon: BookOpen },
+  { id: 'announcements', label: 'Thông báo', icon: Bell },
 
   ...(canManageCourse.value
     ? [
@@ -271,11 +273,6 @@ onMounted(() => {
           </p>
         </section>
 
-        <CourseAnnouncementsPanel
-          v-if="canManageCourse"
-          :course-id="course.id"
-        />
-
         <section>
           <h2 class="font-heading text-xl font-bold text-app-text">Thông tin khóa học</h2>
 
@@ -311,6 +308,11 @@ onMounted(() => {
       </div>
 
       <!-- Other tabs -->
+
+      <CourseAnnouncementsPanel
+        v-else-if="activeTab === 'announcements'"
+        :course-id="course.id"
+      />
       <CourseMembersPanel
         v-else-if="activeTab === 'members'"
         :course-id="course.id"

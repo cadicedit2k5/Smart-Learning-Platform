@@ -1,7 +1,9 @@
 package com.smartlearning.core.course.controller.api;
 
+import com.smartlearning.common.dto.request.PagingRequest;
 import com.smartlearning.common.dto.response.ApiResponse;
 import com.smartlearning.common.dto.response.ApiResponses;
+import com.smartlearning.common.dto.response.pagination.PagingResponse;
 import com.smartlearning.common.entity.Authorities;
 import com.smartlearning.common.utils.JwtUtils;
 import com.smartlearning.core.course.dto.request.AnnouncementCreateRequest;
@@ -16,7 +18,6 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -28,12 +29,17 @@ public class ApiCourseAnnouncementController {
 
     @GetMapping
     @PreAuthorize(Authorities.COURSE_READ)
-    public ResponseEntity<ApiResponse<List<AnnouncementResponse>>> getAnnouncements(
+    public ResponseEntity<ApiResponse<PagingResponse<AnnouncementResponse>>> getAnnouncements(
             @PathVariable UUID courseId,
+            @ModelAttribute PagingRequest pagingRequest,
             @AuthenticationPrincipal Jwt jwt
     ) {
         return ApiResponses.ok(
-                announcementService.getAnnouncements(courseId, JwtUtils.getUserId(jwt))
+                announcementService.getAnnouncements(
+                        courseId,
+                        JwtUtils.getUserId(jwt),
+                        pagingRequest
+                )
         );
     }
 

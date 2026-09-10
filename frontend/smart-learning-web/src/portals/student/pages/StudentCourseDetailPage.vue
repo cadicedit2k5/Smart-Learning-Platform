@@ -3,6 +3,7 @@ import { computed, onMounted, ref } from 'vue'
 import {
   ArrowLeft,
   BookOpen,
+  Bell,
   Bot,
   CalendarDays,
   FileText,
@@ -40,7 +41,7 @@ import { BaseTabs } from '@/shared/components/index.ts'
 import { formatDate } from '@/shared/utils/date.ts'
 import DiscussionPanel from '@/features/discusstion/components/DiscussionPanel.vue'
 
-type DetailTab = 'overview' | 'content' | 'assignments' | 'documents' | 'discussion' | 'ai'
+type DetailTab = 'overview' | 'announcements' | 'content' | 'assignments' | 'documents' | 'discussion' | 'ai'
 
 const route = useRoute()
 const { handleApiError } = useStudentApiError()
@@ -55,6 +56,7 @@ const progress =
 
 const tabs: Array<{ id: DetailTab; label: string; icon: typeof BookOpen }> = [
   { id: 'overview', label: 'Tổng quan', icon: BookOpen },
+  { id: 'announcements', label: 'Thông báo', icon: Bell },
   { id: 'content', label: 'Bài học', icon: Layers3 },
   { id: 'assignments', label: 'Bài tập', icon: ClipboardList },
   { id: 'documents', label: 'Tài liệu', icon: FileText },
@@ -265,8 +267,6 @@ onMounted(() => void loadDetail())
           </div>
         </BaseCard>
 
-        <!-- Announcements -->
-        <StudentAnnouncementsPanel :course-id="course.id" />
         <div
           class="grid gap-5 lg:grid-cols-[minmax(0,1fr)_20rem]"
         >
@@ -363,6 +363,10 @@ onMounted(() => void loadDetail())
           </BaseCard>
         </div>
       </div>
+      <StudentAnnouncementsPanel
+        v-else-if="activeTab === 'announcements'"
+        :course-id="course.id"
+      />
       <StudentCourseContentPanel v-else-if="activeTab === 'content'" :course-id="course.id"/>
       <StudentAssignmentsPanel
         v-else-if="activeTab === 'assignments'"

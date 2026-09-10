@@ -1,16 +1,20 @@
 package com.smartlearning.core.course.service;
 
-
+import com.smartlearning.common.dto.request.PagingRequest;
+import com.smartlearning.common.dto.response.pagination.PagingResponse;
 import com.smartlearning.core.course.dto.request.AnnouncementCreateRequest;
 import com.smartlearning.core.course.dto.request.AnnouncementUpdateRequest;
 import com.smartlearning.core.course.dto.response.AnnouncementResponse;
 
-import java.util.List;
 import java.util.UUID;
 
 public interface CourseAnnouncementService {
 
-    List<AnnouncementResponse> getAnnouncements(UUID courseId, UUID userId);
+    PagingResponse<AnnouncementResponse> getAnnouncements(
+            UUID courseId,
+            UUID userId,
+            PagingRequest pagingRequest
+    );
 
     AnnouncementResponse createAnnouncement(
             UUID courseId,

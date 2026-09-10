@@ -1,6 +1,8 @@
 import { httpClient, type ApiResponse } from '@/shared/api'
 import type { CourseAnnouncement } from '@/shared/announcement/types'
 
+export { getAnnouncements } from '@/shared/announcement/api'
+
 export interface AnnouncementInput {
   title: string
   content: string
@@ -8,18 +10,15 @@ export interface AnnouncementInput {
 
 const path = (courseId: string) => `/courses/${courseId}/announcements`
 
-export const getAnnouncements = async (
-  courseId: string,
-): Promise<CourseAnnouncement[]> => {
-  const response = await httpClient.get<ApiResponse<CourseAnnouncement[]>>(path(courseId))
-  return response.data.data
-}
-
 export const createAnnouncement = async (
   courseId: string,
   input: AnnouncementInput,
 ): Promise<CourseAnnouncement> => {
-  const response = await httpClient.post<ApiResponse<CourseAnnouncement>>(path(courseId), input)
+  const response = await httpClient.post<ApiResponse<CourseAnnouncement>>(
+    path(courseId),
+    input,
+  )
+
   return response.data.data
 }
 

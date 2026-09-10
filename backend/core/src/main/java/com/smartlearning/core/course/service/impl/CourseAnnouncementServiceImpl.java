@@ -1,5 +1,7 @@
 package com.smartlearning.core.course.service.impl;
 
+import com.smartlearning.common.dto.request.PagingRequest;
+import com.smartlearning.common.dto.response.pagination.PagingResponse;
 import com.smartlearning.common.error.ApplicationException;
 import com.smartlearning.common.error.CommonErrorCode;
 import com.smartlearning.core.course.dto.request.AnnouncementCreateRequest;
@@ -15,10 +17,10 @@ import com.smartlearning.core.notification.entity.enums.NotificationType;
 import com.smartlearning.core.notification.service.NotificationService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
-import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -32,14 +34,21 @@ public class CourseAnnouncementServiceImpl implements CourseAnnouncementService 
     private final NotificationService notificationService;
 
     @Override
-    public List<AnnouncementResponse> getAnnouncements(UUID courseId, UUID userId) {
+    public PagingResponse<AnnouncementResponse> getAnnouncements(
+            UUID courseId,
+            UUID userId,
+            PagingRequest pagingRequest
+    ) {
         courseAccessPolicy.requireActiveMember(courseId, userId);
 
-        return announcementRepository
-                .findAllByCourseIdAndDeletedAtIsNullOrderByCreatedAtDesc(courseId)
-                .stream()
-                .map(this::toResponse)
-                .toList();
+        Page<AnnouncementResponse> page = announcementRepository
+                .findAllByCourseIdAndDeletedAtIsNullOrderByCreatedAtDesc(
+                        courseId,
+                        pagingRequest.pageable()
+                )
+                .map(this::toResponse);
+
+        return PagingResponse.from(page);
     }
 
     @Override
