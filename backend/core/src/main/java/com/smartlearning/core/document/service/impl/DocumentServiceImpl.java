@@ -4,10 +4,6 @@ import com.smartlearning.common.dto.response.pagination.PagingResponse;
 import com.smartlearning.common.error.ApplicationException;
 import com.smartlearning.common.error.CommonErrorCode;
 import com.smartlearning.core.course.entity.Course;
-import com.smartlearning.core.course.entity.CourseChapter;
-import com.smartlearning.core.course.entity.CourseTopic;
-import com.smartlearning.core.course.repository.CourseChapterRepository;
-import com.smartlearning.core.course.repository.CourseTopicRepository;
 import com.smartlearning.core.course.sercurity.CourseAccessPolicy;
 import com.smartlearning.core.course.utils.CourseUtils;
 import com.smartlearning.core.document.dto.request.DocumentCreateRequest;
@@ -61,8 +57,6 @@ public class DocumentServiceImpl implements DocumentService {
     private final DocumentMapper documentMapper;
     private final DocumentProcessingJobRepository documentProcessingJobRepository;
     private final DocumentIngestionEventPublisher documentIngestionEventPublisher;
-    private final CourseChapterRepository chapterRepository;
-    private final CourseTopicRepository topicRepository;
     private final DocumentDeletionEventPublisher documentDeletionEventPublisher;
     private final DocumentDeletionService documentDeletionService;
     private final DocumentUtils documentUtils;
@@ -117,13 +111,6 @@ public class DocumentServiceImpl implements DocumentService {
                     document.setCourse(course);
                     document.setTitle(request.getTitle().trim());
                     document.setDescription(request.getDescription());
-                    ContentPlacement placement = resolvePlacement(
-                            courseId,
-                            request.getChapterId(),
-                            request.getTopicId()
-                    );
-                    document.setChapter(placement.chapter());
-                    document.setTopic(placement.topic());
                     document.setUploadedBy(currentUserId);
 
                     documentRepository.saveAndFlush(document);
@@ -209,14 +196,6 @@ public class DocumentServiceImpl implements DocumentService {
             document.setDescription(request.description());
         }
 
-        ContentPlacement placement = resolvePlacement(
-                courseId,
-                request.chapterId(),
-                request.topicId()
-        );
-        document.setChapter(placement.chapter());
-        document.setTopic(placement.topic());
-
         return documentMapper.toResponse(document);
     }
 
@@ -246,40 +225,6 @@ public class DocumentServiceImpl implements DocumentService {
                 ));
     }
 
-    private ContentPlacement resolvePlacement(UUID courseId, UUID chapterId, UUID topicId) {
-        CourseChapter chapter = null;
-        CourseTopic topic = null;
-
-        if (topicId != null) {
-            topic = topicRepository
-                    .findByIdAndChapterCourseIdAndDeletedAtIsNullAndChapterDeletedAtIsNull(topicId, courseId)
-                    .orElseThrow(() -> new ApplicationException(
-                            CommonErrorCode.RESOURCE_NOT_FOUND,
-                            "Không tìm thấy chủ đề"
-                    ));
-            chapter = topic.getChapter();
-        }
-
-        if (chapterId != null) {
-            CourseChapter requestedChapter = chapterRepository
-                    .findByIdAndCourseIdAndDeletedAtIsNull(chapterId, courseId)
-                    .orElseThrow(() -> new ApplicationException(
-                            CommonErrorCode.RESOURCE_NOT_FOUND,
-                            "Không tìm thấy chương"
-                    ));
-
-            if (chapter != null && !chapter.getId().equals(requestedChapter.getId())) {
-                throw new ApplicationException(
-                        CommonErrorCode.DATA_CONFLICT,
-                        "Chủ đề không thuộc chương đã chọn"
-                );
-            }
-            chapter = requestedChapter;
-        }
-
-        return new ContentPlacement(chapter, topic);
-    }
-
     private void cleanupUploadedObject(
             String objectName,
             RuntimeException originalException
@@ -304,6 +249,4 @@ public class DocumentServiceImpl implements DocumentService {
     ) {
     }
 
-    private record ContentPlacement(CourseChapter chapter, CourseTopic topic) {
-    }
 }

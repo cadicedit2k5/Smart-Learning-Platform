@@ -20,7 +20,6 @@ import com.smartlearning.core.course.repository.CourseTopicRepository;
 import com.smartlearning.core.course.sercurity.CourseAccessPolicy;
 import com.smartlearning.core.course.service.CourseContentService;
 import com.smartlearning.core.course.utils.CourseUtils;
-import com.smartlearning.core.document.service.DocumentDeletionService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
@@ -41,7 +40,6 @@ public class CourseContentServiceImpl implements CourseContentService {
     private final CourseTopicRepository topicRepository;
     private final CourseChapterMapper chapterMapper;
     private final CourseTopicMapper topicMapper;
-    private final DocumentDeletionService documentDeletionService;
     private final ApplicationEventPublisher applicationEventPublisher;
 
     @Override
@@ -96,7 +94,6 @@ public class CourseContentServiceImpl implements CourseContentService {
         CourseChapter chapter = requireChapter(courseId, chapterId);
         Instant deletedAt = Instant.now();
         chapter.setDeletedAt(deletedAt);
-        documentDeletionService.deleteByScope(courseId, chapterId, null);
         List<CourseTopic> topics = topicRepository.findAllByChapterIdOrderByOrderIndexAsc((chapterId));
 
         for (CourseTopic topic : topics) {
@@ -201,7 +198,6 @@ public class CourseContentServiceImpl implements CourseContentService {
         );
 
         topic.setDeletedAt(Instant.now());
-        documentDeletionService.deleteByScope(courseId, chapterId, topicId);
         topicRepository.delete(topic);
     }
 
