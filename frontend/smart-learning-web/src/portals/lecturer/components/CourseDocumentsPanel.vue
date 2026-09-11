@@ -23,12 +23,6 @@ import {
   DocumentViewer,
 } from '@/shared/components'
 import type { PaginatedData } from '@/shared/api'
-import {
-  getChapters,
-  getTopics,
-  type CourseChapter,
-  type CourseTopic,
-} from '@/shared/course-content'
 import type {
   CourseDocument,
   DocumentProcessingStatus,
@@ -75,8 +69,6 @@ const emptyPage = (): PaginatedData<CourseDocument> => ({
 })
 
 const documentsPage = ref(emptyPage())
-const chapters = ref<CourseChapter[]>([])
-const filterTopics = ref<CourseTopic[]>([])
 
 const requestedPage = ref(1)
 
@@ -99,11 +91,7 @@ const previewingId = ref('')
 const downloadingId = ref('')
 const deletingId = ref('')
 
-const filters = reactive({
-  keyword: '',
-  chapterId: '',
-  topicId: '',
-})
+const filters = reactive({ keyword: '' })
 
 let pollTimer: ReturnType<typeof setTimeout> | undefined
 
@@ -136,63 +124,22 @@ const schedulePoll = () => {
 }
 
 const loadDocuments = async (silent = false) => {
-  if (silent) {
-    polling.value = true
-  } else {
-    loading.value = true
-  }
+  if (silent) polling.value = true
+  else loading.value = true
 
   loadError.value = ''
 
   try {
-    documentsPage.value = await getDocuments(
-      props.courseId,
-      {
-        page: requestedPage.value,
-        keyword: filters.keyword.trim() || undefined,
-        chapterId: filters.chapterId || undefined,
-        topicId: filters.topicId || undefined,
-      },
-    )
+    documentsPage.value = await getDocuments(props.courseId, {
+      page: requestedPage.value,
+      keyword: filters.keyword.trim() || undefined,
+    })
   } catch (error) {
-    loadError.value = handleApiError(
-      error,
-      'Không thể tải danh sách tài liệu.',
-    ).message
+    loadError.value = handleApiError(error, 'Không thể tải danh sách tài liệu.').message
   } finally {
     loading.value = false
     polling.value = false
     schedulePoll()
-  }
-}
-
-const loadChapters = async () => {
-  if (!props.canManage) return
-
-  try {
-    chapters.value = await getChapters(props.courseId)
-  } catch (error) {
-    actionMessage.value = handleApiError(
-      error,
-      'Không thể tải danh sách chương.',
-    ).message
-  }
-}
-
-const changeFilterChapter = async () => {
-  filters.topicId = ''
-
-  try {
-    filterTopics.value = filters.chapterId
-      ? await getTopics(props.courseId, filters.chapterId)
-      : []
-  } catch (error) {
-    filterTopics.value = []
-
-    actionMessage.value = handleApiError(
-      error,
-      'Không thể tải danh sách chủ đề.',
-    ).message
   }
 }
 
@@ -203,10 +150,6 @@ const applyFilters = () => {
 
 const resetFilters = () => {
   filters.keyword = ''
-  filters.chapterId = ''
-  filters.topicId = ''
-  filterTopics.value = []
-
   applyFilters()
 }
 
@@ -419,36 +362,20 @@ const statusClass: Record<
   FAILED: 'bg-danger-soft text-on-danger-soft',
 }
 
-watch(
-  () => props.courseId,
-  () => {
-    clearPollTimer()
-    closeDocument()
-
-    requestedPage.value = 1
-    documentsPage.value = emptyPage()
-
-    filters.keyword = ''
-    filters.chapterId = ''
-    filters.topicId = ''
-
-    chapters.value = []
-    filterTopics.value = []
-
-    actionMessage.value = ''
-    loadError.value = ''
-
-    void Promise.all([
-      loadDocuments(),
-      loadChapters(),
-    ])
-  },
-)
+watch(() => props.courseId, () => {
+  clearPollTimer()
+  closeDocument()
+  requestedPage.value = 1
+  documentsPage.value = emptyPage()
+  filters.keyword = ''
+  actionMessage.value = ''
+  loadError.value = ''
+  void loadDocuments()
+})
 
 onMounted(() => {
   void Promise.all([
     loadDocuments(),
-    loadChapters(),
   ])
 })
 
@@ -521,69 +448,14 @@ onBeforeUnmount(() => {
       </div>
     </BaseAlert>
 
-    <form
-      class="grid gap-3 rounded-card border border-app-border bg-app-surface p-4 shadow-card md:grid-cols-[minmax(0,1fr)_11rem_12rem_12rem_auto]"
-      @submit.prevent="applyFilters"
-    >
-      <BaseInput
-        v-model="filters.keyword"
-        placeholder="Tìm tài liệu"
-      >
-        <template #leading>
-          <Search :size="17" />
-        </template>
+    <form class="flex flex-col gap-3 rounded-card border border-app-border bg-app-surface p-4 shadow-card sm:flex-row" @submit.prevent="applyFilters">
+      <BaseInput v-model="filters.keyword" class="flex-1" placeholder="Tìm tài liệu">
+        <template #leading><Search :size="17" /></template>
       </BaseInput>
 
-      <select
-        v-if="canManage"
-        v-model="filters.chapterId"
-        class="h-11 rounded-control border border-app-border bg-app-surface px-3 text-sm"
-        @change="changeFilterChapter"
-      >
-        <option value="">
-          Tất cả chương
-        </option>
-
-        <option
-          v-for="chapter in chapters"
-          :key="chapter.id"
-          :value="chapter.id"
-        >
-          {{ chapter.title }}
-        </option>
-      </select>
-
-      <select
-        v-if="canManage"
-        v-model="filters.topicId"
-        class="h-11 rounded-control border border-app-border bg-app-surface px-3 text-sm"
-        :disabled="!filters.chapterId"
-      >
-        <option value="">
-          Tất cả chủ đề
-        </option>
-
-        <option
-          v-for="topic in filterTopics"
-          :key="topic.id"
-          :value="topic.id"
-        >
-          {{ topic.title }}
-        </option>
-      </select>
-
       <div class="flex gap-2">
-        <BaseButton type="submit">
-          Lọc
-        </BaseButton>
-
-        <BaseButton
-          type="button"
-          variant="secondary"
-          @click="resetFilters"
-        >
-          Đặt lại
-        </BaseButton>
+        <BaseButton type="submit">Lọc</BaseButton>
+        <BaseButton type="button" variant="secondary" @click="resetFilters">Đặt lại</BaseButton>
       </div>
     </form>
 
@@ -854,9 +726,7 @@ onBeforeUnmount(() => {
 
     <DocumentFormModal
       :open="formOpen"
-      :course-id="courseId"
       :document="editingDocument"
-      :chapters="chapters"
       :loading="formLoading"
       :server-message="formMessage"
       :server-errors="formErrors"
