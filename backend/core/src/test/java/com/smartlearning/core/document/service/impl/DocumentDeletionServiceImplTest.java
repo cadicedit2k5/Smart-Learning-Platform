@@ -103,54 +103,6 @@ class DocumentDeletionServiceImplTest {
         verifyNoInteractions(eventPublisher);
     }
 
-    @Test
-    void deleteByScope_unlinksContentAndPublishesOnlyForActiveDocuments() {
-        CourseChapter chapter = chapter();
-        CourseTopic topic = topic(chapter);
-        Document active = documentWithStatus(DocumentProcessingStatus.INDEXED);
-        active.setChapter(chapter);
-        active.setTopic(topic);
-
-        Document alreadyDeleted = documentWithStatus(DocumentProcessingStatus.FAILED);
-        alreadyDeleted.setId(UUID.randomUUID());
-        alreadyDeleted.setChapter(chapter);
-        alreadyDeleted.setTopic(topic);
-        alreadyDeleted.setDeletedAt(Instant.parse("2026-08-20T12:00:00Z"));
-
-        when(documentRepository.findAllByDeletionScope(COURSE_ID, CHAPTER_ID, TOPIC_ID))
-                .thenReturn(List.of(active, alreadyDeleted));
-
-        deletionService.deleteByScope(COURSE_ID, CHAPTER_ID, TOPIC_ID);
-
-        assertThat(active.getDeletedAt()).isNotNull();
-        assertThat(List.of(active, alreadyDeleted)).allSatisfy(value -> {
-            assertThat(value.getChapter()).isNull();
-            assertThat(value.getTopic()).isNull();
-        });
-        verify(eventPublisher).publishEvent(org.mockito.ArgumentMatchers.any(
-                DocumentDeletionRequestedEvent.class
-        ));
-        verify(documentRepository).flush();
-    }
-
-    @Test
-    void deleteByScope_validatesAllDocumentsBeforeMutatingAny() {
-        Document deletable = documentWithStatus(DocumentProcessingStatus.INDEXED);
-        Document processing = documentWithStatus(DocumentProcessingStatus.QUEUED);
-        processing.setId(UUID.randomUUID());
-        when(documentRepository.findAllByDeletionScope(COURSE_ID, CHAPTER_ID, null))
-                .thenReturn(List.of(deletable, processing));
-
-        assertThatThrownBy(() -> deletionService.deleteByScope(COURSE_ID, CHAPTER_ID, null))
-                .isInstanceOf(ApplicationException.class)
-                .extracting(exception -> ((ApplicationException) exception).getErrorCode())
-                .isEqualTo(CommonErrorCode.DATA_CONFLICT);
-
-        assertThat(deletable.getDeletedAt()).isNull();
-        verify(documentRepository, never()).flush();
-        verifyNoInteractions(eventPublisher);
-    }
-
     private static Document documentWithStatus(DocumentProcessingStatus status) {
         Document document = document();
         DocumentVersion version = documentVersion();

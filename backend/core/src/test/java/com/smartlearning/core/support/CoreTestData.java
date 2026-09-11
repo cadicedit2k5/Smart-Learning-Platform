@@ -177,7 +177,7 @@ public final class CoreTestData {
 
     public static DocumentResponse documentResponse() {
         return new DocumentResponse(
-                DOCUMENT_ID, COURSE_ID,  "courseTitle", null, null, "Document title", "Document description", OWNER_ID, null, TEST_TIME, TEST_TIME
+                DOCUMENT_ID, COURSE_ID,  "courseTitle", "Document title", "Document description", OWNER_ID, null, TEST_TIME, TEST_TIME
         );
     }
 
