@@ -209,15 +209,13 @@ public class DocumentServiceImpl implements DocumentService {
             document.setDescription(request.description());
         }
 
-        if (request.chapterId() != null || request.topicId() != null) {
-            ContentPlacement placement = resolvePlacement(
-                    courseId,
-                    request.chapterId(),
-                    request.topicId()
-            );
-            document.setChapter(placement.chapter());
-            document.setTopic(placement.topic());
-        }
+        ContentPlacement placement = resolvePlacement(
+                courseId,
+                request.chapterId(),
+                request.topicId()
+        );
+        document.setChapter(placement.chapter());
+        document.setTopic(placement.topic());
 
         return documentMapper.toResponse(document);
     }
