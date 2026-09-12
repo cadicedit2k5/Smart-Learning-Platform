@@ -8,16 +8,21 @@ import com.smartlearning.common.dto.response.pagination.PagingResponse;
 import com.smartlearning.core.course.dto.request.CourseCreateRequest;
 import com.smartlearning.core.course.dto.request.CourseUpdateRequest;
 import com.smartlearning.core.course.dto.response.CourseResponse;
+import com.smartlearning.core.course.dto.response.PublicCourseDetailResponse;
 import com.smartlearning.core.course.dto.response.PublicCourseResponse;
 import com.smartlearning.core.course.entity.Course;
+import com.smartlearning.core.course.entity.CourseChapter;
 import com.smartlearning.core.course.entity.CourseMember;
+import com.smartlearning.core.course.entity.CourseTopic;
 import com.smartlearning.core.course.entity.enums.CourseMemberRole;
 import com.smartlearning.core.course.entity.enums.CourseMemberStatus;
 import com.smartlearning.core.course.entity.enums.CourseStatus;
 import com.smartlearning.core.course.entity.enums.CourseVisibility;
 import com.smartlearning.core.course.mapper.CourseMapper;
+import com.smartlearning.core.course.repository.CourseChapterRepository;
 import com.smartlearning.core.course.repository.CourseMemberRepository;
 import com.smartlearning.core.course.repository.CourseRepository;
+import com.smartlearning.core.course.repository.CourseTopicRepository;
 import com.smartlearning.core.course.sercurity.CourseAccessPolicy;
 import com.smartlearning.core.course.utils.CourseUtils;
 import org.junit.jupiter.api.BeforeEach;
@@ -42,10 +47,7 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Stream;
 
-import static com.smartlearning.core.support.CoreTestData.COURSE_ID;
-import static com.smartlearning.core.support.CoreTestData.OWNER_ID;
-import static com.smartlearning.core.support.CoreTestData.course;
-import static com.smartlearning.core.support.CoreTestData.courseResponse;
+import static com.smartlearning.core.support.CoreTestData.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
@@ -73,6 +75,10 @@ class CourseServiceImplTest {
     private CourseUtils courseUtils;
     @InjectMocks
     private CourseServiceImpl courseService;
+    @Mock
+    private CourseChapterRepository chapterRepository;
+    @Mock
+    private CourseTopicRepository topicRepository;
 
     @BeforeEach
     void mapRoleLikeTheRealUtility() {
@@ -194,6 +200,42 @@ class CourseServiceImplTest {
                 Arguments.of(CourseVisibility.INVITE_ONLY, CourseStatus.PUBLISHED),
                 Arguments.of(CourseVisibility.PUBLIC, CourseStatus.DRAFT)
         );
+    }
+
+    @Test
+    void getPublicCourseDetail_returnsCourseOutline() {
+        Course course = course();
+        course.setVisibility(CourseVisibility.PUBLIC);
+        course.setStatus(CourseStatus.PUBLISHED);
+        course.setPublishedAt(TEST_TIME);
+        course.setCoverUrl("course-cover");
+
+        CourseChapter chapter = chapter();
+        chapter.setCourse(course);
+
+        CourseTopic topic = topic(chapter);
+
+        CourseMember membership = member(CourseMemberRole.STUDENT, CourseMemberStatus.PENDING);
+        membership.setCourse(course);
+
+        when(courseUtils.requireCourse(COURSE_ID)).thenReturn(course);
+        when(memberRepository.findByCourseIdAndUserId(COURSE_ID, STUDENT_ID))
+                .thenReturn(Optional.of(membership));
+        when(chapterRepository.findAllByCourseIdAndDeletedAtIsNullOrderByOrderIndexAsc(COURSE_ID))
+                .thenReturn(List.of(chapter));
+        when(topicRepository.findAllActiveByCourseIdOrderByPosition(COURSE_ID))
+                .thenReturn(List.of(topic));
+        when(courseMapper.toImageUrl(course)).thenReturn("/courses/" + COURSE_ID + "/image?v=1");
+
+        PublicCourseDetailResponse response = courseService.getPublicCourseDetail(COURSE_ID, STUDENT_ID);
+
+        assertThat(response.id()).isEqualTo(COURSE_ID);
+        assertThat(response.currentUserMembershipStatus()).isEqualTo(CourseMemberStatus.PENDING);
+        assertThat(response.chapters()).hasSize(1);
+        assertThat(response.chapters().getFirst().title()).isEqualTo("Chapter 1");
+        assertThat(response.chapters().getFirst().topics()).hasSize(1);
+        assertThat(response.chapters().getFirst().topics().getFirst().title()).isEqualTo("Topic 1");
+        assertThat(response.chapters().getFirst().topics().getFirst().estimatedMinutes()).isEqualTo(30);
     }
 
     @Test

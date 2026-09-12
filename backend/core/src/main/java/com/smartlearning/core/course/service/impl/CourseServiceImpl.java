@@ -8,16 +8,22 @@ import com.smartlearning.core.course.dto.request.CourseUpdateRequest;
 import com.smartlearning.core.course.dto.request.MyCourseFilterRequest;
 import com.smartlearning.core.course.dto.request.PublicCourseFilterRequest;
 import com.smartlearning.core.course.dto.response.CourseResponse;
+import com.smartlearning.core.course.dto.response.PublicCourseDetailResponse;
+import com.smartlearning.core.course.dto.response.PublicCourseDetailResponse.ChapterOutline;
+import com.smartlearning.core.course.dto.response.PublicCourseDetailResponse.TopicOutline;
 import com.smartlearning.core.course.dto.response.PublicCourseResponse;
 import com.smartlearning.core.course.entity.Course;
 import com.smartlearning.core.course.entity.CourseMember;
+import com.smartlearning.core.course.entity.CourseTopic;
 import com.smartlearning.core.course.entity.enums.CourseMemberRole;
 import com.smartlearning.core.course.entity.enums.CourseMemberStatus;
 import com.smartlearning.core.course.entity.enums.CourseStatus;
 import com.smartlearning.core.course.entity.enums.CourseVisibility;
 import com.smartlearning.core.course.mapper.CourseMapper;
+import com.smartlearning.core.course.repository.CourseChapterRepository;
 import com.smartlearning.core.course.repository.CourseMemberRepository;
 import com.smartlearning.core.course.repository.CourseRepository;
+import com.smartlearning.core.course.repository.CourseTopicRepository;
 import com.smartlearning.core.course.repository.specification.CourseSpecifications;
 import com.smartlearning.core.course.sercurity.CourseAccessPolicy;
 import com.smartlearning.core.course.service.CourseService;
@@ -52,6 +58,8 @@ public class CourseServiceImpl implements CourseService {
     private final CourseMapper courseMapper;
     private final CourseRepository courseRepository;
     private final CourseMemberRepository memberRepository;
+    private final CourseChapterRepository chapterRepository;
+    private final CourseTopicRepository topicRepository;
     private final CourseAccessPolicy courseAccessPolicy;
     private final CourseUtils courseUtils;
     private final FileStorageService fileStorageService;
@@ -139,6 +147,63 @@ public class CourseServiceImpl implements CourseService {
     }
 
     @Override
+    public PublicCourseDetailResponse getPublicCourseDetail(UUID courseId, UUID currentUserId) {
+        Course course = courseUtils.requireCourse(courseId);
+        requirePublicPublishedCourse(course);
+
+        CourseMemberStatus membershipStatus = memberRepository.findByCourseIdAndUserId(courseId, currentUserId)
+                .map(CourseMember::getStatus)
+                .orElse(null);
+
+        List<CourseTopic> topics = topicRepository.findAllActiveByCourseIdOrderByPosition(courseId);
+
+        Map<UUID, List<CourseTopic>> topicsByChapter = topics.stream()
+                .collect(Collectors.groupingBy(
+                        topic -> topic.getChapter().getId(),
+                        LinkedHashMap::new,
+                        Collectors.toList()
+                ));
+
+        List<ChapterOutline> chapters = chapterRepository
+                .findAllByCourseIdAndDeletedAtIsNullOrderByOrderIndexAsc(courseId)
+                .stream()
+                .map(chapter -> {
+                    List<TopicOutline> topicOutlines = topicsByChapter
+                            .getOrDefault(chapter.getId(), List.of())
+                            .stream()
+                            .map(topic -> new TopicOutline(
+                                    topic.getId(),
+                                    topic.getTitle(),
+                                    topic.getDescription(),
+                                    topic.getOrderIndex(),
+                                    topic.getEstimatedMinutes()
+                            ))
+                            .toList();
+
+                    return new ChapterOutline(
+                            chapter.getId(),
+                            chapter.getTitle(),
+                            chapter.getDescription(),
+                            chapter.getLearningObjectives(),
+                            chapter.getOrderIndex(),
+                            topicOutlines
+                    );
+                })
+                .toList();
+
+        return new PublicCourseDetailResponse(
+                course.getId(),
+                course.getTitle(),
+                course.getDescription(),
+                courseMapper.toImageUrl(course),
+                course.getLevel(),
+                course.getPublishedAt(),
+                membershipStatus,
+                chapters
+        );
+    }
+
+    @Override
     public CourseResponse updateCourse(UUID courseId, CourseUpdateRequest request, UUID currentUserId) {
         Course course = courseUtils.requireCourse(courseId);
         CourseMember owner = courseAccessPolicy.requireOwner(courseId, currentUserId);
@@ -187,6 +252,15 @@ public class CourseServiceImpl implements CourseService {
         course.setDeletedAt(Instant.now());
     }
 
+    private void requirePublicPublishedCourse(Course course) {
+        if (course.getVisibility() != CourseVisibility.PUBLIC || course.getStatus() != CourseStatus.PUBLISHED) {
+            throw new ApplicationException(
+                    CommonErrorCode.RESOURCE_NOT_FOUND,
+                    "Khóa học không tồn tại hoặc chưa được công khai"
+            );
+        }
+    }
+
     private CourseMemberRole resolveCurrentUserRole(Course course, UUID currentUserId) {
         if (course.getVisibility() == CourseVisibility.PUBLIC && course.getStatus() == CourseStatus.PUBLISHED) {
             return memberRepository.findByCourseIdAndUserId(course.getId(), currentUserId)
@@ -199,9 +273,7 @@ public class CourseServiceImpl implements CourseService {
     }
 
     private void replaceCourseImage(Course course, MultipartFile image) {
-        if (image == null) {
-            return;
-        }
+        if (image == null) return;
 
         validateCourseImage(image);
 
@@ -256,9 +328,7 @@ public class CourseServiceImpl implements CourseService {
     }
 
     private void deleteImageQuietly(String objectName) {
-        if (objectName == null || objectName.isBlank()) {
-            return;
-        }
+        if (objectName == null || objectName.isBlank()) return;
 
         try {
             fileStorageService.delete(objectName);

@@ -1,6 +1,14 @@
 <script setup lang="ts">
 import { onMounted, ref } from 'vue'
-import { BookOpen, CalendarDays, CheckCircle2, Clock3, Search, Send } from 'lucide-vue-next'
+import {
+  ArrowRight,
+  BookOpen,
+  CalendarDays,
+  CheckCircle2,
+  Clock3,
+  Search,
+  Send,
+} from 'lucide-vue-next'
 
 import {
   BaseAlert,
@@ -134,7 +142,11 @@ onMounted(() => void loadCourses())
     </BaseAlert>
 
     <div v-if="loading" class="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
-      <div v-for="index in 6" :key="index" class="h-96 animate-pulse rounded-card bg-app-surface-muted" />
+      <div
+        v-for="index in 6"
+        :key="index"
+        class="h-96 animate-pulse rounded-card bg-app-surface-muted"
+      />
     </div>
 
     <BaseEmptyState
@@ -153,22 +165,39 @@ onMounted(() => void loadCourses())
       <article
         v-for="course in coursesPage.content"
         :key="course.id"
-        class="flex overflow-hidden rounded-card border border-app-border bg-app-surface shadow-card"
+        class="group flex overflow-hidden rounded-card border border-app-border bg-app-surface shadow-card transition hover:-translate-y-0.5 hover:border-secondary/40 hover:shadow-overlay"
       >
         <div class="flex min-h-0 w-full flex-col">
-          <CourseCover :image-url="course.imageUrl" :title="course.title" />
+          <RouterLink
+            :to="{ name: 'student-public-course-detail', params: { courseId: course.id } }"
+            class="block overflow-hidden"
+          >
+            <CourseCover
+              :image-url="course.imageUrl"
+              :title="course.title"
+              class="transition duration-300 group-hover:scale-[1.01]"
+            />
+          </RouterLink>
 
           <div class="flex flex-1 flex-col p-5">
             <div class="flex items-center justify-between gap-3">
               <BaseBadge tone="secondary">Công khai</BaseBadge>
+
               <span v-if="course.level" class="text-xs font-semibold text-app-text-muted">
                 {{ course.level }}
               </span>
             </div>
 
-            <h2 class="mt-4 line-clamp-2 font-heading text-xl font-bold text-app-text">
-              {{ course.title }}
-            </h2>
+            <RouterLink
+              :to="{ name: 'student-public-course-detail', params: { courseId: course.id } }"
+              class="mt-4 block"
+            >
+              <h2
+                class="line-clamp-2 font-heading text-xl font-bold text-app-text transition group-hover:text-secondary"
+              >
+                {{ course.title }}
+              </h2>
+            </RouterLink>
 
             <p class="mt-2 line-clamp-3 text-sm leading-6 text-app-text-muted">
               {{ descriptionPreview(course.description) }}
@@ -179,7 +208,15 @@ onMounted(() => void loadCourses())
               Công khai {{ formatDate(course.publishedAt, 'Chưa cập nhật') }}
             </p>
 
-            <div class="mt-auto pt-6">
+            <div class="mt-auto space-y-4 pt-6">
+              <RouterLink
+                :to="{ name: 'student-public-course-detail', params: { courseId: course.id } }"
+                class="inline-flex items-center gap-1.5 text-sm font-semibold text-secondary hover:underline"
+              >
+                Xem chương trình học
+                <ArrowRight :size="16" />
+              </RouterLink>
+
               <BaseButton
                 v-if="course.currentUserMembershipStatus === null"
                 block

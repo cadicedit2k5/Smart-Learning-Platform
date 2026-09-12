@@ -7,6 +7,7 @@ import com.smartlearning.common.entity.Authorities;
 import com.smartlearning.common.utils.JwtUtils;
 import com.smartlearning.core.course.dto.request.*;
 import com.smartlearning.core.course.dto.response.CourseResponse;
+import com.smartlearning.core.course.dto.response.PublicCourseDetailResponse;
 import com.smartlearning.core.course.dto.response.PublicCourseResponse;
 import com.smartlearning.core.course.service.CourseService;
 import com.smartlearning.storage.dto.StoredFile;
@@ -49,6 +50,15 @@ public class ApiCourseController {
             @AuthenticationPrincipal Jwt jwt
     ) {
         return ApiResponses.ok(courseService.getPublicCourses(request, JwtUtils.getUserId(jwt)));
+    }
+
+    @GetMapping("/public/{courseId}")
+    @PreAuthorize(Authorities.COURSE_READ)
+    public ResponseEntity<ApiResponse<PublicCourseDetailResponse>> publicCourseDetail(
+            @PathVariable UUID courseId,
+            @AuthenticationPrincipal Jwt jwt
+    ) {
+        return ApiResponses.ok(courseService.getPublicCourseDetail(courseId, JwtUtils.getUserId(jwt)));
     }
 
     @GetMapping("/me")

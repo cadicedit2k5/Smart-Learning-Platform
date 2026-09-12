@@ -25,6 +25,27 @@ export interface PublicCourse {
   currentUserMembershipStatus: CourseMemberStatus | null
 }
 
+export interface PublicCourseTopicOutline {
+  id: string
+  title: string
+  description: string | null
+  orderIndex: number
+  estimatedMinutes: number | null
+}
+
+export interface PublicCourseChapterOutline {
+  id: string
+  title: string
+  description: string | null
+  learningObjectives: string | null
+  orderIndex: number
+  topics: PublicCourseTopicOutline[]
+}
+
+export interface PublicCourseDetail extends PublicCourse {
+  chapters: PublicCourseChapterOutline[]
+}
+
 export interface PublicCourseParams {
   page?: number
   keyword?: string
@@ -39,6 +60,11 @@ export const getPublicCourses = async (
   params: PublicCourseParams = {},
 ): Promise<PaginatedData<PublicCourse>> => {
   const response = await httpClient.get<ApiResponse<PaginatedData<PublicCourse>>>('/courses/public', { params })
+  return response.data.data
+}
+
+export const getPublicCourseDetail = async (courseId: string): Promise<PublicCourseDetail> => {
+  const response = await httpClient.get<ApiResponse<PublicCourseDetail>>(`/courses/public/${courseId}`)
   return response.data.data
 }
 

@@ -6,6 +6,7 @@ import com.smartlearning.core.course.dto.request.CourseUpdateRequest;
 import com.smartlearning.core.course.dto.request.MyCourseFilterRequest;
 import com.smartlearning.core.course.dto.request.PublicCourseFilterRequest;
 import com.smartlearning.core.course.dto.response.CourseResponse;
+import com.smartlearning.core.course.dto.response.PublicCourseDetailResponse;
 import com.smartlearning.core.course.dto.response.PublicCourseResponse;
 import com.smartlearning.storage.dto.StoredFile;
 
@@ -20,6 +21,8 @@ public interface CourseService {
     PagingResponse<CourseResponse> getMyCourses(UUID currentUserId, MyCourseFilterRequest request);
 
     PagingResponse<PublicCourseResponse> getPublicCourses(PublicCourseFilterRequest request, UUID currentUserId);
+
+    PublicCourseDetailResponse getPublicCourseDetail(UUID courseId, UUID currentUserId);
 
     CourseResponse updateCourse(UUID courseId, CourseUpdateRequest request, UUID currentUserId);
 
