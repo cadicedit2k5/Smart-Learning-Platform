@@ -1,8 +1,8 @@
 package com.smartlearning.core.course.entity;
 
 import com.smartlearning.common.entity.BaseEntity;
-import com.smartlearning.core.course.entity.enums.CourseVisibility;
 import com.smartlearning.core.course.entity.enums.CourseStatus;
+import com.smartlearning.core.course.entity.enums.CourseVisibility;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -23,6 +23,9 @@ public class Course extends BaseEntity {
 
     @Column(columnDefinition = "TEXT")
     private String description;
+
+    @Column(name = "cover_url", columnDefinition = "TEXT")
+    private String coverUrl;
 
     @Column(length = 50)
     private String level;

@@ -1,9 +1,8 @@
 package com.smartlearning.core.course.service.impl;
 
+import com.smartlearning.common.dto.response.pagination.PagingResponse;
 import com.smartlearning.common.error.ApplicationException;
 import com.smartlearning.common.error.CommonErrorCode;
-import com.smartlearning.common.dto.request.PagingRequest;
-import com.smartlearning.common.dto.response.pagination.PagingResponse;
 import com.smartlearning.core.course.dto.request.CourseCreateRequest;
 import com.smartlearning.core.course.dto.request.CourseUpdateRequest;
 import com.smartlearning.core.course.dto.request.MyCourseFilterRequest;
@@ -23,40 +22,43 @@ import com.smartlearning.core.course.repository.specification.CourseSpecificatio
 import com.smartlearning.core.course.sercurity.CourseAccessPolicy;
 import com.smartlearning.core.course.service.CourseService;
 import com.smartlearning.core.course.utils.CourseUtils;
+import com.smartlearning.storage.dto.FileUploadResponse;
+import com.smartlearning.storage.dto.StoredFile;
+import com.smartlearning.storage.service.FileStorageService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.*;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.support.TransactionSynchronization;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.time.Instant;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 @Transactional
 @RequiredArgsConstructor
 public class CourseServiceImpl implements CourseService {
+
+    private static final long MAX_IMAGE_SIZE = 5L * 1024 * 1024;
+    private static final Set<String> ALLOWED_IMAGE_TYPES = Set.of("image/jpeg", "image/png", "image/webp");
 
     private final CourseMapper courseMapper;
     private final CourseRepository courseRepository;
     private final CourseMemberRepository memberRepository;
     private final CourseAccessPolicy courseAccessPolicy;
     private final CourseUtils courseUtils;
+    private final FileStorageService fileStorageService;
 
     @Override
-    public CourseResponse createCourse(
-            CourseCreateRequest request,
-            UUID currentUserId
-    ) {
+    public CourseResponse createCourse(CourseCreateRequest request, UUID currentUserId) {
         Course course = courseMapper.toEntity(request);
-
         course.setCreatedBy(currentUserId);
         course.setStatus(CourseStatus.DRAFT);
 
@@ -65,6 +67,7 @@ public class CourseServiceImpl implements CourseService {
         }
 
         Course savedCourse = courseRepository.save(course);
+        replaceCourseImage(savedCourse, request.image());
 
         CourseMember owner = new CourseMember();
         owner.setCourse(savedCourse);
@@ -72,45 +75,27 @@ public class CourseServiceImpl implements CourseService {
         owner.setRole(CourseMemberRole.OWNER);
         owner.setStatus(CourseMemberStatus.ACTIVE);
         owner.setJoinedAt(Instant.now());
-
         memberRepository.save(owner);
 
         return courseUtils.withRole(courseMapper.toResponse(savedCourse), CourseMemberRole.OWNER);
     }
 
-    public CourseResponse getCourse(
-            UUID courseId,
-            UUID currentUserId
-    ) {
+    @Override
+    public CourseResponse getCourse(UUID courseId, UUID currentUserId) {
         Course course = courseUtils.requireCourse(courseId);
-
-        CourseMember member;
-        if (course.getVisibility() != CourseVisibility.PUBLIC
-                || course.getStatus() != CourseStatus.PUBLISHED) {
-            member = courseAccessPolicy.requireActiveMember(
-                    courseId,
-                    currentUserId
-            );
-        } else {
-            member = memberRepository
-                    .findByCourseIdAndUserId(courseId, currentUserId)
-                    .filter(value -> value.getStatus() == CourseMemberStatus.ACTIVE)
-                    .orElse(null);
-        }
-
-        CourseMemberRole role = member == null ? null : member.getRole();
+        CourseMemberRole role = resolveCurrentUserRole(course, currentUserId);
         return courseUtils.withRole(courseMapper.toResponse(course), role);
     }
 
     @Override
     public PagingResponse<CourseResponse> getMyCourses(UUID currentUserId, MyCourseFilterRequest request) {
-
-        Specification<Course> specifications = Specification.allOf(
+        Specification<Course> specification = Specification.allOf(
                 request.specification(),
                 CourseSpecifications.activeMembers(currentUserId)
         );
 
-        Page<CourseResponse> courses = courseRepository.findAll(specifications, request.pageable()).map(courseMapper::toResponse);
+        Page<CourseResponse> courses = courseRepository.findAll(specification, request.pageable())
+                .map(courseMapper::toResponse);
 
         return PagingResponse.from(courses);
     }
@@ -120,35 +105,32 @@ public class CourseServiceImpl implements CourseService {
             PublicCourseFilterRequest request,
             UUID currentUserId
     ) {
-
         Pageable pageable = request.pageable();
 
         if (pageable.getSort().isUnsorted()) {
             pageable = PageRequest.of(
                     pageable.getPageNumber(),
                     pageable.getPageSize(),
-                    Sort.by(Sort.Direction.DESC, "publishedAt"));
+                    Sort.by(Sort.Direction.DESC, "publishedAt")
+            );
         }
-        var courses = courseRepository.findAll(request.specification(), pageable);
 
-        List<UUID> courseIds = courses.getContent().stream()
-                .map(Course::getId)
-                .toList();
+        Page<Course> courses = courseRepository.findAll(request.specification(), pageable);
+        List<UUID> courseIds = courses.getContent().stream().map(Course::getId).toList();
+
         Map<UUID, CourseMember> membershipsByCourseId = courseIds.isEmpty()
                 ? Map.of()
-                : memberRepository.findAllByCourseIdInAndUserId(courseIds, currentUserId)
-                        .stream()
-                        .collect(Collectors.toMap(
-                                member -> member.getCourse().getId(),
-                                Function.identity()
-                        ));
+                : memberRepository.findAllByCourseIdInAndUserId(courseIds, currentUserId).stream()
+                .collect(Collectors.toMap(member -> member.getCourse().getId(), Function.identity()));
 
         return PagingResponse.from(courses.map(course -> {
             CourseMember membership = membershipsByCourseId.get(course.getId());
+
             return new PublicCourseResponse(
                     course.getId(),
                     course.getTitle(),
                     course.getDescription(),
+                    courseMapper.toImageUrl(course),
                     course.getLevel(),
                     course.getPublishedAt(),
                     membership == null ? null : membership.getStatus()
@@ -157,13 +139,9 @@ public class CourseServiceImpl implements CourseService {
     }
 
     @Override
-    public CourseResponse updateCourse(
-            UUID courseId,
-            CourseUpdateRequest request,
-            UUID currentUserId
-    ) {
+    public CourseResponse updateCourse(UUID courseId, CourseUpdateRequest request, UUID currentUserId) {
         Course course = courseUtils.requireCourse(courseId);
-        CourseMember member = courseAccessPolicy.requireOwner(courseId, currentUserId);
+        CourseMember owner = courseAccessPolicy.requireOwner(courseId, currentUserId);
 
         courseMapper.partialUpdate(request, course);
 
@@ -171,43 +149,121 @@ public class CourseServiceImpl implements CourseService {
             course.setTitle(course.getTitle().trim());
         }
 
-        return courseUtils.withRole(
-                courseMapper.toResponse(course),
-                member == null ? null : member.getRole()
-        );
+        replaceCourseImage(course, request.image());
+        return courseUtils.withRole(courseMapper.toResponse(course), owner.getRole());
     }
 
     @Override
-    public CourseResponse publishCourse(
-            UUID courseId,
-            UUID currentUserId
-    ) {
+    public StoredFile getCourseImage(UUID courseId, UUID currentUserId) {
+        Course course = courseUtils.requireCourse(courseId);
+        resolveCurrentUserRole(course, currentUserId);
+
+        if (course.getCoverUrl() == null || course.getCoverUrl().isBlank()) {
+            throw new ApplicationException(CommonErrorCode.RESOURCE_NOT_FOUND, "Khóa học chưa có ảnh");
+        }
+
+        return fileStorageService.download(course.getCoverUrl());
+    }
+
+    @Override
+    public CourseResponse publishCourse(UUID courseId, UUID currentUserId) {
         Course course = courseUtils.requireCourse(courseId);
         CourseMember owner = courseAccessPolicy.requireOwner(courseId, currentUserId);
 
         if (course.getStatus() == CourseStatus.PUBLISHED) {
-            throw new ApplicationException(
-                    CommonErrorCode.DATA_CONFLICT,
-                    "Khóa học đã được đăng tải công khai!"
-            );
+            throw new ApplicationException(CommonErrorCode.DATA_CONFLICT, "Khóa học đã được đăng tải công khai!");
         }
 
         course.setStatus(CourseStatus.PUBLISHED);
         course.setPublishedAt(Instant.now());
 
-        return courseUtils.withRole(
-                courseMapper.toResponse(course),
-                owner == null ? null : owner.getRole()
-        );
+        return courseUtils.withRole(courseMapper.toResponse(course), owner.getRole());
     }
 
     @Override
-    public void deleteCourse(
-            UUID courseId,
-            UUID currentUserId
-    ) {
+    public void deleteCourse(UUID courseId, UUID currentUserId) {
         Course course = courseUtils.requireCourse(courseId);
         courseAccessPolicy.requireOwner(courseId, currentUserId);
         course.setDeletedAt(Instant.now());
+    }
+
+    private CourseMemberRole resolveCurrentUserRole(Course course, UUID currentUserId) {
+        if (course.getVisibility() == CourseVisibility.PUBLIC && course.getStatus() == CourseStatus.PUBLISHED) {
+            return memberRepository.findByCourseIdAndUserId(course.getId(), currentUserId)
+                    .filter(member -> member.getStatus() == CourseMemberStatus.ACTIVE)
+                    .map(CourseMember::getRole)
+                    .orElse(null);
+        }
+
+        return courseAccessPolicy.requireActiveMember(course.getId(), currentUserId).getRole();
+    }
+
+    private void replaceCourseImage(Course course, MultipartFile image) {
+        if (image == null) {
+            return;
+        }
+
+        validateCourseImage(image);
+
+        FileUploadResponse uploaded = fileStorageService.upload(
+                image,
+                "core/courses/" + course.getId() + "/image"
+        );
+
+        String previousObjectName = course.getCoverUrl();
+        course.setCoverUrl(uploaded.objectName());
+        registerImageCleanup(previousObjectName, uploaded.objectName());
+    }
+
+    private void validateCourseImage(MultipartFile image) {
+        if (image.isEmpty()) {
+            throw new ApplicationException(CommonErrorCode.VALIDATION_FAILED, "Ảnh khóa học không được để trống");
+        }
+
+        if (image.getSize() > MAX_IMAGE_SIZE) {
+            throw new ApplicationException(CommonErrorCode.VALIDATION_FAILED, "Ảnh khóa học không được vượt quá 5 MB");
+        }
+
+        String contentType = image.getContentType();
+
+        if (contentType == null || !ALLOWED_IMAGE_TYPES.contains(contentType.toLowerCase(Locale.ROOT))) {
+            throw new ApplicationException(
+                    CommonErrorCode.UNSUPPORTED_MEDIA_TYPE,
+                    "Ảnh khóa học chỉ hỗ trợ JPG, PNG hoặc WebP"
+            );
+        }
+    }
+
+    private void registerImageCleanup(String previousObjectName, String newObjectName) {
+        if (!TransactionSynchronizationManager.isSynchronizationActive()) {
+            deleteImageQuietly(previousObjectName);
+            return;
+        }
+
+        TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
+            @Override
+            public void afterCommit() {
+                deleteImageQuietly(previousObjectName);
+            }
+
+            @Override
+            public void afterCompletion(int status) {
+                if (status != TransactionSynchronization.STATUS_COMMITTED) {
+                    deleteImageQuietly(newObjectName);
+                }
+            }
+        });
+    }
+
+    private void deleteImageQuietly(String objectName) {
+        if (objectName == null || objectName.isBlank()) {
+            return;
+        }
+
+        try {
+            fileStorageService.delete(objectName);
+        } catch (RuntimeException exception) {
+            log.warn("Không thể xóa course image: {}", objectName, exception);
+        }
     }
 }
