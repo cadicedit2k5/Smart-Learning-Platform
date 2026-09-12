@@ -2,54 +2,44 @@
 import { computed, onMounted, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import {
-  ArrowLeft,
-  BookOpen,
-  Bell,
-  Bot,
-  CheckCircle2,
-  FileText,
-  Layers3,
-  Pencil,
-  Rocket,
-  Trash2,
-  UserRoundCheck,
-  MessagesSquare,
-  UsersRound,
-  X,
-  ChartNoAxesColumnIncreasing,
+  ArrowLeft, Bell, BookOpen, Bot, ChartNoAxesColumnIncreasing, CheckCircle2,
+  ClipboardList, FileText, Layers3, MessagesSquare, Pencil, Rocket, Trash2,
+  UserRoundCheck, UsersRound, X,
 } from 'lucide-vue-next'
-import {
-  ClipboardList,
-} from 'lucide-vue-next'
-
-import CourseAssignmentsPanel
-  from '../components/CourseAssignmentsPanel.vue'
-import CourseAnnouncementsPanel from '../components/CourseAnnouncementsPanel.vue'
 
 import BaseAlert from '@/shared/components/BaseAlert.vue'
 import BaseButton from '@/shared/components/BaseButton.vue'
+import CourseCover from '@/shared/course/CourseCover.vue'
+import type { Course } from '@/shared/course'
+import { getCourse } from '@/shared/course'
+import { courseStatusLabel, courseVisibilityLabel } from '@/shared/course/presentation'
+import { hasRichTextContent, parseStoredRichText, RichTextViewer } from '@/shared/rich-text'
+import { formatDateTime } from '@/shared/utils/date'
+import DiscussionPanel from '@/features/discusstion/components/DiscussionPanel.vue'
 
-import {
-  deleteCourse,
-  publishCourse,
-  updateCourse,
-  type CourseInput,
-} from '../api/courseApi'
+import { deleteCourse, publishCourse, updateCourse, type CourseInput } from '../api/courseApi'
 import CourseAiPanel from '../components/CourseAiPanel.vue'
+import CourseAnnouncementsPanel from '../components/CourseAnnouncementsPanel.vue'
+import CourseAssignmentsPanel from '../components/CourseAssignmentsPanel.vue'
 import CourseContentPanel from '../components/CourseContentPanel.vue'
 import CourseDocumentsPanel from '../components/CourseDocumentsPanel.vue'
 import CourseFormModal from '../components/CourseFormModal.vue'
+import CourseJoinRequestPanel from '../components/CourseJoinRequestPanel.vue'
+import CourseLearningProgressPanel from '../components/CourseLearningProgressPanel.vue'
 import CourseMembersPanel from '../components/CourseMembersPanel.vue'
 import { useLecturerApiError } from '../composables/useLecturerApiError'
-import CourseJoinRequestPanel from '../components/CourseJoinRequestPanel.vue'
-import type { Course } from '@/shared/course/types.ts'
-import { getCourse } from '@/shared/course/api.ts'
-import { courseStatusLabel, courseVisibilityLabel } from '@/shared/course/presentation.ts'
-import { formatDateTime } from '@/shared/utils/date.ts'
-import DiscussionPanel from '@/features/discusstion/components/DiscussionPanel.vue'
-import CourseLearningProgressPanel from '../components/CourseLearningProgressPanel.vue'
 
-type DetailTab = 'overview' | 'announcements' | 'members' | 'requests' | 'content' | 'progress' | 'assignments' | 'documents' | 'discussion' | 'ai'
+type DetailTab =
+  | 'overview'
+  | 'announcements'
+  | 'members'
+  | 'requests'
+  | 'content'
+  | 'progress'
+  | 'assignments'
+  | 'documents'
+  | 'discussion'
+  | 'ai'
 
 const route = useRoute()
 const router = useRouter()
@@ -62,6 +52,7 @@ const loadError = ref('')
 const actionMessage = ref('')
 const successMessage = ref('')
 const activeTab = ref<DetailTab>('overview')
+
 const editOpen = ref(false)
 const saving = ref(false)
 const publishing = ref(false)
@@ -72,12 +63,14 @@ const formErrors = ref<Record<string, string>>({})
 
 const canManageCourse = computed(() => course.value?.currentUserRole === 'OWNER')
 
-const canReviewJoinRequests = computed(
-  () =>
-    canManageCourse.value &&
-    course.value?.status === 'PUBLISHED' &&
-    course.value?.visibility === 'PUBLIC',
+const canReviewJoinRequests = computed(() =>
+  canManageCourse.value &&
+  course.value?.status === 'PUBLISHED' &&
+  course.value?.visibility === 'PUBLIC',
 )
+
+const descriptionContent = computed(() => parseStoredRichText(course.value?.description))
+const hasDescription = computed(() => hasRichTextContent(descriptionContent.value))
 
 const tabs = computed<Array<{ id: DetailTab; label: string; icon: typeof BookOpen }>>(() => [
   { id: 'overview', label: 'Tổng quan', icon: BookOpen },
@@ -93,11 +86,8 @@ const tabs = computed<Array<{ id: DetailTab; label: string; icon: typeof BookOpe
         { id: 'progress' as const, label: 'Tiến độ', icon: ChartNoAxesColumnIncreasing },
       ]
     : []),
-  {
-    id: 'assignments' as const,
-    label: 'Bài tập',
-    icon: ClipboardList,
-  },
+
+  { id: 'assignments', label: 'Bài tập', icon: ClipboardList },
   { id: 'documents', label: 'Tài liệu', icon: FileText },
   { id: 'discussion', label: 'Thảo luận', icon: MessagesSquare },
   { id: 'ai', label: 'Trợ lý AI', icon: Bot },
@@ -128,6 +118,7 @@ const submitUpdate = async (input: CourseInput) => {
   saving.value = true
   formMessage.value = ''
   formErrors.value = {}
+  successMessage.value = ''
 
   try {
     course.value = await updateCourse(course.value.id, input)
@@ -181,9 +172,7 @@ watch(courseId, () => {
   void loadCourse()
 })
 
-onMounted(() => {
-  void loadCourse()
-})
+onMounted(() => void loadCourse())
 </script>
 
 <template>
@@ -197,7 +186,7 @@ onMounted(() => {
     </RouterLink>
 
     <div v-if="loading" class="space-y-4">
-      <div class="h-44 animate-pulse rounded-card bg-app-surface-muted" />
+      <div class="h-64 animate-pulse rounded-panel bg-app-surface-muted" />
       <div class="h-12 animate-pulse rounded-card bg-app-surface-muted" />
       <div class="h-80 animate-pulse rounded-card bg-app-surface-muted" />
     </div>
@@ -210,28 +199,55 @@ onMounted(() => {
     </BaseAlert>
 
     <template v-else-if="course">
-      <!-- Header -->
-      <header class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <h1 class="font-heading text-3xl font-bold tracking-tight text-app-text">
-            {{ course.title }}
-          </h1>
-        </div>
+      <header class="overflow-hidden rounded-panel border border-app-border bg-app-surface shadow-card">
+        <div class="grid lg:grid-cols-[22rem_minmax(0,1fr)]">
+          <CourseCover :image-url="course.imageUrl" :title="course.title" />
 
-        <div v-if="canManageCourse" class="flex gap-2">
-          <BaseButton variant="secondary" @click="openEdit">
-            <template #leading><Pencil :size="16" /></template>
-            Chỉnh sửa
-          </BaseButton>
+          <div class="flex flex-col justify-between gap-6 p-6 sm:p-8">
+            <div>
+              <div class="flex flex-wrap items-center gap-2">
+                <span class="rounded-pill bg-secondary-soft px-3 py-1 text-xs font-semibold text-secondary">
+                  {{ courseStatusLabel[course.status] }}
+                </span>
 
-          <BaseButton
-            v-if="course.status === 'DRAFT'"
-            :loading="publishing"
-            @click="handlePublish"
-          >
-            <template #leading><Rocket :size="16" /></template>
-            Xuất bản
-          </BaseButton>
+                <span class="rounded-pill bg-app-surface-muted px-3 py-1 text-xs font-medium text-app-text-muted">
+                  {{ courseVisibilityLabel[course.visibility] }}
+                </span>
+
+                <span
+                  v-if="course.level"
+                  class="rounded-pill bg-app-surface-muted px-3 py-1 text-xs font-medium text-app-text-muted"
+                >
+                  {{ course.level }}
+                </span>
+              </div>
+
+              <h1 class="mt-5 font-heading text-3xl font-bold tracking-tight text-app-text sm:text-4xl">
+                {{ course.title }}
+              </h1>
+            </div>
+
+            <div v-if="canManageCourse" class="flex flex-wrap gap-2">
+              <BaseButton variant="secondary" @click="openEdit">
+                <template #leading><Pencil :size="16" /></template>
+                Chỉnh sửa
+              </BaseButton>
+
+              <BaseButton v-if="course.status === 'DRAFT'" :loading="publishing" @click="handlePublish">
+                <template #leading><Rocket :size="16" /></template>
+                Xuất bản
+              </BaseButton>
+
+              <button
+                type="button"
+                class="inline-flex h-11 items-center gap-2 rounded-control border border-danger/30 px-4 text-sm font-semibold text-danger transition hover:bg-danger-soft"
+                @click="deleteOpen = true"
+              >
+                <Trash2 :size="16" />
+                Xóa
+              </button>
+            </div>
+          </div>
         </div>
       </header>
 
@@ -242,7 +258,6 @@ onMounted(() => {
         {{ successMessage }}
       </BaseAlert>
 
-      <!-- Navigation -->
       <nav class="border-b border-app-border" aria-label="Nội dung khóa học">
         <div class="flex gap-6 overflow-x-auto">
           <button
@@ -263,56 +278,58 @@ onMounted(() => {
         </div>
       </nav>
 
-      <!-- Overview -->
-      <div v-if="activeTab === 'overview'" class="space-y-8">
-        <section>
-          <h2 class="font-heading text-xl font-bold text-app-text">Giới thiệu</h2>
+      <div v-if="activeTab === 'overview'" class="space-y-6">
+        <section class="rounded-card border border-app-border bg-app-surface p-6 shadow-card">
+          <h2 class="font-heading text-xl font-bold text-app-text">Giới thiệu khóa học</h2>
 
-          <p class="mt-3 max-w-4xl whitespace-pre-wrap text-sm leading-7 text-app-text-muted">
-            {{ course.description || 'Chưa có mô tả cho khóa học này.' }}
-          </p>
+          <div class="mt-4">
+            <RichTextViewer v-if="hasDescription" :content="descriptionContent" />
+
+            <p v-else class="text-sm text-app-text-muted">
+              Chưa có mô tả cho khóa học này.
+            </p>
+          </div>
         </section>
 
-        <section>
+        <section class="rounded-card border border-app-border bg-app-surface p-6 shadow-card">
           <h2 class="font-heading text-xl font-bold text-app-text">Thông tin khóa học</h2>
 
-          <dl class="mt-4 max-w-3xl divide-y divide-app-border border-y border-app-border text-sm">
-            <div class="grid grid-cols-[11rem_1fr] gap-4 py-4">
+          <dl class="mt-4 divide-y divide-app-border text-sm">
+            <div class="grid gap-1 py-4 sm:grid-cols-[11rem_1fr] sm:gap-4">
               <dt class="text-app-text-muted">Trạng thái</dt>
               <dd class="font-semibold text-app-text">{{ courseStatusLabel[course.status] }}</dd>
             </div>
 
-            <div class="grid grid-cols-[11rem_1fr] gap-4 py-4">
+            <div class="grid gap-1 py-4 sm:grid-cols-[11rem_1fr] sm:gap-4">
               <dt class="text-app-text-muted">Quyền truy cập</dt>
-              <dd class="font-semibold text-app-text">
-                {{ courseVisibilityLabel[course.visibility] }}
-              </dd>
+              <dd class="font-semibold text-app-text">{{ courseVisibilityLabel[course.visibility] }}</dd>
             </div>
 
-            <div class="grid grid-cols-[11rem_1fr] gap-4 py-4">
+            <div class="grid gap-1 py-4 sm:grid-cols-[11rem_1fr] sm:gap-4">
               <dt class="text-app-text-muted">Cấp độ</dt>
-              <dd class="font-semibold text-app-text">{{ course.level || '--' }}</dd>
+              <dd class="font-semibold text-app-text">{{ course.level || 'Chưa cập nhật' }}</dd>
             </div>
 
-            <div class="grid grid-cols-[11rem_1fr] gap-4 py-4">
+            <div class="grid gap-1 py-4 sm:grid-cols-[11rem_1fr] sm:gap-4">
               <dt class="text-app-text-muted">Ngày tạo</dt>
               <dd class="font-semibold text-app-text">{{ formatDateTime(course.createdAt) }}</dd>
             </div>
 
-            <div class="grid grid-cols-[11rem_1fr] gap-4 py-4">
+            <div class="grid gap-1 py-4 sm:grid-cols-[11rem_1fr] sm:gap-4">
               <dt class="text-app-text-muted">Ngày xuất bản</dt>
-              <dd class="font-semibold text-app-text">{{ formatDateTime(course.publishedAt) }}</dd>
+              <dd class="font-semibold text-app-text">
+                {{ course.publishedAt ? formatDateTime(course.publishedAt) : 'Chưa xuất bản' }}
+              </dd>
             </div>
           </dl>
         </section>
       </div>
 
-      <!-- Other tabs -->
-
       <CourseAnnouncementsPanel
         v-else-if="activeTab === 'announcements'"
         :course-id="course.id"
       />
+
       <CourseMembersPanel
         v-else-if="activeTab === 'members'"
         :course-id="course.id"
@@ -351,8 +368,10 @@ onMounted(() => {
         :course-id="course.id"
       />
 
-
-      <CourseAiPanel v-else-if="activeTab === 'ai'" :course-id="course.id" />
+      <CourseAiPanel
+        v-else-if="activeTab === 'ai'"
+        :course-id="course.id"
+      />
 
       <CourseFormModal
         :open="editOpen"
@@ -364,7 +383,6 @@ onMounted(() => {
         @submit="submitUpdate"
       />
 
-      <!-- Delete dialog -->
       <Teleport to="body">
         <div
           v-if="deleteOpen"
@@ -382,6 +400,7 @@ onMounted(() => {
                 <h2 id="delete-course-title" class="font-heading text-xl font-bold text-app-text">
                   Xóa khóa học?
                 </h2>
+
                 <p class="mt-2 text-sm leading-6 text-app-text-muted">
                   Bạn sắp xóa <strong class="text-app-text">{{ course.title }}</strong>.
                   Hãy chắc chắn trước khi tiếp tục.
