@@ -64,7 +64,7 @@ const handleLogout = async () => {
       :class="collapsed ? 'lg:justify-center lg:px-2' : 'justify-between px-5'"
     >
       <RouterLink
-        :to="basePath"
+        to="/"
         class="flex min-w-0 items-center gap-3"
         :class="{ 'lg:hidden': collapsed }"
         @click="emit('close')"

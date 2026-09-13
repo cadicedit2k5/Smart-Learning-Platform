@@ -251,7 +251,6 @@ const handleDelete = async () => {
 
   try {
     await deleteCourse(course.value.id)
-
     await router.replace({
       name: 'lecturer-courses',
     })
@@ -294,7 +293,7 @@ onMounted(() => void loadCourse())
       />
 
       <div
-        class="h-[28rem] animate-pulse rounded-[1.5rem] bg-app-surface-muted"
+        class="h-80 animate-pulse rounded-panel bg-app-surface-muted"
       />
     </div>
 
@@ -334,12 +333,14 @@ onMounted(() => void loadCourse())
         class="border-b border-app-border"
         aria-label="Nội dung khóa học"
       >
-        <div class="flex gap-6 overflow-x-auto">
+        <div
+          class="flex gap-6 overflow-x-auto"
+        >
           <button
             v-for="tab in tabs"
             :key="tab.id"
             type="button"
-            class="flex h-12 shrink-0 items-center gap-2 border-b-2 px-1 text-sm font-semibold transition-colors"
+            class="flex h-12 shrink-0 items-center gap-2 border-b-2 px-1 text-sm font-semibold transition"
             :class="
               activeTab === tab.id
                 ? 'border-secondary text-secondary'
@@ -362,17 +363,78 @@ onMounted(() => void loadCourse())
         class="space-y-6"
       >
         <section
-          class="relative overflow-hidden rounded-[1.5rem] border border-app-border bg-gradient-to-br from-white via-white to-secondary-soft/40 shadow-card"
+          class="overflow-hidden rounded-[1.5rem] border border-app-border bg-app-surface shadow-card"
         >
           <div
-            class="pointer-events-none absolute -right-24 -top-24 h-72 w-72 rounded-full bg-secondary/10 blur-3xl"
-          />
-
-          <div
-            class="relative grid gap-0 lg:grid-cols-[21rem_minmax(0,1fr)]"
+            class="grid items-stretch lg:grid-cols-[minmax(0,1fr)_24rem]"
           >
             <div
-              class="border-b border-app-border/70 bg-app-surface/70 p-4 backdrop-blur lg:border-b-0 lg:border-r"
+              class="flex min-w-0 flex-col p-6 sm:p-8 lg:p-9"
+            >
+              <div>
+                <h1
+                  class="max-w-3xl font-heading text-3xl font-bold leading-tight tracking-tight text-app-text sm:text-4xl"
+                >
+                  {{ course.title }}
+                </h1>
+
+                <div
+                  class="mt-6 max-w-3xl"
+                >
+                  <RichTextViewer
+                    v-if="hasDescription"
+                    :content="descriptionContent"
+                  />
+
+                  <p
+                    v-else
+                    class="text-sm leading-7 text-app-text-muted"
+                  >
+                    Chưa có mô tả cho khóa học này.
+                  </p>
+                </div>
+              </div>
+
+              <div
+                v-if="canManageCourse"
+                class="mt-7 flex flex-wrap gap-2 border-t border-app-border pt-6"
+              >
+                <BaseButton
+                  variant="secondary"
+                  @click="openEdit"
+                >
+                  <template #leading>
+                    <Pencil :size="16" />
+                  </template>
+
+                  Chỉnh sửa
+                </BaseButton>
+
+                <BaseButton
+                  v-if="course.status === 'DRAFT'"
+                  :loading="publishing"
+                  @click="handlePublish"
+                >
+                  <template #leading>
+                    <Rocket :size="16" />
+                  </template>
+
+                  Xuất bản
+                </BaseButton>
+
+                <button
+                  type="button"
+                  class="inline-flex h-11 items-center gap-2 rounded-control border border-danger/30 px-4 text-sm font-semibold text-danger transition hover:bg-danger-soft"
+                  @click="deleteOpen = true"
+                >
+                  <Trash2 :size="16" />
+                  Xóa
+                </button>
+              </div>
+            </div>
+
+            <div
+              class="border-t border-app-border bg-app-surface-muted/40 p-4 lg:border-l lg:border-t-0"
             >
               <div
                 class="overflow-hidden rounded-[1.15rem] bg-app-surface shadow-card"
@@ -383,211 +445,113 @@ onMounted(() => void loadCourse())
                 />
               </div>
             </div>
-
-            <div class="flex min-w-0 flex-col p-6 sm:p-8">
-              <div
-                class="flex flex-col gap-5 xl:flex-row xl:items-start xl:justify-between"
-              >
-                <div class="min-w-0">
-                  <div
-                    class="flex flex-wrap items-center gap-2"
-                  >
-                    <span
-                      class="inline-flex items-center gap-1.5 rounded-pill bg-secondary-soft px-3 py-1.5 text-xs font-semibold text-secondary"
-                    >
-                      <span
-                        class="h-1.5 w-1.5 rounded-full bg-secondary"
-                      />
-
-                      {{ courseStatusLabel[course.status] }}
-                    </span>
-
-                    <span
-                      class="rounded-pill border border-app-border bg-white/80 px-3 py-1.5 text-xs font-medium text-app-text-muted"
-                    >
-                      {{ courseVisibilityLabel[course.visibility] }}
-                    </span>
-                  </div>
-
-                  <h1
-                    class="mt-5 max-w-3xl font-heading text-3xl font-bold leading-tight tracking-tight text-app-text sm:text-4xl"
-                  >
-                    {{ course.title }}
-                  </h1>
-                </div>
-
-                <div
-                  v-if="canManageCourse"
-                  class="flex shrink-0 flex-wrap gap-2"
-                >
-                  <BaseButton
-                    variant="secondary"
-                    @click="openEdit"
-                  >
-                    <template #leading>
-                      <Pencil :size="16" />
-                    </template>
-
-                    Chỉnh sửa
-                  </BaseButton>
-
-                  <BaseButton
-                    v-if="course.status === 'DRAFT'"
-                    :loading="publishing"
-                    @click="handlePublish"
-                  >
-                    <template #leading>
-                      <Rocket :size="16" />
-                    </template>
-
-                    Xuất bản
-                  </BaseButton>
-
-                  <button
-                    type="button"
-                    aria-label="Xóa khóa học"
-                    title="Xóa khóa học"
-                    class="flex h-11 w-11 items-center justify-center rounded-control border border-app-border bg-white text-app-text-muted transition hover:border-danger/30 hover:bg-danger-soft hover:text-danger"
-                    @click="deleteOpen = true"
-                  >
-                    <Trash2 :size="17" />
-                  </button>
-                </div>
-              </div>
-
-              <div class="mt-6 max-w-4xl">
-                <RichTextViewer
-                  v-if="hasDescription"
-                  :content="descriptionContent"
-                />
-
-                <p
-                  v-else
-                  class="text-sm leading-7 text-app-text-muted"
-                >
-                  Chưa có mô tả cho khóa học này.
-                </p>
-              </div>
-
-              <div
-                class="mt-auto grid gap-4 border-t border-app-border/80 pt-6 sm:grid-cols-3"
-              >
-                <div class="flex items-center gap-3">
-                  <div
-                    class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-white text-secondary shadow-sm ring-1 ring-app-border"
-                  >
-                    <GraduationCap :size="16" />
-                  </div>
-
-                  <div class="min-w-0">
-                    <p
-                      class="text-xs text-app-text-muted"
-                    >
-                      Cấp độ
-                    </p>
-
-                    <p
-                      class="mt-0.5 truncate text-sm font-semibold text-app-text"
-                    >
-                      {{ course.level || 'Chưa cập nhật' }}
-                    </p>
-                  </div>
-                </div>
-
-                <div class="flex items-center gap-3">
-                  <div
-                    class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-white text-secondary shadow-sm ring-1 ring-app-border"
-                  >
-                    <Eye :size="16" />
-                  </div>
-
-                  <div class="min-w-0">
-                    <p
-                      class="text-xs text-app-text-muted"
-                    >
-                      Truy cập
-                    </p>
-
-                    <p
-                      class="mt-0.5 truncate text-sm font-semibold text-app-text"
-                    >
-                      {{ courseVisibilityLabel[course.visibility] }}
-                    </p>
-                  </div>
-                </div>
-
-                <div class="flex items-center gap-3">
-                  <div
-                    class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-white text-secondary shadow-sm ring-1 ring-app-border"
-                  >
-                    <CalendarDays :size="16" />
-                  </div>
-
-                  <div class="min-w-0">
-                    <p
-                      class="text-xs text-app-text-muted"
-                    >
-                      {{
-                        course.status === 'PUBLISHED'
-                          ? 'Xuất bản'
-                          : 'Cập nhật gần nhất'
-                      }}
-                    </p>
-
-                    <p
-                      class="mt-0.5 truncate text-sm font-semibold text-app-text"
-                    >
-                      {{
-                        course.status === 'PUBLISHED' &&
-                        course.publishedAt
-                          ? formatDateTime(course.publishedAt)
-                          : formatDateTime(course.updatedAt)
-                      }}
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </div>
           </div>
         </section>
 
-        <section
-          v-if="course.status === 'DRAFT' && canManageCourse"
-          class="flex flex-col gap-4 rounded-[1.25rem] border border-secondary/15 bg-secondary-soft/50 p-5 sm:flex-row sm:items-center sm:justify-between"
-        >
-          <div class="flex gap-3">
-            <div
-              class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white text-secondary shadow-sm"
-            >
-              <Rocket :size="18" />
-            </div>
+        <section>
+          <h2
+            class="font-heading text-xl font-bold text-app-text"
+          >
+            Thông tin khóa học
+          </h2>
 
-            <div>
-              <h2
-                class="font-heading text-base font-bold text-app-text"
+          <div
+            class="mt-4 grid overflow-hidden rounded-[1.25rem] border border-app-border bg-app-surface shadow-card sm:grid-cols-2 xl:grid-cols-4"
+          >
+            <div
+              class="border-b border-app-border p-5 sm:border-r xl:border-b-0"
+            >
+              <div
+                class="flex h-9 w-9 items-center justify-center rounded-lg bg-secondary-soft text-secondary"
               >
-                Khóa học đang ở bản nháp
-              </h2>
+                <CheckCircle2 :size="17" />
+              </div>
 
               <p
-                class="mt-1 text-sm leading-6 text-app-text-muted"
+                class="mt-4 text-xs font-medium text-app-text-muted"
               >
-                Hoàn thiện nội dung và xuất bản khi khóa học đã sẵn sàng cho học viên.
+                Trạng thái
+              </p>
+
+              <p
+                class="mt-1 text-sm font-semibold text-app-text"
+              >
+                {{ courseStatusLabel[course.status] }}
+              </p>
+            </div>
+
+            <div
+              class="border-b border-app-border p-5 xl:border-b-0 xl:border-r"
+            >
+              <div
+                class="flex h-9 w-9 items-center justify-center rounded-lg bg-secondary-soft text-secondary"
+              >
+                <Eye :size="17" />
+              </div>
+
+              <p
+                class="mt-4 text-xs font-medium text-app-text-muted"
+              >
+                Quyền truy cập
+              </p>
+
+              <p
+                class="mt-1 text-sm font-semibold text-app-text"
+              >
+                {{ courseVisibilityLabel[course.visibility] }}
+              </p>
+            </div>
+
+            <div
+              class="border-b border-app-border p-5 sm:border-r sm:border-b-0"
+            >
+              <div
+                class="flex h-9 w-9 items-center justify-center rounded-lg bg-secondary-soft text-secondary"
+              >
+                <GraduationCap :size="17" />
+              </div>
+
+              <p
+                class="mt-4 text-xs font-medium text-app-text-muted"
+              >
+                Cấp độ
+              </p>
+
+              <p
+                class="mt-1 text-sm font-semibold text-app-text"
+              >
+                {{ course.level || 'Chưa cập nhật' }}
+              </p>
+            </div>
+
+            <div class="p-5">
+              <div
+                class="flex h-9 w-9 items-center justify-center rounded-lg bg-secondary-soft text-secondary"
+              >
+                <CalendarDays :size="17" />
+              </div>
+
+              <p
+                class="mt-4 text-xs font-medium text-app-text-muted"
+              >
+                {{
+                  course.status === 'PUBLISHED'
+                    ? 'Ngày xuất bản'
+                    : 'Cập nhật gần nhất'
+                }}
+              </p>
+
+              <p
+                class="mt-1 text-sm font-semibold text-app-text"
+              >
+                {{
+                  course.status === 'PUBLISHED' && course.publishedAt
+                    ? formatDateTime(course.publishedAt)
+                    : formatDateTime(course.updatedAt)
+                }}
               </p>
             </div>
           </div>
-
-          <BaseButton
-            class="shrink-0"
-            :loading="publishing"
-            @click="handlePublish"
-          >
-            <template #leading>
-              <Rocket :size="16" />
-            </template>
-
-            Xuất bản khóa học
-          </BaseButton>
         </section>
       </div>
 
@@ -688,7 +652,7 @@ onMounted(() => void loadCourse())
               <button
                 type="button"
                 aria-label="Đóng"
-                class="rounded-control p-2 text-app-text-muted transition hover:bg-app-surface-muted"
+                class="rounded-control p-2 text-app-text-muted hover:bg-app-surface-muted"
                 :disabled="deleting"
                 @click="deleteOpen = false"
               >
@@ -709,7 +673,7 @@ onMounted(() => void loadCourse())
 
               <button
                 type="button"
-                class="inline-flex h-11 items-center gap-2 rounded-control bg-danger px-4 text-sm font-semibold text-white transition hover:opacity-90 disabled:opacity-60"
+                class="inline-flex h-11 items-center gap-2 rounded-control bg-danger px-4 text-sm font-semibold text-white disabled:opacity-60"
                 :disabled="deleting"
                 @click="handleDelete"
               >
