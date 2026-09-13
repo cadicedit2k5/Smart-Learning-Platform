@@ -1,26 +1,26 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed } from 'vue'
 import { Menu } from 'lucide-vue-next'
+
 import NotificationDropdown from '@/features/notification/components/NotificationDropdown.vue'
-import type { TopbarConfig } from '@/portals/types';
-import { useAuthStore } from '@/features/auth/stores';
+import { useAuthStore } from '@/features/auth/stores'
+import type { TopbarConfig } from '@/portals/types'
 
 const props = defineProps<{
-  config: TopbarConfig,
+  config: TopbarConfig
+  sidebarCollapsed: boolean
 }>()
 
 const emit = defineEmits<{
   toggleSidebar: []
 }>()
 
-const authStore = useAuthStore();
+const authStore = useAuthStore()
 
 const initials = computed(() => {
   const fullName = authStore.user?.fullName?.trim()
 
-  if (!fullName) {
-    return 'U'
-  }
+  if (!fullName) return 'U'
 
   return fullName
     .split(/\s+/)
@@ -33,12 +33,17 @@ const initials = computed(() => {
 
 <template>
   <header
-    class="fixed left-0 right-0 top-0 z-30 h-16 border-b border-app-border bg-app-surface/95 backdrop-blur lg:left-sidebar"
+    class="fixed left-0 right-0 top-0 z-30 h-16 border-b border-app-border bg-app-surface/95 backdrop-blur transition-[left] duration-300"
+    :class="
+      sidebarCollapsed
+        ? 'lg:left-sidebar-collapsed'
+        : 'lg:left-sidebar'
+    "
   >
     <div class="flex h-full items-center gap-3 px-4 sm:px-6">
       <button
         type="button"
-        aria-label="Open sidebar"
+        aria-label="Mở thanh điều hướng"
         class="flex h-10 w-10 shrink-0 items-center justify-center rounded-control text-app-text-muted transition hover:bg-app-surface-muted lg:hidden"
         @click="emit('toggleSidebar')"
       >
@@ -47,21 +52,23 @@ const initials = computed(() => {
 
       <div class="ml-auto flex items-center gap-3">
         <RouterLink
-          v-if="config.primaryAction"
-          :to="{ name: config.primaryAction.routeName }"
+          v-if="props.config.primaryAction"
+          :to="{ name: props.config.primaryAction.routeName }"
           class="flex h-10 items-center gap-2 rounded-control bg-primary px-4 text-sm font-semibold text-on-primary transition hover:bg-primary-hover"
         >
           <component
-            :is="config.primaryAction.icon"
-            v-if="config.primaryAction.icon"
+            :is="props.config.primaryAction.icon"
+            v-if="props.config.primaryAction.icon"
             :size="16"
           />
 
           <span class="hidden sm:inline">
-            {{ config.primaryAction.label }}
+            {{ props.config.primaryAction.label }}
           </span>
         </RouterLink>
+
         <NotificationDropdown />
+
         <div class="flex items-center gap-2">
           <div
             class="flex h-9 w-9 items-center justify-center rounded-full bg-secondary-soft text-xs font-bold text-secondary"

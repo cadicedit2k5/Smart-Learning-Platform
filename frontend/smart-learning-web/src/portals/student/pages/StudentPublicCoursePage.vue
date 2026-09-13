@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted, ref } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import {
   ArrowRight,
   BookOpen,
@@ -7,12 +7,10 @@ import {
   CheckCircle2,
   Clock3,
   Search,
-  Send,
 } from 'lucide-vue-next'
 
 import {
   BaseAlert,
-  BaseBadge,
   BaseButton,
   BaseEmptyState,
   BaseInput,
@@ -26,7 +24,6 @@ import { formatDate } from '@/shared/utils'
 
 import {
   getPublicCourses,
-  requestToJoinCourse,
   type PublicCourse,
 } from '../api/courseApi'
 import { useStudentApiError } from '../composables/useStudentApiError'
@@ -42,11 +39,33 @@ const loading = ref(true)
 const loadError = ref('')
 const keyword = ref('')
 const appliedKeyword = ref('')
-const requestingCourseId = ref<string | null>(null)
-const actionError = ref('')
+
+const resultLabel = computed(() => {
+  const total = coursesPage.value.pageable.totalElements
+
+  if (!appliedKeyword.value) {
+    return `${total} khóa học`
+  }
+
+  return `${total} kết quả cho "${appliedKeyword.value}"`
+})
 
 const descriptionPreview = (description: string | null) =>
   storedRichTextToPlainText(description) || 'Khóa học chưa có mô tả.'
+
+const courseDestination = (course: PublicCourse) => {
+  if (course.currentUserMembershipStatus === 'ACTIVE') {
+    return {
+      name: 'student-course-detail',
+      params: { courseId: course.id },
+    }
+  }
+
+  return {
+    name: 'student-public-course-detail',
+    params: { courseId: course.id },
+  }
+}
 
 const loadCourses = async (page = 1) => {
   loading.value = true
@@ -58,7 +77,10 @@ const loadCourses = async (page = 1) => {
       keyword: appliedKeyword.value || undefined,
     })
   } catch (error) {
-    loadError.value = handleApiError(error, 'Không thể tải danh sách khóa học công khai.').message
+    loadError.value = handleApiError(
+      error,
+      'Không thể tải danh sách khóa học công khai.',
+    ).message
   } finally {
     loading.value = false
   }
@@ -73,20 +95,6 @@ const resetSearch = () => {
   keyword.value = ''
   appliedKeyword.value = ''
   void loadCourses(1)
-}
-
-const requestJoin = async (course: PublicCourse) => {
-  requestingCourseId.value = course.id
-  actionError.value = ''
-
-  try {
-    const membership = await requestToJoinCourse(course.id)
-    course.currentUserMembershipStatus = membership.status
-  } catch (error) {
-    actionError.value = handleApiError(error, 'Không thể gửi yêu cầu tham gia khóa học.').message
-  } finally {
-    requestingCourseId.value = null
-  }
 }
 
 const goToPage = async (page: number) => {
@@ -105,162 +113,195 @@ onMounted(() => void loadCourses())
 </script>
 
 <template>
-  <section class="mx-auto max-w-app space-y-6">
-    <BasePageHeader title="Khóa học công khai" />
+  <section class="mx-auto max-w-app space-y-7">
+    <BasePageHeader
+      title="Khám phá khóa học"
+    />
 
-    <section class="rounded-card border border-app-border bg-app-surface p-4 shadow-card">
-      <form class="flex gap-3" @submit.prevent="applySearch">
+    <section
+      class="rounded-[1.25rem] border border-app-border bg-app-surface p-4 shadow-card sm:p-5"
+    >
+      <form
+        class="flex flex-col gap-3 sm:flex-row"
+        @submit.prevent="applySearch"
+      >
         <div class="min-w-0 flex-1">
-          <BaseInput v-model="keyword" placeholder="Tìm theo tên, mô tả hoặc cấp độ...">
-            <template #leading><Search :size="18" /></template>
+          <BaseInput
+            v-model="keyword"
+            placeholder="Bạn muốn học gì?"
+          >
+            <template #leading>
+              <Search :size="18" />
+            </template>
           </BaseInput>
         </div>
 
-        <BaseButton type="submit" variant="secondary">Tìm</BaseButton>
+        <BaseButton
+          type="submit"
+          class="sm:min-w-24"
+        >
+          Tìm kiếm
+        </BaseButton>
       </form>
 
-      <button
+      <div
         v-if="appliedKeyword"
-        type="button"
-        class="mt-3 text-sm font-semibold text-secondary hover:underline"
-        @click="resetSearch"
+        class="mt-3 flex items-center justify-between gap-3"
       >
-        Xóa tìm kiếm
-      </button>
-    </section>
+        <p class="text-sm text-app-text-muted">
+          {{ resultLabel }}
+        </p>
 
-    <BaseAlert v-if="actionError">{{ actionError }}</BaseAlert>
+        <button
+          type="button"
+          class="text-sm font-semibold text-secondary transition hover:text-secondary-hover"
+          @click="resetSearch"
+        >
+          Xóa tìm kiếm
+        </button>
+      </div>
+    </section>
 
     <BaseAlert v-if="loadError">
       <div class="flex flex-wrap items-center justify-between gap-3">
         <span>{{ loadError }}</span>
 
-        <BaseButton variant="secondary" @click="loadCourses(coursesPage.pageable.page)">
+        <BaseButton
+          variant="secondary"
+          @click="loadCourses(coursesPage.pageable.page)"
+        >
           Thử lại
         </BaseButton>
       </div>
     </BaseAlert>
 
-    <div v-if="loading" class="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
+
+
+    <div
+      v-if="loading"
+      class="grid gap-6 md:grid-cols-2 xl:grid-cols-3"
+    >
       <div
         v-for="index in 6"
         :key="index"
-        class="h-96 animate-pulse rounded-card bg-app-surface-muted"
-      />
+        class="overflow-hidden rounded-[1.25rem] border border-app-border bg-app-surface"
+      >
+        <div class="aspect-[16/9] animate-pulse bg-app-surface-muted" />
+
+        <div class="space-y-3 p-5">
+          <div class="h-4 w-24 animate-pulse rounded bg-app-surface-muted" />
+          <div class="h-6 w-4/5 animate-pulse rounded bg-app-surface-muted" />
+          <div class="h-4 w-full animate-pulse rounded bg-app-surface-muted" />
+          <div class="h-4 w-2/3 animate-pulse rounded bg-app-surface-muted" />
+        </div>
+      </div>
     </div>
 
     <BaseEmptyState
       v-else-if="coursesPage.content.length === 0"
-      :title="appliedKeyword ? 'Không tìm thấy khóa học phù hợp' : 'Chưa có khóa học công khai'"
+      :title="
+        appliedKeyword
+          ? 'Không tìm thấy khóa học phù hợp'
+          : 'Chưa có khóa học công khai'
+      "
       :description="
         appliedKeyword
-          ? 'Thử tìm kiếm bằng từ khóa khác.'
+          ? 'Thử tìm kiếm bằng một từ khóa khác.'
           : 'Hiện chưa có khóa học nào được công khai.'
       "
     >
-      <template #icon><BookOpen :size="24" /></template>
+      <template #icon>
+        <BookOpen :size="24" />
+      </template>
     </BaseEmptyState>
 
-    <div v-else class="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
-      <article
+    <div
+      v-else
+      class="grid gap-6 md:grid-cols-2 xl:grid-cols-3"
+    >
+      <RouterLink
         v-for="course in coursesPage.content"
         :key="course.id"
-        class="group flex overflow-hidden rounded-card border border-app-border bg-app-surface shadow-card transition hover:-translate-y-0.5 hover:border-secondary/40 hover:shadow-overlay"
+        :to="courseDestination(course)"
+        class="group relative flex min-w-0 flex-col overflow-hidden rounded-[1.25rem] bg-app-surface ring-1 ring-app-border transition duration-300 hover:-translate-y-1 hover:shadow-overlay hover:ring-secondary/25"
       >
-        <div class="flex min-h-0 w-full flex-col">
-          <RouterLink
-            :to="{ name: 'student-public-course-detail', params: { courseId: course.id } }"
-            class="block overflow-hidden"
+        <div class="relative overflow-hidden">
+          <CourseCover
+            :image-url="course.imageUrl"
+            :title="course.title"
+            class="transition duration-500 group-hover:scale-[1.025]"
+          />
+
+          <div
+            class="pointer-events-none absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-slate-950/35 to-transparent"
+          />
+
+          <span
+            v-if="course.level"
+            class="absolute bottom-3 left-3 rounded-pill border border-white/20 bg-slate-950/55 px-2.5 py-1 text-xs font-semibold text-white backdrop-blur-md"
           >
-            <CourseCover
-              :image-url="course.imageUrl"
-              :title="course.title"
-              class="transition duration-300 group-hover:scale-[1.01]"
-            />
-          </RouterLink>
+            {{ course.level }}
+          </span>
 
-          <div class="flex flex-1 flex-col p-5">
-            <div class="flex items-center justify-between gap-3">
-              <BaseBadge tone="secondary">Công khai</BaseBadge>
+          <span
+            v-if="course.currentUserMembershipStatus === 'ACTIVE'"
+            class="absolute right-3 top-3 inline-flex items-center gap-1.5 rounded-pill bg-white/95 px-2.5 py-1 text-xs font-semibold text-ai shadow-sm"
+          >
+            <CheckCircle2 :size="13" />
+            Đã tham gia
+          </span>
 
-              <span v-if="course.level" class="text-xs font-semibold text-app-text-muted">
-                {{ course.level }}
-              </span>
-            </div>
+          <span
+            v-else-if="course.currentUserMembershipStatus === 'PENDING'"
+            class="absolute right-3 top-3 inline-flex items-center gap-1.5 rounded-pill bg-white/95 px-2.5 py-1 text-xs font-semibold text-amber-700 shadow-sm"
+          >
+            <Clock3 :size="13" />
+            Chờ duyệt
+          </span>
+        </div>
 
-            <RouterLink
-              :to="{ name: 'student-public-course-detail', params: { courseId: course.id } }"
-              class="mt-4 block"
+        <div class="flex flex-1 flex-col p-5">
+          <div
+            class="flex items-center gap-2 text-xs font-medium text-app-text-muted"
+          >
+            <span>Khóa học</span>
+
+            <span class="h-1 w-1 rounded-full bg-slate-300" />
+          </div>
+
+          <h2
+            class="mt-3 line-clamp-2 font-heading text-xl font-bold leading-7 text-app-text transition-colors group-hover:text-secondary"
+          >
+            {{ course.title }}
+          </h2>
+
+          <p
+            class="mt-2 mb-2 line-clamp-2 text-sm leading-6 text-app-text-muted"
+          >
+            {{ descriptionPreview(course.description) }}
+          </p>
+
+          <div
+            class="mt-auto flex items-center justify-between border-t border-app-border pt-5"
+          >
+            <span
+              class="text-sm font-semibold text-secondary"
             >
-              <h2
-                class="line-clamp-2 font-heading text-xl font-bold text-app-text transition group-hover:text-secondary"
-              >
-                {{ course.title }}
-              </h2>
-            </RouterLink>
+              {{
+                course.currentUserMembershipStatus === 'ACTIVE'
+                  ? 'Tiếp tục học'
+                  : 'Xem khóa học'
+              }}
+            </span>
 
-            <p class="mt-2 line-clamp-3 text-sm leading-6 text-app-text-muted">
-              {{ descriptionPreview(course.description) }}
-            </p>
-
-            <p class="mt-4 flex items-center gap-2 text-xs text-app-text-muted">
-              <CalendarDays :size="15" />
-              Công khai {{ formatDate(course.publishedAt, 'Chưa cập nhật') }}
-            </p>
-
-            <div class="mt-auto space-y-4 pt-6">
-              <RouterLink
-                :to="{ name: 'student-public-course-detail', params: { courseId: course.id } }"
-                class="inline-flex items-center gap-1.5 text-sm font-semibold text-secondary hover:underline"
-              >
-                Xem chương trình học
-                <ArrowRight :size="16" />
-              </RouterLink>
-
-              <BaseButton
-                v-if="course.currentUserMembershipStatus === null"
-                block
-                :loading="requestingCourseId === course.id"
-                @click="requestJoin(course)"
-              >
-                <template #leading><Send :size="17" /></template>
-                Yêu cầu tham gia
-              </BaseButton>
-
-              <BaseButton
-                v-else-if="course.currentUserMembershipStatus === 'PENDING'"
-                block
-                disabled
-                variant="secondary"
-              >
-                <template #leading><Clock3 :size="17" /></template>
-                Đang chờ duyệt
-              </BaseButton>
-
-              <RouterLink
-                v-else-if="course.currentUserMembershipStatus === 'ACTIVE'"
-                :to="{ name: 'student-course-detail', params: { courseId: course.id } }"
-                class="block"
-              >
-                <BaseButton block>
-                  <template #leading><CheckCircle2 :size="17" /></template>
-                  Vào khóa học
-                </BaseButton>
-              </RouterLink>
-
-              <BaseButton
-                v-else
-                block
-                :loading="requestingCourseId === course.id"
-                @click="requestJoin(course)"
-              >
-                <template #leading><Send :size="17" /></template>
-                Gửi lại yêu cầu
-              </BaseButton>
+            <div
+              class="flex h-9 w-9 items-center justify-center rounded-full bg-app-surface-muted text-app-text-muted transition duration-300 group-hover:translate-x-1 group-hover:bg-secondary group-hover:text-white"
+            >
+              <ArrowRight :size="17" />
             </div>
           </div>
         </div>
-      </article>
+      </RouterLink>
     </div>
 
     <BasePagination

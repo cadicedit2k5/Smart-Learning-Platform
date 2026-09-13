@@ -3,7 +3,7 @@ import type { RouteRecordRaw } from 'vue-router'
 export const studentRoutes: RouteRecordRaw[] = [
   {
     path: '',
-    redirect: { name: 'student-public-courses' },
+    redirect: { name: 'student-dashboard' },
   },
   {
     path: 'dashboard',
