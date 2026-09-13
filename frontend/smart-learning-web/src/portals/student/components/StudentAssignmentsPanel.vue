@@ -4,6 +4,7 @@ import {
   ArrowLeft,
   CalendarClock,
   CheckCircle2,
+  ChevronRight,
   ClipboardCheck,
   ClipboardList,
   Eye,
@@ -19,6 +20,21 @@ import {
   BaseModal,
   ConfirmDialog,
 } from '@/shared/components'
+import type {
+  Assignment,
+  AssignmentSubmission,
+} from '@/shared/assignment/types'
+import type { TopicContent } from '@/shared/course-content'
+import {
+  createEmptyRichText,
+  hasRichTextContent,
+  parseStoredRichText,
+  RichTextEditor,
+  RichTextViewer,
+  serializeRichText,
+  storedRichTextToPlainText,
+} from '@/shared/rich-text'
+import { formatDateTime } from '@/shared/utils/date'
 
 import {
   deleteMySubmission,
@@ -26,18 +42,9 @@ import {
   getMySubmissions,
   submitAssignment,
 } from '../api/assignmentApi'
-
-import type {
-  Assignment,
-  AssignmentSubmission,
-} from '@/shared/assignment/types'
-
 import { useStudentApiError } from '../composables/useStudentApiError'
-import { formatDateTime } from '@/shared/utils/date'
 
-const props = defineProps<{
-  courseId: string
-}>()
+const props = defineProps<{ courseId: string }>()
 
 const { handleApiError } = useStudentApiError()
 
@@ -55,7 +62,7 @@ const successMessage = ref('')
 const submissionModalOpen = ref(false)
 const submissionMode = ref<'view' | 'edit'>('view')
 
-const content = ref('')
+const submissionContent = ref<TopicContent>(createEmptyRichText())
 const file = ref<File | null>(null)
 const fileInputKey = ref(0)
 
@@ -73,14 +80,53 @@ const submissionByAssignment = computed(() => {
 
 const currentSubmission = computed(() => {
   if (!selectedAssignment.value) return null
-  return submissionByAssignment.value.get(selectedAssignment.value.id) ?? null
+
+  return (
+    submissionByAssignment.value.get(
+      selectedAssignment.value.id,
+    ) ?? null
+  )
 })
 
-const assignmentStatus = (assignment: Assignment) => {
-  const submission = submissionByAssignment.value.get(assignment.id)
+const selectedDescription = computed(() =>
+  parseStoredRichText(
+    selectedAssignment.value?.description,
+  ),
+)
 
-  if (submission?.status === 'GRADED') return 'GRADED'
-  if (submission) return 'SUBMITTED'
+const hasSelectedDescription = computed(() =>
+  hasRichTextContent(selectedDescription.value),
+)
+
+const currentSubmissionContent = computed(() =>
+  parseStoredRichText(
+    currentSubmission.value?.content,
+  ),
+)
+
+const hasCurrentSubmissionContent = computed(() =>
+  hasRichTextContent(currentSubmissionContent.value),
+)
+
+const preview = (value: string | null) =>
+  storedRichTextToPlainText(value)
+
+const assignmentStatus = (
+  assignment: Assignment,
+) => {
+  const submission =
+    submissionByAssignment.value.get(
+      assignment.id,
+    )
+
+  if (submission?.status === 'GRADED') {
+    return 'GRADED'
+  }
+
+  if (submission) {
+    return 'SUBMITTED'
+  }
+
   return 'NOT_SUBMITTED'
 }
 
@@ -89,13 +135,18 @@ const load = async () => {
   message.value = ''
 
   try {
-    const [assignmentData, submissionData] = await Promise.all([
+    const [
+      assignmentData,
+      submissionData,
+    ] = await Promise.all([
       getAssignments(props.courseId),
       getMySubmissions(props.courseId),
     ])
 
     assignments.value = assignmentData.sort(
-      (a, b) => new Date(a.dueAt).getTime() - new Date(b.dueAt).getTime(),
+      (a, b) =>
+        new Date(a.dueAt).getTime() -
+        new Date(b.dueAt).getTime(),
     )
 
     submissions.value = submissionData
@@ -109,21 +160,32 @@ const load = async () => {
   }
 }
 
-const openAssignment = (assignment: Assignment) => {
+const openAssignment = (
+  assignment: Assignment,
+) => {
   selectedAssignment.value = assignment
   message.value = ''
   successMessage.value = ''
 }
 
+const resetSubmissionForm = () => {
+  submissionContent.value =
+    createEmptyRichText()
+
+  file.value = null
+  fileInputKey.value += 1
+}
+
+const closeSubmissionModal = () => {
+  if (submitting.value) return
+
+  submissionModalOpen.value = false
+  resetSubmissionForm()
+}
+
 const backToAssignments = () => {
   selectedAssignment.value = null
   closeSubmissionModal()
-}
-
-const resetSubmissionForm = () => {
-  content.value = ''
-  file.value = null
-  fileInputKey.value += 1
 }
 
 const openCreateSubmission = () => {
@@ -137,7 +199,11 @@ const openCreateSubmission = () => {
 const openEditSubmission = () => {
   if (!currentSubmission.value) return
 
-  content.value = currentSubmission.value.content ?? ''
+  submissionContent.value =
+    parseStoredRichText(
+      currentSubmission.value.content,
+    )
+
   file.value = null
   fileInputKey.value += 1
 
@@ -152,43 +218,60 @@ const openViewSubmission = () => {
   submissionModalOpen.value = true
 }
 
-const closeSubmissionModal = () => {
-  if (submitting.value) return
+const onFileChange = (
+  event: Event,
+) => {
+  const input =
+    event.target as HTMLInputElement
 
-  submissionModalOpen.value = false
-  resetSubmissionForm()
-}
-
-const onFileChange = (event: Event) => {
-  const input = event.target as HTMLInputElement
-  file.value = input.files?.[0] ?? null
+  file.value =
+    input.files?.[0] ?? null
 }
 
 const submit = async () => {
-  if (!selectedAssignment.value) return
-
-  if (!content.value.trim() && !file.value && !currentSubmission.value?.attachmentUrl) {
-    message.value = 'Vui lòng nhập nội dung bài làm hoặc chọn tệp đính kèm.'
+  if (!selectedAssignment.value) {
     return
   }
 
-  const isUpdating = currentSubmission.value !== null
+  const serializedContent =
+    serializeRichText(
+      submissionContent.value,
+    )
+
+  if (
+    !serializedContent &&
+    !file.value &&
+    !currentSubmission.value
+      ?.attachmentUrl
+  ) {
+    message.value =
+      'Vui lòng nhập nội dung bài làm hoặc chọn tệp đính kèm.'
+
+    return
+  }
+
+  const isUpdating =
+    currentSubmission.value !== null
 
   submitting.value = true
   message.value = ''
   successMessage.value = ''
 
   try {
-    const result = await submitAssignment(
-      props.courseId,
-      selectedAssignment.value.id,
-      content.value.trim(),
-      file.value,
-    )
+    const result =
+      await submitAssignment(
+        props.courseId,
+        selectedAssignment.value.id,
+        serializedContent,
+        file.value,
+      )
 
-    const index = submissions.value.findIndex(
-      (item) => item.assignmentId === result.assignmentId,
-    )
+    const index =
+      submissions.value.findIndex(
+        (item) =>
+          item.assignmentId ===
+          result.assignmentId,
+      )
 
     if (index >= 0) {
       submissions.value[index] = result
@@ -198,9 +281,16 @@ const submit = async () => {
 
     submissionModalOpen.value = false
     resetSubmissionForm()
-    successMessage.value = isUpdating ? 'Đã cập nhật bài nộp.' : 'Đã nộp bài thành công.'
+
+    successMessage.value =
+      isUpdating
+        ? 'Đã cập nhật bài nộp.'
+        : 'Đã nộp bài thành công.'
   } catch (error) {
-    message.value = handleApiError(error, 'Không thể nộp bài.').message
+    message.value = handleApiError(
+      error,
+      'Không thể nộp bài.',
+    ).message
   } finally {
     submitting.value = false
   }
@@ -213,32 +303,46 @@ const openDeleteSubmission = () => {
   deleteOpen.value = true
 }
 
-const handleDeleteSubmission = async () => {
-  if (!selectedAssignment.value || !currentSubmission.value) return
+const handleDeleteSubmission =
+  async () => {
+    if (
+      !selectedAssignment.value ||
+      !currentSubmission.value
+    ) {
+      return
+    }
 
-  deleting.value = true
-  message.value = ''
-  successMessage.value = ''
+    deleting.value = true
+    message.value = ''
+    successMessage.value = ''
 
-  try {
-    await deleteMySubmission(props.courseId, selectedAssignment.value.id)
+    try {
+      await deleteMySubmission(
+        props.courseId,
+        selectedAssignment.value.id,
+      )
 
-    submissions.value = submissions.value.filter(
-      (item) => item.assignmentId !== selectedAssignment.value?.id,
-    )
+      submissions.value =
+        submissions.value.filter(
+          (item) =>
+            item.assignmentId !==
+            selectedAssignment.value?.id,
+        )
 
-    deleteOpen.value = false
-    resetSubmissionForm()
-    successMessage.value = 'Đã xóa bài nộp.'
-  } catch (error) {
-    message.value = handleApiError(
-      error,
-      'Không thể xóa bài đã nộp.',
-    ).message
-  } finally {
-    deleting.value = false
+      deleteOpen.value = false
+      resetSubmissionForm()
+
+      successMessage.value =
+        'Đã xóa bài nộp.'
+    } catch (error) {
+      message.value = handleApiError(
+        error,
+        'Không thể xóa bài đã nộp.',
+      ).message
+    } finally {
+      deleting.value = false
+    }
   }
-}
 
 const resetForCourse = () => {
   selectedAssignment.value = null
@@ -247,134 +351,215 @@ const resetForCourse = () => {
   submissionModalOpen.value = false
   message.value = ''
   successMessage.value = ''
+
   void load()
 }
 
-watch(() => props.courseId, resetForCourse)
+watch(
+  () => props.courseId,
+  resetForCourse,
+)
 
 onMounted(() => void load())
 </script>
 
 <template>
-  <section class="space-y-5">
+  <section class="space-y-6">
     <BaseAlert v-if="message">
       {{ message }}
     </BaseAlert>
 
-    <BaseAlert v-if="successMessage" variant="ai">
+    <BaseAlert
+      v-if="successMessage"
+      variant="success"
+    >
       <template #icon>
         <CheckCircle2 :size="18" />
       </template>
+
       {{ successMessage }}
     </BaseAlert>
 
-    <!-- =====================================================
-         ASSIGNMENT LIST
-         ===================================================== -->
     <template v-if="!selectedAssignment">
       <header>
-        <h2 class="font-heading text-xl font-bold text-app-text">
+        <p
+          class="text-xs font-bold uppercase tracking-[0.14em] text-secondary"
+        >
+          Course work
+        </p>
+
+        <h2
+          class="mt-1 font-heading text-2xl font-bold text-app-text"
+        >
           Bài tập
         </h2>
 
-        <p class="mt-1 text-sm text-app-text-muted">
-          Theo dõi bài tập, hạn nộp và kết quả của bạn.
+        <p
+          class="mt-1 text-sm text-app-text-muted"
+        >
+          Theo dõi yêu cầu, hạn nộp và
+          kết quả bài tập.
         </p>
       </header>
 
-      <div v-if="loading" class="space-y-3">
+      <div
+        v-if="loading"
+        class="space-y-3"
+      >
         <div
           v-for="index in 4"
           :key="index"
-          class="h-32 animate-pulse rounded-card bg-app-surface-muted"
+          class="h-32 animate-pulse rounded-[1.1rem] bg-app-surface-muted"
         />
       </div>
 
       <div
         v-else-if="assignments.length === 0"
-        class="rounded-panel border border-dashed border-app-border bg-app-surface px-6 py-14 text-center"
+        class="rounded-[1.25rem] border border-dashed border-app-border bg-app-surface px-6 py-14 text-center"
       >
-        <ClipboardList :size="40" class="mx-auto text-app-text-muted/40" />
+        <div
+          class="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-secondary-soft text-secondary"
+        >
+          <ClipboardList :size="25" />
+        </div>
 
-        <h3 class="mt-4 font-heading text-lg font-bold text-app-text">
+        <h3
+          class="mt-4 font-heading text-lg font-bold text-app-text"
+        >
           Chưa có bài tập
         </h3>
 
-        <p class="mt-2 text-sm text-app-text-muted">
-          Giảng viên chưa giao bài tập cho khóa học.
+        <p
+          class="mt-1 text-sm text-app-text-muted"
+        >
+          Giảng viên chưa giao bài tập
+          cho khóa học.
         </p>
       </div>
 
-      <div v-else class="space-y-3">
+      <div
+        v-else
+        class="space-y-3"
+      >
         <button
           v-for="assignment in assignments"
           :key="assignment.id"
           type="button"
-          class="group w-full rounded-card border border-app-border bg-app-surface p-5 text-left shadow-card transition hover:border-secondary/40 hover:shadow-md"
+          class="group grid w-full gap-4 rounded-[1.1rem] border border-app-border bg-app-surface p-5 text-left shadow-card transition hover:border-secondary/30 hover:shadow-md sm:grid-cols-[auto_minmax(0,1fr)_auto]"
           @click="openAssignment(assignment)"
         >
-          <div class="flex items-start justify-between gap-5">
-            <div class="min-w-0 flex-1">
-              <div class="flex flex-wrap items-center gap-2">
-                <h3 class="font-heading text-lg font-bold text-app-text">
-                  {{ assignment.title }}
-                </h3>
+          <div
+            class="flex h-11 w-11 items-center justify-center rounded-xl"
+            :class="
+              assignmentStatus(assignment) ===
+              'GRADED'
+                ? 'bg-ai-soft text-ai'
+                : 'bg-secondary-soft text-secondary'
+            "
+          >
+            <ClipboardList :size="19" />
+          </div>
 
-                <span
-                  v-if="assignmentStatus(assignment) === 'GRADED'"
-                  class="rounded-pill bg-ai-soft px-2.5 py-1 text-xs font-semibold text-ai"
-                >
-                  Đã chấm
-                </span>
-
-                <span
-                  v-else-if="assignmentStatus(assignment) === 'SUBMITTED'"
-                  class="rounded-pill bg-secondary-soft px-2.5 py-1 text-xs font-semibold text-secondary"
-                >
-                  Đã nộp
-                </span>
-
-                <span
-                  v-else
-                  class="rounded-pill px-2.5 py-1 text-xs font-semibold"
-                  :class="
-                    assignment.expired
-                      ? 'bg-danger-soft text-danger'
-                      : 'bg-app-surface-muted text-app-text-muted'
-                  "
-                >
-                  {{ assignment.expired ? 'Quá hạn' : 'Chưa nộp' }}
-                </span>
-              </div>
-
-              <div class="mt-2 flex flex-wrap gap-x-5 gap-y-2 text-sm text-app-text-muted">
-                <span class="inline-flex items-center gap-1.5">
-                  <CalendarClock :size="15" />
-                  Hạn {{ formatDateTime(assignment.dueAt) }}
-                </span>
-
-                <span>{{ assignment.maxScore }} điểm</span>
-              </div>
-
-              <p
-                v-if="assignment.description"
-                class="mt-3 line-clamp-2 max-w-4xl text-sm leading-6 text-app-text-muted"
+          <div class="min-w-0">
+            <div
+              class="flex flex-wrap items-center gap-2"
+            >
+              <h3
+                class="font-heading font-bold text-app-text"
               >
-                {{ assignment.description }}
-              </p>
+                {{ assignment.title }}
+              </h3>
+
+              <span
+                class="rounded-pill px-2.5 py-1 text-xs font-semibold"
+                :class="{
+                  'bg-ai-soft text-ai':
+                    assignmentStatus(
+                      assignment,
+                    ) === 'GRADED',
+
+                  'bg-secondary-soft text-secondary':
+                    assignmentStatus(
+                      assignment,
+                    ) === 'SUBMITTED',
+
+                  'bg-danger-soft text-danger':
+                    assignmentStatus(
+                      assignment,
+                    ) ===
+                      'NOT_SUBMITTED' &&
+                    assignment.expired,
+
+                  'bg-app-surface-muted text-app-text-muted':
+                    assignmentStatus(
+                      assignment,
+                    ) ===
+                      'NOT_SUBMITTED' &&
+                    !assignment.expired,
+                }"
+              >
+                {{
+                  assignmentStatus(
+                    assignment,
+                  ) === 'GRADED'
+                    ? 'Đã chấm'
+                    : assignmentStatus(
+                          assignment,
+                        ) ===
+                        'SUBMITTED'
+                      ? 'Đã nộp'
+                      : assignment.expired
+                        ? 'Quá hạn'
+                        : 'Chưa nộp'
+                }}
+              </span>
             </div>
 
-            <span class="shrink-0 pt-1 text-sm font-semibold text-secondary transition group-hover:translate-x-1">
-              Xem chi tiết →
-            </span>
+            <p
+              v-if="
+                preview(
+                  assignment.description,
+                )
+              "
+              class="mt-2 line-clamp-2 max-w-4xl text-sm leading-6 text-app-text-muted"
+            >
+              {{
+                preview(
+                  assignment.description,
+                )
+              }}
+            </p>
+
+            <div
+              class="mt-3 flex flex-wrap gap-x-5 gap-y-1 text-xs text-app-text-muted"
+            >
+              <span
+                class="inline-flex items-center gap-1.5"
+              >
+                <CalendarClock :size="14" />
+
+                {{
+                  formatDateTime(
+                    assignment.dueAt,
+                  )
+                }}
+              </span>
+
+              <span>
+                {{ assignment.maxScore }}
+                điểm
+              </span>
+            </div>
           </div>
+
+          <ChevronRight
+            :size="19"
+            class="hidden self-center text-app-text-muted transition group-hover:translate-x-1 group-hover:text-secondary sm:block"
+          />
         </button>
       </div>
     </template>
 
-    <!-- =====================================================
-         ASSIGNMENT DETAIL
-         ===================================================== -->
     <template v-else>
       <button
         type="button"
@@ -385,233 +570,256 @@ onMounted(() => void load())
         Danh sách bài tập
       </button>
 
-      <header class="rounded-card border border-app-border bg-app-surface p-6 shadow-card">
-        <div class="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-          <div class="min-w-0">
-            <div class="flex flex-wrap items-center gap-2">
-              <h2 class="font-heading text-2xl font-bold text-app-text">
-                {{ selectedAssignment.title }}
-              </h2>
-
-              <span
-                class="rounded-pill px-2.5 py-1 text-xs font-semibold"
-                :class="
-                  selectedAssignment.expired
-                    ? 'bg-danger-soft text-danger'
-                    : 'bg-ai-soft text-ai'
-                "
-              >
-                {{ selectedAssignment.expired ? 'Đã quá hạn' : 'Đang mở' }}
-              </span>
-            </div>
-
-            <div class="mt-2 flex flex-wrap gap-x-5 gap-y-2 text-sm text-app-text-muted">
-              <span class="inline-flex items-center gap-1.5">
-                <CalendarClock :size="15" />
-                Hạn {{ formatDateTime(selectedAssignment.dueAt) }}
-              </span>
-
-              <span>{{ selectedAssignment.maxScore }} điểm</span>
-            </div>
-          </div>
-        </div>
-
-        <div class="mt-6 border-t border-app-border pt-5">
-          <h3 class="font-heading text-lg font-bold text-app-text">
-            Nội dung bài tập
-          </h3>
-
-          <p class="mt-3 whitespace-pre-wrap text-sm leading-7 text-app-text-muted">
-            {{ selectedAssignment.description || 'Bài tập không có mô tả.' }}
-          </p>
-        </div>
-      </header>
-
-      <!-- ===================================================
-           NO SUBMISSION
-           =================================================== -->
       <section
-        v-if="!currentSubmission"
-        class="rounded-card border border-app-border bg-app-surface p-6 shadow-card"
+        class="overflow-hidden rounded-[1.3rem] border border-app-border bg-app-surface shadow-card"
       >
-        <div class="flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
-          <div>
-            <div class="flex items-center gap-2">
-              <FileText :size="19" class="text-app-text-muted" />
+        <header
+          class="border-b border-app-border bg-gradient-to-br from-white to-secondary-soft/30 px-6 py-6 sm:px-7"
+        >
+          <div
+            class="flex flex-wrap items-center gap-2"
+          >
+            <span
+              class="rounded-pill px-2.5 py-1 text-xs font-semibold"
+              :class="
+                selectedAssignment.expired
+                  ? 'bg-danger-soft text-danger'
+                  : 'bg-ai-soft text-ai'
+              "
+            >
+              {{
+                selectedAssignment.expired
+                  ? 'Đã quá hạn'
+                  : 'Đang mở'
+              }}
+            </span>
 
-              <h3 class="font-heading text-lg font-bold text-app-text">
+            <span
+              v-if="
+                assignmentStatus(
+                  selectedAssignment,
+                ) === 'GRADED'
+              "
+              class="rounded-pill bg-ai-soft px-2.5 py-1 text-xs font-semibold text-ai"
+            >
+              Đã chấm điểm
+            </span>
+          </div>
+
+          <h2
+            class="mt-3 font-heading text-2xl font-bold leading-tight text-app-text sm:text-3xl"
+          >
+            {{ selectedAssignment.title }}
+          </h2>
+
+          <div
+            class="mt-3 flex flex-wrap gap-x-5 gap-y-2 text-sm text-app-text-muted"
+          >
+            <span
+              class="inline-flex items-center gap-1.5"
+            >
+              <CalendarClock :size="15" />
+              Hạn
+              {{
+                formatDateTime(
+                  selectedAssignment.dueAt,
+                )
+              }}
+            </span>
+
+            <span>
+              {{
+                selectedAssignment.maxScore
+              }}
+              điểm
+            </span>
+          </div>
+        </header>
+
+        <div
+          class="grid lg:grid-cols-[minmax(0,1fr)_19rem]"
+        >
+          <article class="p-6 sm:p-7">
+            <h3
+              class="font-heading text-lg font-bold text-app-text"
+            >
+              Nội dung bài tập
+            </h3>
+
+            <div class="mt-5">
+              <RichTextViewer
+                v-if="
+                  hasSelectedDescription
+                "
+                :content="
+                  selectedDescription
+                "
+              />
+
+              <p
+                v-else
+                class="text-sm text-app-text-muted"
+              >
+                Bài tập không có nội dung
+                hướng dẫn.
+              </p>
+            </div>
+          </article>
+
+          <aside
+            class="border-t border-app-border bg-app-surface-muted/40 p-6 lg:border-l lg:border-t-0"
+          >
+            <template
+              v-if="!currentSubmission"
+            >
+              <FileText
+                :size="21"
+                class="text-app-text-muted"
+              />
+
+              <h3
+                class="mt-4 font-heading font-bold text-app-text"
+              >
                 Bài làm của bạn
               </h3>
-            </div>
 
-            <p class="mt-2 text-sm text-app-text-muted">
-              Bạn chưa nộp bài tập này.
-            </p>
+              <p
+                class="mt-2 text-sm leading-6 text-app-text-muted"
+              >
+                Bạn chưa nộp bài tập này.
+              </p>
 
-            <p
-              v-if="selectedAssignment.expired"
-              class="mt-2 text-sm font-medium text-danger"
-            >
-              Bài tập đã quá hạn. Bài nộp mới sẽ được ghi nhận là nộp trễ.
-            </p>
-          </div>
+              <BaseButton
+                class="mt-5"
+                block
+                @click="
+                  openCreateSubmission
+                "
+              >
+                <template #leading>
+                  <Upload :size="16" />
+                </template>
 
-          <BaseButton @click="openCreateSubmission">
-            <template #leading>
-              <Upload :size="16" />
+                {{
+                  selectedAssignment.expired
+                    ? 'Nộp bài trễ'
+                    : 'Làm bài'
+                }}
+              </BaseButton>
             </template>
 
-            {{ selectedAssignment.expired ? 'Nộp bài trễ' : 'Làm bài' }}
-          </BaseButton>
-        </div>
-      </section>
+            <template v-else>
+              <ClipboardCheck
+                :size="21"
+                :class="
+                  currentSubmission.status ===
+                  'GRADED'
+                    ? 'text-ai'
+                    : 'text-secondary'
+                "
+              />
 
-      <!-- ===================================================
-           SUBMITTED
-           =================================================== -->
-      <section
-        v-else-if="currentSubmission.status === 'SUBMITTED'"
-        class="rounded-card border border-app-border bg-app-surface p-6 shadow-card"
-      >
-        <div class="flex flex-col gap-5 sm:flex-row sm:items-start sm:justify-between">
-          <div>
-            <div class="flex flex-wrap items-center gap-2">
-              <ClipboardCheck :size="19" class="text-secondary" />
-
-              <h3 class="font-heading text-lg font-bold text-app-text">
-                Bài đã nộp
+              <h3
+                class="mt-4 font-heading font-bold text-app-text"
+              >
+                {{
+                  currentSubmission.status ===
+                  'GRADED'
+                    ? 'Đã chấm điểm'
+                    : 'Bài đã nộp'
+                }}
               </h3>
 
-              <span class="rounded-pill bg-secondary-soft px-2.5 py-1 text-xs font-semibold text-secondary">
-                Chờ chấm
-              </span>
-
-              <span
-                v-if="currentSubmission.late"
-                class="rounded-pill bg-danger-soft px-2.5 py-1 text-xs font-semibold text-danger"
+              <p
+                class="mt-2 text-sm text-app-text-muted"
               >
-                Nộp trễ
-              </span>
-            </div>
-
-            <p class="mt-2 text-sm text-app-text-muted">
-              Nộp lúc {{ formatDateTime(currentSubmission.submittedAt) }}
-            </p>
-
-            <p class="mt-1 text-sm text-app-text-muted">
-              Bạn có thể chỉnh sửa bài làm trước khi giảng viên chấm.
-            </p>
-          </div>
-
-          <div class="flex flex-wrap gap-2">
-            <BaseButton variant="secondary" @click="openViewSubmission">
-              <template #leading>
-                <Eye :size="16" />
-              </template>
-
-              Xem bài đã nộp
-            </BaseButton>
-
-            <BaseButton @click="openEditSubmission">
-              Chỉnh sửa bài nộp
-            </BaseButton>
-          </div>
-        </div>
-      </section>
-
-      <!-- ===================================================
-           GRADED
-           =================================================== -->
-      <section
-        v-else
-        class="overflow-hidden rounded-card border border-ai/20 bg-app-surface shadow-card"
-      >
-        <div class="border-b border-ai/20 bg-ai-soft px-6 py-5">
-          <div class="flex items-center gap-2 text-ai">
-            <CheckCircle2 :size="20" />
-
-            <h3 class="font-heading text-lg font-bold">
-              Bài tập đã được chấm
-            </h3>
-          </div>
-        </div>
-
-        <div class="p-6">
-          <div class="grid gap-5 sm:grid-cols-[12rem_minmax(0,1fr)]">
-            <div>
-              <p class="text-xs font-semibold uppercase tracking-wide text-app-text-muted">
-                Điểm
-              </p>
-
-              <p class="mt-2 font-heading text-3xl font-bold text-app-text">
-                {{ currentSubmission.score }}
-                <span class="text-lg font-semibold text-app-text-muted">
-                  / {{ selectedAssignment.maxScore }}
-                </span>
-              </p>
-            </div>
-
-            <div>
-              <p class="text-xs font-semibold uppercase tracking-wide text-app-text-muted">
-                Nhận xét của giảng viên
+                Nộp
+                {{
+                  formatDateTime(
+                    currentSubmission.submittedAt,
+                  )
+                }}
               </p>
 
               <p
-                v-if="currentSubmission.feedback"
-                class="mt-2 whitespace-pre-wrap text-sm leading-7 text-app-text"
+                v-if="
+                  currentSubmission.status ===
+                  'GRADED'
+                "
+                class="mt-4 font-heading text-2xl font-bold text-app-text"
               >
-                {{ currentSubmission.feedback }}
+                {{
+                  currentSubmission.score
+                }}
+                /
+                {{
+                  selectedAssignment.maxScore
+                }}
               </p>
 
-              <p v-else class="mt-2 text-sm text-app-text-muted">
-                Giảng viên không để lại nhận xét.
-              </p>
-            </div>
-          </div>
+              <BaseButton
+                class="mt-5"
+                block
+                variant="secondary"
+                @click="
+                  openViewSubmission
+                "
+              >
+                <template #leading>
+                  <Eye :size="16" />
+                </template>
 
-          <div class="mt-6 flex justify-end border-t border-app-border pt-5">
-            <BaseButton variant="secondary" @click="openViewSubmission">
-              <template #leading>
-                <Eye :size="16" />
-              </template>
-
-              Xem bài đã nộp
-            </BaseButton>
-          </div>
+                Xem bài đã nộp
+              </BaseButton>
+            </template>
+          </aside>
         </div>
       </section>
     </template>
 
-    <!-- =====================================================
-         SUBMISSION MODAL
-         ===================================================== -->
     <BaseModal
       :open="submissionModalOpen"
-      :title="submissionMode === 'edit'
-        ? currentSubmission
-          ? 'Chỉnh sửa bài nộp'
-          : 'Nộp bài tập'
-        : 'Bài đã nộp'"
-      :description="selectedAssignment?.title"
+      :title="
+        submissionMode === 'view'
+          ? 'Bài đã nộp'
+          : currentSubmission
+            ? 'Chỉnh sửa bài nộp'
+            : 'Nộp bài tập'
+      "
+      :description="
+        submissionMode === 'view'
+          ? 'Nội dung bài làm và tệp đính kèm của bạn.'
+          : 'Soạn nội dung bài làm và đính kèm tệp nếu cần.'
+      "
       :loading="submitting"
       max-width="max-w-3xl"
       @close="closeSubmissionModal"
     >
-      <!-- View submission -->
       <div
-        v-if="submissionMode === 'view' && currentSubmission"
+        v-if="
+          currentSubmission &&
+          submissionMode === 'view'
+        "
         class="space-y-6"
       >
-        <div class="flex flex-wrap items-center gap-2">
+        <div
+          class="flex flex-wrap items-center gap-2"
+        >
           <span
             class="rounded-pill px-2.5 py-1 text-xs font-semibold"
             :class="
-              currentSubmission.status === 'GRADED'
+              currentSubmission.status ===
+              'GRADED'
                 ? 'bg-ai-soft text-ai'
                 : 'bg-secondary-soft text-secondary'
             "
           >
-            {{ currentSubmission.status === 'GRADED' ? 'Đã chấm' : 'Đã nộp' }}
+            {{
+              currentSubmission.status ===
+              'GRADED'
+                ? 'Đã chấm'
+                : 'Chờ chấm'
+            }}
           </span>
 
           <span
@@ -621,155 +829,287 @@ onMounted(() => void load())
             Nộp trễ
           </span>
 
-          <span class="text-sm text-app-text-muted">
-            {{ formatDateTime(currentSubmission.submittedAt) }}
+          <span
+            class="text-xs text-app-text-muted"
+          >
+            {{
+              formatDateTime(
+                currentSubmission.submittedAt,
+              )
+            }}
           </span>
         </div>
 
         <section>
-          <p class="text-xs font-semibold uppercase tracking-wide text-app-text-muted">
+          <p
+            class="text-xs font-bold uppercase tracking-[0.12em] text-app-text-muted"
+          >
             Nội dung bài làm
           </p>
 
-          <div class="mt-3 rounded-card bg-app-surface-muted/60 p-4">
-            <p class="whitespace-pre-wrap text-sm leading-7 text-app-text">
-              {{ currentSubmission.content || 'Không có nội dung văn bản.' }}
+          <div
+            class="mt-3 rounded-[1rem] border border-app-border bg-app-surface p-5"
+          >
+            <RichTextViewer
+              v-if="
+                hasCurrentSubmissionContent
+              "
+              :content="
+                currentSubmissionContent
+              "
+            />
+
+            <p
+              v-else
+              class="text-sm text-app-text-muted"
+            >
+              Không có nội dung văn bản.
             </p>
           </div>
         </section>
 
-        <section v-if="currentSubmission.attachmentUrl">
-          <p class="text-xs font-semibold uppercase tracking-wide text-app-text-muted">
-            Tệp đính kèm
+        <a
+          v-if="
+            currentSubmission.attachmentUrl
+          "
+          :href="
+            currentSubmission.attachmentUrl
+          "
+          target="_blank"
+          rel="noopener noreferrer"
+          class="flex items-center gap-3 rounded-[1rem] border border-app-border bg-app-surface-muted/40 p-4 transition hover:border-secondary/30 hover:bg-secondary-soft/30"
+        >
+          <div
+            class="flex h-10 w-10 items-center justify-center rounded-xl bg-secondary-soft text-secondary"
+          >
+            <Paperclip :size="17" />
+          </div>
+
+          <div class="min-w-0 flex-1">
+            <p
+              class="truncate text-sm font-semibold text-app-text"
+            >
+              {{
+                currentSubmission.originalFileName ||
+                'Tệp đính kèm'
+              }}
+            </p>
+
+            <p
+              class="mt-0.5 text-xs text-app-text-muted"
+            >
+              Mở tệp đính kèm
+            </p>
+          </div>
+        </a>
+
+        <section
+          v-if="
+            currentSubmission.status ===
+            'GRADED'
+          "
+          class="rounded-[1rem] border border-ai/20 bg-ai-soft p-5"
+        >
+          <div
+            class="flex items-center gap-2 text-ai"
+          >
+            <CheckCircle2 :size="18" />
+
+            <span
+              class="text-sm font-semibold"
+            >
+              Kết quả
+            </span>
+          </div>
+
+          <p
+            class="mt-3 font-heading text-2xl font-bold text-app-text"
+          >
+            {{
+              currentSubmission.score
+            }}
+            /
+            {{
+              selectedAssignment?.maxScore
+            }}
           </p>
 
-          <a
-            :href="currentSubmission.attachmentUrl"
-            target="_blank"
-            rel="noopener noreferrer"
-            class="mt-3 inline-flex items-center gap-2 rounded-control border border-app-border px-4 py-3 text-sm font-semibold text-secondary transition hover:bg-app-surface-muted"
+          <div
+            v-if="
+              currentSubmission.feedback
+            "
+            class="mt-4 border-t border-ai/15 pt-4"
           >
-            <Paperclip :size="16" />
-            {{ currentSubmission.originalFileName || 'Xem tệp đã nộp' }}
-          </a>
+            <p
+              class="text-xs font-semibold text-ai"
+            >
+              Nhận xét của giảng viên
+            </p>
+
+            <p
+              class="mt-2 whitespace-pre-wrap text-sm leading-6 text-app-text-muted"
+            >
+              {{
+                currentSubmission.feedback
+              }}
+            </p>
+          </div>
         </section>
 
         <div
-          v-if="currentSubmission.status !== 'GRADED'"
-          class="flex flex-wrap justify-end gap-3 border-t border-app-border pt-5"
+          class="flex justify-end gap-3 border-t border-app-border pt-5"
         >
-          <button
-            type="button"
-            class="inline-flex h-11 items-center gap-2 rounded-control bg-danger-soft px-4 text-sm font-semibold text-danger transition hover:opacity-80"
-            @click="openDeleteSubmission"
+          <template
+            v-if="
+              currentSubmission.status !==
+              'GRADED'
+            "
           >
-            <Trash2 :size="16" />
-            Xóa bài nộp
-          </button>
+            <button
+              type="button"
+              class="inline-flex h-11 items-center gap-2 rounded-control px-4 text-sm font-semibold text-danger transition hover:bg-danger-soft"
+              @click="
+                openDeleteSubmission
+              "
+            >
+              <Trash2 :size="16" />
+              Xóa bài
+            </button>
 
-          <BaseButton @click="openEditSubmission">
-            Chỉnh sửa bài nộp
+            <BaseButton
+              variant="secondary"
+              @click="
+                openEditSubmission
+              "
+            >
+              Chỉnh sửa
+            </BaseButton>
+          </template>
+
+          <BaseButton
+            @click="
+              closeSubmissionModal
+            "
+          >
+            Đóng
           </BaseButton>
         </div>
       </div>
 
-      <!-- Edit / create submission -->
-      <form v-else class="space-y-5" @submit.prevent="submit">
-        <label class="block">
-          <span class="mb-2 block text-sm font-semibold text-app-text">
-            Nội dung bài làm
-          </span>
+      <form
+        v-else
+        class="space-y-6"
+        @submit.prevent="submit"
+      >
+        <div>
+          <div
+            class="mb-2 flex items-center justify-between gap-3"
+          >
+            <label
+              class="text-sm font-semibold text-app-text"
+            >
+              Nội dung bài làm
+            </label>
 
-          <textarea
-            v-model="content"
-            rows="9"
-            maxlength="20000"
-            placeholder="Nhập nội dung bài làm..."
-            class="w-full resize-y rounded-control border border-app-border bg-app-surface px-3 py-3 text-sm leading-6 outline-none focus:border-secondary focus:ring-2 focus:ring-secondary/20"
+            <span
+              class="text-xs text-app-text-muted"
+            >
+              Hỗ trợ định dạng văn bản
+            </span>
+          </div>
+
+          <RichTextEditor
+            v-model="submissionContent"
+            :disabled="submitting"
           />
-        </label>
+        </div>
 
-        <label class="block">
-          <span class="mb-2 block text-sm font-semibold text-app-text">
+        <div>
+          <label
+            class="text-sm font-semibold text-app-text"
+          >
             Tệp đính kèm
-          </span>
+          </label>
 
-          <div class="rounded-card border border-dashed border-app-border bg-app-surface-muted/40 p-4">
+          <div
+            class="mt-2 rounded-[1rem] border border-dashed border-app-border bg-app-surface-muted/30 p-4"
+          >
             <input
               :key="fileInputKey"
               type="file"
-              class="block w-full text-sm text-app-text-muted"
+              :disabled="submitting"
+              class="block w-full text-sm text-app-text file:mr-4 file:rounded-control file:border-0 file:bg-secondary-soft file:px-4 file:py-2 file:text-sm file:font-semibold file:text-secondary"
               @change="onFileChange"
             />
 
-            <p v-if="file" class="mt-2 text-sm font-medium text-app-text">
-              Đã chọn: {{ file.name }}
+            <p
+              v-if="
+                currentSubmission
+                  ?.originalFileName
+              "
+              class="mt-3 text-xs text-app-text-muted"
+            >
+              Tệp hiện tại:
+              <span
+                class="font-medium text-app-text"
+              >
+                {{
+                  currentSubmission.originalFileName
+                }}
+              </span>
+            </p>
+
+            <p
+              class="mt-2 text-xs text-app-text-muted"
+            >
+              Có thể nộp nội dung,
+              tệp đính kèm hoặc cả hai.
             </p>
           </div>
-        </label>
-
-        <div
-          v-if="currentSubmission?.attachmentUrl"
-          class="rounded-card border border-app-border bg-app-surface-muted/40 p-4"
-        >
-          <p class="text-xs font-semibold uppercase tracking-wide text-app-text-muted">
-            Tệp hiện tại
-          </p>
-
-          <a
-            :href="currentSubmission.attachmentUrl"
-            target="_blank"
-            rel="noopener noreferrer"
-            class="mt-2 inline-flex items-center gap-2 text-sm font-semibold text-secondary hover:underline"
-          >
-            <Paperclip :size="15" />
-            {{ currentSubmission.originalFileName || 'Xem tệp đã nộp' }}
-          </a>
-
-          <p class="mt-2 text-xs text-app-text-muted">
-            Nếu không chọn tệp mới, tệp hiện tại sẽ được giữ nguyên.
-          </p>
         </div>
 
-        <p
-          v-if="selectedAssignment?.expired"
-          class="rounded-control bg-danger-soft px-4 py-3 text-sm font-medium text-danger"
+        <div
+          class="flex justify-end gap-3 border-t border-app-border pt-5"
         >
-          Bài tập đã quá hạn. Bài nộp sẽ được ghi nhận là nộp trễ.
-        </p>
-
-        <div class="flex justify-end gap-3 border-t border-app-border pt-5">
           <BaseButton
             type="button"
             variant="secondary"
             :disabled="submitting"
-            @click="closeSubmissionModal"
+            @click="
+              closeSubmissionModal
+            "
           >
             Hủy
           </BaseButton>
 
-          <BaseButton type="submit" :loading="submitting">
+          <BaseButton
+            type="submit"
+            :loading="submitting"
+          >
             <template #leading>
               <Upload :size="16" />
             </template>
 
-            {{ currentSubmission ? 'Lưu thay đổi' : 'Nộp bài' }}
+            {{
+              currentSubmission
+                ? 'Cập nhật bài nộp'
+                : 'Nộp bài'
+            }}
           </BaseButton>
         </div>
       </form>
     </BaseModal>
 
-    <!-- =====================================================
-         DELETE SUBMISSION
-         ===================================================== -->
     <ConfirmDialog
       :open="deleteOpen"
       title="Xóa bài đã nộp?"
-      description="Bài làm hiện tại và tệp đính kèm sẽ bị xóa. Bạn có thể nộp lại nếu bài chưa được chấm."
-      confirm-text="Xóa bài nộp"
+      description="Bạn có chắc muốn xóa bài nộp hiện tại?"
+      confirm-text="Xóa bài"
       :loading="deleting"
-      @close="!deleting && (deleteOpen = false)"
-      @confirm="handleDeleteSubmission"
+      @close="deleteOpen = false"
+      @confirm="
+        handleDeleteSubmission
+      "
     />
   </section>
 </template>

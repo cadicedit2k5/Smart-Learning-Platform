@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, reactive, watch } from 'vue'
+import { computed, reactive, ref, watch } from 'vue'
 
 import {
   BaseAlert,
@@ -7,8 +7,15 @@ import {
   BaseInput,
   BaseModal,
 } from '@/shared/components'
-
 import type { Assignment } from '@/shared/assignment/types'
+import type { TopicContent } from '@/shared/course-content'
+import {
+  createEmptyRichText,
+  parseStoredRichText,
+  RichTextEditor,
+  serializeRichText,
+} from '@/shared/rich-text'
+
 import type { AssignmentInput } from '../api/assignmentApi'
 
 const props = withDefaults(
@@ -32,10 +39,11 @@ const emit = defineEmits<{
 
 const form = reactive({
   title: '',
-  description: '',
   dueAt: '',
   maxScore: '10',
 })
+
+const description = ref<TopicContent>(createEmptyRichText())
 
 const errors = reactive({
   title: '',
@@ -49,20 +57,15 @@ const toLocalDateTime = (value?: string | null) => {
   if (!value) return ''
 
   const date = new Date(value)
-
-  const local = new Date(
-    date.getTime() - date.getTimezoneOffset() * 60_000,
-  )
-
+  const local = new Date(date.getTime() - date.getTimezoneOffset() * 60_000)
   return local.toISOString().slice(0, 16)
 }
 
 const reset = () => {
   form.title = props.assignment?.title ?? ''
-  form.description = props.assignment?.description ?? ''
+  description.value = parseStoredRichText(props.assignment?.description)
   form.dueAt = toLocalDateTime(props.assignment?.dueAt)
   form.maxScore = String(props.assignment?.maxScore ?? 10)
-
   errors.title = ''
   errors.dueAt = ''
   errors.maxScore = ''
@@ -71,13 +74,9 @@ const reset = () => {
 watch(
   () => [props.open, props.assignment],
   () => {
-    if (props.open) {
-      reset()
-    }
+    if (props.open) reset()
   },
-  {
-    immediate: true,
-  },
+  { immediate: true },
 )
 
 const validate = () => {
@@ -99,19 +98,17 @@ const validate = () => {
     errors.maxScore = 'Điểm tối đa phải lớn hơn 0.'
   }
 
-  return !(
-    errors.title ||
-    errors.dueAt ||
-    errors.maxScore
-  )
+  return !(errors.title || errors.dueAt || errors.maxScore)
 }
 
 const submit = () => {
   if (!validate()) return
 
+  const serializedDescription = serializeRichText(description.value)
+
   emit('submit', {
     title: form.title.trim(),
-    description: form.description.trim() || undefined,
+    description: serializedDescription || undefined,
     dueAt: new Date(form.dueAt).toISOString(),
     maxScore: Number(form.maxScore),
   })
@@ -124,11 +121,11 @@ const submit = () => {
     :title="isEditing ? 'Chỉnh sửa bài tập' : 'Tạo bài tập'"
     :description="
       isEditing
-        ? 'Cập nhật yêu cầu, hạn nộp và điểm tối đa.'
-        : 'Tạo bài tập mới cho học viên trong khóa học.'
+        ? 'Cập nhật yêu cầu, hạn nộp và điểm của bài tập.'
+        : 'Tạo một hoạt động đánh giá mới cho khóa học.'
     "
     :loading="loading"
-    max-width="max-w-2xl"
+    max-width="max-w-3xl"
     @close="emit('close')"
   >
     <form class="space-y-5" @submit.prevent="submit">
@@ -139,27 +136,29 @@ const submit = () => {
       <BaseInput
         v-model="form.title"
         label="Tên bài tập"
-        placeholder="Ví dụ: Bài tập REST API"
+        placeholder="Ví dụ: Xây dựng REST API"
         maxlength="255"
         required
         :disabled="loading"
         :error="errors.title"
       />
 
-      <label class="block">
-        <span class="mb-2 block text-sm font-semibold text-app-text">
-          Mô tả bài tập
-        </span>
+      <div>
+        <div class="mb-2 flex items-center justify-between gap-3">
+          <label class="text-sm font-semibold text-app-text">
+            Nội dung và hướng dẫn
+          </label>
 
-        <textarea
-          v-model="form.description"
-          rows="7"
-          maxlength="10000"
+          <span class="text-xs text-app-text-muted">
+            Có thể định dạng nội dung bằng Tiptap
+          </span>
+        </div>
+
+        <RichTextEditor
+          v-model="description"
           :disabled="loading"
-          placeholder="Nhập yêu cầu và hướng dẫn làm bài..."
-          class="w-full resize-y rounded-control border border-app-border bg-app-surface px-3 py-2.5 text-sm text-app-text outline-none transition focus:border-secondary focus:ring-2 focus:ring-secondary/20 disabled:opacity-60"
         />
-      </label>
+      </div>
 
       <div class="grid gap-5 sm:grid-cols-2">
         <BaseInput
@@ -193,10 +192,7 @@ const submit = () => {
           Hủy
         </BaseButton>
 
-        <BaseButton
-          type="submit"
-          :loading="loading"
-        >
+        <BaseButton type="submit" :loading="loading">
           {{ isEditing ? 'Lưu thay đổi' : 'Tạo bài tập' }}
         </BaseButton>
       </div>

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { reactive, watch } from 'vue'
+import { reactive, ref, watch } from 'vue'
 
 import {
   BaseAlert,
@@ -7,8 +7,16 @@ import {
   BaseInput,
   BaseModal,
 } from '@/shared/components'
-
 import type { CourseAnnouncement } from '@/shared/announcement/types'
+import type { TopicContent } from '@/shared/course-content'
+import {
+  createEmptyRichText,
+  hasRichTextContent,
+  parseStoredRichText,
+  RichTextEditor,
+  serializeRichText,
+} from '@/shared/rich-text'
+
 import type { AnnouncementInput } from '../api/announcementApi'
 
 const props = withDefaults(
@@ -30,25 +38,21 @@ const emit = defineEmits<{
   submit: [input: AnnouncementInput]
 }>()
 
-const form = reactive({
-  title: '',
-  content: '',
-})
+const form = reactive({ title: '' })
+const content = ref<TopicContent>(createEmptyRichText())
+const errors = reactive({ title: '', content: '' })
 
-const errors = reactive({
-  title: '',
-  content: '',
-})
+const reset = () => {
+  form.title = props.announcement?.title ?? ''
+  content.value = parseStoredRichText(props.announcement?.content)
+  errors.title = ''
+  errors.content = ''
+}
 
 watch(
   () => [props.open, props.announcement],
   () => {
-    if (!props.open) return
-
-    form.title = props.announcement?.title ?? ''
-    form.content = props.announcement?.content ?? ''
-    errors.title = ''
-    errors.content = ''
+    if (props.open) reset()
   },
   { immediate: true },
 )
@@ -61,7 +65,7 @@ const submit = () => {
     errors.title = 'Vui lòng nhập tiêu đề thông báo.'
   }
 
-  if (!form.content.trim()) {
+  if (!hasRichTextContent(content.value)) {
     errors.content = 'Vui lòng nhập nội dung thông báo.'
   }
 
@@ -69,7 +73,7 @@ const submit = () => {
 
   emit('submit', {
     title: form.title.trim(),
-    content: form.content.trim(),
+    content: serializeRichText(content.value),
   })
 }
 </script>
@@ -78,8 +82,13 @@ const submit = () => {
   <BaseModal
     :open="open"
     :title="announcement ? 'Chỉnh sửa thông báo' : 'Tạo thông báo'"
+    :description="
+      announcement
+        ? 'Cập nhật nội dung thông báo dành cho học viên.'
+        : 'Đăng thông tin mới đến các học viên trong khóa học.'
+    "
     :loading="loading"
-    max-width="max-w-2xl"
+    max-width="max-w-3xl"
     @close="emit('close')"
   >
     <form class="space-y-5" @submit.prevent="submit">
@@ -90,39 +99,42 @@ const submit = () => {
       <BaseInput
         v-model="form.title"
         label="Tiêu đề"
+        placeholder="Ví dụ: Thay đổi lịch học tuần này"
         maxlength="255"
         required
         :disabled="loading"
         :error="errors.title"
       />
 
-      <label class="block">
-        <span class="mb-2 block text-sm font-semibold text-app-text">
-          Nội dung <span class="text-danger">*</span>
-        </span>
+      <div>
+        <div class="mb-2 flex items-center justify-between gap-3">
+          <label class="text-sm font-semibold text-app-text">
+            Nội dung <span class="text-danger">*</span>
+          </label>
 
-        <textarea
-          v-model="form.content"
-          rows="7"
-          maxlength="10000"
+          <span class="text-xs text-app-text-muted">
+            Hỗ trợ tiêu đề, danh sách, code và trích dẫn
+          </span>
+        </div>
+
+        <RichTextEditor
+          v-model="content"
           :disabled="loading"
-          class="w-full resize-y rounded-control border border-app-border bg-app-surface px-3 py-2.5 text-sm text-app-text outline-none transition focus:border-secondary focus:ring-2 focus:ring-secondary/20"
-          placeholder="Nhập nội dung thông báo..."
         />
 
         <p v-if="errors.content" class="mt-2 text-sm text-danger">
           {{ errors.content }}
         </p>
-      </label>
+      </div>
 
       <div class="flex justify-end gap-3 border-t border-app-border pt-5">
         <BaseButton
-        type="button"
-        variant="secondary"
-        :disabled="loading"
-        @click="emit('close')"
+          type="button"
+          variant="secondary"
+          :disabled="loading"
+          @click="emit('close')"
         >
-        Hủy
+          Hủy
         </BaseButton>
 
         <BaseButton type="submit" :loading="loading">

@@ -4,14 +4,15 @@ import {
   ArrowLeft,
   CalendarClock,
   CheckCircle2,
+  ChevronRight,
   ClipboardList,
-  Eye,
   FileText,
   Pencil,
   Plus,
   RefreshCw,
   Trash2,
   UserRound,
+  UsersRound,
 } from 'lucide-vue-next'
 
 import {
@@ -19,11 +20,17 @@ import {
   BaseButton,
   ConfirmDialog,
 } from '@/shared/components'
-
 import type {
   Assignment,
   AssignmentSubmission,
 } from '@/shared/assignment/types'
+import {
+  hasRichTextContent,
+  parseStoredRichText,
+  RichTextViewer,
+  storedRichTextToPlainText,
+} from '@/shared/rich-text'
+import { formatDateTime } from '@/shared/utils/date'
 
 import {
   createAssignment,
@@ -35,20 +42,15 @@ import {
   type AssignmentInput,
   type GradeInput,
 } from '../api/assignmentApi'
-
 import {
   getUserLookup,
   type UserLookup,
 } from '../api/memberApi'
-
 import AssignmentFormModal from './AssignmentFormModal.vue'
 import SubmissionReviewModal from './SubmissionReviewModal.vue'
 import { useLecturerApiError } from '../composables/useLecturerApiError'
-import { formatDateTime } from '@/shared/utils/date'
 
-const props = defineProps<{
-  courseId: string
-}>()
+const props = defineProps<{ courseId: string }>()
 
 const { handleApiError } = useLecturerApiError()
 
@@ -57,26 +59,19 @@ type AssignmentView = 'overview' | 'submissions'
 const assignments = ref<Assignment[]>([])
 const selectedAssignment = ref<Assignment | null>(null)
 const assignmentView = ref<AssignmentView>('overview')
-
 const submissions = ref<AssignmentSubmission[]>([])
 const submissionsLoaded = ref(false)
-
 const users = ref<Record<string, UserLookup>>({})
-
 const loadingAssignments = ref(true)
 const loadingSubmissions = ref(false)
-
 const actionMessage = ref('')
 const successMessage = ref('')
-
 const formOpen = ref(false)
 const editingAssignment = ref<Assignment | null>(null)
 const saving = ref(false)
 const formMessage = ref('')
-
 const deleteOpen = ref(false)
 const deleting = ref(false)
-
 const reviewOpen = ref(false)
 const reviewingSubmission = ref<AssignmentSubmission | null>(null)
 const grading = ref(false)
@@ -89,9 +84,19 @@ const ungradedCount = computed(() =>
   submissions.value.length - gradedCount.value,
 )
 
+const selectedDescription = computed(() =>
+  parseStoredRichText(selectedAssignment.value?.description),
+)
+
+const hasSelectedDescription = computed(() =>
+  hasRichTextContent(selectedDescription.value),
+)
+
+const preview = (value: string | null) =>
+  storedRichTextToPlainText(value)
+
 const studentName = (studentId: string) => {
   const user = users.value[studentId]
-
   return user?.fullName || user?.email || studentId
 }
 
@@ -100,9 +105,7 @@ const studentEmail = (studentId: string) =>
 
 const sortAssignments = () => {
   assignments.value.sort(
-    (a, b) =>
-      new Date(a.dueAt).getTime() -
-      new Date(b.dueAt).getTime(),
+    (a, b) => new Date(a.dueAt).getTime() - new Date(b.dueAt).getTime(),
   )
 }
 
@@ -123,27 +126,17 @@ const loadAssignments = async () => {
   }
 }
 
-const loadUserLookups = async (
-  items: AssignmentSubmission[],
-) => {
-  const ids = [
-    ...new Set(
-      items.map((item) => item.studentId),
-    ),
-  ].filter((id) => !users.value[id])
+const loadUserLookups = async (items: AssignmentSubmission[]) => {
+  const ids = [...new Set(items.map((item) => item.studentId))]
+    .filter((id) => !users.value[id])
 
   await Promise.all(
     ids.map(async (id) => {
       try {
         const user = await getUserLookup(id)
-
-        users.value = {
-          ...users.value,
-          [id]: user,
-        }
+        users.value = { ...users.value, [id]: user }
       } catch {
-        // Nếu không lấy được thông tin user,
-        // giao diện vẫn hiển thị studentId.
+        // Giữ studentId nếu user lookup thất bại.
       }
     }),
   )
@@ -163,7 +156,6 @@ const loadSubmissions = async () => {
 
     submissions.value = result
     submissionsLoaded.value = true
-
     await loadUserLookups(result)
   } catch (error) {
     actionMessage.value = handleApiError(
@@ -178,10 +170,8 @@ const loadSubmissions = async () => {
 const openAssignment = (assignment: Assignment) => {
   selectedAssignment.value = assignment
   assignmentView.value = 'overview'
-
   submissions.value = []
   submissionsLoaded.value = false
-
   actionMessage.value = ''
   successMessage.value = ''
 }
@@ -189,10 +179,8 @@ const openAssignment = (assignment: Assignment) => {
 const backToAssignments = () => {
   selectedAssignment.value = null
   assignmentView.value = 'overview'
-
   submissions.value = []
   submissionsLoaded.value = false
-
   reviewOpen.value = false
   reviewingSubmission.value = null
 }
@@ -203,7 +191,6 @@ const openOverview = () => {
 
 const openSubmissions = async () => {
   if (!selectedAssignment.value) return
-
   assignmentView.value = 'submissions'
 
   if (!submissionsLoaded.value) {
@@ -219,7 +206,6 @@ const openCreate = () => {
 
 const openEdit = () => {
   if (!selectedAssignment.value) return
-
   editingAssignment.value = selectedAssignment.value
   formMessage.value = ''
   formOpen.value = true
@@ -227,15 +213,12 @@ const openEdit = () => {
 
 const closeForm = () => {
   if (saving.value) return
-
   formOpen.value = false
   editingAssignment.value = null
   formMessage.value = ''
 }
 
-const submitForm = async (
-  input: AssignmentInput,
-) => {
+const submitForm = async (input: AssignmentInput) => {
   saving.value = true
   formMessage.value = ''
   successMessage.value = ''
@@ -249,35 +232,17 @@ const submitForm = async (
         input,
       )
 
-      const index = assignments.value.findIndex(
-        (item) => item.id === updated.id,
-      )
-
-      if (index >= 0) {
-        assignments.value[index] = updated
-      }
-
-      if (
-        selectedAssignment.value?.id === updated.id
-      ) {
-        selectedAssignment.value = updated
-      }
+      const index = assignments.value.findIndex((item) => item.id === updated.id)
+      if (index >= 0) assignments.value[index] = updated
+      if (selectedAssignment.value?.id === updated.id) selectedAssignment.value = updated
 
       sortAssignments()
-
-      successMessage.value =
-        'Đã cập nhật bài tập.'
+      successMessage.value = 'Đã cập nhật bài tập.'
     } else {
-      const created = await createAssignment(
-        props.courseId,
-        input,
-      )
-
+      const created = await createAssignment(props.courseId, input)
       assignments.value.push(created)
       sortAssignments()
-
-      successMessage.value =
-        'Đã tạo bài tập mới.'
+      successMessage.value = 'Đã tạo bài tập mới.'
     }
 
     formOpen.value = false
@@ -294,7 +259,6 @@ const submitForm = async (
 
 const confirmDelete = () => {
   if (!selectedAssignment.value) return
-
   actionMessage.value = ''
   deleteOpen.value = true
 }
@@ -304,23 +268,14 @@ const handleDelete = async () => {
 
   deleting.value = true
   actionMessage.value = ''
-
   const deletingId = selectedAssignment.value.id
 
   try {
-    await deleteAssignment(
-      props.courseId,
-      deletingId,
-    )
-
-    assignments.value = assignments.value.filter(
-      (item) => item.id !== deletingId,
-    )
-
+    await deleteAssignment(props.courseId, deletingId)
+    assignments.value = assignments.value.filter((item) => item.id !== deletingId)
     deleteOpen.value = false
-    successMessage.value = 'Đã xóa bài tập.'
-
     backToAssignments()
+    successMessage.value = 'Đã xóa bài tập.'
   } catch (error) {
     actionMessage.value = handleApiError(
       error,
@@ -331,31 +286,20 @@ const handleDelete = async () => {
   }
 }
 
-const openSubmission = (
-  submission: AssignmentSubmission,
-) => {
+const openSubmission = (submission: AssignmentSubmission) => {
   reviewingSubmission.value = submission
   reviewOpen.value = true
-
   actionMessage.value = ''
 }
 
 const closeSubmission = () => {
   if (grading.value) return
-
   reviewOpen.value = false
   reviewingSubmission.value = null
 }
 
-const handleGrade = async (
-  input: GradeInput,
-) => {
-  if (
-    !selectedAssignment.value ||
-    !reviewingSubmission.value
-  ) {
-    return
-  }
+const handleGrade = async (input: GradeInput) => {
+  if (!selectedAssignment.value || !reviewingSubmission.value) return
 
   grading.value = true
   actionMessage.value = ''
@@ -369,23 +313,13 @@ const handleGrade = async (
       input,
     )
 
-    const index = submissions.value.findIndex(
-      (item) => item.id === updated.id,
-    )
-
-    if (index >= 0) {
-      submissions.value[index] = updated
-    }
+    const index = submissions.value.findIndex((item) => item.id === updated.id)
+    if (index >= 0) submissions.value[index] = updated
 
     reviewingSubmission.value = updated
-
-    successMessage.value =
-      `Đã chấm bài của ${studentName(updated.studentId)}.`
+    successMessage.value = `Đã chấm bài của ${studentName(updated.studentId)}.`
   } catch (error) {
-    actionMessage.value = handleApiError(
-      error,
-      'Không thể chấm bài.',
-    ).message
+    actionMessage.value = handleApiError(error, 'Không thể chấm bài.').message
   } finally {
     grading.value = false
   }
@@ -394,214 +328,140 @@ const handleGrade = async (
 const resetForCourse = () => {
   selectedAssignment.value = null
   assignmentView.value = 'overview'
-
   submissions.value = []
   submissionsLoaded.value = false
-
   users.value = {}
-
   reviewOpen.value = false
   reviewingSubmission.value = null
-
   actionMessage.value = ''
   successMessage.value = ''
-
   void loadAssignments()
 }
 
-watch(
-  () => props.courseId,
-  () => {
-    resetForCourse()
-  },
-)
-
-onMounted(() => {
-  void loadAssignments()
-})
+watch(() => props.courseId, resetForCourse)
+onMounted(() => void loadAssignments())
 </script>
 
 <template>
-  <section class="space-y-5">
-    <!-- Messages -->
-    <BaseAlert v-if="actionMessage">
-      {{ actionMessage }}
-    </BaseAlert>
+  <section class="space-y-6">
+    <BaseAlert v-if="actionMessage">{{ actionMessage }}</BaseAlert>
 
-    <BaseAlert
-      v-if="successMessage"
-      variant="ai"
-    >
-      <template #icon>
-        <CheckCircle2 :size="18" />
-      </template>
-
+    <BaseAlert v-if="successMessage" variant="success">
+      <template #icon><CheckCircle2 :size="18" /></template>
       {{ successMessage }}
     </BaseAlert>
 
-    <!-- =====================================================
-         ASSIGNMENT LIST PAGE
-         ===================================================== -->
     <template v-if="!selectedAssignment">
-      <header
-        class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between"
-      >
+      <header class="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <h2
-            class="font-heading text-xl font-bold text-app-text"
-          >
+          <h2 class="mt-1 font-heading text-2xl font-bold text-app-text">
             Bài tập
           </h2>
 
-          <p
-            class="mt-1 text-sm text-app-text-muted"
-          >
-            Tạo và quản lý bài tập của khóa học.
+          <p class="mt-1 text-sm text-app-text-muted">
+            Tạo hoạt động đánh giá, theo dõi bài nộp và chấm điểm học viên.
           </p>
         </div>
 
         <BaseButton @click="openCreate">
-          <template #leading>
-            <Plus :size="17" />
-          </template>
-
+          <template #leading><Plus :size="17" /></template>
           Tạo bài tập
         </BaseButton>
       </header>
 
-      <!-- Loading assignments -->
-      <div
-        v-if="loadingAssignments"
-        class="space-y-3"
-      >
+      <div v-if="loadingAssignments" class="space-y-3">
         <div
           v-for="index in 4"
           :key="index"
-          class="h-32 animate-pulse rounded-card bg-app-surface-muted"
+          class="h-32 animate-pulse rounded-[1.1rem] bg-app-surface-muted"
         />
       </div>
 
-      <!-- Empty assignments -->
       <div
         v-else-if="assignments.length === 0"
-        class="rounded-panel border border-dashed border-app-border bg-app-surface px-6 py-16 text-center"
+        class="rounded-[1.25rem] border border-dashed border-app-border bg-app-surface px-6 py-14 text-center"
       >
-        <ClipboardList
-          :size="42"
-          class="mx-auto text-app-text-muted/40"
-        />
+        <div class="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-secondary-soft text-secondary">
+          <ClipboardList :size="25" />
+        </div>
 
-        <h3
-          class="mt-4 font-heading text-xl font-bold text-app-text"
-        >
+        <h3 class="mt-4 font-heading text-lg font-bold text-app-text">
           Chưa có bài tập
         </h3>
 
-        <p
-          class="mt-2 text-sm text-app-text-muted"
-        >
-          Tạo bài tập đầu tiên cho học viên
-          trong khóa học.
+        <p class="mt-1 text-sm text-app-text-muted">
+          Tạo hoạt động đánh giá đầu tiên cho khóa học.
         </p>
 
-        <BaseButton
-          class="mt-5"
-          @click="openCreate"
-        >
-          <template #leading>
-            <Plus :size="17" />
-          </template>
-
+        <BaseButton class="mt-5" @click="openCreate">
+          <template #leading><Plus :size="17" /></template>
           Tạo bài tập
         </BaseButton>
       </div>
 
-      <!-- Assignment cards -->
-      <div
-        v-else
-        class="space-y-3"
-      >
+      <div v-else class="space-y-3">
         <button
           v-for="assignment in assignments"
           :key="assignment.id"
           type="button"
-          class="group w-full rounded-card border border-app-border bg-app-surface p-5 text-left shadow-card transition hover:border-secondary/40 hover:shadow-md"
+          class="group grid w-full gap-4 rounded-[1.1rem] border border-app-border bg-app-surface p-5 text-left shadow-card transition hover:border-secondary/30 hover:shadow-md sm:grid-cols-[auto_minmax(0,1fr)_auto]"
           @click="openAssignment(assignment)"
         >
           <div
-            class="flex items-start justify-between gap-5"
+            class="flex h-11 w-11 items-center justify-center rounded-xl"
+            :class="
+              assignment.expired
+                ? 'bg-danger-soft text-danger'
+                : 'bg-secondary-soft text-secondary'
+            "
           >
-            <div class="min-w-0 flex-1">
-              <div
-                class="flex flex-wrap items-center gap-2"
+            <ClipboardList :size="19" />
+          </div>
+
+          <div class="min-w-0">
+            <div class="flex flex-wrap items-center gap-2">
+              <h3 class="font-heading text-base font-bold text-app-text">
+                {{ assignment.title }}
+              </h3>
+
+              <span
+                class="rounded-pill px-2.5 py-1 text-xs font-semibold"
+                :class="
+                  assignment.expired
+                    ? 'bg-danger-soft text-danger'
+                    : 'bg-ai-soft text-ai'
+                "
               >
-                <h3
-                  class="font-heading text-lg font-bold text-app-text"
-                >
-                  {{ assignment.title }}
-                </h3>
-
-                <span
-                  class="rounded-pill px-2.5 py-1 text-xs font-semibold"
-                  :class="
-                    assignment.expired
-                      ? 'bg-danger-soft text-danger'
-                      : 'bg-ai-soft text-ai'
-                  "
-                >
-                  {{
-                    assignment.expired
-                      ? 'Đã hết hạn'
-                      : 'Đang mở'
-                  }}
-                </span>
-              </div>
-
-              <div
-                class="mt-2 flex flex-wrap gap-x-5 gap-y-2 text-sm text-app-text-muted"
-              >
-                <span
-                  class="inline-flex items-center gap-1.5"
-                >
-                  <CalendarClock :size="15" />
-
-                  Hạn
-                  {{
-                    formatDateTime(
-                      assignment.dueAt,
-                    )
-                  }}
-                </span>
-
-                <span>
-                  {{ assignment.maxScore }}
-                  điểm
-                </span>
-              </div>
-
-              <p
-                v-if="assignment.description"
-                class="mt-3 line-clamp-2 max-w-4xl text-sm leading-6 text-app-text-muted"
-              >
-                {{ assignment.description }}
-              </p>
+                {{ assignment.expired ? 'Đã hết hạn' : 'Đang mở' }}
+              </span>
             </div>
 
-            <span
-              class="shrink-0 pt-1 text-sm font-semibold text-secondary transition group-hover:translate-x-1"
+            <p
+              v-if="preview(assignment.description)"
+              class="mt-2 line-clamp-2 max-w-4xl text-sm leading-6 text-app-text-muted"
             >
-              Xem chi tiết →
-            </span>
+              {{ preview(assignment.description) }}
+            </p>
+
+            <div class="mt-3 flex flex-wrap gap-x-5 gap-y-1 text-xs text-app-text-muted">
+              <span class="inline-flex items-center gap-1.5">
+                <CalendarClock :size="14" />
+                {{ formatDateTime(assignment.dueAt) }}
+              </span>
+
+              <span>{{ assignment.maxScore }} điểm</span>
+            </div>
           </div>
+
+          <ChevronRight
+            :size="19"
+            class="hidden self-center text-app-text-muted transition group-hover:translate-x-1 group-hover:text-secondary sm:block"
+          />
         </button>
       </div>
     </template>
 
-    <!-- =====================================================
-         ASSIGNMENT DETAIL PAGE
-         ===================================================== -->
     <template v-else>
-      <!-- Back -->
       <button
         type="button"
         class="inline-flex items-center gap-2 text-sm font-semibold text-app-text-muted transition hover:text-secondary"
@@ -611,93 +471,59 @@ onMounted(() => {
         Danh sách bài tập
       </button>
 
-      <!-- Assignment header -->
-      <header
-        class="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between"
-      >
-        <div class="min-w-0">
-          <div
-            class="flex flex-wrap items-center gap-2"
-          >
-            <h2
-              class="font-heading text-2xl font-bold text-app-text"
-            >
-              {{ selectedAssignment.title }}
-            </h2>
+      <section class="overflow-hidden rounded-[1.3rem] border border-app-border bg-app-surface shadow-card">
+        <header class="border-b border-app-border bg-gradient-to-br from-white to-secondary-soft/30 px-6 py-6 sm:px-7">
+          <div class="flex flex-col gap-5 sm:flex-row sm:items-start sm:justify-between">
+            <div class="min-w-0">
+              <div class="flex flex-wrap items-center gap-2">
+                <span
+                  class="rounded-pill px-2.5 py-1 text-xs font-semibold"
+                  :class="
+                    selectedAssignment.expired
+                      ? 'bg-danger-soft text-danger'
+                      : 'bg-ai-soft text-ai'
+                  "
+                >
+                  {{ selectedAssignment.expired ? 'Đã hết hạn' : 'Đang mở' }}
+                </span>
+              </div>
 
-            <span
-              class="rounded-pill px-2.5 py-1 text-xs font-semibold"
-              :class="
-                selectedAssignment.expired
-                  ? 'bg-danger-soft text-danger'
-                  : 'bg-ai-soft text-ai'
-              "
-            >
-              {{
-                selectedAssignment.expired
-                  ? 'Đã hết hạn'
-                  : 'Đang mở'
-              }}
-            </span>
+              <h2 class="mt-3 font-heading text-2xl font-bold leading-tight text-app-text sm:text-3xl">
+                {{ selectedAssignment.title }}
+              </h2>
+
+              <div class="mt-3 flex flex-wrap gap-x-5 gap-y-2 text-sm text-app-text-muted">
+                <span class="inline-flex items-center gap-1.5">
+                  <CalendarClock :size="15" />
+                  Hạn {{ formatDateTime(selectedAssignment.dueAt) }}
+                </span>
+
+                <span>{{ selectedAssignment.maxScore }} điểm</span>
+              </div>
+            </div>
+
+            <div class="flex shrink-0 gap-2">
+              <BaseButton variant="secondary" @click="openEdit">
+                <template #leading><Pencil :size="16" /></template>
+                Chỉnh sửa
+              </BaseButton>
+
+              <button
+                type="button"
+                title="Xóa bài tập"
+                class="flex h-11 w-11 items-center justify-center rounded-control border border-app-border text-app-text-muted transition hover:border-danger/30 hover:bg-danger-soft hover:text-danger"
+                @click="confirmDelete"
+              >
+                <Trash2 :size="17" />
+              </button>
+            </div>
           </div>
+        </header>
 
-          <div
-            class="mt-2 flex flex-wrap gap-x-4 gap-y-2 text-sm text-app-text-muted"
-          >
-            <span
-              class="inline-flex items-center gap-1.5"
-            >
-              <CalendarClock :size="15" />
-
-              Hạn
-              {{
-                formatDateTime(
-                  selectedAssignment.dueAt,
-                )
-              }}
-            </span>
-
-            <span>
-              {{ selectedAssignment.maxScore }}
-              điểm
-            </span>
-          </div>
-        </div>
-
-        <div
-          class="flex shrink-0 flex-wrap gap-2"
-        >
-          <BaseButton
-            variant="secondary"
-            @click="openEdit"
-          >
-            <template #leading>
-              <Pencil :size="16" />
-            </template>
-
-            Chỉnh sửa
-          </BaseButton>
-
+        <nav class="flex border-b border-app-border px-6" aria-label="Chi tiết bài tập">
           <button
             type="button"
-            class="inline-flex h-11 items-center gap-2 rounded-control bg-danger-soft px-4 text-sm font-semibold text-danger transition hover:opacity-80"
-            @click="confirmDelete"
-          >
-            <Trash2 :size="16" />
-            Xóa
-          </button>
-        </div>
-      </header>
-
-      <!-- Assignment navigation -->
-      <nav
-        class="border-b border-app-border"
-        aria-label="Quản lý bài tập"
-      >
-        <div class="flex gap-6">
-          <button
-            type="button"
-            class="h-11 border-b-2 text-sm font-semibold transition"
+            class="h-12 border-b-2 px-1 text-sm font-semibold"
             :class="
               assignmentView === 'overview'
                 ? 'border-secondary text-secondary'
@@ -705,12 +531,12 @@ onMounted(() => {
             "
             @click="openOverview"
           >
-            Tổng quan
+            Nội dung bài tập
           </button>
 
           <button
             type="button"
-            class="h-11 border-b-2 text-sm font-semibold transition"
+            class="ml-6 flex h-12 items-center gap-2 border-b-2 px-1 text-sm font-semibold"
             :class="
               assignmentView === 'submissions'
                 ? 'border-secondary text-secondary'
@@ -719,337 +545,193 @@ onMounted(() => {
             @click="openSubmissions"
           >
             Bài nộp
-
-            <span v-if="submissionsLoaded">
-              ({{ submissions.length }})
-            </span>
-          </button>
-        </div>
-      </nav>
-
-      <!-- ===================================================
-           OVERVIEW
-           =================================================== -->
-      <section
-        v-if="assignmentView === 'overview'"
-        class="rounded-card border border-app-border bg-app-surface p-6 shadow-card"
-      >
-        <h3
-          class="font-heading text-lg font-bold text-app-text"
-        >
-          Nội dung bài tập
-        </h3>
-
-        <p
-          class="mt-4 whitespace-pre-wrap text-sm leading-7 text-app-text-muted"
-        >
-          {{
-            selectedAssignment.description ||
-            'Bài tập không có mô tả.'
-          }}
-        </p>
-
-        <dl
-          class="mt-6 grid gap-5 border-t border-app-border pt-5 sm:grid-cols-2"
-        >
-          <div>
-            <dt
-              class="text-xs font-semibold uppercase tracking-wide text-app-text-muted"
-            >
-              Hạn nộp
-            </dt>
-
-            <dd
-              class="mt-2 font-semibold text-app-text"
-            >
-              {{
-                formatDateTime(
-                  selectedAssignment.dueAt,
-                )
-              }}
-            </dd>
-          </div>
-
-          <div>
-            <dt
-              class="text-xs font-semibold uppercase tracking-wide text-app-text-muted"
-            >
-              Điểm tối đa
-            </dt>
-
-            <dd
-              class="mt-2 font-semibold text-app-text"
-            >
-              {{ selectedAssignment.maxScore }}
-              điểm
-            </dd>
-          </div>
-        </dl>
-      </section>
-
-      <!-- ===================================================
-           SUBMISSIONS
-           =================================================== -->
-      <section
-        v-else
-        class="overflow-hidden rounded-card border border-app-border bg-app-surface shadow-card"
-      >
-        <!-- Submission header -->
-        <header
-          class="flex flex-wrap items-center justify-between gap-4 border-b border-app-border px-5 py-4"
-        >
-          <div>
-            <h3
-              class="font-heading text-lg font-bold text-app-text"
-            >
-              Bài nộp
-            </h3>
-
-            <p
-              class="mt-1 text-sm text-app-text-muted"
+            <span
+              v-if="submissionsLoaded"
+              class="rounded-pill bg-app-surface-muted px-2 py-0.5 text-xs"
             >
               {{ submissions.length }}
-              đã nộp ·
-              {{ gradedCount }}
-              đã chấm ·
-              {{ ungradedCount }}
-              chưa chấm
+            </span>
+          </button>
+        </nav>
+
+        <div v-if="assignmentView === 'overview'" class="grid gap-0 lg:grid-cols-[minmax(0,1fr)_18rem]">
+          <article class="p-6 sm:p-7">
+            <h3 class="font-heading text-lg font-bold text-app-text">
+              Yêu cầu và hướng dẫn
+            </h3>
+
+            <div class="mt-5">
+              <RichTextViewer
+                v-if="hasSelectedDescription"
+                :content="selectedDescription"
+              />
+
+              <p v-else class="text-sm text-app-text-muted">
+                Bài tập chưa có nội dung hướng dẫn.
+              </p>
+            </div>
+          </article>
+
+          <aside class="border-t border-app-border bg-app-surface-muted/45 p-6 lg:border-l lg:border-t-0">
+            <p class="text-xs font-bold uppercase tracking-[0.12em] text-app-text-muted">
+              Thiết lập
+            </p>
+
+            <dl class="mt-5 space-y-5">
+              <div>
+                <dt class="text-xs text-app-text-muted">Hạn nộp</dt>
+                <dd class="mt-1 text-sm font-semibold text-app-text">
+                  {{ formatDateTime(selectedAssignment.dueAt) }}
+                </dd>
+              </div>
+
+              <div>
+                <dt class="text-xs text-app-text-muted">Điểm tối đa</dt>
+                <dd class="mt-1 text-sm font-semibold text-app-text">
+                  {{ selectedAssignment.maxScore }} điểm
+                </dd>
+              </div>
+
+              <div>
+                <dt class="text-xs text-app-text-muted">Trạng thái</dt>
+                <dd
+                  class="mt-1 text-sm font-semibold"
+                  :class="selectedAssignment.expired ? 'text-danger' : 'text-ai'"
+                >
+                  {{ selectedAssignment.expired ? 'Đã hết hạn' : 'Đang nhận bài' }}
+                </dd>
+              </div>
+            </dl>
+          </aside>
+        </div>
+
+        <div v-else class="p-6 sm:p-7">
+          <div class="flex flex-col gap-4 border-b border-app-border pb-5 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <h3 class="font-heading text-lg font-bold text-app-text">
+                Bài nộp của học viên
+              </h3>
+
+              <p class="mt-1 text-sm text-app-text-muted">
+                {{ submissions.length }} bài nộp ·
+                {{ ungradedCount }} chưa chấm ·
+                {{ gradedCount }} đã chấm
+              </p>
+            </div>
+
+            <BaseButton
+              variant="secondary"
+              :loading="loadingSubmissions"
+              @click="loadSubmissions"
+            >
+              <template #leading><RefreshCw :size="16" /></template>
+              Làm mới
+            </BaseButton>
+          </div>
+
+          <div v-if="loadingSubmissions" class="mt-5 space-y-3">
+            <div
+              v-for="index in 4"
+              :key="index"
+              class="h-20 animate-pulse rounded-card bg-app-surface-muted"
+            />
+          </div>
+
+          <div
+            v-else-if="submissions.length === 0"
+            class="py-12 text-center"
+          >
+            <UsersRound :size="34" class="mx-auto text-app-text-muted/35" />
+
+            <h4 class="mt-3 font-heading font-bold text-app-text">
+              Chưa có bài nộp
+            </h4>
+
+            <p class="mt-1 text-sm text-app-text-muted">
+              Bài nộp của học viên sẽ xuất hiện tại đây.
             </p>
           </div>
 
-          <BaseButton
-            variant="secondary"
-            :disabled="loadingSubmissions"
-            @click="loadSubmissions"
-          >
-            <template #leading>
-              <RefreshCw
-                :size="15"
-                :class="{
-                  'animate-spin':
-                    loadingSubmissions,
-                }"
-              />
-            </template>
-
-            Tải lại
-          </BaseButton>
-        </header>
-
-        <!-- Loading submissions -->
-        <div
-          v-if="loadingSubmissions"
-          class="space-y-2 p-5"
-        >
-          <div
-            v-for="index in 4"
-            :key="index"
-            class="h-16 animate-pulse rounded-control bg-app-surface-muted"
-          />
-        </div>
-
-        <!-- Empty submissions -->
-        <div
-          v-else-if="
-            submissions.length === 0
-          "
-          class="px-6 py-14 text-center"
-        >
-          <FileText
-            :size="34"
-            class="mx-auto text-app-text-muted/40"
-          />
-
-          <p
-            class="mt-3 font-semibold text-app-text"
-          >
-            Chưa có bài nộp
-          </p>
-
-          <p
-            class="mt-1 text-sm text-app-text-muted"
-          >
-            Chưa có học viên nào nộp
-            bài tập này.
-          </p>
-        </div>
-
-        <!-- Submission list -->
-        <div
-          v-else
-          class="divide-y divide-app-border"
-        >
-          <div
-            v-for="submission in submissions"
-            :key="submission.id"
-            class="flex flex-col gap-4 px-5 py-4 transition hover:bg-app-surface-muted/40 md:flex-row md:items-center"
-          >
-            <!-- Student -->
-            <div
-              class="flex min-w-0 flex-1 items-center gap-3"
+          <div v-else class="mt-5 divide-y divide-app-border rounded-card border border-app-border">
+            <button
+              v-for="submission in submissions"
+              :key="submission.id"
+              type="button"
+              class="flex w-full items-center gap-4 px-4 py-4 text-left transition hover:bg-app-surface-muted/50"
+              @click="openSubmission(submission)"
             >
-              <span
-                class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-secondary-soft text-secondary"
-              >
+              <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-app-surface-muted text-app-text-muted">
                 <UserRound :size="18" />
-              </span>
+              </div>
 
-              <div class="min-w-0">
-                <p
-                  class="truncate font-semibold text-app-text"
-                >
-                  {{
-                    studentName(
-                      submission.studentId,
-                    )
-                  }}
+              <div class="min-w-0 flex-1">
+                <p class="truncate text-sm font-semibold text-app-text">
+                  {{ studentName(submission.studentId) }}
                 </p>
 
-                <p
-                  v-if="
-                    studentEmail(
-                      submission.studentId,
-                    )
-                  "
-                  class="truncate text-xs text-app-text-muted"
-                >
-                  {{
-                    studentEmail(
-                      submission.studentId,
-                    )
-                  }}
+                <p class="mt-0.5 truncate text-xs text-app-text-muted">
+                  {{ studentEmail(submission.studentId) || formatDateTime(submission.submittedAt) }}
                 </p>
               </div>
-            </div>
 
-            <!-- Submitted time -->
-            <div
-              class="min-w-36 text-sm text-app-text-muted"
-            >
-              {{
-                formatDateTime(
-                  submission.submittedAt,
-                )
-              }}
-            </div>
-
-            <!-- Late -->
-            <div class="min-w-20">
               <span
                 v-if="submission.late"
-                class="inline-flex rounded-pill bg-danger-soft px-2.5 py-1 text-xs font-semibold text-danger"
+                class="hidden rounded-pill bg-danger-soft px-2.5 py-1 text-xs font-semibold text-danger sm:inline"
               >
                 Nộp trễ
               </span>
-            </div>
 
-            <!-- Status -->
-            <div class="min-w-24">
-              <span
-                class="inline-flex rounded-pill px-2.5 py-1 text-xs font-semibold"
-                :class="
-                  submission.status ===
-                  'GRADED'
-                    ? 'bg-ai-soft text-ai'
-                    : 'bg-secondary-soft text-secondary'
-                "
-              >
-                {{
-                  submission.status ===
-                  'GRADED'
-                    ? 'Đã chấm'
-                    : 'Chưa chấm'
-                }}
-              </span>
-            </div>
+              <div class="shrink-0 text-right">
+                <p
+                  class="text-xs font-semibold"
+                  :class="submission.status === 'GRADED' ? 'text-ai' : 'text-secondary'"
+                >
+                  {{ submission.status === 'GRADED' ? 'Đã chấm' : 'Chờ chấm' }}
+                </p>
 
-            <!-- Score -->
-            <div
-              class="min-w-20 text-sm font-semibold text-app-text"
-            >
-              {{
-                submission.score != null
-                  ? `${submission.score}/${selectedAssignment.maxScore}`
-                  : '--'
-              }}
-            </div>
+                <p
+                  v-if="submission.status === 'GRADED'"
+                  class="mt-1 text-sm font-bold text-app-text"
+                >
+                  {{ submission.score }} / {{ selectedAssignment.maxScore }}
+                </p>
+              </div>
 
-            <!-- Action -->
-            <BaseButton
-              variant="secondary"
-              @click="
-                openSubmission(submission)
-              "
-            >
-              <template #leading>
-                <Eye :size="15" />
-              </template>
-
-              Xem bài
-            </BaseButton>
+              <ChevronRight :size="17" class="shrink-0 text-app-text-muted" />
+            </button>
           </div>
         </div>
       </section>
+
+      <AssignmentFormModal
+        :open="formOpen"
+        :assignment="editingAssignment"
+        :loading="saving"
+        :server-message="formMessage"
+        @close="closeForm"
+        @submit="submitForm"
+      />
+
+      <ConfirmDialog
+        :open="deleteOpen"
+        title="Xóa bài tập?"
+        :description="`Bạn có chắc muốn xóa “${selectedAssignment.title}”?`"
+        confirm-text="Xóa bài tập"
+        :loading="deleting"
+        @close="deleteOpen = false"
+        @confirm="handleDelete"
+      />
+
+      <SubmissionReviewModal
+        :open="reviewOpen"
+        :submission="reviewingSubmission"
+        :student-name="reviewingSubmission ? studentName(reviewingSubmission.studentId) : ''"
+        :student-email="reviewingSubmission ? studentEmail(reviewingSubmission.studentId) : ''"
+        :max-score="selectedAssignment.maxScore"
+        :loading="grading"
+        @close="closeSubmission"
+        @grade="handleGrade"
+      />
     </template>
-
-    <!-- =====================================================
-         SUBMISSION REVIEW MODAL
-         ===================================================== -->
-    <SubmissionReviewModal
-      :open="reviewOpen"
-      :submission="reviewingSubmission"
-      :student-name="
-        reviewingSubmission
-          ? studentName(
-              reviewingSubmission.studentId,
-            )
-          : ''
-      "
-      :student-email="
-        reviewingSubmission
-          ? studentEmail(
-              reviewingSubmission.studentId,
-            )
-          : ''
-      "
-      :max-score="
-        selectedAssignment?.maxScore ?? 0
-      "
-      :loading="grading"
-      @close="closeSubmission"
-      @grade="handleGrade"
-    />
-
-    <!-- =====================================================
-         CREATE / EDIT ASSIGNMENT
-         ===================================================== -->
-    <AssignmentFormModal
-      :open="formOpen"
-      :assignment="editingAssignment"
-      :loading="saving"
-      :server-message="formMessage"
-      @close="closeForm"
-      @submit="submitForm"
-    />
-
-    <!-- =====================================================
-         DELETE ASSIGNMENT
-         ===================================================== -->
-    <ConfirmDialog
-      :open="deleteOpen"
-      title="Xóa bài tập?"
-      :description="
-        selectedAssignment
-          ? `Bạn có chắc muốn xóa “${selectedAssignment.title}”?`
-          : ''
-      "
-      confirm-text="Xóa bài tập"
-      :loading="deleting"
-      @close="
-        !deleting &&
-        (deleteOpen = false)
-      "
-      @confirm="handleDelete"
-    />
   </section>
 </template>
