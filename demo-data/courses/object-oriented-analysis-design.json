@@ -1,0 +1,3656 @@
+{
+  "image": "images/object-oriented-analysis-design.png",
+  "source": {
+    "provider": "VOER",
+    "collection_title": "PHÂN TÍCH THIẾT KẾ HƯỚNG ĐỐI TƯỢNG",
+    "collection_url": "https://voer.edu.vn/c/phan-tich-thiet-ke-huong-doi-tuong/4654167d",
+    "author": null,
+    "license": "CC BY 3.0"
+  },
+  "course": {
+    "title": "Phân tích thiết kế hướng đối tượng",
+    "description": "Kiến thức về UML, Use Case, lớp và đối tượng, quan hệ giữa các lớp và các mô hình động.",
+    "level": null,
+    "visibility": "PUBLIC"
+  },
+  "chapter": {
+    "title": "Nội dung Phân tích thiết kế hướng đối tượng",
+    "description": null,
+    "learningObjectives": null,
+    "orderIndex": 0
+  },
+  "topics": [
+    {
+      "title": "UML và các giai đoạn của chu trình phát triển phần mềm",
+      "description": null,
+      "estimatedMinutes": null,
+      "orderIndex": 1,
+      "content": {
+        "type": "doc",
+        "content": [
+          {
+            "type": "heading",
+            "attrs": {
+              "level": 2
+            },
+            "content": [
+              {
+                "type": "text",
+                "text": "Giai đoạn nghiên cứu sơ bộ:"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "UML đưa ra khái niệm Use Case để nắm bắt các yêu cầu của khách hàng (người sử dụng). UML sử dụng biểu đồ Use case (Use Case Diagram) để nêu bật mối quan hệ cũng như sự giao tiếp với hệ thống."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Qua phương pháp mô hình hóa Use case, các tác nhân (Actor) bên ngoài quan tâm đến hệ thống sẽ được mô hình hóa song song với chức năng mà họ đòi hỏi từ phía hệ thống (tức là Use case). Các tác nhân và các Use case được mô hình hóa cùng các mối quan hệ và được miêu tả trong biểu đồ Use case của UML. Mỗi một Use case được mô tả trong tài liệu, và nó sẽ đặc tả các yêu cầu của khách hàng: Anh ta hay chị ta chờ đợi điều gì ở phía hệ thống mà không hề để ý đến việc chức năng này sẽ được thực thi ra sao."
+              }
+            ]
+          },
+          {
+            "type": "heading",
+            "attrs": {
+              "level": 2
+            },
+            "content": [
+              {
+                "type": "text",
+                "text": "Giai đoạn phân tích:"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Giai đoạn phân tích quan tâm đến quá trình trừu tượng hóa đầu tiên (các lớp và các đối tượng) cũng như cơ chế hiện hữu trong phạm vi vấn đề. Sau khi nhà phân tích đã nhận biết được các lớp thành phần của mô hình cũng như mối quan hệ giữa chúng với nhau, các lớp cùng các mối quan hệ đó sẽ được miêu tả bằng công cụ biểu đồ lớp (class diagram) của UML. Sự cộng tác giữa các lớp nhằm thực hiện các Use case cũng sẽ được miêu tả nhờ vào các mô hình động (dynamic models) của UML. Trong giai đoạn phân tích, chỉ duy nhất các lớp có tồn tại trong phạm vi vấn đề (các khái niệm đời thực) là được mô hình hóa. Các lớp kỹ thuật định nghĩa chi tiết cũng như giải pháp trong hệ thống phần mềm, ví dụ như các lớp cho giao diện người dùng, cho ngân hàng dữ liệu, cho sự giao tiếp, trùng hợp, v.v..., chưa phải là mối quan tâm của giai đoạn này."
+              }
+            ]
+          },
+          {
+            "type": "heading",
+            "attrs": {
+              "level": 2
+            },
+            "content": [
+              {
+                "type": "text",
+                "text": "Giai đoạn thiết kế:"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Trong giai đoạn này, kết quả của giai đoạn phân tích sẽ được mở rộng thành một giải pháp kỹ thuật. Các lớp mới sẽ được bổ sung để tạo thành một hạ tầng cơ sở kỹ thuật: Giao diện người dùng, các chức năng để lưu trữ các đối tượng trong ngân hàng dữ liệu, giao tiếp với các hệ thống khác, giao diện với các thiết bị ngoại vi và các máy móc khác trong hệ thống, .... Các lớp thuộc phạm vi vấn đề có từ giai đoạn phân tích sẽ được \"nhúng\" vào hạ tầng cơ sở kỹ thuật này, tạo ra khả năng thay đổi trong cả hai phương diện: Phạm vi vấn đề và hạ tầng cơ sở. Giai đoạn thiết kế sẽ đưa ra kết quả là bản đặc tả chi tiết cho giai đoạn xây dựng hệ thống."
+              }
+            ]
+          },
+          {
+            "type": "heading",
+            "attrs": {
+              "level": 2
+            },
+            "content": [
+              {
+                "type": "text",
+                "text": "Giai đoạn xây dựng:"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Trong giai đoạn xây dựng (giai đoạn lập trình), các lớp của giai đoạn thiết kế sẽ được biến thành những dòng code cụ thể trong một ngôn ngữ lập trình hướng đối tượng cụ thể (không nên dùng một ngôn ngữ lập trình hướng chức năng!). Phụ thuộc vào khả năng của ngôn ngữ được sử dụng, đây có thể là một công việc khó khăn hay dễ dàng. Khi tạo ra các mô hình phân tích và thiết kế trong UML, tốt nhất nên cố gắng né tránh việc ngay lập tức biến đổi các mô hình này thành các dòng code. Trong những giai đoạn trước, mô hình được sử dụng để dễ hiểu, dễ giao tiếp và tạo nên cấu trúc của hệ thống; vì vậy, vội vàng đưa ra những kết luận về việc viết code có thể sẽ thành một trở ngại cho việc tạo ra các mô hình chính xác và đơn giản. Giai đoạn xây dựng là một giai đoạn riêng biệt, nơi các mô hình được chuyển thành code."
+              }
+            ]
+          },
+          {
+            "type": "heading",
+            "attrs": {
+              "level": 2
+            },
+            "content": [
+              {
+                "type": "text",
+                "text": "Thử nghiệm:"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Như đã trình bày trong phần Chu Trình Phát Triển Phần Mềm, một hệ thống phần mềm thường được thử nghiệm qua nhiều giai đoạn và với nhiều nhóm thử nghiệm khác nhau. Các nhóm sử dụng nhiều loại biểu đồ UML khác nhau làm nền tảng cho công việc của mình: Thử nghiệm đơn vị sử dụng biểu đồ lớp (class diagram) và đặc tả lớp, thử nghiệm tích hợp thường sử dụng biểu đồ thành phần (component diagram) và biểu đồ cộng tác (collaboration diagram), và giai đoạn thử nghiệm hệ thống sử dụng biểu đồ Use case (use case diagram) để đảm bảo hệ thống có phương thức hoạt động đúng như đã được định nghĩa từ ban đầu trong các biểu đồ này."
+              }
+            ]
+          },
+          {
+            "type": "heading",
+            "attrs": {
+              "level": 1
+            },
+            "content": [
+              {
+                "type": "text",
+                "text": "Các thành phần của ngôn ngữ UML"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Ngôn ngữ UML bao gồm một loạt các phần tử đồ họa (graphic element) có thể được kếp hợp với nhau để tạo ra các biểu đồ. Bởi đây là một ngôn ngữ, nên UML cũng có các nguyên tắc để kết hợp các phần tử đó."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Một số những thành phần chủ yếu của ngôn ngữ UML:"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Hướng nhìn (view): Hướng nhìn chỉ ra những khía cạnh khác nhau của hệ thống cần phải được mô hình hóa. Một hướng nhìn không phải là một bản vẽ, mà là một sự trừu tượng hóa bao gồm một loạt các biểu đồ khác nhau. Chỉ qua việc định nghĩa của một loạt các hướng nhìn khác nhau, mỗi hướng nhìn chỉ ra một khía cạnh riêng biệt của hệ thống, người ta mới có thể tạo dựng nên một bức tranh hoàn thiện về hệ thống. Cũng chính các hướng nhìn này nối kết ngôn ngữ mô hình hóa với quy trình được chọn cho giai đoạn phát triển."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Biểu đồ (diagram): Biểu đồ là các hình vẽ miêu tả nội dung trong một hướng nhìn. UML có tất cả 9 loại biểu đồ khác nhau được sử dụng trong những sự kết hợp khác nhau để cung cấp tất cả các hướng nhìn của một hệ thống."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Phần tử mô hình hóa (model element): Các khái niệm được sử dụng trong các biểu đồ được gọi là các phần tử mô hình, thể hiện các khái niệm hướng đối tượng quen thuộc. Ví dụ như lớp, đối tượng, thông điệp cũng như các quan hệ giữa các khái niệm này, bao gồm cả liên kết, phụ thuộc, khái quát hóa. Một phần tử mô hình thường được sử dụng trong nhiều biểu đồ khác nhau, nhưng nó luôn luôn có chỉ một ý nghĩa và một kí hiệu."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Cơ chế chung: Cơ chế chung cung cấp thêm những lời nhận xét bổ sung, các thông tin cũng như các quy tắc ngữ pháp chung về một phần tử mô hình; chúng còn cung cấp thêm các cơ chế để có thể mở rộng ngôn ngữ UML cho phù hợp với một phương pháp xác định (một quy trình, một tổ chức hoặc một người dùng)."
+              }
+            ]
+          },
+          {
+            "type": "heading",
+            "attrs": {
+              "level": 1
+            },
+            "content": [
+              {
+                "type": "text",
+                "text": "Hướng nhìn (View)"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Mô hình hóa một hệ thống phức tạp là một việc làm khó khăn. Lý tưởng nhất là toàn bộ hệ thống được miêu tả chỉ trong một bản vẽ, một bản vẽ định nghĩa một cách rõ ràng và mạch lạc toàn bộ hệ thống, một bản vẽ ngoài ra lại còn dễ giao tiếp và dễ hiểu. Mặc dù vậy, thường thì đây là chuyện bất khả thi. Một bản vẽ không thể nắm bắt tất cả các thông tin cần thiết để miêu tả một hệ thống. Một hệ thống cần phải được miêu tả với một loạt các khía cạnh khác nhau: Về mặt chức năng (cấu trúc tĩnh của nó cũng như các tương tác động), về mặt phi chức năng (yêu cầu về thời gian, về độ đáng tin cậy, về quá trình thực thi, v.v. và v.v.) cũng như về khía cạnh tổ chức (tổ chức làm việc, ánh xạ nó vào các code module, ...). Vì vậy một hệ thống thường được miêu tả trong một loạt các hướng nhìn khác nhau, mỗi hướng nhìn sẽ thể hiện một bức ảnh ánh xạ của toàn bộ hệ thống và chỉ ra một khía cạnh riêng của hệ thống."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Hình 3.1 - Các View trong UML"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Mỗi một hướng nhìn được miêu tả trong một loạt các biểu đồ, chứa đựng các thông tin nêu bật khía cạnh đặc biệt đó của hệ thống. Trong thực tế khi phân tích và thiết kế rất dễ xảy ra sự trùng lặp thông tin, cho nên một biểu đồ trên thật tế có thể là thành phần của nhiều hướng nhìn khác nhau. Khi nhìn hệ thống từ nhiều hướng nhìn khác nhau, tại một thời điểm có thể người ta chỉ tập trung vào một khía cạnh của hệ thống. Một biểu đồ trong một hướng nhìn cụ thể nào đó cần phải đủ độ đơn giản để tạo điều kiện giao tiếp dễ dàng, để dính liền với các biểu đồ khác cũng như các hướng nhìn khác, làm sao cho bức tranh toàn cảnh của hệ thống được miêu tả bằng sự kết hợp tất cả các thông tin từ tất cả các hướng nhìn. Một biểu đồ chứa các kí hiệu hình học mô tả các phần tử mô hình của hệ thống. UML có tất cả các hướng nhìn sau:"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "- Hướng nhìn Use case (use case view) : đây là hướng nhìn chỉ ra khía cạnh chức năng của một hệ thống, nhìn từ hướng tác nhân bên ngoài."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "- Hướng nhìn logic (logical view): chỉ ra chức năng sẽ được thiết kế bên trong hệ thống như thế nào, qua các khái niệm về cấu trúc tĩnh cũng như ứng xử động của hệ thống."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "- Hướng nhìn thành phần (component view): chỉ ra khía cạnh tổ chức của các thành phần code."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "- Hướng nhìn song song (concurrency view): chỉ ra sự tồn tại song song/ trùng hợp trong hệ thống, hướng đến vấn đề giao tiếp và đồng bộ hóa trong hệ thống."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "- Hướng nhìn triển khai (deployment view): chỉ ra khía cạnh triển khai hệ thống vào các kiến trúc vật lý (các máy tính hay trang thiết bị được coi là trạm công tác)."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Khi bạn chọn công cụ để vẽ biểu đồ, hãy chọn công cụ nào tạo điều kiện dễ dàng chuyển từ hướng nhìn này sang hướng nhìn khác. Ngoài ra, cho mục đích quan sát một chức năng sẽ được thiết kế như thế nào, công cụ này cũng phải tạo điều kiện dễ dàng cho bạn chuyển sang hướng nhìn Use case (để xem chức năng này được miêu tả như thế nào từ phía tác nhân), hoặc chuyển sang hướng nhìn triển khai (để xem chức năng này sẽ được phân bố ra sao trong cấu trúc vật lý - Nói một cách khác là nó có thể nằm trong máy tính nào)."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Ngoài các hướng nhìn kể trên, ngành công nghiệp phần mềm còn sử dụng cả các hướng nhìn khác, ví dụ hướng nhìn tĩnh-động, hướng nhìn logic-vật lý, quy trình nghiệp vụ (workflow) và các hướng nhìn khác. UML không yêu cầu chúng ta phải sử dụng các hướng nhìn này, nhưng đây cũng chính là những hướng nhìn mà các nhà thiết kế của UML đã nghĩ tới, nên có khả năng nhiều công cụ sẽ dựa trên các hướng nhìn đó."
+              }
+            ]
+          },
+          {
+            "type": "heading",
+            "attrs": {
+              "level": 2
+            },
+            "content": [
+              {
+                "type": "text",
+                "text": "Hướng nhìn Use case (Use case View):"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Hướng nhìn Use case miêu tả chức năng của hệ thống sẽ phải cung cấp do được tác nhân từ bên ngoài mong đợi. Tác nhân là thực thể tương tác với hệ thống; đó có thể là một người sử dụng hoặc là một hệ thống khác. Hướng nhìn Use case là hướng nhìn dành cho khách hàng, nhà thiết kế, nhà phát triển và người thử nghiệm; nó được miêu tả qua các biểu đồ Use case (use case diagram) và thỉnh thoảng cũng bao gồm cả các biểu đồ hoạt động (activity diagram). Cách sử dụng hệ thống nhìn chung sẽ được miêu tả qua một loạt các Use case trong hướng nhìn Use case, nơi mỗi một Use case là một lời miêu tả mang tính đặc thù cho một tính năng của hệ thống (có nghĩa là một chức năng được mong đợi)."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Hướng nhìn Use case mang tính trung tâm, bởi nó đặt ra nội dung thúc đẩy sự phát triển các hướng nhìn khác. Mục tiêu chung của hệ thống là cung cấp các chức năng miêu tả trong hướng nhìn này – cùng với một vài các thuộc tính mang tính phi chức năng khác – vì thế hướng nhìn này có ảnh hưởng đến tất cả các hướng nhìn khác. Hướng nhìn này cũng được sử dụng để thẩm tra (verify) hệ thống qua việc thử nghiệm xem hướng nhìn Use case có đúng với mong đợi của khách hàng (Hỏi: \"Đây có phải là thứ bạn muốn\") cũng như có đúng với hệ thống vừa được hoàn thành (Hỏi: \"Hệ thống có hoạt động như đã đặc tả?”)."
+              }
+            ]
+          },
+          {
+            "type": "heading",
+            "attrs": {
+              "level": 2
+            },
+            "content": [
+              {
+                "type": "text",
+                "text": "Hướng nhìn logic (Logical View):"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Hướng nhìn logic miêu tả phương thức mà các chức năng của hệ thống sẽ được cung cấp. Chủ yếu nó được sử dụng cho các nhà thiết kế và nhà phát triển. Ngược lại với hướng nhìn Use case, hướng nhìn logic nhìn vào phía bên trong của hệ thống. Nó miêu tả kể cả cấu trúc tĩnh (lớp, đối tượng, và quan hệ) cũng như sự tương tác động sẽ xảy ra khi các đối tượng gửi thông điệp cho nhau để cung cấp chức năng đã định sẵn. Hướng nhìn logic định nghĩa các thuộc tính như trường tồn (persistency) hoặc song song (concurrency), cũng như các giao diện cũng như cấu trúc nội tại của các lớp."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Cấu trúc tĩnh được miêu tả bằng các biểu đồ lớp (class diagram) và biểu đồ đối tượng (object diagram). Quá trình mô hình hóa động được miêu tả trong các biểu đồ trạng thái (state diagram), biểu đồ trình tự (sequence diagram), biểu đồ tương tác (collaboration diagram) và biểu đồ hoạt động (activity diagram)."
+              }
+            ]
+          },
+          {
+            "type": "heading",
+            "attrs": {
+              "level": 2
+            },
+            "content": [
+              {
+                "type": "text",
+                "text": "Hướng nhìn thành phần (Component View):"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Là một lời miêu tả của việc thực thi các modul cũng như sự phụ thuộc giữa chúng với nhau. Nó thường được sử dụng cho nhà phát triển và thường bao gồm nhiều biểu đồ thành phần. Thành phần ở đây là các modul lệnh thuộc nhiều loại khác nhau, sẽ được chỉ ra trong biểu đồ cùng với cấu trúc cũng như sự phụ thuộc của chúng. Các thông tin bổ sung về các thành phần, ví dụ như vị trí của tài nguyên (trách nhiệm đối với một thành phần), hoặc các thông tin quản trị khác, ví dụ như một bản báo cáo về tiến trình của công việc cũng có thể được bổ sung vào đây."
+              }
+            ]
+          },
+          {
+            "type": "heading",
+            "attrs": {
+              "level": 2
+            },
+            "content": [
+              {
+                "type": "text",
+                "text": "Hướng nhìn song song (Concurrency View):"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Hướng nhìn song song nhắm tới sự chia hệ thống thành các qui trình (process) và các bộ xử lý (processor). Khía cạnh này, vốn là một thuộc tính phi chức năng của hệ thống, cho phép chúng ta sử dụng một cách hữu hiệu các nguồn tài nguyên, thực thi song song, cũng như xử lý các sự kiện không đồng bộ từ môi trường. Bên cạnh việc chia hệ thống thành các tiểu trình có thể được thực thi song song, hướng nhìn này cũng phải quan tâm đến vấn đề giao tiếp và đồng bộ hóa các tiểu trình đó."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Hướng nhìn song song giành cho nhà phát triển và người tích hợp hệ thống, nó bao gồm các biểu đồ động (trạng thái, trình tự, tương tác và hoạt động) cùng các biểu đồ thực thi (biểu đồ thành phần và biểu đồ triển khai)."
+              }
+            ]
+          },
+          {
+            "type": "heading",
+            "attrs": {
+              "level": 2
+            },
+            "content": [
+              {
+                "type": "text",
+                "text": "Hướng nhìn triển khai (Deployment View):"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Cuối cùng, hướng nhìn triển khai chỉ cho chúng ta sơ đồ triển khai về mặt vật lý của hệ thống, ví dụ như các máy tính cũng như các máy móc và sự liên kết giữa chúng với nhau. Hướng nhìn triển khai giành cho các nhà phát triển, người tích hợp cũng như người thử nghiệm hệ thống và được thể hiện bằng các biểu đồ triển khai. Hướng nhìn này cũng bao gồm sự ánh xạ các thành phần của hệ thống vào cấu trúc vật lý; ví dụ như chương trình nào hay đối tượng nào sẽ được thực thi trên máy tính nào."
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "title": "Giới thiệu Use Case",
+      "description": null,
+      "estimatedMinutes": null,
+      "orderIndex": 2,
+      "content": {
+        "type": "doc",
+        "content": [
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Trong giai đoạn phân tích, người sử dụng cộng tác cùng nhóm phát triển phần mềm tạo nên một tổ hợp thông tin quan trọng về yêu cầu đối với hệ thống. Không chỉ là người cung cấp thông tin, bản thân người sử dụng còn là một thành phần hết sức quan trọng trong bức tranh toàn cảnh đó và nhóm phát triển cần phải chỉ ra được phương thức hoạt động của hệ thống tương lai theo hướng nhìn của người sử dụng. Hiểu được điểm quan trọng này là chìa khóa để tạo dựng được những hệ thống vừa thoả mãn các yêu cầu đặt ra vừa dễ dàng sử dụng, thậm chí tạo niềm vui thích trong sử dụng."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Như vậy công cụ giúp ta mô hình hoá hệ thống từ hướng nhìn của người sử dụng gọi là Use Case. Và để trả lời rõ hơn về Use Case ta xét một trường hợp sau:"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Giả sử tôi quyết định mua một chiếc máy fax mới. Khi đến cửa hàng máy văn phòng, tôi mới nhận ra là phải chọn lựa trong một danh sách máy móc rất phong phú. Loại máy nào sẽ được chọn đây? Tôi tự hỏi thật chính xác mình muốn làm gì với chiếc máy fax sẽ mua? Tôi muốn có những tính năng nào? Tôi muốn dùng bằng giấy thường hay giấy thermal ? Tôi muốn copy bằng cái máy đó? Tôi muốn nối nó với máy tính của mình? Tôi muốn dùng nó vừa làm máy fax vừa làm scanner? Tôi có cần phải gởi fax thật nhanh đến mức độ cần một chức năng chọn số tăng tốc? Liệu tôi có muốn sử dụng máy fax này để phân biệt giữa một cú điện thoại gọi tới và một bản fax gởi tới ?."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Tất cả chúng ta đều trải qua những kinh nghiệm như vậy khi quyết định mua một món hàng nào đó không phải vì niềm vui bộc phát. Việc chúng ta sẽ làm trong những trường hợp như vậy là một dạng phân tích Use Case: Chúng ta tự hỏi mình sẽ sử dụng sản phẩm (hay hệ thống) sắp bắt ta bỏ ra một khoản tiền đáng kể đó ra sao? Trả lời xong câu hỏi trên ta mới có khả năng chọn ra sản phẩm thoả mãn những đòi hỏi của mình. Điều quan trọng ở đây là phải biết những đòi hỏi đó là gì."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Loại quy trình này đóng vai trò rất quan trọng đối với giai đoạn phân tích của một nhóm phát triển hệ thống. Người dùng muốn sử dụng hệ thống tương lai, hệ thống mà bạn sắp thiết kế và xây dựng, như thế nào?"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Use Case là một công cụ trợ giúp cho công việc của nhà phân tích cùng người sử dụng quyết định tính năng của hệ thống. Một tập hợp các Use Case sẽ làm nổi bật một hệ thống theo phương diện những người dùng định làm gì với hệ thống này."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Để làm rõ hơn, ta hãy xét một ví dụ nhà băng lẻ. Hệ thống tương lai trong trường hợp này sẽ só nhiều người sử dụng, mỗi người sẽ giao tiếp với hệ thống cho một mục đích khác biệt:"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "- Quản trị gia sử dụng hệ thống cho mục đích thống kê"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "- Nhân viên tiếp khách sử dụng hệ thống để thực hiện các dịch vụ phục vụ khách hàng."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "- Nhân viên phòng đầu tư sử dụng hệ thống để thực hiện các giao dịch liên quan đến đầu tư."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "- Nhân viên thẩm tra chữ ký sử dụng hệ thống cho mục đích xác nhận chữ ký và bảo trì thông tin liên quan đến khách hàng."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "- Khách hàng giao tiếp với hệ thống (nhà băng) cho các hoạt động sử dụng dịch vụ như mở tài khoản, gửi tiền vào, rút tiền mặt, …"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Quá trình tương tác giữa người sử dụng và hệ thống trong mỗi một tình huống kể trên sẽ khác nhau và phụ thuộc vào chức năng mà người sử dụng muốn thực thi cùng hệ thống."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Nhóm phát triển hệ thống cần phải xây dựng nên một kịch bản nêu bật sự tương tác cần thiết giữa người sử dụng và hệ thống trong mỗi khả năng hoạt động. Ví dụ như kịch bản cho sự tương tác giữa nhân viên thu ngân và hệ thống của bộ phận tiết kiệm trong suốt tiến trình của một giao dịch. Một kịch bản khác ví dụ là chuỗi tương tác xảy ra giữa bộ phận tiết kiệm và bộ phận đầu tư trong một giao dịch chuyển tiền."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Nhìn chung, có thể coi một Use case như là tập hợp của một loạt các cảnh kịch về việc sử dụng hệ thống. Mỗi cảnh kịch mô tả một chuỗi các sự kiện. Mỗi một chuỗi này sẽ được kích hoạt bởi một người nào đó, một hệ thống khác hay là một phần trang thiết bị nào đó, hoặc là một chuỗi thời gian. Những thực thể kích hoạt nên các chuỗi sự kiện như thế được gọi là các Tác Nhân (Actor) . Kết quả của chuỗi này phải có giá trị sử dụng đối với hoặc là tác nhân đã gây nên nó hoặc là một tác nhân khác."
+              }
+            ]
+          },
+          {
+            "type": "heading",
+            "attrs": {
+              "level": 1
+            },
+            "content": [
+              {
+                "type": "text",
+                "text": "Một số ví dụ Use Case"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Trong ví dụ nhà băng lẻ ở trên, một số những Use Case dễ thấy nhất là:"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "- Một khách hàng mở một tài khoản mới."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "- Phòng đầu tư tính toán tiền lãi cho các tài khoản đầu tư."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "- Một chương trình đầu tư mới được đưa vào áp dụng."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "- Yêu cầu chuyển tiền của khách hàng được thực hiện."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "- Chuyển tiền theo kỳ hạn từ một tài khoản đầu tư sang một tài khoản tiết kiệm."
+              }
+            ]
+          },
+          {
+            "type": "heading",
+            "attrs": {
+              "level": 1
+            },
+            "content": [
+              {
+                "type": "text",
+                "text": "Sự cần thiết phải có Use Case"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Use Case là một công cụ xuất sắc để khuyến khích những người dùng tiềm năng nói về hệ thống từ hướng nhìn của họ. Đối với người dùng, chẳng phải bao giờ việc thể hiện và mô tả những ý định trong việc sử dụng hệ thống cũng là chuyện dễ dàng. Một hiện thực có thật là người sử dụng thường biết nhiều hơn những gì mà họ có thể diễn tả ra: Công cụ Use Case sẽ giúp cho nhóm phát triển bẻ gãy \"lớp băng\" đó, ngoài ra một sự trình bày trực quan cũng cho phép bạn kết hợp các biểu đồ Use Case với các loại biểu đồ khác."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Sáng kiến chủ đạo là lôi cuốn được người dùng tham gia vào những giai đoạn đầu tiên của quá trình phân tích và thiết kế hệ thống. Việc này sẽ nâng cao xác suất cho việc hệ thống chung cuộc trở thành một công cụ quen thuộc đối với các người dùng mà nó dự định sẽ trợ giúp – thay vì là một tập hợp khó hiểu và rối rắm của các khái niệm máy tính mà người dùng trong giới doanh thương có cảm giác không bao giờ hiểu được và không thể làm việc cùng."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Công tác lôi kéo người sử dụng tham gia tích cực vào quá trình phân tích là nền tảng quan trọng cho việc tạo dựng một mô hình \"thành công\", một mô hình dễ được người sử dụng hiểu và chấp nhận sau khi đã thẩm xác các nhiệm vụ căn bản. Ngoài ra, Use Case còn giúp nhóm phát triển quyết định các lớp mà hệ thống phải triển khai."
+              }
+            ]
+          },
+          {
+            "type": "heading",
+            "attrs": {
+              "level": 1
+            },
+            "content": [
+              {
+                "type": "text",
+                "text": "Mô hình hóa Use Case"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Trường hợp sử dụng là một kỹ thuật mô hình hóa được sử dụng để mô tả một hệ thống mới sẽ phải làm gì hoặc một hệ thống đang tồn tại làm gì. Một mô hình Use Case được xây dựng qua một quá trình mang tính vòng lặp (interative), trong đó những cuộc hội thảo bàn luận giữa nhóm phát triển hệ thống và khách hàng (hoặc/và người sử dụng cuối) sẽ dẫn tới một đặc tả yêu cầu được tất cả mọi người chấp nhận. Người cha tinh thần của mô hình hóa Use Case là Ivar Jacobson, ông đã tạo nên kỹ thuật mô hình hóa dựa trên những kinh nghiệm thu thập được trong quá trình tạo hệ thống AXE của hãng Erisson. Use Case đã nhận được một sự quan tâm đặc biệt lớn lao từ phía cộng đồng hướng đối tượng và đã tác động lên rất nhiều phương pháp hướng đối tượng khác nhau."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Những thành phần quan trọng nhất của một mô hình Use Case là Use Case, tác nhân và hệ thống. Ranh giới của hệ thống được định nghĩa qua chức năng tổng thể mà hệ thống sẽ thực thi. Chức năng tổng thể được thể hiện qua một loạt các Use Case và mỗi một Use Case đặc tả một chức năng trọn vẹn, có nghĩa là Use Case phải thực thi toàn bộ chức năng đó, từ sự kiện được kích hoạt đầu tiên bởi một tác nhân ngoại cảnh cho tới khi chức năng đòi hỏi được thực hiện hoàn tất. Một Use Case luôn luôn phải cung cấp một giá trị nào đó cho một tác nhân, giá trị này là những gì mà tác nhân mong muốn từ phía hệ thống. Tác nhân là bất kỳ một thực thể ngoại cảnh nào mong muốn tương tác với hệ thống. Thường thường, đó là một người sử dụng của hệ thống, nhưng nhiều khi cũng có thể là một hệ thống khác hoặc là một dạng máy móc thiết bị phần cứng nào đó cần tương tác với hệ thống."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Trong kỹ thuật mô hình hóa Use Case, hệ thống sẽ có hình dạng của một \"hộp đen\" và cung cấp các Use Case. Hệ thống làm điều đó như thế nào, các Use Case được thực thi ra sao, đó là những khía cạnh chưa được đề cập tới trong giai đoạn này. Trong thực tế, nếu mô hình hóa Use Case được thực hiện trong những giai đoạn đầu của dự án thì thường nhà phát triển sẽ không biết Use Case sau này sẽ được thực thi (tức là biến thành những dòng code thật sự) như thế nào."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Mục tiêu chính yếu đối với các Use Case là:"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "- Để quyết định và mô tả các yêu cầu về mặt chức năng của hệ thống, đây là kết quả rút ra từ sự thỏa thuận giữa khách hàng (và/hoặc người sử dụng cuối) và nhóm phát triển phần mềm."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "- Để tạo nên một lời mô tả rõ ràng và nhất quán về việc hệ thống cần phải làm gì, làm sao để mô hình có thể được sử dụng nhất quán suốt toàn bộ quá trình phát triển, được sử dụng làm công cụ giao tiếp cho tất cả những người phát triển nên các yêu cầu này, và để tạo nên một nền tảng cho việc tạo nên các mô hình thiết kế cung cấp các chức năng được yêu cầu."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "- Để tạo nên một nền tảng cho các bước thử nghiệm hệ thống, đảm bảo hệ thống thỏa mãn đúng những yêu cầu do người sử dụng đưa ra. Trong thực tế thường là để trả lời câu hỏi: Liệu hệ thống cuối cùng có thực hiện những chức năng mà khởi đầu khách hàng đã đề nghị?"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "- Để cung cấp khả năng theo dõi các yêu cầu về mặt chức năng được chuyển thành các lớp cụ thể cũng như các thủ tục cụ thể trong hệ thống."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "- Để đơn giản hóa việc thay đổi và mở rộng hệ thống qua việc thay đổi và mở rộng mô hình Use Case, sau đó chỉ theo dõi riêng những Use Case đã bị thay đổi cùng những hiệu ứng của chúng trong thiết kế hệ thống và xây dựng hệ thống."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Những công việc cụ thể cần thiết để tạo nên một mô hình Use Case bao gồm:"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "1. Định nghĩa hệ thống (xác định phạm vi hệ thống)"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "2. Tìm ra các tác nhân cũng như các Use Case"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "3. Mô tả Use Case"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "4. Định nghĩa mối quan hệ giữa các Use Case"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "5. Kiểm tra và phê chuẩn mô hình."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Đây là một công việc mang tính tương tác rất cao, bao gồm những cuộc thảo luận với khách hàng và những người đại diện cho các loại tác nhân. Mô hình Use Case bao gồm các biểu đồ Use Case chỉ ra các tác nhân, Use Case và mối quan hệ của chúng với nhau. Các biểu đồ này cho ta một cái nhìn tổng thể về mô hình, nhưng những lời mô tả thực sự của từng Use Case thường lại là văn bản. Vì các mô hình trực quan không thể cung cấp tất cả các thông tin cần thiết, nên cần thiết phải dùng cả hai kỹ thuật trình bày đó."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Có rất nhiều người quan tâm đến việc sử dụng các mô hình Use Case. Khách hàng (và/hoặc người sử dụng cuối) quan tâm đến chúng vì mô hình Use Case đặc tả chức năng của hệ thống và mô tả xem hệ thống có thể và sẽ được sử dụng ra sao. Các Use Case vì vậy phải được mô tả trong những thuật ngữ và ngôn ngữ của khách hàng/người sử dụng."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Nhà phát triển cần đến các mô hình Use Case để hiểu hệ thống cần phải làm gì, và qua đó có được một nền tảng cho những công việc tương lai (các mô hình khác, các cấu trúc thiết kế và việc thực thi xây dựng hệ thống bằng code)."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Các nhóm chuyên gia thử nghiệm tích hợp và thử nghiệm hệ thống cần đến Use Case để thử nghiệm và kiểm tra xem hệ thống có đảm bảo sẽ thực hiện đúng chức năng đã được đặc tả trong giai đoạn đầu."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Và cuối cùng, bất kỳ người nào liên quan đến những hoạt động liên kết đến chức năng của hệ thống đều có thể quan tâm đến các mô hình Use Case; ví dụ như các nhóm tiếp thị, bán hàng, hỗ trợ khách hàng và các nhóm soạn thảo tài liệu."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Mô hình Use Case mô tả hướng nhìn Use Case của hệ thống. Hướng nhìn này là rất quan trọng, bởi nó ảnh hưởng đến tất cả các hướng nhìn khác của hệ thống. Cả cấu trúc logic lẫn cấu trúc physic đều chịu ảnh hưởng từ các Use Case, bởi chức năng được đặc tả trong mô hình này chính là những chức năng được thực thi trong các cấu trúc kia. Mục đích cuối cùng là thiết kế ra một giải pháp thỏa mãn các yêu cầu đó."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Mô hình hóa các Use Case chẳng phải chỉ được dùng để nắm bắt các yêu cầu của hệ thống mới; nó cũng còn được sử dụng để hỗ trợ cho việc phát triển một phiên bản mới của hệ thống. Khi phát triển một phiên bản mới của hệ thống đang tồn tại, người ta sẽ bổ sung thêm các chức năng mới vào mô hình Use Case đã có bằng cách thêm vào các tác nhân mới cũng như các Use Case mới, hoặc là thay đổi đặc tả của các Use Case đã có. Khi bổ sung thêm vào mô hình Use Case đang tồn tại, hãy chú ý để không bỏ ra bất kỳ một chức năng nào vẫn còn được cần tới."
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "title": "Biểu đồ Use Case",
+      "description": null,
+      "estimatedMinutes": null,
+      "orderIndex": 3,
+      "content": {
+        "type": "doc",
+        "content": [
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Use Case được mô tả trong ngôn ngữ UML qua biểu đồ Use Case (Use Case Diagram), và một mô hình Use Case có thể được chia thành một số lượng lớn các biểu đồ như thế. Một biểu đồ Use Case chứa các phần tử mô hình biểu thị hệ thống, tác nhân cũng như Use Case và chỉ ra các mối quan hệ giữa các Use Case."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Lời mô tả nội dung Use Case thường được cung cấp dưới dạng văn bản. Trong UML, lời mô tả đó được coi là thuộc tính \"văn bản\" (document) của Use Case. Lời mô tả này bao chứa những thông tin quan trọng, định nghĩa các yêu cầu và chức năng cụ thể. Thay cho việc mô tả Use Case bằng văn bản, bạn cũng có thể vẽ một biểu đồ hoạt động (activity diagram). Mặc dầu vậy, nên nhớ rằng một Use Case cần phải được mô tả sao cho dễ hiểu và dễ giao tiếp đối với người sử dụng, mà những cấu trúc phức tạp như một biểu đồ hoạt động có thể gây cảm giác xa lạ đối với những người không quen sử dụng."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Tóm tắt: Một biểu đồ Use Case thể hiện:"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "- Hệ thống"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "- Tác nhân"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "- Use Case."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Ví dụ biểu đồ Use Case trong UML:"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Trong đó :"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "- Hệ thống được thể hiện qua hình chữ nhật với tên hệ thống ở bên trên"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "- Tác nhân được thể hiện qua kí hiệu hình nhân"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "- Use Case được thể hiện qua hình ellipse"
+              }
+            ]
+          },
+          {
+            "type": "heading",
+            "attrs": {
+              "level": 2
+            },
+            "content": [
+              {
+                "type": "text",
+                "text": "Hệ thống:"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Vì hệ thống là một thành phần của mô hình Use Case nên ranh giới của hệ thống mà ta muốn phát triển cần phải được định nghĩa rõ ràng. Xin nhớ rằng một hệ thống không phải bao giờ cũng nhất thiết là một hệ thống phần mềm; nó có thể là một chiếc máy, hoặc là một doanh nghiệp. Định nghĩa các ranh giới và trách nhiệm của hệ thống không phải bao giờ cũng là việc dễ dàng, bởi không phải bao giờ người ta cũng rõ ràng nhìn ra tác vụ nào có khả năng được tự động hóa tốt nhất ở hệ thống này và tác vụ nào thì tốt nhất nên thực hiện thủ công hoặc dành cho các hệ thống khác. Một khía cạnh khác cần chú ý là hệ thống cần phải lớn tới mức độ nào trong phiên bản đầu tiên của nó. Cố gắng tối đa cho phiên bản đầu tiên của hệ thống thường là cách mà người ta hay thực hiện, thế nhưng những mục tiêu quá tầm như vậy có thể khiến cho hệ thống trở nên quá lớn và thời gian để cung cấp hệ thống quá lâu. Một sáng kiến tốt hơn là xác nhận cho rõ các chức năng căn bản và tập trung vào việc định nghĩa một kiến trúc hệ thống thích hợp, rõ ràng, có nền tảng rộng mở để nhiều chức năng hơn có thể được bổ sung vào hệ thống này trong các phiên bản sau."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Yếu tố quan trọng là bạn phải tạo dựng được một bản catalog của các khái niệm (các thực thể) trung tâm cùng với các thuật ngữ và định nghĩa thích hợp trong những giai đoạn đầu của thời kỳ phân tích. Đây chưa phải mô hình phạm vi đối tượng, mà đúng hơn là một cố gắng để mô tả các thuật ngữ của hệ thống hoặc doanh nghiệp mà chúng ta cần mô hình hóa. Các thuật ngữ sau đó sẽ được dùng để mô tả Use Case. Phương thức cụ thể của catalog này có thể rất khác nhau; nó có thể là một mô hình khái niệm chỉ ra các mối quan hệ đơn giản hoặc chỉ là một văn bản chứa các thuật ngữ cùng lời mô tả vắn tắt những thuật ngữ này trong thế giới thực."
+              }
+            ]
+          },
+          {
+            "type": "heading",
+            "attrs": {
+              "level": 2
+            },
+            "content": [
+              {
+                "type": "text",
+                "text": "Tác nhân:"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Một tác nhân là một người hoặc một vật nào đó tương tác với hệ thống, sử dụng hệ thống. Trong khái niệm \"tương tác với hệ thống\", ý chúng ta muốn nói rằng tác nhân sẽ gửi thông điệp đến hệ thống hoặc là nhận thông điệp xuất phát từ hệ thống, hoặc là thay đổi các thông tin cùng với hệ thống. Nói một cách ngắn gọn, tác nhân thực hiện các Use Case. Thêm một điều nữa, một tác nhân có thể là người mà cũng có thể là một hệ thống khác (ví dụ như là một chiếc máy tính khác được nối kết với hệ thống của chúng ta hoặc một loại trang thiết bị phần cứng nào đó tương tác với hệ thống)."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Một tác nhân là một dạng thực thể (một lớp), chứ không phải một thực thể. Tác nhân mô tả và đại diện cho một vai trò, chứ không phải là một người sử dụng thật sự và cụ thể của hệ thống. Nếu một anh chàng John nào đó muốn mua hợp đồng bảo hiểm từ một hãng bảo hiểm, thì vai trò của anh ta sẽ là người mua hợp đồng bảo hiểm, và đây mới là thứ mà chúng ta muốn mô hình hóa, chứ không phải bản thân anh chàng John. Trong sự thực, một con người cụ thể có thể đóng vai trò làm nhiều tác nhân trong một hệ thống: một nhân viên ngân hàng đồng thời cũng có thể là khách hàng của chính ngân hàng đó. Mặt khác, số lượng các vai trò mà một con người cụ thể được phép đảm trách trong một hệ thống cũng có thể bị hạn chế, ví dụ cùng một người không được phép vừa soạn hóa đơn vừa phê duyệt hóa đơn đó. Một tác nhân sẽ có một tên, và cái tên này cần phải phản ánh lại vai trò của tác nhân. Cái tên đó không được phản ánh lại một thực thể riêng biệt của một tác nhân, mà cũng không phản ánh chức năng của tác nhân đó."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Một tác nhân giao tiếp với hệ thống bằng cách gửi hoặc là nhận thông điệp, giống như khái niệm chúng ta đã quen biết trong lập trình hướng đối tượng. Một Use Case bao giờ cũng được kích hoạt bởi một tác nhân gửi thông điệp đến cho nó. Khi một Use Case được thực hiện, Use Case có thể gửi thông điệp đến một hay là nhiều tác nhân. Những thông điệp này cũng có thể đến với các tác nhân khác, bên cạnh chính tác nhân đã kích hoạt và gây ra Use Case."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Tác nhân cũng có thể được xếp loại. Một tác nhân chính (Primary Actor) là tác nhân sử dụng những chức năng căn bản của hệ thống, tức là các chức năng chính. Ví dụ, trong một hệ thống bảo hiểm, một tác nhân căn bản có thể là tác nhân xử lý việc ghi danh và quản lý các hợp đồng bảo hiểm. Một tác nhân phụ (secondary actor) là tác nhân sử dụng các chức nặng phụ của hệ thống, ví dụ như các chức năng bảo trì hệ thống như quản trị ngân hàng dữ liệu, giao tiếp, back-up và các tác vụ quản trị khác. Một ví dụ cho tác nhân phụ có thể là nhà quản trị hoặc là một nhân viên sử dụng chức năng trong hệ thống để rút ra các thông tin thống kê về doanh nghiệp. Cả hai loại tác nhân này đều được mô hình hóa để đảm bảo mô tả đầy đủ các chức năng của hệ thống, mặc dù các chức năng chính mới thật sự nằm trong mối quan tâm chủ yếu của khách hàng."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Tác nhân còn có thể được định nghĩa theo dạng tác nhân chủ động (active actor) hay tác nhân thụ động (passive actor). Một tác nhân chủ động là tác nhân gây ra Use Case, trong khi tác nhân thụ động không bao giờ gây ra Use Case mà chỉ tham gia vào một hoặc là nhiều Use Case."
+              }
+            ]
+          },
+          {
+            "type": "heading",
+            "attrs": {
+              "level": 2
+            },
+            "content": [
+              {
+                "type": "text",
+                "text": "Tìm tác nhân:"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Khi nhận diện tác nhân, có nghĩa là chúng ta lọc ra các thực thể đáng quan tâm theo khía cạnh sử dụng và tương tác với hệ thống. Sau đó chúng ta có thể thử đặt mình vào vị trí của tác nhân để cố gắng nhận ra các yêu cầu và đòi hỏi của tác nhân đối với hệ thống và xác định tác nhân cần những Use Case nào. Có thể nhận diện ra các tác nhân qua việc trả lời một số các câu hỏi như sau:"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "- Ai sẽ sử dụng những chức năng chính của hệ thống (tác nhân chính)?"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "- Ai sẽ cần sự hỗ trợ của hệ thống để thực hiện những tác vụ hàng ngày của họ?"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "- Ai sẽ cần bảo trì, quản trị và đảm bảo cho hệ thống hoạt động (tác nhân phụ)?"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "- Hệ thống sẽ phải xử lý và làm việc với những trang thiết bị phần cứng nào?"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "- Hệ thống cần phải tương tác với các hệ thống khác nào? Nhóm các hệ thống này được chia ra làm hai nhóm, nhóm kích hoạt cho mối quan hệ với hệ thống, và nhóm mà hệ thống cần phải xây dựng của chúng ta sẽ thiết lập quan hệ. Khái niệm hệ thống bao gồm cả các hệ thống máy tính khác cũng như các ứng dụng khác trong chính chiếc máy tính mà hệ thống này sẽ hoạt động."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "- Ai hay cái gì quan tâm đến kết quả (giá trị) mà hệ thống sẽ sản sinh ra?"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Khi đi tìm những người sử dụng hệ thống, đừng quan sát những người đang ngồi ở trước màn hình máy tính. Nên nhớ rằng, người sử dụng có thể là bất kỳ người nào hay bất kỳ vật nào tương tác hoặc trực tiếp hoặc gián tiếp với hệ thống và sử dụng các dịch vụ của hệ thống này để đạt đến một kết quả nào đó. Đừng quên rằng mô hình hóa Use Case được thực hiện để mô hình hóa một doanh nghiệp, vì thế tác nhân thường thường là khách hàng của doanh nghiệp đó. Từ đó suy ra họ không phải là người sử dụng theo nghĩa đơn giản và trực tiếp là người ngồi trước màn hình máy tính và thao tác với máy tính."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Để có thể nhận dạng được tốt nhiều tác nhân khác nhau, hãy tiến hành nghiên cứu những người sử dụng của hệ thống hiện thời (một hệ thống thủ công hoặc một hệ thống đang tồn tại), hỏi xem họ đóng những vai trò nào khi thực thi công việc hàng ngày của họ với hệ thống. Cũng người sử dụng đó có thể thực thi nhiều vai trò khác nhau tại nhiều thời điểm khác nhau, tùy thuộc vào việc chức năng nào trong hệ thống đang được sử dụng."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Xin nhắc lại, một tác nhân là một vai trò (một lớp), chứ không phải một thực thể riêng lẻ. Mặc dù vậy, khi cung cấp ví dụ là một vài các thực thể của một tác nhân, bạn có thể đảm bảo rằng tác nhân đó thật sự tồn tại. Một tác nhân phải có một sự liên kết (Association) nào đó với một hoặc là nhiều Use Case. Mặc dù có những tác nhân có thể không kích hoạt nên một Use Case nào, nhưng tác nhân đó sẽ giao tiếp ít nhất với một Use Case tại một thời điểm nào đó. Cần phải đặt tên cho tác nhân làm sao để tên phản ánh đúng vai trò của tác nhân đó trong hệ thống."
+              }
+            ]
+          },
+          {
+            "type": "heading",
+            "attrs": {
+              "level": 2
+            },
+            "content": [
+              {
+                "type": "text",
+                "text": "Biểu diễn tác nhân trong ngôn ngữ UML:"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Tác nhân trong UML là một lớp với biệt ngữ \"Actor\" (Tác nhân) và tên của lớp này là tên của tác nhân (phản ánh vai trò của tác nhân). Một lớp tác nhân có thể vừa có thuộc tính (attribute) lẫn hành vi (method) cũng như một thuộc tính tài liệu (document) mô tả tác nhân đó. Một lớp tác nhân có một biểu tượng chuẩn hóa, biểu tượng \"hình nhân\":"
+              }
+            ]
+          },
+          {
+            "type": "heading",
+            "attrs": {
+              "level": 2
+            },
+            "content": [
+              {
+                "type": "text",
+                "text": "Use Case:"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Một Use Case là đại diện cho một chức năng nguyên vẹn mà một tác nhân nhận được. Một Use Case trong ngôn ngữ UML được định nghĩa là một tập hợp của các chuỗi hành động mà một hệ thống thực hiện để tạo ra một kết quả có thể quan sát được, tức là một giá trị đến với một tác nhân cụ thể. Những hành động này có thể bao gồm việc giao tiếp với một loạt các tác nhân cũng như thực hiện tính toán và công việc nội bộ bên trong hệ thống."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Các tính chất tiêu biểu của một Use Case là:"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "- Một Use Case bao giờ cũng được gây ra bởi một tác nhân, được thực hiện nhân danh một tác nhân nào đó. Tác nhân phải ra lệnh cho hệ thống để thực hiện Use Case đó, dù là trực tiếp hay gián tiếp. Hiếm khi có tác nhân không liên quan đến việc gây ra một Use Case nào đó."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "- Một Use Case phải cung cấp một giá trị cho một tác nhân. Giá trị đó không phải bao giờ cũng cần thiết phải nổi trội ra ngoài, nhưng luôn phải được thấy rõ."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "- Một Use Case là phải hoàn tất. Một trong những lỗi thường gặp là sẻ chia một Use Case thành các Use Case nhỏ hơn, và các Use Case này thực thi lẫn nhau giống như việc gọi hàm cho một ngôn ngữ lập trình. Một Use Case sẽ không được coi là hoàn tất chừng nào mà giá trị cuối cùng của nó chưa được sản sinh ra, thậm chí ngay cả khi đã xẩy ra nhiều động tác giao tiếp (ví dụ như đối thoại với người sử dụng)."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Use Case được nối với tác nhân qua liên kết (association). Đường liên kết chỉ ra những tác nhân nào giao tiếp với Use Case nào. Mối liên kết bình thường ra là một mối quan hệ 1-1 và không có hướng. Điều đó muốn nói lên rằng một thực thể của lớp tác nhân sẽ giao tiếp với một thực thể của một Use Case và cả hai có thể giao tiếp với nhau trong cả hai chiều. Một Use Case sẽ được đặt tên theo một thực thể mà Use Case sẽ thực hiện, ví dụ như ký hợp đồng bảo hiểm, cập nhật danh sách, v.v…, và thường là một cụm từ hơn là chỉ một từ riêng lẻ."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Một Use Case là một lớp, chứ không phải một thực thể. Nó mô tả trọn vẹn một chức năng, kể cả các giải pháp bổ sung và thay thế có thể có, các lỗi có thể xảy ra cũng như những ngoại lệ có thể xảy ra trong quá trình thực thi. Một kết quả của sự thực thể hóa một Use Case được gọi là một cảnh kịch (scenario) và nó đại diện cho một sự sử dụng cụ thể của hệ thống (một đường dẫn thực thi riêng biệt qua hệ thống). Ví dụ một cảnh kịch của Use Case \"Ký hợp đồng bảo hiểm\" có thể là \"John liên hệ với hệ thống qua điện thoại rồi sau đó ký hợp đồng bảo hiểm ô tô cho chiếc xe Toyota Carolla mà anh ta vừa mua.\""
+              }
+            ]
+          },
+          {
+            "type": "heading",
+            "attrs": {
+              "level": 2
+            },
+            "content": [
+              {
+                "type": "text",
+                "text": "Tìm Use Case:"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Quá trình tìm các Use Case bắt đầu với các tác nhân đã được xác định ở phần trước. Đối với mỗi tác nhân, hãy hỏi các câu hỏi sau:"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "a . Tác nhân này cần những chức năng nào từ hệ thống? Hành động chính của tác nhân là gì ?."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Ví dụ cho một giao dịch rút tiền bên máy ATM trong một nhà băng lẻ, các hành động chính của khách hàng (tác nhân) có thể là :"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "- Đút thẻ vào máy ATM"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "- Nhập password"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "- Nhập loại chuyển dịch"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "- Nhập số tiền mặt muốn rút ra"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "- Yêu cầu về loại tiền"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "- Nhặt tiền ra từ máy"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "- Rút thẻ và tờ in kết quả giao dịch"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "b . Tác nhân có cần phải đọc, phải tạo, phải hủy bỏ, phải sửa chữa, hay là lưu trữ một loại thông tin nào đó trong hệ thống?"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Ví dụ :"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "- Nhân viên nhà băng liệu có quyền truy xuất hay thay đổi mức tiền lãi?"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "- Khách hàng có thể thay đổi password của mình."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "c . Tác nhân có cần phải báo cho hệ thống biết về những sự kiện nào đó? Những sự kiện như thế sẽ đại diện cho những chức năng nào?"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Ví dụ :"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "- Khách hàng kết thúc tài khoản, nhân viên cung cấp những thông tin này cho hệ thống."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "- Có một chương trình đầu tư mới, các chi tiết của chương trình này sẽ phải được nhân viên nhà băng nhập vào hệ thống."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "d . Hệ thống có cần phải thông báo cho Actor về những thay đổi bất ngờ trong nội bộ hệ thống?"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "- Trong tài khoản còn quá ít tiền."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "- Ba kỳ liên tiếp tiền lương chưa đổ về tài khoản."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "e . Công việc hàng ngày của tác nhân có thể được đơn giản hóa hoặc hữu hiệu hóa qua các chức năng mới trong hệ thống (thường đây là những chức năng tiêu biểu chưa được tự động hóa trong hệ thống)?"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "f . Các câu hỏi khác:"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "- Use Case có thể được gây ra bởi các sự kiện nào khác?"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Ví dụ :"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Sự kiện thời gian: Cuối tháng, hết hạn đầu tư."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Sự kiện bình thường của hệ thống: Tự động chuyển tiền theo các lệnh xác định trước."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Các sự kiện bất bình thường: Hợp đồng đầu tư kết thúc trước thời hạn."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "- Hệ thống cần những thông tin đầu vào/đầu ra nào? Những thông tin đầu vào/đầu ra đó từ đâu tới và sẽ đi đâu?"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "- Khó khăn và thiếu hụt chính trong hệ thống hiện thời nằm ở đâu (thủ công /tự động hóa)?"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Đối với nhóm câu hỏi cuối không có nghĩa là Use Case ở đây không có tác nhân, mà tác nhân sẽ được nhận ra chỉ khi chúng ta nhận diện ra các Use Case này và sau đó xác định tác nhân dựa trên cơ sở là Use Case. Xin nhắc lại, một Use Case bao giờ cũng phải được liên kết với ít nhất một tác nhân."
+              }
+            ]
+          },
+          {
+            "type": "heading",
+            "attrs": {
+              "level": 2
+            },
+            "content": [
+              {
+                "type": "text",
+                "text": "Ví dụ tìm Use Case:"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Nhà băng ABC đưa ra các yêu cầu sau:"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "- Một khách hàng có thể muốn gửi tiền vào, rút tiền ra hoặc đơn giản kiểm tra lại số tiền trong tài khoản của anh ta qua máy tự động rút tiền (ATM). Khi đưa tiền vào hoặc rút tiền ra, cần phải ghi ra giấy kết quả những chuyển dịch đã thực hiện và trao tờ giấy này cho khách hàng."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Quan sát các chức năng căn bản và các thành phần tham gia, ta thấy có hai tác nhân dễ nhận ra nhất là khách hàng và nhân viên thu ngân."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Qua đó, có thể nhân dạng các Use Case sau:"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "- Gửi tiền vào."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "- Rút tiền ra."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "- Kiểm tra mức tiền trong tài khoản"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "- Thực hiện các chuyển dịch nội bộ hệ thống"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "- In kết quả các chuyển dịch đã thực hiện."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Use Case gửi tiền vào và rút tiền ra phụ thuộc vào Use Case thực hiện các chuyển dịch trong nội bộ hệ thống, việc thực hiện này về phần nó lại phụ thuộc vào chức năng in ra các công việc đã được thực hiện. Kiểm tra mức tiền trong tài khoản là một Use Case độc lập, không phụ thuộc vào các Use Case khác."
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "title": "Lớp , đối tượng và quan hệ– các thành phần cơ bản của mô hình",
+      "description": null,
+      "estimatedMinutes": null,
+      "orderIndex": 4,
+      "content": {
+        "type": "doc",
+        "content": [
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Trong mô hình hóa hướng đối tượng, những phần tử cấu thành căn bản nhất của mô hình là lớp, đối tượng và mối quan hệ giữa chúng với nhau. Lớp và đối tượng sẽ mô hình hóa những gì có trong hệ thống mà chúng ta muốn miêu tả, các mối quan hệ sẽ biểu thị cấu trúc. Động tác phân lớp (classification) đã được sử dụng từ hàng ngàn năm nay để đơn giản hóa việc miêu tả các hệ thống phức tạp. Khi loài người biết đến việc lập trình hướng đối tượng để xây dựng các hệ thống phần mềm thì lớp và các mối quan hệ của chúng được chuyển thành các dòng code cụ thể."
+              }
+            ]
+          },
+          {
+            "type": "heading",
+            "attrs": {
+              "level": 2
+            },
+            "content": [
+              {
+                "type": "text",
+                "text": "Đối tượng (Object)"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Một đối tượng là một sự tượng trưng cho một thực thể, hoặc là thực thể tồn tại trong thế giới đời thực hoặc thực thể mang tính khái niệm. Một đối tượng có thể tượng trưng cho cái gì đó cụ thể, ví dụ như một chiếc xe ô tô chở hàng của bạn hoặc chiếc máy tính của tôi, hoặc tượng trưng cho một khái niệm ví dụ như một quy trình hóa học, một giao dịch trong nhà băng, một lời đặt hàng, những thông tin trong quá trình sử dụng tín dụng của khách hàng hay một tỷ lệ tiền lời."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Cũng có những đối tượng (ví dụ như các đối tượng thực thi một trong hệ thống phần mềm) không thật sự tồn tại ở ngoài thế giới thực, nhưng là kết quả dẫn xuất từ quá trình nghiên cứu cấu trúc và ứng xử của các đối tượng ngoài thế giới thực. Những đối tượng đó, dù là bằng cách này hay cách khác, đều liên quan đến quan niệm của chúng ta về thế giới thực."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Một đối tượng là một khái niệm, một sự trừu tượng hóa, hoặc là một đồ vật với ranh giới và ý nghĩa được định nghĩa rõ ràng cho một ứng dụng nào đó. Mỗi đối tượng trong một hệ thống đều có ba đặc tính: trạng thái, ứng xử và sự nhận diện."
+              }
+            ]
+          },
+          {
+            "type": "heading",
+            "attrs": {
+              "level": 2
+            },
+            "content": [
+              {
+                "type": "text",
+                "text": "Trạng thái, ứng xử và nhận diện của đối tượng"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Trạng thái (state) của một đối tượng là một trong những hoàn cảnh nơi đối tượng có thể tồn tại. Trạng thái của một đối tượng thường sẽ thay đổi theo thời gian, và nó được định nghĩa qua một tổ hợp các thuộc tính, với giá trị của các thuộc tính này cũng như mối quan hệ mà đối tượng có thể có với các đối tượng khác. Ví dụ một danh sách ghi danh cho một lớp học trong hệ thống trường học có thể có hai trạng thái: trạng thái đóng và trạng thái mở. Nếu danh sách sinh viên ghi danh cho lớp học này còn nhỏ hơn số tối đa cho phép (ví dụ là 10), thì trạng thái của bảng ghi danh này là mở. Một khi đã đủ 10 sinh viên ghi danh cho lớp, danh sách sẽ chuyển sang trạng thái đóng."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Ứng xử (Behaviour) xác định một đối tượng sẽ phản ứng như thế nào trước những yêu cầu từ các đối tượng khác, nó tiêu biểu cho những gì mà đối tượng này có thể làm. Ứng xử được thực thi qua loạt các Phương thức (operation) của đối tượng. Trong ví dụ trường đại học, một đối tượng bảng ghi danh lớp học có thể có ứng xử là bổ sung thêm một sinh viên hay xóa đi tên của một sinh viên khi sinh viên đăng ký học hay bãi bỏ đăng ký."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Sự nhận diện (Identity) đảm bảo rằng mỗi đối tượng là duy nhất – dù trạng thái của nó có thể giống với trạng thái của các đối tượng khác. Ví dụ, khóa học đại số 101 chương 1 và khóa học đại số 101 chương 2 là hai đối tượng trong hệ thống ghi danh trường học. Mặc dù cả hai đều thuộc loại bảng ghi danh, mỗi khóa học vẫn có sự nhận dạng duy nhất của mình."
+              }
+            ]
+          },
+          {
+            "type": "heading",
+            "attrs": {
+              "level": 2
+            },
+            "content": [
+              {
+                "type": "text",
+                "text": "Lớp (Class):"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Một lớp là một lời miêu tả của một nhóm các đối tượng có chung thuộc tính, chung phương thức (ứng xử), chung các mối quan hệ với các đối tượng khác và chung ngữ nghĩa (semantic). Nói như thế có nghĩa lớp là một khuôn mẫu để tạo ra đối tượng. Mỗi đối tượng là một thực thể của một lớp nào đó và một đối tượng không thể là kết quả thực thể hóa của nhiều hơn một lớp. Chúng ta sử dụng khái niệm lớp để bàn luận về các hệ thống và để phân loại các đối tượng mà chúng ta đã nhận dạng ra trong thế giới thực."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Một lớp tốt sẽ nắm bắt một và chỉ một sự trừu tượng hóa - nó phải có một chủ đề chính. Ví dụ, một lớp vừa có khả năng giữ tất cả các thông tin về một sinh viên và thông tin về tất cả những lớp học mà người sinh viên đó đã trải qua trong nhiều năm trước không phải là một lớp tốt, bởi nó không có chủ đề chính. Lớp này cần phải được chia ra làm hai lớp liên quan đến nhau: lớp sinh viên và lớp lịch sử của sinh viên."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Khi tạo dựng mô hình cũng như thật sự xây dựng các hệ thống doanh nghiệp, các hệ thống thông tin, máy móc hoặc các lọai hệ thống khác, chúng ta cần sử dụng các khái niệm của chính phạm vi vấn đề để khiến cho mô hình dễ hiểu và dễ giao tiếp hơn. Nếu chúng ta xây dựng hệ thống cho một công ty bảo hiểm, mô hình cần phải dựa trên các khái niệm của ngành bảo hiểm. Nếu chúng ta xây dựng một hệ thống cho quân đội, thì các khái niệm của thế giới quân sự cần phải được sử dụng khi mô hình hóa hệ thống. Một hệ thống dựa trên các khái niệm chính của một ngành doanh nghiệp nào đó có thể dễ được thiết kế lại cho phù hợp với những qui chế, chiến lược và qui định mới, bởi chúng ta chỉ cần cân bằng và khắc phục sự chênh lệch giữa công việc cũ và công việc mới. Khi các mô hình được xây dựng dựa trên các khái niệm lấy ra từ cuộc đời thực và dựa trên các khái niệm thuộc phạm vi vấn đề, hướng đối tượng sẽ là một phương pháp rất thích hợp bởi nền tảng của phương pháp hướng đối tượng là các lớp, đối tượng và mối quan hệ giữa chúng."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Một lớp là lời miêu tả cho một dạng đối tượng trong bất kỳ một hệ thống nào đó – hệ thống thông tin, hệ thống kỹ thuật, hệ thống nhúng thời gian thực, hệ thống phân tán, hệ thống phần mềm và hệ thống doanh thương. Các vật dụng (artifact) trong một doanh nghiệp, những thông tin cần được lưu trữ, phân tích hoặc các vai trò mà một tác nhân đảm nhận trong một doanh nghiệp thường sẽ trở thành các lớp trong các hệ thống doanh nghiệp và hệ thống thông tin."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Ví dụ về các lớp trong doanh nghiệp và các hệ thống thông tin:"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "- Khách hàng"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "- Bản thương thuyết"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "- Hóa đơn"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "- Món nợ"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "- Tài sản"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "- Bản công bố giá cổ phiếu"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Các lớp trong một hệ thống kỹ thuật thường bao gồm các đối tượng kỹ thuật, ví dụ như máy móc được sử dụng trong hệ thống:"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "- Sensor"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "- Màn hình"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "- I/O card"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "- Động cơ"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "- Nút bấm"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "- Lớp điều khiển"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Các hệ thống phần mềm thường có các lớp đại diện cho các thực thể phần mềm trong một hệ điều hành:"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "- File"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "- Chương trình chạy được"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "- Trang thiết bị"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "- Icon"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "- Cửa sổ"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "- Thanh kéo"
+              }
+            ]
+          },
+          {
+            "type": "heading",
+            "attrs": {
+              "level": 2
+            },
+            "content": [
+              {
+                "type": "text",
+                "text": "Biểu đồ lớp (Class diagram):"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Một biểu đồ lớp là một dạng mô hình tĩnh. Một biểu đồ lớp miêu tả hướng nhìn tĩnh của một hệ thống bằng các khái niệm lớp và mối quan hệ giữa chúng với nhau. Mặc dù nó cũng có những nét tương tự với một mô hình dữ liệu, nhưng nên nhớ rằng các lớp không phải chỉ thể hiện cấu trúc thông tin mà còn miêu tả cả hình vi. Một trong các mục đích của biểu đồ lớp là tạo nền tảng cho các biểu đồ khác, thể hiện các khía cạnh khác của hệ thống (ví dụ như trạng thái của đối tượng hay cộng tác động giữa các đối tượng, được chỉ ra trong các biểu đồ động). Một lớp trong một biểu đồ lớp có thể được thực thi trực tiếp trong một ngôn ngữ hướng đối tượng có hỗ trợ trực tiếp khái niệm lớp. Một biểu đồ lớp chỉ chỉ ra các lớp, nhưng bên cạnh đó còn có một biến tấu hơi khác đi một chút chỉ ra các đối tượng thật sự là các thực thể của các lớp này (biểu đồ đối tượng)."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Để tạo một biểu đồ lớp, đầu tiên ta phải nhận diện và miêu tả các lớp. Một khi đã có một số lượng các lớp, ta sẽ xét đến quan hệ giữa các lớp đó với nhau."
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "title": "Các mối quan hệ giữa các lớp",
+      "description": null,
+      "estimatedMinutes": null,
+      "orderIndex": 5,
+      "content": {
+        "type": "doc",
+        "content": [
+          {
+            "type": "heading",
+            "attrs": {
+              "level": 1
+            },
+            "content": [
+              {
+                "type": "text",
+                "text": "Sự liên kết và kết hợp giữa các đối tượng"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Một liên kết là một sự kết nối vật lý hoặc logic giữa các đối tượng với nhau. Phần lớn các liên kết là sự kết nối giữa hai đối tượng với nhau. Tuy nhiên cũng có những liên kết giữa ba hoặc nhiều hơn ba đối tượng. Nhưng các ngôn ngữ lập trình hiện nay hầu như chỉ cài đặt những liên kết (phép toán) nhiều nhất là ba ngôi."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Một sự kết hợp là một mô tả về một nhóm các liên kết có chung cấu trúc và ngữ nghĩa như nhau. Vậy, liên kết là một thể hiện của lớp. Liên kết và kết hợp thường xuất hiện ở dạng các động từ trong các tài liệu mô tả bài toán ứng dụng."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Hình 1 mô tả các ký hiệu cho quan hệ liên kết và kết hợp"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Hai đối tượng thuộc lớp SanBay : Nội Bài và Gia Lâm cùng liên kết với đối tượng Hà Nội của lớp TinhThanh theo quan hệ phục vụ. Quan hệ liên kết giữa hai đối tượng được biểu diễn bằng đoạn thẳng nối chúng với nhau và có tên gọi nhãn của quan hệ). Nhãn của các quan hệ thường là các động từ. Khi muốn biểu diễn cho quan hệ một chiều thì sử dụng mũi tên để chỉ rõ hướng của quan hệ."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Khi mô hình không có sự nhập nhằng thì tên của quan hệ kết hợp là tuỳ chọn. Sự nhập nhằng sẽ xuất hiện khi giữa hai lớp có nhiều quan hệ kết hợp,"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Giữa lớp NhanVien và lớp CongTy có hai quan hệ làm việc ở và có cổ phần trong. Khi có nhiều quan hệ như thế thì nên gán tên vào mỗi đường nối hoặc tên của vai trò ở mỗi đầu của quan hệ để tránh sự nhập nhằng."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Mô hình phân tích ở hình 4 được phát triển sang giai đoạn thiết kế như sau:"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Trong đó, lớp TinhThanh có thêm thuộc tính cacSanBay có thể là danh sách hoặc là cấu trúc mảng, hay con trỏ, v.v. Ta cũng có thể thiết kế theo cách khác, thay vì bổ sung thuộc tính cacSanBay vào lớp TinhThanh thì bổ sung oTinhThanh vào lớp SanBay."
+              }
+            ]
+          },
+          {
+            "type": "heading",
+            "attrs": {
+              "level": 1
+            },
+            "content": [
+              {
+                "type": "text",
+                "text": "Bội số"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Quan hệ kết hợp thường là quan hệ hai chiều: một đối tượng kết hợp với một số đối tượng của lớp khác và ngược lại. Để xác định số các đối tượng có thể tham gia vào mỗi đầu của mối quan hệ ta có thể sử dụng khái niệm bội số. Bội số xác định số lượng các thể hiện (đối tượng) của một lớp trong quan hệ kết hợp với lớp khác. Cũng cần phân biệt bội số (hay bản số) với lực lượng. Bội số là ràng buộc về kích cỡ của một tuyển tập, còn lực lượng là đếm số phần tử của tuyển tập đó. Do đó, bội số là sự ràng buộc về lực lượng của các phần tử trong một lớp tham gia vào quan hệ xác định trước."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Trong UML các bội số được biểu diễn như sau:"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Để phân biệt chiều của quan hệ kết hợp ta có thể sử dụng mũi tên chỉ chiều kết hợp."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Hình 5 mô tả như sau: mỗi người trong lớp Nguoi có thể không có hoặc có nhiều ô tô (thuộc lớp Oto) và ngược lại một ô tô phải là sở hữu của ít nhất một người nào đó thuộc lớp Nguoi."
+              }
+            ]
+          },
+          {
+            "type": "heading",
+            "attrs": {
+              "level": 1
+            },
+            "content": [
+              {
+                "type": "text",
+                "text": "Các vai trò trong quan hệ"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Vai trò là tên gọi một nhiệm vụ thường là một danh từ, được gán cho một đầu của quan hệ kết hợp. Hình 6 mô tả hai lớp SanBay và lớp CacChuyenBay có quan hệ kết hợp với nhau. Một sân bay có thể là điểm đến của chuyến bay này và lại có thể là điểm xuất phát của chuyến bay khác. Ngược lại một chuyến bay bao giờ cũng phải bay từ một sân bay này tới một sân bay khác"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Khi mô hình không có sự nhập nhằng thì tên của vai trò là tuỳ chọn. Sự nhập nhằng sẽ xuất hiện khi giữa hai lớp có nhiều quan hệ như hình 6, hoặc khi một lớp lại có quan hệ với chính nó (quan hệ đệ qui)."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Một người có thể là con của hai người (cha-mẹ) và hai cha -mẹ lại có thể có nhiều con. Quan hệ này có thể mô tả như trong hình 7."
+              }
+            ]
+          },
+          {
+            "type": "heading",
+            "attrs": {
+              "level": 1
+            },
+            "content": [
+              {
+                "type": "text",
+                "text": "Quan hệ kết nhập"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Kết nhập là một loại của quan hệ kết hợp, tập trung thể hiện quan hệ giữa tổng thể và bộ phận. Kết nhập thường biểu diễn cho quan hệ “có một”, “là bộ phận của” , hoặc “bao gồm”, v.v. thể hiện mối quan hệ một lớp tổng thể có, gồm, chứa hay liên kết với một hoặc nhiều lớp thành phần. Người ta chia quan hệ kết nhập thành ba loại:"
+              }
+            ]
+          },
+          {
+            "type": "bulletList",
+            "content": [
+              {
+                "type": "listItem",
+                "content": [
+                  {
+                    "type": "paragraph",
+                    "content": [
+                      {
+                        "type": "text",
+                        "text": "Kết nhập thông thường"
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "type": "listItem",
+                "content": [
+                  {
+                    "type": "paragraph",
+                    "content": [
+                      {
+                        "type": "text",
+                        "text": "Kết nhập chia sẻ và"
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "type": "listItem",
+                "content": [
+                  {
+                    "type": "paragraph",
+                    "content": [
+                      {
+                        "type": "text",
+                        "text": "Kết nhập hợp thành hay quan hệ hợp thành."
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "1. Kết nhập thông thường"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Quan hệ kết nhập thông thường, gọi tắt là kết nhập thể hiện mối liên kết giữa hai lớp, trong đó đối tượng của lớp này bao gồm một số đối tượng của lớp kia, song không tồn tại trong nội tại của lớp đó. Lớp phía bộ phận cũng chỉ là một bộ phận logic của phía tổng thể và chúng không được chia sẻ với các lớp khác."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Trong quan hệ này, việc quản lý các đối tượng của các lớp liên quan là khác nhau. Ta có thể loại bỏ một số tàu chiến của một hạm đội sao cho số còn lại ít nhất là 3, tương tự có thể bổ sung vào một số tàu chiến sao cho không quá 10. Nhưng khi đã loại bỏ một hạm đội thì phải loại bỏ tất cả các tàu chiến của hạm đội đó vì mỗi tàu chiến chỉ thuộc một hạm đội."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "2. Kết nhập chia sẻ"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Quan hệ kết nhập chia sẻ là loại kết nhập, trong đó phía bộ phận có thể tham gia vào nhiều phía tổng thể."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Mỗi dự án có thể có nhiều người tham gia và mỗi người lại có thể tham gia nhiều nhất là hai dự án. Trong quan hệ này, ta có thể loại bỏ, hay thành lập một dự án (phía tổng thể) nhưng không nhất thiết phải loại bỏ, hay phải tuyển thêm những người tham gia (phía bộ phận) vào dự án như kiểu kết nhập ở trên. Tuy nhiên khi xử lý các mối quan hệ đó thì phải cập nhật lại các mối liên kết của các nhân viên tham gia vào các dự án tương ứng."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "3. Kết nhập hợp thành"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Quan hệ chỉ ra một vật có chứa một số bộ phận và các bộ phận đó tồn tại vật lý bên trong vật tổng thể. Do vậy khi thực hiện huỷ bỏ, hay thiết lập mới bên tổng thể thì các bộ phận bên thành phần cũng sẽ bị huỷ bỏ hoặc phải được bổ sung."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Lớp Window chứa các lớp Text, Menu và DialogBox . Trong UML có hai cách biểu diễn quan hệ hợp thành như sau:"
+              }
+            ]
+          },
+          {
+            "type": "heading",
+            "attrs": {
+              "level": 1
+            },
+            "content": [
+              {
+                "type": "text",
+                "text": "Quan hệ tổng quát hoá"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Tổng quát hoá và chuyên biệt hoá là hai cách nhìn dưới/lên và trên/xuống về sự phân cấp các lớp, mô tả khả năng quản lý cấp độ phức tạp của hệ thống bằng cách trừu tượng hoá các lớp."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Tổng quát hoá là đi từ các lớp dưới lên sau đó hình thành lớp tổng quát (lớp trên, lớp cha), tức là cây cấu trúc các lớp từ lá đến gốc."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Chuyên biệt hoá là quá trình ngược lại của tổng quát hoá, nó cho phép tạo ra các lớp dưới (lớp con) khác nhau của lớp cha."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Trong UML, tổng quát hoá chính là quan hệ kế thừa giữa hai lớp. Nó cho phép lớp con (lớp dưới, lớp kế thừa, hay lớp dẫn xuất) kế thừa trực tiếp các thuộc tính và các hàm thuộc loại công khai, hay được bảo vệ (protected) của lớp cha (lớp cơ sở, lớp trên). Trong quan hệ tổng quát hoá có hai loại lớp: lớp cụ thể và lớp trừu tượng."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Lớp cụ thể là lớp có các đại diện, các thể hiện cụ thể. Ngược lại, lớp trừu tượng là lớp không có thể hiện (đối tượng) cụ thể trong hệ thống thực. Các lớp con cháu của lớp trừu tượng có thể là lớp trừu tượng, tuy nhiên trong cấu trúc phân cấp theo quan hệ tổng quát hoá thì mọi nhánh phải kết thúc bằng các lớp cụ thể (lá của cây các lớp). Ta có thể định nghĩa các hàm trừu tượng cho các lớp trừu tượng, đó là những hàm chưa được cài đặt nội dung thực hiện trong lớp chúng được khai báo. Những hàm trừu tượng này sẽ được cài đặt trong các lớp con cháu sau đó ở những lớp cụ thể."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Lớp NhanVien có ký hiệu {abstract} sau hoặc dưới tên lớp là lớp trừu tượng, và do vậy nó không có đối tượng cụ thể. Hai lớp con: lớp NguoiBanHang và lớp CongNhan là hai lớp cụ thể. Hai lớp này có những thuộc tính, thao tác giống lớp NhanVien như có các thuộc tính: hoTen, diaChi và có các hàm tinhLuong(), hienThi(), ngoài ra mỗi lớp còn có thể bổ sung thêm một số thuộc tính, thao tác để đặc tả cho từng nhóm đối tượng cụ thể. Lớp NguoiBanHang được bổ sung thêm thuộc tính soluongBanDuoc còn lớp CongNhan được bổ sung thuộc tính soLuongSanPham sản xuất được. Cấu trúc phân cấp của lớp NhanVien được xác định như hình 11."
+              }
+            ]
+          },
+          {
+            "type": "bulletList",
+            "content": [
+              {
+                "type": "listItem",
+                "content": [
+                  {
+                    "type": "paragraph",
+                    "content": [
+                      {
+                        "type": "text",
+                        "text": "Quan hệ tổng quát và kết hợp là hai quan hệ liên quan đến hai lớp, nhưng chúng có những điểm khác nhau. Quan hệ kết hợp mô tả mối liên kết giữa hai hoặc nhiều hơn đối tượng còn quan hệ khái quát mô tả các phương diện khác nhau của cùng một thể hiện."
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "type": "bulletList",
+            "content": [
+              {
+                "type": "listItem",
+                "content": [
+                  {
+                    "type": "paragraph",
+                    "content": [
+                      {
+                        "type": "text",
+                        "text": "Trong giai đoạn phân tích, các quan hệ kết hợp là quan trọng hơn quan hệ tổng quát hoá. Kết hợp bổ sung thêm các thông tin cho các lớp. Ngược lại, tổng quát hoá là loại bỏ những thông tin bị chia sẻ ở các lớp con cháu vì chúng được kế thừa từ lớp cha."
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "type": "bulletList",
+            "content": [
+              {
+                "type": "listItem",
+                "content": [
+                  {
+                    "type": "paragraph",
+                    "content": [
+                      {
+                        "type": "text",
+                        "text": "Trong giai đoạn thiết kế thì tổng quát hoá lại quan trọng hơn. Người phát triển hệ thống quan tâm để phát hiện ra những cấu trúc dữ liệu ở khâu phân tích và phát hiện ra các hành vi ở khâu thiết kế. Tổng quát hoá cung cấp cơ chế sử dụng lại để thể hiện chính xác các hành vi và mã hoá của các thư viện của các lớp."
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "type": "bulletList",
+            "content": [
+              {
+                "type": "listItem",
+                "content": [
+                  {
+                    "type": "paragraph",
+                    "content": [
+                      {
+                        "type": "text",
+                        "text": "Quan hệ kết nhập và tổng quát cũng khác nhau. Cả hai đều làm xuất hiện cấu trúc cây thông qua bao đóng bắc cầu của quan hệ cơ sở, nhưng quan hệ tổng quát là mối quan hệ “hoặc” (OR) còn quan hệ kết nhập là mối quan hệ “và” (AND). Hình 11 mô tả sự khác nhau của quan hệ tổng quát hoá và kết nhập."
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "type": "heading",
+            "attrs": {
+              "level": 1
+            },
+            "content": [
+              {
+                "type": "text",
+                "text": "Kế thừa bội"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Kế thừa bội cho phép một lớp được kế thừa các thuộc tính, các thao tác và các quan hệ kết hợp từ nhiều lớp cơ sở. Trong quan hệ kế thừa bội có thể dẫn đến sự pha trộn thông tin từ nhiều nguồn dữ liệu khác nhau từ các lớp được kế thừa. Quan hệ kế thừa đơn, một lớp được kế thừa từ một lớp cơ sở, thường tạo ra cấu trúc cây, còn kế thừa bội lại tổ chức các lớp thành đồ thị định hướng phi chu trình. Kế thừa bội là cơ chế mạnh trong mô hình hệ thống, nhưng đồng thời cũng sẽ tạo ra nhiều sự phức tạp về tính nhập nhằng, không nhất quán dữ liệu [24, 26]."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Kế thừa bội từ những lớp phân biệt"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Một lớp có thể kế thừa từ nhiều lớp cơ sở khác nhau."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Lớp Nguoi là cơ sở để tạo ra hai lớp con: HDQuanTri (những người trong hội đồng quản trị) và KinhDoanh (những người kinh doanh). Từ các lớp trên lại xây dựng các lớp BanGiamDoc, CoDong (những người đóng cổ phần) kế thừa từ lớp HDQuanTri, lớp NhanVienCT (những người làm việc thường xuyên trong công ty) và NhanVienHD (những người làm việc theo hợp đồng) kế thừa từ lớp KinhDoanh. Trong Công ty lại có những người vừa là cổ đông, vừa là nhân viên. Những người đó chính là các đối tượng của lớp NhanVienCoDong kế thừa từ hai lớp con CoDong và NhanVienCongTy ."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Kế thừa bội không có lớp cơ sở chung"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Kế thừa bội như trên là kế thừa có lớp cơ sở chung (lớp Nguoi ). Chúng ta có thể tạo ra lớp kế thừa bội từ nhiều lớp mà chúng lại không có lớp cơ sở chung. Loại kế thừa này thường xuất hiện khi ta muốn pha trộn một số chức năng của các lớp thư viện khác nhau."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Chúng ta hãy xét mô hình của chương trình đánh cờ. Trước khi đi một nước cờ, chương trình phải nghiên cứu vị trí của các quân cờ và các nước đi tiếp theo sao cho nước đi đó là có thể dẫn đến chiến thắng nhanh nhất. Trong hình 2-13 (b), mỗi đối tượng của lớp SearchTree (cây tìm kiếm) có thể là đối tượng của lớp MoveSubtree (cây con các nước đi) hoặc của lớp PossibleMove (lớp các nước có thể chọn). Bản thân lớp MoveSubtree lại có thể chứa các SearchTree nhỏ hơn. Mỗi nước đi của lớp Move lại có thể là nước đi có thể (PossibleMove) hoặc lớp các nước đi hiện thời (ActualMove). Lớp PossibleMove kế thừa hành vi chung của lớp Move và lớp SearchTree."
+              }
+            ]
+          },
+          {
+            "type": "heading",
+            "attrs": {
+              "level": 1
+            },
+            "content": [
+              {
+                "type": "text",
+                "text": "Quan hệ phụ thuộc"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Sự phụ thuộc là một loại quan hệ liên kết giữa hai phần tử trong mô hình, trong đó thể hiện sự thay đổi trong một phần tử sẽ kéo theo sự thay đổi của phần tử kia. Quan hệ kết hợp thường là quan hệ hai chiều, nhưng quan hệ phụ thuộc lại thường là quan hệ một chiều, thể hiện một lớp phụ thuộc vào lớp khác. Lớp A phụ thuộc vào lớp B khi:"
+              }
+            ]
+          },
+          {
+            "type": "bulletList",
+            "content": [
+              {
+                "type": "listItem",
+                "content": [
+                  {
+                    "type": "paragraph",
+                    "content": [
+                      {
+                        "type": "text",
+                        "text": "Lớp A sử dụng một đối tượng của lớp B như là tham số trong các thao tác (lời gọi hàm),"
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "type": "bulletList",
+            "content": [
+              {
+                "type": "listItem",
+                "content": [
+                  {
+                    "type": "paragraph",
+                    "content": [
+                      {
+                        "type": "text",
+                        "text": "Trong các thao tác của lớp A có truy nhập tới các đối tượng của lớp B,"
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "type": "listItem",
+                "content": [
+                  {
+                    "type": "paragraph",
+                    "content": [
+                      {
+                        "type": "text",
+                        "text": "Khi thực hiện một thao tác nào đó trong lớp A lại phải tham chiếu tới miền xác định của lớp B."
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "type": "listItem",
+                "content": [
+                  {
+                    "type": "paragraph",
+                    "content": [
+                      {
+                        "type": "text",
+                        "text": "Lớp A sử dụng các giao diện của lớp B."
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Tương tự, hai gói có thể phụ thuộc vào nhau khi có một lớp ở một gói phụ thuộc vào lớp của gói kia."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Trong UML, quan hệ phụ thuộc được thể hiện bằng mũi tên đứt nét."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Hình 2-18 mô tả quan hệ phụ thuộc giữa hai lớp và phụ thuộc của hai gói."
+              }
+            ]
+          },
+          {
+            "type": "heading",
+            "attrs": {
+              "level": 1
+            },
+            "content": [
+              {
+                "type": "text",
+                "text": "Quan hệ hiện thực hoá"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Quan hệ hiện thực hoá thể hiện sự kết nối giữa các lớp và giao diện. Quan hệ này thường được sử dụng với các giao diện và những lớp làm nhiệm vụ cài đặt các dịch vụ (phương thức) đã được khai báo trong các giao diện. Quan hệ hiện thực hoá được ký hiệu là mũi tên đứt nét như hình 2-19."
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "title": "Biểu đồ trạng thái (State Diagram)",
+      "description": null,
+      "estimatedMinutes": null,
+      "orderIndex": 6,
+      "content": {
+        "type": "doc",
+        "content": [
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Biểu đồ trạng thái nắm bắt vòng đời của các đối tượng, các hệ thống con (Subsystem) và các hệ thống. Chúng cho ta biết các trạng thái mà một đối tượng có thể có và các sự kiện (các thông điệp nhận được, các khoảng thời gian đã qua đi, các lỗi xảy ra, các điều kiện được thỏa mãn) sẽ ảnh hưởng đến những trạng thái đó như thế nào dọc theo tiến trình thời gian. Biểu đồ trạng thái có thể đính kèm với tất cả các lớp có những trạng thái được nhận diện rõ ràng và có lối ứng xử phức tạp. Biểu đồ trạng thái xác định ứng xử và miêu tả nó sẽ khác biệt ra sao phụ thuộc vào trạng thái, ngoài ra nó cũng còn miêu tả rõ những sự kiện nào sẽ thay đổi trạng thái của các đối tượng của một lớp."
+              }
+            ]
+          },
+          {
+            "type": "heading",
+            "attrs": {
+              "level": 1
+            },
+            "content": [
+              {
+                "type": "text",
+                "text": "Trạng thái và sự biến đổi trạng thái (State transition)"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Tất cả các đối tượng đều có trạng thái; trạng thái là một kết quả của các hoạt động trước đó đã được đối tượng thực hiện và nó thường được xác định qua giá trị của các thuộc tính cũng như các nối kết của đối tượng với các đối tượng khác. Một lớp có thể có một thuộc tính đặc biệt xác định trạng thái, hoặc trạng thái cũng có thể được xác định qua giá trị của các thuộc tính “bình thường\" trong đối tượng. Ví dụ về các trạng thái của đối tượng:"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "- Hóa đơn (đối tượng) đã được trả tiền (trạng thái)."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "- Chiếc xe ô tô (đối tượng) đang đứng yên (trạng thái)."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "- Động cơ (đối tượng) đang chạy (trạng thái)."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "- Jen (đối tượng) đang đóng vai trò người bán hàng (trạng thái)."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "- Kate (đối tượng) đã lấy chồng (trạng thái)."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Một đối tượng sẽ thay đổi trạng thái khi có một việc nào đó xảy ra, thứ được gọi là sự kiện; ví dụ có ai đó trả tiền cho hóa đơn, bật động cơ xe ô tô hay là lấy chồng lấy vợ. Khía cạnh động có hai chiều không gian: tương tác và sự biến đổi trạng thái nội bộ. Tương tác miêu tả lối ứng xử đối ngoại của các đối tượng và chỉ ra đối tượng này sẽ tương tác với các đối tượng khác ra sao (qua việc gửi thông điệp, nối kết hoặc chấm dứt nối kết). Sự biến đổi trạng thái nội bộ miêu tả một đối tượng sẽ thay đổi các trạng thái ra sao – ví dụ giá trị các thuộc tính nội bộ của nó sẽ thay đổi như thế nào. Biểu đồ trạng thái được sử dụng để miêu tả việc bản thân đối tượng phản ứng ra sao trước các sự kiện và chúng thay đổi các trạng thái nội bộ của chúng như thế nào, ví dụ, một hóa đơn sẽ chuyển từ trạng thái chưa trả tiền sang trạng thái đã trả tiền khi có ai đó trả tiền cho nó. Khi một hóa đơn được tạo ra, đầu tiên nó bước vào trạng thái chưa được trả tiền."
+              }
+            ]
+          },
+          {
+            "type": "heading",
+            "attrs": {
+              "level": 1
+            },
+            "content": [
+              {
+                "type": "text",
+                "text": "Biểu đồ trạng thái"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Biểu đồ trạng thái thể hiện những khía cạnh mà ta quan tâm tới khi xem xét trạng thái của một đối tượng:"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "- Trạng thái ban đầu"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "- Một số trạng thái ở giữa"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "- Một hoặc nhiều trạng thái kết thúc"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "- Sự biến đổi giữa các trạng thái"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "- Những sự kiện gây nên sự biến đổi từ một trạng thái này sang trạng thái khác"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Hình sau sẽ chỉ ra các kí hiệu UML thể hiện trạng thái bắt đầu và trạng thái kết thúc, sự kiện cũng như các trạng thái của một đối tượng."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Hình 6.6 - Các ký hiệu UML thể hiện bắt đầu, kết thúc, sự kiện và trạng thái của một đối tượng."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Hình 6.7 - Biểu đồ trạng thái thực hiện hoá đơn."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Một trạng thái có thể có ba thành phần, như được chỉ trong hình sau :"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Hình 6.8 - Các ngăn Tên, Biến trạng thái và hành động"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Phần thứ nhất chỉ ra tên của trạng thái, ví dụ như chờ, đã được trả tiền hay đang chuyển động. Phần thứ hai (không bắt buộc) dành cho các biến trạng thái. Đây là những thuộc tính của lớp được thể hiện qua biểu đồ trạng thái; nhiều khi các biến tạm thời cũng tỏ ra rất hữu dụng trong trạng thái, ví dụ như các loại biến đếm (counter). Phần thứ ba (không bắt buộc) là phần dành cho hoạt động, nơi các sự kiện và các hành động có thể được liệt kê. Có ba loại sự kiện chuẩn hóa có thể được sử dụng cho phần hành động: entry (đi vào), exit (đi ra), và do (thực hiện) . Loại sự kiện đi vào được sử dụng để xác định các hành động khởi nhập trạng thái, ví dụ gán giá trị cho một thuộc tính hoặc gửi đi một thông điệp. Sự kiện đi ra có thể được sử dụng để xác định hành động khi rời bỏ trạng thái. Sự kiện thực hiện được sử dụng để xác định hành động cần phải được thực hiện trong trạng thái, ví dụ như gửi một thông điệp, chờ, hay tính toán. Ba loại sự kiện chuẩn này không thể được sử dụng cho các mục đích khác."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Một sự biến đổi trạng thái thường có một sự kiện đi kèm với nó, nhưng không bắt buộc. Nếu có một sự kiện đi kèm, sự thay đổi trạng thái sẽ được thực hiện khi sự kiện kia xảy ra. Một hành động loại thực hiện trong trạng thái có thể là một quá trình đang tiếp diễn (ví dụ chờ, điều khiển các thủ tục,...) phải được thực hiện trong khi đối tượng vẫn ở nguyên trong trạng thái này. Một hành động thực hiện có thể bị ngắt bởi các sự kiện từ ngoài, có nghĩa là một sự kiện kiện gây nên một sự biến đổi trạng thái có thể ngưng ngắt một hành động thực hiện mang tính nội bộ đang tiếp diễn."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Trong trường hợp một sự biến đổi trạng thái không có sự kiện đi kèm thì trạng thái sẽ thay đổi khi hành động nội bộ trong trạng thái đã được thực hiện xong (hành động nội bộ kiểu đi vào, đi ra, thực hiện hay các hành động do người sử dụng định nghĩa). Theo đó, khi tất cả các hành động thuộc trạng thái đã được thực hiện xong, một sự thay đổi trạng thái sẽ tự động xảy ra mà không cần sự kiện từ ngoài."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Hình 6.9 - Biến đổi trạng thái không có sự kiện từ ngoài. Sự thay đổi trạng thái xảy ra khi các hoạt động trong mỗi trạng thái được thực hiện xong."
+              }
+            ]
+          },
+          {
+            "type": "heading",
+            "attrs": {
+              "level": 1
+            },
+            "content": [
+              {
+                "type": "text",
+                "text": "Nhận biết trạng thái và sự kiện"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Quá trình phát hiện sự kiện và trạng thái về mặt bản chất bao gồm việc hỏi một số các câu hỏi thích hợp:"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "- Một đối tượng có thể có những trạng thái nào?: Hãy liệt kê ra tất cả những trạng thái mà một đối tượng có thể có trong vòng đời của nó."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "- Những sự kiện nào có thể xảy ra?: Bởi sự kiện gây ra việc thay đổi trạng thái nên nhận ra các sự kiện là một bước quan trọng để nhận diện trạng thái."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "- Trạng thái mới sẽ là gì?: Sau khi nhận diện sự kiện, hãy xác định trạng thái khi sự kiện này xảy ra và trạng thái sau khi sự kiện này xảy ra."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "- Có những thủ tục nào sẽ được thực thi?: Hãy để ý đến các thủ tục ảnh hưởng đến trạng thái của một đối tượng."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "- Chuỗi tương tác giữa các đối tượng là gì?: Tương tác giữa các đối tượng cũng có thể ảnh hưởng đến trạng thái của đối tượng."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "- Qui định nào sẽ được áp dụng cho các phản ứng của các đối tượng với nhau?: Các qui định kiềm tỏa phản ứng đối với một sự kiện sẽ xác định rõ hơn các trạng thái."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "- Những sự kiện và sự chuyển tải nào là không thể xảy ra?: Nhiều khi có một số sự kiện hoặc sự thay đổi trạng thái không thể xảy ra. Ví dụ như bán một chiếc ô tô đã được bán rồi."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "- Cái gì khiến cho một đối tượng được tạo ra?: Đối tượng được tạo ra để trả lời cho một sự kiện. Ví dụ như một sinh viên ghi danh cho một khóa học."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "- Cái gì khiến cho một đối tượng bị hủy?: Đối tượng sẽ bị hủy đi khi chúng không được cần tới nữa. Ví dụ khi một sinh viên kết thúc một khóa học."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "- Cái gì khiến cho đối tượng cần phải được tái phân loại (reclassfied)?: Những loại sự kiện như một nhân viên được tăng chức thành nhà quản trị sẽ khiến cho động tác tái phân loại của nhân viên đó được thực hiện."
+              }
+            ]
+          },
+          {
+            "type": "heading",
+            "attrs": {
+              "level": 1
+            },
+            "content": [
+              {
+                "type": "text",
+                "text": "Một số lời mách bảo cho việc tạo dựng biểu đồ trạng thái"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "- Chuyển biểu đồ tuần tự thành biểu đồ trạng thái."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "- Xác định các vòng lặp (loop)"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "- Bổ sung thêm các điều kiện biên và các điều kiện đặc biệt"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "- Trộn lẫn các cảnh kịch khác vào trong biểu đồ trạng thái."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Một khi mô hình đã được tạo nên, hãy nêu ra các câu hỏi và kiểm tra xem mô hình có khả năng cung cấp tất cả các câu trả lời. Qui trình sau đây cần phải được nhắc lại cho mỗi đối tượng."
+              }
+            ]
+          },
+          {
+            "type": "heading",
+            "attrs": {
+              "level": 2
+            },
+            "content": [
+              {
+                "type": "text",
+                "text": "Chuyển biểu đồ tuần tự thành biểu đồ trạng thái"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Hãy dõi theo một chuỗi các sự kiện được miêu tả trong biểu đồ, chuỗi này phải mang tính tiêu biểu cho các tương tác trong hệ thống. Hãy quan sát các sự kiện ảnh hưởng đến đối tượng mà ta đang nghiên cứu."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Hãy sắp xếp các sự kiện thành một đường dẫn, dán nhãn input (hoặc entry) và output (exit) cho các sự kiện. Khoảng cách giữa hai sự kiện này sẽ là một trạng thái."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Nếu cảnh kịch có thể được nhắc đi nhắc lại rất nhiều lần (vô giới hạn), hãy nối đường dẫn từ trạng thái cuối cùng đến trạng thái đầu tiên."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Biểu đồ sau đây chỉ ra biểu đồ trạng thái của một lớp máy ATM, được chiết suất từ biểu đồ tuần tự hoặc biểu đồ cộng tác đã được trình bày trong các phần trước."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Hình 6.10 - Chuyển một biểu đồ tuần tự sang biểu đồ trạng thái"
+              }
+            ]
+          },
+          {
+            "type": "heading",
+            "attrs": {
+              "level": 2
+            },
+            "content": [
+              {
+                "type": "text",
+                "text": "Nhận ra các vòng lặp (LOOP)"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Một chuỗi sự kiện có thể được nhắc đi nhắc lại vô số lần được gọi là vòng lặp (loop)."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Hình 6.11 - Biểu đồ lặp"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Chú ý:"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "- Trong một vòng lặp, chuỗi các sự kiện được nhắc đi nhắc lại cần phải đồng nhất với nhau. Nếu có một chuỗi các sự kiện khác chuỗi khác thì trường hợp đó không có vòng lặp."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "- Lý tưởng nhất là một trạng thái trong vòng lặp sẽ có sự kiện kết thúc. Đây là yếu tố quan trọng, nếu không thì vòng lặp sẽ không bao giờ kết thúc."
+              }
+            ]
+          },
+          {
+            "type": "heading",
+            "attrs": {
+              "level": 2
+            },
+            "content": [
+              {
+                "type": "text",
+                "text": "Bổ sung thêm các điều kiện và các điều kiện đặc biệt"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Sau khi đã hoàn tất biểu đồ trạng thái cho mọi đối tượng cần thiết trong hệ thống, đã đến lúc chúng ta cần kiểm tra, đối chứng chúng với điều kiện biên và các điều kiện đặc biệt khác, những điều kiện rất có thể đã chưa được quan tâm đủ độ trong thời gian tạo dựng biểu đồ trạng thái. Điều kiện biên là những điều kiện thao tác trên giá trị, đây là những giá trị nằm bên ranh giới của một điều kiện để quyết định về trạng thái của đối tượng, ví dụ như quy định về kỳ hạn của một tài khoản là 30 ngày thì ngày thứ 31 đối với tài khoản này sẽ là một điều kiện biên. Các điều kiện đặc biệt là những điều kiện ngoại lệ, ví dụ ngày thứ 30 của tháng 2 năm 2000 (nếu có một điều kiện thật sự như vậy tồn tại ngoài đời thực)."
+              }
+            ]
+          },
+          {
+            "type": "heading",
+            "attrs": {
+              "level": 2
+            },
+            "content": [
+              {
+                "type": "text",
+                "text": "Trộn lẫn các cảnh kịch khác vào trong biểu đồ trạng thái"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Một khi biểu đồ trạng thái cho một đối tượng đã sẵn sàng, chúng ta cần phải trộn những chuỗi sự kiện có ảnh hưởng đến đối tượng này vào trong biểu đồ trạng thái. Điều này có nghĩa là chúng ta cần phải quan sát các hiệu ứng gián tiếp của các sự kiện khác đối với đối tượng đang là chủ đề chính của biểu đồ trạng thái. Đây là việc quan trọng, bởi các đối tượng trong một hệ thống tương tác với nhau và vì các đối tượng khác cũng có khả năng gây nên sự kiện cho một đối tượng định trước, nên lối ứng xử này cũng cần phải được thể hiện trong biểu đồ trạng thái."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Điểm bắt đầu cho công việc này là:"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "- Ấn định một điểm bắt đầu chung cho tất cả các chuỗi sự kiện bổ sung."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "- Xác định điểm nơi các ứng xử bắt đầu khác biệt với những ứng xử đã được mô hình hóa trong biểu đồ trạng thái."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Bổ sung thêm sự các biến đổi mới từ trạng thái này, trong tư cách một đường dẫn thay thế. Cần để ý đến những đường dẫn có vẻ ngoài đồng nhất nhưng thật ra có khác biệt trong một tình huống nhất định nào đó."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Hãy chú ý đến các sự kiện xảy ra trong những tình huống bất tiện. Mỗi sự kiện do khách hàng hay người sử dụng gây nên đều có thể sa vào trạng thái của các sự kiện bất tiện. Hệ thống không nắm quyền điều khiển đối với người sử dụng và người sử dụng có thể quyết định để làm nảy ra một sự kiện tại một thời điểm tiện lợi đối với anh ta. Ví dụ như khách hàng có thể quyết định kết thúc trước kỳ hạn một tài khoản đầu tư."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Một trường hợp khác cũng cần phải được xử lý là sự kiện do người sử dụng gây nên không thể xảy ra. Có một loạt các lý do (người sử dụng thiếu tập trung, buồn nản, lơ đãng...) khiến cho sự kiện loại này không xảy ra. Cả trường hợp này cũng phải được xử lý thấu đáo. Ví dụ một khách hàng thất bại trong việc báo cho nhà băng biết những mệnh lệnh của anh ta về kỳ hạn của tài khoản, một tấm séc được viết ra nhưng lại không có khả năng giải tỏa mức tiền cần thiết."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Nhìn theo phương diện các biểu đồ trạng thái như là một thành phần của mô hình động, cần chú ý những điểm sau:"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "- Biểu đồ trạng thái chỉ cần được tạo dựng nên cho các lớp đối tượng có ứng xử động quan trọng."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "- Hãy thẩm tra biểu đồ trạng thái theo khía cạnh tính nhất quán đối với những sự kiện dùng chung để cho toàn bộ mô hình động được đúng đắn."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "- Dùng các trường hợp sử dụng để hỗ trợ cho quá trình tạo dựng biểu đồ trạng thái."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "- Khi định nghĩa một trạng thái, hãy chỉ để ý đến những thuộc tính liên quan."
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "title": "Biểu đồ hoạt động (ACTIVITY DIAGRAM)",
+      "description": null,
+      "estimatedMinutes": null,
+      "orderIndex": 7,
+      "content": {
+        "type": "doc",
+        "content": [
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Biểu đồ hoạt động nắm bắt hành động và các kết quả của chúng. Biểu đồ hoạt động tập trung vào công việc được thực hiện trong khi thực thi một thủ tục (hàm), các hoạt động trong một lần thực thi một trường hợp sử dụng hoặc trong một đối tượng. Biểu đồ hoạt động là một biến thể của biểu đồ trạng thái và có một mục tiêu tương đối khác, đó là nắm bắt hành động (công việc và những hoạt động phải được thực hiện) cũng như kết quả của chúng theo sự biến đổi trạng thái. Các trạng thái trong biểu đồ hoạt động (được gọi là các trạng thái hành động) sẽ chuyển sang giai đoạn kế tiếp khi hành động trong trạng thái này đã được thực hiện xong (mà không xác định bất kỳ một sự kiện nào theo như nội dung của biểu đồ trạng thái). Một sự điểm phân biệt khác giữa biểu đồ hoạt động và biểu đồ trạng thái là các hành động của nó được định vị trong các luồng ( swimlane ). Một luồng sẽ gom nhóm các hoạt động, chú ý tới khái niệm người chịu trách nhiệm cho chúng hoặc chúng nằm ở đâu trong một tổ chức. Một biểu đồ hoạt động là một phương pháp bổ sung cho việc miêu tả tương tác, đi kèm với trách nhiệm thể hiện rõ các hành động xảy ra như thế nào, chúng làm gì (thay đổi trạng thái đối tượng), chúng xảy ra khi nào (chuỗi hành động), và chúng xảy ra ở đâu (luồng hành động)."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Biểu đồ hoạt động có thể được sử dụng cho nhiều mục đích khác nhau, ví dụ như:"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "- Để nắm bắt công việc (hành động) sẽ phải được thực thi khi một thủ tục được thực hiện. Đây là tác dụng thường gặp nhất và quan trọng nhất của biểu đồ hoạt động."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "- Để nắm bắt công việc nội bộ trong một đối tượng."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "- Để chỉ ra một nhóm hành động liên quan có thể được thực thi ra sao, và chúng sẽ ảnh hưởng đến những đối tượng nằm xung quanh chúng như thế nào."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "- Để chỉ ra một trường hợp sử dụng có thể được thực thể hóa như thế nào, theo khái niệm hành động và các sự biến đổi trạng thái của đối tượng."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "- Để chỉ ra một doanh nghiệp hoạt động như thế nào theo các khái niệm công nhân (tác nhân), qui trình nghiệp vụ (workflow), hoặc tổ chức và đối tượng (các khía cạnh vật lý cũng như tri thức được sử dụng trong doanh nghiệp)."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Biểu đồ hoạt động có thể được coi là một loại Flow chart. Điểm khác biệt là Flow Chart bình thường ra chỉ được áp dụng đối với các qui trình tuần tự, biểu đồ hoạt động có thể xử lý cả các các qui trình song song."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Hành động và sự thay đổi trạng thái"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Một hành động được thực hiện để sản sinh ra một kết quả. Việc thực thi của thủ tục có thể được miêu tả dưới dạng một tập hợp của các hành động liên quan, sau này chúng sẽ được chuyển thành các dòng code thật sự. Theo như định nghĩa ở phần trước, một biểu đồ hoạt động chỉ ra các hành động cùng mối quan hệ giữa chúng và có thể có một điểm bắt đầu và một điểm kết thúc. Biểu đồ hoạt động sử dụng cũng cùng những ký hiệu như trong biểu đồ trạng thái bình thường."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Hình 6.12 - Khi một người gọi tác vụ PrintAllCustomer (trong lớp CustomerWindow), các hành động khởi động. hành động đầu tiên là hiện một hộp thông báo lên màn hình; hành động thứ hai là tạo một tập tin postscript; hành động thứ ba là gởi file postscript đến máy in; và hành động thứ tư là xóa hộp thông báo trên màn hình. Các hành động được chuyển tiếp tự động; chúng xảy ra ngay khi hành động trong giai đoạn nguồn được thực hiện."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Các sự thay đổi có thể được bảo vệ bởi các điều kiện canh giữ (Guard-condition), các điều kiện này phải được thỏa mãn thì sự thay đổi mới nổ ra. Một ký hiệu hình thoi được sử dụng để thể hiện một quyết định. Ký hiệu quyết định có thể có một hoặc nhiều sự thay đổi đi vào và một hoặc nhiều sự thay đổi đi ra được dán nhãn đi kèm các điều kiện bảo vệ. Bình thường ra, một trong số các sự thay đổi đi ra bao giờ cũng được thỏa mãn (là đúng)."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Một sự thay đổi được chia thành hai hay nhiều sự thay đổi khác sẽ dẫn đến các hành động xảy ra song song. Các hành động được thực hiện đồng thời, mặc dù chúng cũng có thể được thực hiện lần lượt từng cái một. Yếu tố quan trọng ở đây là tất cả các thay đổi đồng thời phải được thực hiện trước khi chúng được thống nhất lại với nhau (nếu có). Một đường thẳng nằm ngang kẻ đậm (còn được gọi là thanh đồng hộ hóa – Synchronisation Bar) chỉ rằng một sự thay đổi được chia thành nhiều nhánh khác nhau và chỉ ra một sự chia sẻ thành các hành động song song. Cũng đường thẳng đó được sử dụng để chỉ ra sự thống nhất các nhánh."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Kí hiệu UML cho các thành phần căn bản của biểu đồ hoạt động:"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "- Hoạt động ( Activity ): là một qui trình được định nghĩa rõ ràng, có thể được thực thi qua một hàm hoặc một nhóm đối tượng. Hoạt động được thể hiện bằng hình chữ nhật bo tròn cạnh."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "- Thanh đồng bộ hóa (Synchronisation bar): chúng cho phép ta mở ra hoặc là đóng lại các nhánh chạy song song nội bộ trong tiến trình."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Hình 6.13 - Thanh đồng bộ hóa"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "- Điều kiện canh giữ (Guard Condition) : các biểu thức logic có giá trị hoặc đúng hoặc sai. Điều kiện canh giữ được thể hiện trong ngoặc vuông, ví dụ:"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "[Customer existing]."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "- Điểm quyết định (Decision Point) : được sử dụng để chỉ ra các sự thay đổi khả thi. Kí hiệu là hình thoi."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Hình sau đây miêu tả một đoạn biểu đồ hoạt động của máy ATM. Sau khi thẻ được đưa vào máy, ta thấy có ba hoạt động song song:"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "- Xác nhận thẻ"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "- Xác nhận mã số PIN"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "- Xác nhận số tiền yêu cầu được rút"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Chỉ khi sử dụng biểu đồ hoạt động, các hoạt động song song như vậy mới có thể được miêu tả. Mỗi một hoạt động xác nhận bản thân nó cũng đã có thể là một quá trình riêng biệt."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Hình 6.14 - Biểu đồ hoạt động của máy ATM"
+              }
+            ]
+          }
+        ]
+      }
+    }
+  ]
+}

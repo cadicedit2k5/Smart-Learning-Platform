@@ -61,22 +61,6 @@ public final class DocumentSpecifications {
                 criteriaBuilder.equal(root.get("course").get("id"), courseId);
     }
 
-    public static Specification<Document> chapterId(UUID chapterId) {
-        if (chapterId == null) {
-            return Specification.unrestricted();
-        }
-        return (root, query, criteriaBuilder) ->
-                criteriaBuilder.equal(root.get("chapter").get("id"), chapterId);
-    }
-
-    public static Specification<Document> topicId(UUID topicId) {
-        if (topicId == null) {
-            return Specification.unrestricted();
-        }
-        return (root, query, criteriaBuilder) ->
-                criteriaBuilder.equal(root.get("topic").get("id"), topicId);
-    }
-
     public static Specification<Document> notDeleted() {
         return (root, query, criteriaBuilder) ->
                 criteriaBuilder.isNull(root.get("deletedAt"));

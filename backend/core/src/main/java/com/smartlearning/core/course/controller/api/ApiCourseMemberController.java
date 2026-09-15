@@ -1,7 +1,9 @@
 package com.smartlearning.core.course.controller.api;
 
+import com.smartlearning.common.dto.request.PagingRequest;
 import com.smartlearning.common.dto.response.ApiResponse;
 import com.smartlearning.common.dto.response.ApiResponses;
+import com.smartlearning.common.dto.response.pagination.PagingResponse;
 import com.smartlearning.common.entity.Authorities;
 import com.smartlearning.common.utils.JwtUtils;
 import com.smartlearning.core.course.dto.request.CourseMemberCreateRequest;
@@ -44,11 +46,12 @@ public class ApiCourseMemberController {
 
     @PreAuthorize(Authorities.COURSE_MANAGE)
     @GetMapping("/{courseId}/members")
-    public ResponseEntity<ApiResponse<List<CourseMemberDetailResponse>>> getMembers(
+    public ResponseEntity<ApiResponse<PagingResponse<CourseMemberDetailResponse>>> getMembers(
             @PathVariable UUID courseId,
+            @ModelAttribute PagingRequest request,
             @AuthenticationPrincipal Jwt jwt
     ) {
-        return ApiResponses.ok(memberService.getMembers(courseId, JwtUtils.getUserId(jwt), jwt.getTokenValue()));
+        return ApiResponses.ok(memberService.getMembers(courseId, JwtUtils.getUserId(jwt), jwt.getTokenValue(), request));
     }
 
     @PreAuthorize(Authorities.COURSE_READ)
@@ -94,13 +97,12 @@ public class ApiCourseMemberController {
 
     @PreAuthorize(Authorities.COURSE_MANAGE)
     @GetMapping("/{courseId}/join-requests")
-    public ResponseEntity<ApiResponse<List<CourseMemberDetailResponse>>> getJoinRequests(
+    public ResponseEntity<ApiResponse<PagingResponse<CourseMemberDetailResponse>>> getJoinRequests(
             @PathVariable UUID courseId,
+            @ModelAttribute PagingRequest request,
             @AuthenticationPrincipal Jwt jwt
     ) {
-        return ApiResponses.ok(
-                memberService.getJoinRequests(courseId, JwtUtils.getUserId(jwt), jwt.getTokenValue())
-        );
+        return ApiResponses.ok(memberService.getJoinRequests(courseId, JwtUtils.getUserId(jwt), jwt.getTokenValue(), request));
     }
 
     @PreAuthorize(Authorities.COURSE_MANAGE)

@@ -14,14 +14,12 @@ import java.util.UUID;
 @Component
 @RequiredArgsConstructor
 public class CourseUtils {
+
     private final CourseRepository courseRepository;
 
     public Course requireCourse(UUID courseId) {
-        return courseRepository
-                .findByIdAndDeletedAtIsNull(courseId)
-                .orElseThrow(() -> new ApplicationException(
-                        CommonErrorCode.RESOURCE_NOT_FOUND
-                ));
+        return courseRepository.findByIdAndDeletedAtIsNull(courseId)
+                .orElseThrow(() -> new ApplicationException(CommonErrorCode.RESOURCE_NOT_FOUND));
     }
 
     public CourseResponse withRole(CourseResponse response, CourseMemberRole role) {
@@ -29,6 +27,7 @@ public class CourseUtils {
                 response.id(),
                 response.title(),
                 response.description(),
+                response.imageUrl(),
                 response.level(),
                 response.visibility(),
                 response.status(),

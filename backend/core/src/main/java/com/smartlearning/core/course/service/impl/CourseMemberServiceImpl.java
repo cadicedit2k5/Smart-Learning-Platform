@@ -1,5 +1,7 @@
 package com.smartlearning.core.course.service.impl;
 
+import com.smartlearning.common.dto.request.PagingRequest;
+import com.smartlearning.common.dto.response.pagination.PagingResponse;
 import com.smartlearning.common.error.ApplicationException;
 import com.smartlearning.common.error.CommonErrorCode;
 import com.smartlearning.core.course.dto.request.CourseMemberCreateRequest;
@@ -21,6 +23,9 @@ import com.smartlearning.core.infrastructure.dto.SystemUserResponse;
 import com.smartlearning.core.infrastructure.http.SystemClient;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
@@ -83,17 +88,26 @@ public class CourseMemberServiceImpl implements CourseMemberService {
     }
 
     @Override
-    public List<CourseMemberDetailResponse> getMembers(UUID courseId, UUID currentUserId, String accessToken) {
+    public PagingResponse<CourseMemberDetailResponse> getMembers(UUID courseId, UUID currentUserId, String accessToken, PagingRequest request) {
         courseUtils.requireCourse(courseId);
         courseAccessPolicy.requireOwner(
                 courseId,
                 currentUserId
         );
 
-        List<CourseMember> members = memberRepository.findAllByCourseIdAndStatus(
-                        courseId, CourseMemberStatus.ACTIVE);
+        Page<CourseMember> members = memberRepository.findAllByCourseIdAndStatus(
+                courseId,
+                CourseMemberStatus.ACTIVE,
+                request.pageable()
+        );
 
-        return buildMemberDetails(members, accessToken);
+        List<CourseMemberDetailResponse> details = buildMemberDetails(members.getContent(), accessToken);
+
+        Page<CourseMemberDetailResponse> detailPage = new PageImpl<>(details,
+                members.getPageable(),
+                members.getTotalElements());
+
+        return PagingResponse.from(detailPage);
     }
 
     @Override
@@ -190,13 +204,23 @@ public class CourseMemberServiceImpl implements CourseMemberService {
     }
 
     @Override
-    public List<CourseMemberDetailResponse> getJoinRequests(UUID courseId, UUID currentUserId, String accessToken) {
+    public PagingResponse<CourseMemberDetailResponse> getJoinRequests(UUID courseId, UUID currentUserId, String accessToken, PagingRequest request) {
         courseUtils.requireCourse(courseId);
         courseAccessPolicy.requireOwner(courseId, currentUserId);
 
-        List<CourseMember> members = memberRepository.findAllByCourseIdAndStatus(
-                courseId, CourseMemberStatus.PENDING);
-        return buildMemberDetails(members, accessToken);
+        Page<CourseMember> members = memberRepository.findAllByCourseIdAndStatus(
+                courseId,
+                CourseMemberStatus.PENDING,
+                request.pageable()
+        );
+
+        List<CourseMemberDetailResponse> details = buildMemberDetails(members.getContent(), accessToken);
+
+        Page<CourseMemberDetailResponse> detailPage = new PageImpl<>(details,
+                members.getPageable(),
+                members.getTotalElements());
+
+        return PagingResponse.from(detailPage);
     }
 
     private List<CourseMemberDetailResponse> buildMemberDetails(

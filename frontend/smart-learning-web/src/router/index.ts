@@ -22,8 +22,11 @@ const router = createRouter({
     ...portalRoutes,
     {
       path: '/',
-      redirect: {
-        name: 'login',
+      name: 'home',
+      component: () =>
+        import('@/pages/LandingPage.vue'),
+      meta: {
+        title: 'Smart Learning',
       },
     },
     {

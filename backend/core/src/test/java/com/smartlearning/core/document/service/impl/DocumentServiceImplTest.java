@@ -2,11 +2,7 @@ package com.smartlearning.core.document.service.impl;
 
 import com.smartlearning.common.dto.response.pagination.PagingResponse;
 import com.smartlearning.core.course.entity.Course;
-import com.smartlearning.core.course.entity.CourseChapter;
-import com.smartlearning.core.course.entity.CourseTopic;
 import com.smartlearning.core.course.sercurity.CourseAccessPolicy;
-import com.smartlearning.core.course.repository.CourseChapterRepository;
-import com.smartlearning.core.course.repository.CourseTopicRepository;
 import com.smartlearning.core.course.utils.CourseUtils;
 import com.smartlearning.core.document.dto.request.DocumentCreateRequest;
 import com.smartlearning.core.document.dto.request.DocumentFilterRequest;
@@ -96,10 +92,6 @@ class DocumentServiceImplTest {
     @Mock
     private DocumentIngestionEventPublisher eventPublisher;
     @Mock
-    private CourseChapterRepository chapterRepository;
-    @Mock
-    private CourseTopicRepository topicRepository;
-    @Mock
     private DocumentDeletionEventPublisher documentDeletionEventPublisher;
     @Mock
     private DocumentDeletionService documentDeletionService;
@@ -127,8 +119,6 @@ class DocumentServiceImplTest {
                 documentMapper,
                 processingJobRepository,
                 eventPublisher,
-                chapterRepository,
-                topicRepository,
                 documentDeletionEventPublisher,
                 documentDeletionService,
                 documentUtils
@@ -147,7 +137,7 @@ class DocumentServiceImplTest {
         second.setTitle("Second document");
         DocumentResponse firstResponse = documentResponse();
         DocumentResponse secondResponse = new DocumentResponse(
-                second.getId(), COURSE_ID, second.getCourse().getTitle(), null, null, second.getTitle(), second.getDescription(),
+                second.getId(), COURSE_ID, second.getCourse().getTitle(), second.getTitle(), second.getDescription(),
                  second.getUploadedBy(), null, second.getCreatedAt(), second.getUpdatedAt()
         );
         Page<Document> page = new PageImpl<>(List.of(first, second), pageable, 5);
@@ -303,9 +293,7 @@ class DocumentServiceImplTest {
         Document existing = document();
         DocumentUpdateRequest request = new DocumentUpdateRequest(
                 "  Tiêu đề mới  ",
-                "Mô tả mới",
-                null,
-                null
+                "Mô tả mới"
         );
         when(courseUtils.requireCourse(COURSE_ID)).thenReturn(course());
         when(documentRepository.findByIdAndCourseIdAndDeletedAtIsNull(DOCUMENT_ID, COURSE_ID))
@@ -317,38 +305,6 @@ class DocumentServiceImplTest {
         assertThat(existing.getTitle()).isEqualTo("Tiêu đề mới");
         assertThat(existing.getDescription()).isEqualTo("Mô tả mới");
         verify(courseAccessPolicy).requireOwner(COURSE_ID, OWNER_ID);
-    }
-
-    @Test
-    void handleUpdateDocument_placesDocumentOnlyInTopicWithActiveChapter() {
-        UUID chapterId = UUID.fromString("90000000-0000-0000-0000-000000000001");
-        UUID topicId = UUID.fromString("91000000-0000-0000-0000-000000000001");
-        CourseChapter chapter = new CourseChapter();
-        chapter.setId(chapterId);
-        chapter.setCourse(course());
-        CourseTopic topic = new CourseTopic();
-        topic.setId(topicId);
-        topic.setChapter(chapter);
-        Document existing = document();
-        DocumentUpdateRequest request = new DocumentUpdateRequest(null, null, null, topicId);
-
-        when(courseUtils.requireCourse(COURSE_ID)).thenReturn(course());
-        when(documentRepository.findByIdAndCourseIdAndDeletedAtIsNull(DOCUMENT_ID, COURSE_ID))
-                .thenReturn(Optional.of(existing));
-        when(topicRepository.findByIdAndChapterCourseIdAndDeletedAtIsNullAndChapterDeletedAtIsNull(
-                topicId,
-                COURSE_ID
-        )).thenReturn(Optional.of(topic));
-        when(documentMapper.toResponse(existing)).thenReturn(documentResponse());
-
-        documentService.handleUpdateDocument(COURSE_ID, DOCUMENT_ID, OWNER_ID, request);
-
-        assertThat(existing.getChapter()).isSameAs(chapter);
-        assertThat(existing.getTopic()).isSameAs(topic);
-        verify(topicRepository).findByIdAndChapterCourseIdAndDeletedAtIsNullAndChapterDeletedAtIsNull(
-                topicId,
-                COURSE_ID
-        );
     }
 
     @Test

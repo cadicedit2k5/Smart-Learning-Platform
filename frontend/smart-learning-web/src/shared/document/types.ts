@@ -16,8 +16,6 @@ export interface CourseDocument {
   id: string
   courseId: string
   courseTitle: string
-  chapterId: string | null
-  topicId: string | null
   title: string
   description: string | null
   uploadedBy: string

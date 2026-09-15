@@ -7,6 +7,7 @@ exclude = ["migrations*"]
 # Auto async mode
 [tool.pytest.ini_options]
 asyncio_mode = "auto"
+markers = ["integration: requires PostgreSQL test database and optionally Google API"]
 [project]
 
 

@@ -7,8 +7,6 @@ public record DocumentResponse(
         UUID id,
         UUID courseId,
         String courseTitle,
-        UUID chapterId,
-        UUID topicId,
         String title,
         String description,
         UUID uploadedBy,

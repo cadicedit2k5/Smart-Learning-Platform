@@ -16,7 +16,6 @@ import com.smartlearning.core.course.repository.CourseChapterRepository;
 import com.smartlearning.core.course.repository.CourseTopicRepository;
 import com.smartlearning.core.course.sercurity.CourseAccessPolicy;
 import com.smartlearning.core.course.utils.CourseUtils;
-import com.smartlearning.core.document.service.DocumentDeletionService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -62,8 +61,6 @@ class CourseContentServiceImplTest {
     private CourseChapterMapper chapterMapper;
     @Mock
     private CourseTopicMapper topicMapper;
-    @Mock
-    private DocumentDeletionService documentDeletionService;
     @Mock
     private ApplicationEventPublisher eventPublisher;
     @InjectMocks
@@ -209,7 +206,6 @@ class CourseContentServiceImplTest {
         contentService.deleteChapter(COURSE_ID, CHAPTER_ID, OWNER_ID);
 
         assertThat(chapter.getDeletedAt()).isNotNull();
-        verify(documentDeletionService).deleteByScope(COURSE_ID, CHAPTER_ID, null);
         verify(topicRepository).deleteAll(List.of(first, second));
         verify(chapterRepository).delete(chapter);
 

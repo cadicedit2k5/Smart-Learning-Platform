@@ -11,7 +11,6 @@ export const courseStatusLabel: Record<CourseStatus, string> = {
 
 export const courseVisibilityLabel:Record<CourseVisibility, string> = {
     PUBLIC: 'Công khai',
-    PRIVATE: 'Riêng tư',
     INVITE_ONLY: 'Chỉ người được mời',
   }
 

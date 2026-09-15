@@ -73,7 +73,7 @@ class ConversationServiceImplPaginationTest {
     @Test
     void paginatesConversations() {
         AiConversation conversation = conversation();
-        Pageable pageable = PageRequest.of(0, 5);
+        Pageable pageable = PageRequest.of(0, 6);
 
         when(courseAccessClient.getAiAccess(COURSE_ID, "token")).thenReturn(fullAccess());
         when(conversationRepository.findAllByCourseIdAndUserIdAndDeletedAtIsNullOrderByLastMessageAtDesc(
@@ -92,7 +92,9 @@ class ConversationServiceImplPaginationTest {
         assertThat(response.getContent()).hasSize(1);
         assertThat(response.getContent().get(0).id()).isEqualTo(conversation.getId());
         assertThat(response.getPageable().getTotalElements()).isEqualTo(12);
-        assertThat(response.getPageable().getTotalPages()).isEqualTo(3);
+        assertThat(response.getPageable().getPage()).isEqualTo(1);
+        assertThat(response.getPageable().getSize()).isEqualTo(6);
+        assertThat(response.getPageable().getTotalPages()).isEqualTo(2);
     }
 
     @Test
@@ -101,7 +103,9 @@ class ConversationServiceImplPaginationTest {
         ChatMessage message = assistantMessage(conversation, ChatAccessScope.FULL);
         MessageCitation citation = citation(message);
 
-        Pageable pageable = PageRequest.of(0, 5);
+        PagingRequest pagingRequest = new PagingRequest();
+        pagingRequest.setPage(2);
+        Pageable pageable = PageRequest.of(1, 6);
         when(courseAccessClient.getAiAccess(COURSE_ID, "token")).thenReturn(fullAccess());
         when(conversationRepository.findByIdAndCourseIdAndUserIdAndDeletedAtIsNull(
                 CONVERSATION_ID,
@@ -119,16 +123,18 @@ class ConversationServiceImplPaginationTest {
                 CONVERSATION_ID,
                 USER_ID,
                 "token",
-                new PagingRequest()
+                pagingRequest
         );
 
         assertThat(response.getContent()).hasSize(1);
         assertThat(response.getContent().get(0).citations()).hasSize(1);
         assertThat(response.getPageable().getTotalElements()).isEqualTo(15);
+        assertThat(response.getPageable().getPage()).isEqualTo(2);
+        assertThat(response.getPageable().getSize()).isEqualTo(6);
         assertThat(response.getPageable().getTotalPages()).isEqualTo(3);
         verify(messageRepository).readAllByConversationIdOrderByCreatedAtDesc(
                 org.mockito.ArgumentMatchers.eq(CONVERSATION_ID),
-                argThat(request -> request.getPageNumber() == 0 && request.getPageSize() == 5)
+                argThat(request -> request.getPageNumber() == 1 && request.getPageSize() == 6)
         );
     }
 }

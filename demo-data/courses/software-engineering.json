@@ -1,0 +1,4660 @@
+{
+  "image": "images/software-engineering.png",
+  "source": {
+    "provider": "VOER",
+    "collection_title": "Nhập môn Công nghệ phần mềm",
+    "collection_url": "https://voer.edu.vn/c/nhap-mon-cong-nghe-phan-mem/fb584480",
+    "author": "Phạm Thị Quỳnh",
+    "license": "CC BY 3.0"
+  },
+  "course": {
+    "title": "Nhập môn Công nghệ phần mềm",
+    "description": "Kiến thức nền tảng về quy trình phát triển phần mềm, yêu cầu, thiết kế, giao diện và kiểm thử.",
+    "level": null,
+    "visibility": "PUBLIC"
+  },
+  "chapter": {
+    "title": "Nội dung Nhập môn Công nghệ phần mềm",
+    "description": null,
+    "learningObjectives": null,
+    "orderIndex": 0
+  },
+  "topics": [
+    {
+      "title": "Phần mềm là gì?",
+      "description": null,
+      "estimatedMinutes": null,
+      "orderIndex": 1,
+      "content": {
+        "type": "doc",
+        "content": [
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Phần mềm là gì?"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Khái niệm Phần mềm là các chương trình máy tính và những tài liệu liên quan đến nó như: các yêu cầu, mô hình thiết kế, tài liệu hướng dẫn sử dụng… Do đó, chúng ta thấy rằng đặc điểm của phần mềm là trừu tượng và vô hình. Các sản phẩm phần mềm được chia thành 2 loại: - Sản phẩm đại trà (Generic Product): được phát triển để bán ra ngoài thị trường, đối tượng người sử dụng là tương đối đa dạng và phong phú. Những sản phẩm phần mềm thuộc loại này thường là những phần mềm dành cho máy PC. - Sản phầm theo đơn đặt hàng (Bespoke Product hoặc Customised Product): được phát triển cho một khách hàng riêng lẻ theo yêu cầu. Ví dụ: Những hệ thống phần mềm chuyên dụng, hỗ trợ nghiệp vụ cho một doanh nghiệp riêng lẻ … Một phần mềm mới có thể được tạo ra bằng cách phát triển các chương trình mới, thay đổi và điều chỉnh các hệ thống phần mềm đại trà hoặc tái sử dụng lại các phần mềm đã tồn tại."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Công nghệ phần mềm là gì?"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Công nghệ phần mềm là những quy tắc công nghệ (engineering discipline) có liên quan đến tất cả các khía cạnh của quá trình sản xuất phần mềm. Các kỹ sư phần mềm nên tuân theo một phương pháp luận có hệ thống và có tổ chức trong công việc của họ. Đồng thời, họ nên sử dụng các công cụ và kỹ thuật thích hợp với vấn đề cần giải quyết, các ràng buộc và tài nguyên sẵn có. Sự khác biệt giữa công nghệ phần mềm và khoa học máy tính? Khoa học máy tính đề cấp tới lý thuyết và những vấn đề cơ bản; còn công nghệ phần mềm đề cập tới các hoạt động xây dựng và đưa ra một phần mềm hữu ích. Khi sự phát triển của phần mềm trở lên mạnh mẽ thì các lý thuyết của khoa học máy tính vẫn không đủ để đóng vai trò là nền tảng hoàn thiện cho công nghệ phần mềm."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Sự khác biệt giữa công nghệ phần mềm và công nghệ hệ thống ?"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Đặt vấn đề - Học viên đã bao giờ nghe nhắc tới Công nghệ hệ thống hay chưa? - Hãy trình bày một số vấn đề có liên quan đến Công nghệ hệ thống. - Công nghệ phần mềm có phải là Công nghệ hệ thống không? Công nghệ hệ thống (hay còn gọi là kỹ nghệ hệ thống) liên quan tới tất cả các khía cạnh của quá trình phát triển hệ thống dựa máy tính bao gồm: phần cứng, phần mềm, và công nghệ xử lý. Công nghệ phần mềm chỉ là một phần của quy trình này, nó có liên quan tới việc phát triển hạ tầng phần mềm (software infrastructure), điều khiển, các ứng dụng và cơ sở dữ liệu trong hệ thống. Kỹ sư hệ thống phải thực hiện việc đặc tả hệ thống, thiết kế kiến trúc hệ thống, tích hợp và triển khai."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Quy trình phần mềm là gì?"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Đặt vấn đề - Hãy cho biết để sản xuất một phần mềm, người ta phải thực hiện những công việc nào? Quy trình phần mềm là một tập hợp các hành động mà mục đích của nó là xây dựng và phát triển phần mềm. Những hành động thường được thực hiện trong các quy trình phần mềm bao gồm - Đặc tả: đặc tả những gì hệ thống phải làm và các ràng buộc trong quá trình xây dựng hệ thống. - Phát triển: xây dựng hệ thống phần mềm. - Kiểm thử: kiểm tra xem liệu phần mềm đã thoả mãn yêu cầu của khách hàng. - Mở rộng: điều chỉnh và thay đổi phần mềm tương ứng với sự thay đổi yêu cầu. Những loại hệ thống khác nhau sẽ cần những quy trình phát triển khác nhau. Ví dụ, hệ thống thời gian thực yêu cầu phải hoàn thành đặc tả hệ thống trước khi chuyển sang giai đoạn xây dựng nó. Nhưng với hệ thống thương mại điện tử, chúng ta có thể vừa đặc tả vừa xây dựng chương trình một cách đồng thời. 3/105 Tuy nhiên, nếu chúng ta không sử dụng một quy trình phát triển hệ thống thích hợp thì có thể làm giảm chất lượng của hệ thống và tăng chi phí xây dựng."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Mô hình quy trình phát triển phần mềm là gì?"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Mô hình quy trình phát triển phần mềm là một thể hiện đơn giản của một quy trình phần mềm, và nó được biểu diễn từ một góc độ cụ thể. Sau đây là một số ví dụ về mô hình quy trình phát triển phần mềm: - Mô hình luồng công việc (workflow): mô tả một chuỗi các hành động cần phải thực hiện. - Mô hình luồng dữ liệu (data-flow): mô tả luồng thông tin. - Mô hình Vai trò/Hành động (Role/action): chỉ ra vai trò của những người liên quan trong quy trình phần mềm và nhiệm vụ của từng người. Ngoài ra, còn có một số mô hình quy trình chung cũng được đễ xuất như: - Mô hình thác nước (waterfall) - Mô hình phát triển lặp lại (Iterative development) - Mô hình công nghệ phần mềm dựa thành phần (Component-based software engineering)."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Theo dõi tin tức công nghệ mới nhất:"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "https://www.facebook.com/hauisoftware"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "title": "Một số mô hình phát triển phần mềm",
+      "description": null,
+      "estimatedMinutes": null,
+      "orderIndex": 2,
+      "content": {
+        "type": "doc",
+        "content": [
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Một số mô hình phát triển phần mềm"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Mô hình phát triển phần mềm là một thể hiện trừu tượng của quy trình phần mềm. Nó biểu diễn các đặc tả về quy trình từ những khía cạnh cụ thể; do đó, nó chỉ cung cấp một phần thông tin về quy trình phần mềm. Phần sau đây sẽ trình bày năm mô hình phát triển phần mềm phổ biến thường được sử dụng:"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "- Mô hình thác nước"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "- Mô hình xây dựng tiến triển"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "- Công nghệ phần mềm dựa thành phần"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "- Mô hình phát triển lặp lại, tăng thêm"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "- Mô hình xoắn ốc Mục tiêu"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "- Phải hiểu rõ năm mô hình phát triển phần mềm cơ bản."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "- Phân biệt được sự khác nhau giữa các mô hình; ưu và nhược điểm của từng mô hình."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "- Biết rõ đối với loại hệ thống nào thì nên áp dụng mô hình phát triển nào cho phù hợp."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Mô hình thác nước"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Các pha của mô hình thác nước bao gồm:"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "- Phân tích và xác định các yêu cầu"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "- Thiết kế hệ thống và phần mềm"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "- Cài đặt và kiểm thử đơn vị"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "- Tích hợp và kiểm thử hệ thống"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "- Vận hành và bảo trì."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Trong mô hình thác nước, năm pha trên phải được thực hiện một cách tuần tự; kết thúc pha trước, rồi mới được thực hiện pha tiếp theo. Do đó, nhược điểm chính của mô hình thác nước là rất khó khăn trong việc thay đổi các pha đã được thực hiện. Giả sử, pha phân tích và xác định yêu cầu đã hoàn tất và chuyển sang pha kế tiếp, nhưng lúc này lại có sự thay đổi yêu cầu của người sử dụng; thì chỉ còn cách là phải thực hiện lại từ đầu. Cho nên, mô hình này chỉ thích hợp khi các yêu cầu đã được tìm hiểu rõ ràng và những thay đổi sẽ được giới hạn một cách rõ ràng trong suốt quá trình thiết kế. Tuy nhiên, trong thực tế có rất ít những hệ thống nghiệp vụ có các yêu cầu ổn định."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Mô hình xây dựng tiến triển"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Mô hình xây dựng tiến triển dựa trên ý tưởng xây dựng một mẫu thử ban đầu và đưa cho người sử dụng xem xét; sau đó, tinh chỉnh mẫu thử qua nhiều phiên bản cho đến khi thoả mãn yêu cầu của người sử dụng thì dừng lại. Có hai phương pháp để thực hiện mô hình này:"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "- Phát triển thăm dò: mục đích của nó là để làm việc với khách hàng và để đưa ra hệ thống cuối cùng từ những đặc tả sơ bộ ban đầu. Phương pháp này thường bắt đầu thực hiện với những yêu cầu được tìm hiểu rõ ràng và sau đó, bổ sung những đặc điểm mới được đề xuất bởi khách hàng. Cuối cùng, khi các yêu cầu của người sử dụng được thoả mãn thì cũng là lúc chúng ta đã xây dựng xong hệ thống."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "- Loại bỏ mẫu thử: mục đích là để tìm hiểu các yêu cầu của hệ thống. Phương pháp này thường bắt đầu với những yêu cầu không rõ ràng và ít thông tin. Các mẫu thử sẽ được xây dựng và chuyển giao tới cho người sử dụng. Từ đó, ta có thể phân loại những yêu cầu nào là thực sự cần thiết và lúc này mẫu thử không còn cần thiết nữa. Như vậy, mẫu thử chỉ có tác dụng để làm sáng tỏ yêu cầu của người sử dụng. Tuy nhiên, nhược điểm của mô hình xây dựng tiến triển là: thiếu tầm nhìn của cả quy trình; các hệ thống thường hướng cấu trúc nghèo nàn; yêu cầu các kỹ năng đặc biệt (Ví dụ: các ngôn ngữ để tạo ra mẫu thử nhanh chóng). Mô hình xây dựng tiến triển chỉ nên áp dụng với những hệ thống có tương tác ở mức độ nhỏ hoặc vừa; trên một phần của những hệ thống lớn; hoặc những hệ thống có thời gian chu kỳ tồn tại ngắn."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Công nghệ phần mềm dựa thành phần"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Mô hình này dựa trên kỹ thuật tái sử dụng một cách có hệ thống; trong đó hệ thống được tích hợp từ nhiều thành phần đang tồn tại hoặc các thành phần thương mại COTS (Commercial-off-the-shelf). Các trạng thái chính của quy trình bao gồm:"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "- Phân tích thành phần sẵn có"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "- Điều chỉnh yêu cầu"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "- Thiết kế hệ thống với kỹ thuật tái sử dụng"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "- Xây dựng và tích hợp hệ thống"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Mô hình phát triển lặp lại, tăng thêm"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Mô hình này được đề xuất dựa trên ý tưởng thay vì phải xây dựng và chuyển giao hệ thống một lần thì sẽ được chia thành nhiều vòng, tăng dần. Mỗi vòng là một phần kết quả của một chức năng được yêu cầu. Các yêu cầu của người sử dụng được đánh thứ tự ưu tiên. Yêu cầu nào có thứ tự ưu tiên càng cao thì càng ở trong những vòng phát triển sớm hơn. Từ đó, chúng ta có thể thấy rõ một số ưu điểm của mô hình phát triển tăng vòng:"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "- Sau mỗi lần tăng vòng thì có thể chuyển giao kết quả thực hiện được cho khách hành nên các chức năng của hệ thống có thể nhìn thấy sớm hơn."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "- Các vòng trước đóng vai trò là mẫu thử để giúp tìm hiểu thêm các yêu cầu ở những vòng tiếp theo."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "- Những chức năng của hệ thống có thứ tự ưu tiên càng cao thì sẽ được kiểm thử càng kỹ."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Mô hình xoắn ốc"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Trong mô hình xoắn ốc, quy trình phát triển phần mềm được biểu diễn như một vòng xoắn ốc. Các pha trong quy trình phát triển xoắn ốc bao gồm:"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "- Thiết lập mục tiêu: xác định mục tiêu cho từng pha của dự án."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "- Đánh giá và giảm thiểu rủi ro: rủi ro được đánh giá và thực hiện các hành động để giảm thiểu rủi ro."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "- Phát triển và đánh giá: sau khi đánh giá rủi ro, một mô hình xây dựng hệ thống sẽ được lựa chọn từ những mô hình chung."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "- Lập kế hoạch: đánh giá dự án và pha tiếp theo của mô hình xoắn ốc sẽ được lập kế hoạch."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Xem công nghệ mới nhất tại: https://www.facebook.com/hauisoftware"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "title": "Phát hiện và phân tích yêu cầu",
+      "description": null,
+      "estimatedMinutes": null,
+      "orderIndex": 3,
+      "content": {
+        "type": "doc",
+        "content": [
+          {
+            "type": "heading",
+            "attrs": {
+              "level": 1
+            },
+            "content": [
+              {
+                "type": "text",
+                "text": "Mục tiêu"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "- Nhiệm vụ của việc phát hiện và phân tích yêu cầu là gì?"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "- Hiểu rõ mô hình xoắn ốc trong quy trình phát hiện và phân tích yêu cầu"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "- Các kỹ thuật được sử dụng để phát hiện và phân tích yêu cầu"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Trong pha phát hiện và phân tích yêu cầu, nhân viên kỹ thuật và khách hàng cùng hợp tác để xác định miền ứng dụng, các dịch vụ mà hệ thống cung cấp, hiệu năng của hệ thống, các ràng buộc vận hành của hệ thống…"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Ở đây, chúng ta có một khái niệm mới là stakeholder. Stakeholder là những người tham dự vào dự án xây dựng hệ thống: người sử dụng cuối, người quản lý, kỹ sư, chuyên gia lĩnh vực, … Ví dụ, trong hệ thống ATM gồm các Stakeholder sau: khách hàng của ngân hàng, đại diện của các ngân hàng khác, người quản lý ngân hầng, nhân viên ngân hàng, quản trị CSDL, quản lý bảo mật, phòng marketing, kỹ sư bảo trì phần cứng và phần mềm, người điều hành ngân hàng."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Tuy nhiên, việc phát hiện và tìm hiểu yêu cầu của stakeholder, chúng ta thường gặp khó khăn vì những nguyên nhân sau:"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "- Stakeholder không biết những gì mà họ thật sự mong muốn."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "- Stakeholder mô tả các yêu cầu theo thuật ngữ của họ."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "- Những stakeholder khác nhau có thể có các yêu cầu xung đột nhau"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "- Những yếu tố tổ chức và quyền lực có thể ảnh hưởng tới các yêu cầu hệ thống."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "- Các yêu cầu có thể thay đổi trong suốt quá trình phân tích. Những stakeholder mới có thể xuất hiện và môi trường nghiệp vụ có thể thay đổi."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Do đó, người ta thường sử dụng mô hình xoắn ốc trong quy trình phát hiện và phân tích yêu cầu."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Trong quy trình này bao gồm các hoạt động sau:"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "- Phát hiện yêu cầu: tiếp xúc với các stakeholder để phát hiện ra các yêu cầu của họ. Các yêu cầu miền ứng dụng cũng được phát hiện ở bước này."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "- Phân loại và sắp xếp yêu cầu: nhóm các yêu cầu có liên quan lẫn nhau và tổ chức chúng thành những nhóm gắn kết với nhau."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "- Sắp thứ tự ưu tiên và điều chỉnh các yêu cầu xung đột: khi có nhiều stakeholder thì các yêu cầu của họ càng có nhiều xung đột. Hoạt động này nhằm đánh thứ tự ưu tiên của các yêu cầu, phát hiện và giải quyết xung đột giữa các yêu cầu."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "- Tư liệu hóa yêu cầu: yêu cầu được tư liệu hoá và là đầu vào của vòng kế tiếp trong mô hình xoắn ốc."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Phát hiện yêu cầu là quy trình thu thập những thông tin về hệ thống được đề xuất và hệ thống đang tồn tại để xác định các yêu cầu hệ thống và yêu cầu của người sử dụng. Ta có thể lấy thông tin này từ các tư liệu, stakeholder, và bản đặc tả của những hệ thống tương tự. Chúng ta giao tiếp với stakeholder thông qua phỏng vấn hoặc quan sát và có thể sử dụng kịch bản và mẫu thử để giúp phát hiện yêu cầu."
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "title": "Tư liệu hóa yêu cầu phần mềm",
+      "description": null,
+      "estimatedMinutes": null,
+      "orderIndex": 4,
+      "content": {
+        "type": "doc",
+        "content": [
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Các yêu cầu hệ thống được trình bày trong tài liệu các yêu cầu phần mềm cho biết những thứ cán bộ phát triển hệ thống cần biết. Tài liệu này bao gồm các định nghĩa về yêu cầu và các đặc tả về các yêu cầu. Trong một số trường hợp, chúng không được trình bày riêng biệt mà được tích hợp làm một. Đôi khi, định nghĩa yêu cầu được trình bày như là một giới thiệu tới đặc tả yêu cầu. Cách tiếp cận hiệu quả nhất là trình bày các đặc tả chi tiết như là phụ lục của yêu cầu."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Tài liệu yêu cầu phần mềm không phải tài liệu đặc tả. Nó cần phải mô tả cái hệ thống cần phải làm chứ không phải làm thế nào. Tài liệu này cần dễ dàng được đặc tả và ánh xạ sang các phần tương ứng của thiết kế hệ thống. Nếu các dịch vụ, ràng buộc và các đặc tả thuộc tính trong tài liệu yêu cầu phần mềm được thỏa mãn bởi thiết kế thì thiết kế này được coi là giải pháp thích hợp với vấn đề."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Về nguyên tắc, các yêu cầu cần được hoàn chỉnh và chắc chắn. Mọi chức năng hệ thống cần được đặc tả và các yêu cầu không được mâu thuẫn. Tuy nhiên các thiếu sót là không thể tránh khỏi, do vậy tài liệu nên được cấu trúc dễ cho việc thay đổi. Nội dung nên được chia thành các chương. Sáu yêu cầu cần được thỏa mãn là:"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": " Nó cần mô tả các hành vi hệ thống bên ngoài"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": " Nó cần mô tả các ràng buộc về thực hiện"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": " Nó cần phải dễ thay đổi"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": " Nó phải là công cụ tham chiếu cho người bảo trì hệ thống"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": " Nó cần ghi được vòng đời của hệ thống"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": " Nó cần biểu thị được các đáp ứng chấp nhận được với các sự kiện không dự kiến"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Cấu t rúc chung của tài liệu yêu c ầu phần mềm gồm c á c phần như s au:"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "+ Giới thiệu: mô tả sự cần thiết của hệ thống. Nó cần sự mô tả sơ lược các chức năng của mình và giải thích cách làm việc với các hệ thống khác. Nó cũng cần mô tả làm thế nào hệ thống đáp ứng được toàn bộ các mục tiêu chiến lược và nghiệp vụ."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "+ Thuật ngữ: nó cần định nghĩa các khái niệm kỹ thuật được sử dụng trong tài liệu này. Không được giả định người đọc đã có kinh nghiệm."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "+ Mô hình hệ thống: phần này lập một hoặc nhiều mô hình hệ thống cho biết các quan hệ giữa các cấu thành hệ thống với hệ thống và môi trường của nó. Nó cần bao gồm các mô hình đối tượng, mô hình luồng dữ liệu và ngữ nghĩa dữ liệu."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "+ Định nghĩa yêu cầu chức năng: các dịch vụ cung cấp cho người dùng cần được mô tả trong mục này. Mô tả có thể dùng ngôn ngữ tự nhiên, sơ đồ hoặc các dạng ghi chép khác cho phép khách hàng có thể hiểu được."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Các dịch vụ cung cấp cho người dùng cần được mô tả trong mục này. Mô tả có thể dùng ngôn ngữ tự nhiên, sơ đồ hoặc các dạng ghi chép khác cho phép khách hàng có thể hiểu được."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "+ Định nghĩa yêu cầu phi chức năng: các ràng buộc về phần mềm và các hạn chế đối với thiết kế cần phải được mô tả trong phần này. Nó có thể bao gồm các chi tiết của biểu diễn dữ liệu, thời gian đáp ứng và yêu cầu bộ nhớ,...Các tiêu chuẩn về sản phẩm và quy trình cần tuân thủ cũng được mô tả."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "+ Tiến triển hệ thống: phần này mô tả các giả thiết căn bản làm cơ sở cho hệ thống và dự đoán các thay đổi về phát triển phần cứng, yêu cầu người dùng"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "+ Đặc tả yêu cầu: mô tả các yêu cầu cơ bản chi tiết hơn. Nếu cần các chi tiết hơn có thể được thêm vào các yêu cầu phi chức năng, ví dụ giao diện với các hệ thống có thể được định nghĩa."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "+ Ngoài ra, tài liệu yêu cầu phần mềm có thể bao gồm thêm các phần sau:"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "- Phần cứng: nếu hệ thống được phát triển trên một phần cứng đặc biệt, phần cứng này và giao diện cần được mô tả. Nếu phần cứng bán sẵn được sử dụng, các cấu hình cực tiểu và cực đại phải được mô tả."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "- Yêu cầu dữ liệu: tổ chức logic của dữ liệu được sử dụng bởi hệ thống và các quan hệ giữa chúng được mô tả, có thể dùng sơ đồ thực thể liên kết."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "- Chỉ mục có thể được cung cấp. Ví dụ chỉ mục theo chữ cái, chỉ mục theo chương, theo chức năng...."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Do hệ thống được vận hành trong thời gian dài, nên môi trường hệ thống và mục đích nghiệp vụ có thể thay đổi. Khi đó tài liệu yêu cầu cũng cần phải thay đổi. Với mục đích tiến triển, tài liệu yêu cầu thường được chia theo hai phân loại:"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": " Các yêu cầu ổn định: được suy dẫn từ các hoạt động cốt lõi của tổ chức tương đối liên quan trực tiếp tới miền hệ thống."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": " Các yêu cầu bất thường: các yêu cầu có thể thay đổi khi phát triển hệ thống sau này như: các yêu cầu xuất hiện như là sự hiểu biết của khách hàng về sự phát triển của hệ thống trong quá trình xây dựng hệ thống, các yêu cầu được sinh ra do sự xuất hiện của việc tin học hóa làm thay đổi các quy trình nghiệp vụ,..."
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "title": "Thiết kế phần mềm",
+      "description": null,
+      "estimatedMinutes": null,
+      "orderIndex": 5,
+      "content": {
+        "type": "doc",
+        "content": [
+          {
+            "type": "heading",
+            "attrs": {
+              "level": 1
+            },
+            "content": [
+              {
+                "type": "text",
+                "text": "Khái niệm về thiết kế phần mềm"
+              }
+            ]
+          },
+          {
+            "type": "heading",
+            "attrs": {
+              "level": 2
+            },
+            "content": [
+              {
+                "type": "text",
+                "text": "Khái niệm"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Có thể định nghĩa thiết kế là một quá trình áp dụng nhiều kỹ thuật và các nguyên lý để tạo ra mô hình của một thiết bị, một tiến trình hay một hệ thống đủ chi tiết mà theo đó có thể chế tạo ra sản phẩm vật lý tương ứng với nó."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Bản chất thiết kế phần mềm là một quá trình chuyển hóa các yêu cầu phần mềm thành một biểu diễn thiết kế. Từ những mô tả quan niệm về toàn bộ phần mềm, việc làm mịn (chi tiết hóa) liên tục dẫn tới một biểu diễn thiết kế rất gần với cách biểu diễn của chương trình nguồn để có thể ánh xạ vào một ngôn ngữ lập trình cụ thể."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Mục tiêu thiết kế là để tạo ra một mô hình biểu diễn của một thực thể mà sau này sẽ được xây dựng."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Mô hình chung của một thiết kế phần mềm là một đồ thị có hướng, các nút biểu diễn các thực thể có trong thiết kế, các liên kết biểu diễn các mỗi quan hệ giữa các thực thể đó. Hoạt động thiết kế là một loại hoạt động đặc biệt:"
+              }
+            ]
+          },
+          {
+            "type": "bulletList",
+            "content": [
+              {
+                "type": "listItem",
+                "content": [
+                  {
+                    "type": "paragraph",
+                    "content": [
+                      {
+                        "type": "text",
+                        "text": "Là một quá trình sáng tạo, đòi hỏi có kinh nghiệm và sự nhanh nhạy và sáng tạo"
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "type": "listItem",
+                "content": [
+                  {
+                    "type": "paragraph",
+                    "content": [
+                      {
+                        "type": "text",
+                        "text": "Cần phải được thực hành và học bằng kinh nghiệm, bằng khảo sát các hệ đang tồn tại, chỉ học bằng sách vở là không đủ."
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "type": "heading",
+            "attrs": {
+              "level": 2
+            },
+            "content": [
+              {
+                "type": "text",
+                "text": "Tầm quan trọng"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Tầm quan trọng của thiết kế phần mềm có thể được phát biểu bằng một từ “chất lượng”. Thiết kế là nơi chất lượng phần mềm được nuôi dưỡng trong quá trình phát triển: cung cấp cách biểu diễn phần mềm có thể được xác nhận về chất lượng, là cách duy nhất mà chúng ta có thể chuyển hóa một cách chính xác các yêu cầu của khách hàng thành sản phẩm hay hệ thống phần mềm cuối cùng. Thiết kế phần mềm là công cụ giao tiếp làm cơ sở để có thể mô tả một cách đầy đủ các dịch vụ của hệ thống, để quản lý các rủi ro và lựa chọn giải pháp thích hợp. Thiết kế phần mềm phục vụ như một nền tảng cho mọi bước kỹ nghệ phần mềm và bảo trì. Không có thiết kế có nguy cơ sản sinh một hệ thống không ổn định - một hệ thống sẽ thất bại. Một hệ thống phần mềm rất khó xác định được chất lượng chừng nào chưa đến bước kiểm thử. Thiết kế tốt là bước quan trọng đầu tiên để đảm bảo chất lượng phần mềm."
+              }
+            ]
+          },
+          {
+            "type": "heading",
+            "attrs": {
+              "level": 2
+            },
+            "content": [
+              {
+                "type": "text",
+                "text": "Quá trình thiết kế"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Thiết kế phần mềm là quá trình chuyển các đặc tả yêu cầu dịch vụ thông tin của hệ thống thành đặc tả hệ thống phần mềm. Thiết kế phần mềm trải qua một số giai đoạn chính sau:"
+              }
+            ]
+          },
+          {
+            "type": "orderedList",
+            "attrs": {
+              "start": 1
+            },
+            "content": [
+              {
+                "type": "listItem",
+                "content": [
+                  {
+                    "type": "paragraph",
+                    "content": [
+                      {
+                        "type": "text",
+                        "text": "Nghiên cứu để hiểu ra vấn đề. Không hiểu rõ vấn đề thì không thể có được thiết kế hữu hiệu."
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "type": "listItem",
+                "content": [
+                  {
+                    "type": "paragraph",
+                    "content": [
+                      {
+                        "type": "text",
+                        "text": "Chọn một (hay một số) giải pháp thiết kế và xác định các đặc điểm thô của nó. Chọn giải pháp phụ thuộc vào kinh nghiệm của người thiết kế, vào các cấu kiện dùng lại được và vào sự đơn giản của các giải pháp kéo theo. Nếu các nhân tố khác là tương tự thì nên chọn giải pháp đơn giản nhất."
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "type": "listItem",
+                "content": [
+                  {
+                    "type": "paragraph",
+                    "content": [
+                      {
+                        "type": "text",
+                        "text": "Mô tả trừu tượng cho mỗi nội dung trong giải pháp. Trước khi tạo ra các tư liệu chính thức người thiết kế cần phải xây dựng một mô tả ban đầu sơ khai rồi chi tiết hóa nó. Các sai sót và khiếm khuyết trong mỗi mức thiết kế trước đó được phát hiện và phải được chỉnh sửa trước khi lập tư liệu thiết kế."
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Kết quả của mỗi hoạt động thiết kế là một đặc tả thiết kế. Đặc tả này có thể là một đặc tả trừu tượng, hình thức và được tạo ra để làm rõ các yêu cầu, nó cũng có thể là một đặc tả về một phần nào đó của hệ thống phải được thực hiện như thế nào. Khi quá trình thiết kế tiến triển thì các chi tiết được bổ sung vào đặc tả đó. Các kết quả cuối cùng là các đặc tả về các thuật toán và các cấu trúc dữ liệu được dùng làm cơ sở cho việc thực hiện hệ thống. Các hoạt động thiết kế chính trong một hệ thống phần mềm lớn:"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Các nội dung chính của thiết kế là:"
+              }
+            ]
+          },
+          {
+            "type": "bulletList",
+            "content": [
+              {
+                "type": "listItem",
+                "content": [
+                  {
+                    "type": "paragraph",
+                    "content": [
+                      {
+                        "type": "text",
+                        "text": "Thiết kế kiến trúc: Xác định hệ tổng thể phần mềm bao gồm các hệ con và các quan hệ giữa chúng và ghi thành tài liệu"
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "type": "listItem",
+                "content": [
+                  {
+                    "type": "paragraph",
+                    "content": [
+                      {
+                        "type": "text",
+                        "text": "Đặc tả trừu tượng: các đặc tả trừu tượng cho mỗi hệ con về các dịch vụ mà nó cung cấp cũng như các ràng buộc chúng phải tuân thủ."
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "type": "listItem",
+                "content": [
+                  {
+                    "type": "paragraph",
+                    "content": [
+                      {
+                        "type": "text",
+                        "text": "Thiết kế giao diện: giao diện của từng hệ con với các hệ con khác được thiết kế và ghi thành tài liệu; đặc tả giao diện không được mơ hồ và cho phép sử dụng hệ con đó mà không cần biết về thiết kế nội tại của nó."
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "type": "listItem",
+                "content": [
+                  {
+                    "type": "paragraph",
+                    "content": [
+                      {
+                        "type": "text",
+                        "text": "Thiết kế các thành phần: các dịch vụ mà một hệ con cung cấp được phân chia cho các thành phần hợp thành của nó."
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "type": "listItem",
+                "content": [
+                  {
+                    "type": "paragraph",
+                    "content": [
+                      {
+                        "type": "text",
+                        "text": "Thiết kế cấu trúc dữ liệu: thiết kế chi tiết và đặc tả các cấu trúc dữ liệu (các mô hình về thế giới thực cần xử lý) được dùng trong việc thực hiện hệ thống."
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "type": "listItem",
+                "content": [
+                  {
+                    "type": "paragraph",
+                    "content": [
+                      {
+                        "type": "text",
+                        "text": "Thiết kế thuật toán: các thuật toán được dùng cho các dịch vụ được thiết kế chi tiết và được đặc tả."
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Quá trình này được lặp lại cho đến khi các thành phần hợp thành của mỗi hệ con được xác định đều có thể ánh xạ trực tiếp vào các thành phần ngôn ngữ lập trình, chẳng hạn như các gói, các thủ tục và các hàm."
+              }
+            ]
+          },
+          {
+            "type": "heading",
+            "attrs": {
+              "level": 2
+            },
+            "content": [
+              {
+                "type": "text",
+                "text": "Cơ sở của thiết kế"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Phần mềm được chia thành các thành phần có tên riêng biệt và xác định được địa chỉ, gọi là các mô đun, được tích hợp để thỏa mãn yêu cầu của vấn đề. Người ta nói rằng: tính môđun là thuộc tính riêng của phần mềm cho phép một chương trình trở nên quản lý được theo cách thông minh. Người đọc không thể nào hiểu thấu phần mềm nguyên khối (như một chương trình lớn chỉ gồm một môđun). Điều này dẫn đến kết luận “chia để trị” sẽ dễ giải quyết một vấn đề phức tạp hơn khi chia nó thành những phần quản lý được. Với cùng một tập hợp các yêu cầu, nhiều môđun hơn có nghĩa là kích cỡ từng môđun nhỏ; độ phức tạp giảm và chi phí cho phát triển môđun giảm. Nhưng khi số các mô đun tăng lên thì nỗ lực liên kết chúng bằng việc làm giao diện cho các môđun cũng tăng lên. Đặc trưng này dẫn đến đường cong tổng chi phí (nỗ lực) như trong hình 2 ."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Chúng ta nên mô đun hóa nhưng cần phải duy trì chi phí trong vùng lân cận của chi phí tối thiểu. Môđun hóa còn chưa đủ hay quá mức đều nên tránh. Một gợi ý cho kích cỡ của các môđun cơ sở là mỗi môđun đảm nhận một chức năng cơ bản."
+              }
+            ]
+          },
+          {
+            "type": "heading",
+            "attrs": {
+              "level": 2
+            },
+            "content": [
+              {
+                "type": "text",
+                "text": "Mô tả thiết kế"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Một bản thiết kế phần mềm là một mô hình mô tả một đối tượng của thế giới thực có nhiều thành phần và các mối quan hệ giữa chúng với nhau. Việc mô tả thiết kế cần đảm bảo thực hiện được các yêu cầu:"
+              }
+            ]
+          },
+          {
+            "type": "bulletList",
+            "content": [
+              {
+                "type": "listItem",
+                "content": [
+                  {
+                    "type": "paragraph",
+                    "content": [
+                      {
+                        "type": "text",
+                        "text": "Làm cơ sở cho việc triển khai chương trình"
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "type": "listItem",
+                "content": [
+                  {
+                    "type": "paragraph",
+                    "content": [
+                      {
+                        "type": "text",
+                        "text": "Làm phương tiện giao tiếp giữa các nhóm thiết kế các hệ con"
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "type": "listItem",
+                "content": [
+                  {
+                    "type": "paragraph",
+                    "content": [
+                      {
+                        "type": "text",
+                        "text": "Cung cấp đủ thông tin cho những người bảo trì hệ thống"
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Thiết kế thường được mô tả ở hai mức: thiết kế mức cao (high level design) và thiết kế chi tiết (low level design). Thiết kế mức cao hay thiết kế kiến trúc chỉ ra:"
+              }
+            ]
+          },
+          {
+            "type": "bulletList",
+            "content": [
+              {
+                "type": "listItem",
+                "content": [
+                  {
+                    "type": "paragraph",
+                    "content": [
+                      {
+                        "type": "text",
+                        "text": "Mô hình tổng thể của hệ thống"
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "type": "listItem",
+                "content": [
+                  {
+                    "type": "paragraph",
+                    "content": [
+                      {
+                        "type": "text",
+                        "text": "Cách thức hệ thống được phân rã thành các môđun"
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "type": "listItem",
+                "content": [
+                  {
+                    "type": "paragraph",
+                    "content": [
+                      {
+                        "type": "text",
+                        "text": "Mối quan hệ (gọi nhau) giữa các môđun"
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "type": "listItem",
+                "content": [
+                  {
+                    "type": "paragraph",
+                    "content": [
+                      {
+                        "type": "text",
+                        "text": "Cách thức trao đổi thông tin giữa các môđun (giao diện, các dữ liệu dùng chung, các thông tin trạng thái)"
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Tuy nhiên thiết kế mức cao không chỉ ra được thứ tự thực hiện, số lần thực hiện của môđun, cũng như các trạng thái và hoạt động bên trong của mỗi môđun."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Nội dung của các môđun được thể hiện ở mức thiết kế chi tiết. Các cấu trúc cơ sở của thiết kế chi tiết hay còn gọi là thiết kế thuật toán là:"
+              }
+            ]
+          },
+          {
+            "type": "bulletList",
+            "content": [
+              {
+                "type": "listItem",
+                "content": [
+                  {
+                    "type": "paragraph",
+                    "content": [
+                      {
+                        "type": "text",
+                        "text": "Cấu trúc tuần tự"
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "type": "listItem",
+                "content": [
+                  {
+                    "type": "paragraph",
+                    "content": [
+                      {
+                        "type": "text",
+                        "text": "Cấu trúc rẽ nhánh"
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "type": "listItem",
+                "content": [
+                  {
+                    "type": "paragraph",
+                    "content": [
+                      {
+                        "type": "text",
+                        "text": "Cấu trúc lặp"
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Mọi thuật toán đều có thể mô tả dựa trên 3 cấu trúc trên. Có ba loại hình mô tả thường được sử dụng trong thiết kế:"
+              }
+            ]
+          },
+          {
+            "type": "bulletList",
+            "content": [
+              {
+                "type": "listItem",
+                "content": [
+                  {
+                    "type": "paragraph",
+                    "content": [
+                      {
+                        "type": "text",
+                        "text": "Dạng văn bản phi hình thức: Mô tả bằng ngôn ngữ tự nhiên các thông tin không thể hình thức hóa được như các thông tin phi chức năng. Bên cạnh các cách mô tả khác, mô tả văn bản thường được bổ sung để làm cho thiết kế được đầy đủ và dễ hiểu hơn."
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "type": "listItem",
+                "content": [
+                  {
+                    "type": "paragraph",
+                    "content": [
+                      {
+                        "type": "text",
+                        "text": "Các biểu đồ: Các biểu đồ được dùng để thể hiện các mối quan hệ giữa các thành phần lập lên hệ thống và là mô hình mô tả thế giới thực. Việc mô tả đồ thị của các thiết kế là rất có lợi vì tính trực quan và cho một bức tranh tổng thể về hệ thống. Trong thời gian gần đây, người ta đã xây dựng được một ngôn ngữ đồ thị dành riêng cho các thiết kế phần mềm với tên gọi: ngôn ngữ mô hình hóa thống nhất (Unified Modeling Model - UML). Tại mức thiết kế chi tiết, có một số các dạng biểu đồ hay được sử dụng là flow chart, JSP, Nassi Shneiderman diagrams."
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "type": "listItem",
+                "content": [
+                  {
+                    "type": "paragraph",
+                    "content": [
+                      {
+                        "type": "text",
+                        "text": "Giả mã (pseudo code): Hiện nay, giả mã là công cụ được ưa chuộng để mô tả thiết kế ở mức chi tiết. Các ngôn ngữ này thuận tiện cho việc mô tả chính xác thiết kế, tuy nhiên lại thiếu tính trực quan. Dưới đây là một ví dụ sử dụng giả mã:"
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Procedure Write Name"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "if sex = male"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "write \"Mr.\""
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "else"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "write \"Ms.\""
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "endif"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "write name"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "end Procedure"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Nói chung thì cả ba loại biểu diễn trên đây đều được sử dụng trong thiết kế hệ thống. Thiết kế kiến trúc thường được mô tả bằng đồ thị (structure chart)và được bổ sung văn bản phi hình thức, thiết kế dữ liệu lôgic thường được mô tả bằng các bảng, các thiết kế giao diện, thiết kế cấu trúc dữ liệu chi tiết, thiết kế thuật toán thường được mô tả bằng pseudo code."
+              }
+            ]
+          },
+          {
+            "type": "heading",
+            "attrs": {
+              "level": 2
+            },
+            "content": [
+              {
+                "type": "text",
+                "text": "Chất lượng thiết kế"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Không có cách nào hay để xác định được thế nào là thiết kế tốt. Tiêu chuẩn dễ bảo trì là tiêu chuẩn tốt cho người dùng. Một thiết kế dễ bảo trì có thể thích nghi với việc cải biên các chức năng và việc thêm các chức năng mới. Một thiết kế như thế phải dễ hiểu và việc sửa đổi chỉ có hiệu ứng cục bộ. Các thành phần thiết kế phải là kết dính (cohesive) theo nghĩa là tất cả các bộ phận trong thành phần phải có một quan hệ logic chặt chẽ, các thành phần ghép nối (coupling) với nhau là lỏng lẻo. Ghép nối càng lỏng lẻo thì càng dễ thích nghi, nghĩa là càng dễ sửa đổi để phù hợp với hoàn cảnh mới."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Để xem một thiết kế có là tốt hay không, người ta tiến hành thiết lập một số độ đo chất lượng thiết kế:"
+              }
+            ]
+          },
+          {
+            "type": "orderedList",
+            "attrs": {
+              "start": 1
+            },
+            "content": [
+              {
+                "type": "listItem",
+                "content": [
+                  {
+                    "type": "paragraph",
+                    "content": [
+                      {
+                        "type": "text",
+                        "text": "Sự kết dính (Cohesion) : Sự kết dính của một môđun là độ đo về tính khớp lại với nhau của các phần trong môđun đó. Nếu một môđun chỉ thực hiện một chức năng logic hoặc là một thực thể logic, tức là tất cả các bộ phận của môđun đó đều tham gia vào việc thực hiện một công việc thì độ kết dính là cao. Nếu một hoặc nhiều bộ phận không tham gia trực tiếp vào việc chức năng logic đó thì mức độ kết dính của nó là thấp. Thiết kế là tốt khi độ kết dính cao. Khi đó chúng ta sẽ dễ dàng hiểu được từng môđun và việc sửa chữa một môđun sẽ không (ít) ảnh hưởng tới các môđun khác. Constantine và Yourdon định ra 7 mức kết dính theo thứ tự tăng dần sau đây:"
+                      }
+                    ]
+                  },
+                  {
+                    "type": "orderedList",
+                    "attrs": {
+                      "start": 1
+                    },
+                    "content": [
+                      {
+                        "type": "listItem",
+                        "content": [
+                          {
+                            "type": "paragraph",
+                            "content": [
+                              {
+                                "type": "text",
+                                "text": "Kết dính gom góp: các công việc không liên quan với nhau, song lại bị bó vào một môđun."
+                              }
+                            ]
+                          }
+                        ]
+                      },
+                      {
+                        "type": "listItem",
+                        "content": [
+                          {
+                            "type": "paragraph",
+                            "content": [
+                              {
+                                "type": "text",
+                                "text": "Kết dính logic: các thành phần cùng thực hiện các chức năng tương tự về logic chẳng hạn như vào/ra, xử lý lỗi,... được đặt vào cùng một mô đun."
+                              }
+                            ]
+                          }
+                        ]
+                      },
+                      {
+                        "type": "listItem",
+                        "content": [
+                          {
+                            "type": "paragraph",
+                            "content": [
+                              {
+                                "type": "text",
+                                "text": "Kết dính thời điểm: tất cả các thành phần cùng hoạt hóa một lúc, chẳng hạn như các thao tác khởi tạo được bó lại với nhau."
+                              }
+                            ]
+                          }
+                        ]
+                      },
+                      {
+                        "type": "listItem",
+                        "content": [
+                          {
+                            "type": "paragraph",
+                            "content": [
+                              {
+                                "type": "text",
+                                "text": "Kết dính thủ tục: các phần tử trong môđun được ghép lại trong một dãy điều khiển."
+                              }
+                            ]
+                          }
+                        ]
+                      },
+                      {
+                        "type": "listItem",
+                        "content": [
+                          {
+                            "type": "paragraph",
+                            "content": [
+                              {
+                                "type": "text",
+                                "text": "Kết dính truyền thông: tất cả các phần tử của môđun cùng thao tác trên một dữ liệu vào và đưa ra cùng một dữ liệu ra."
+                              }
+                            ]
+                          }
+                        ]
+                      },
+                      {
+                        "type": "listItem",
+                        "content": [
+                          {
+                            "type": "paragraph",
+                            "content": [
+                              {
+                                "type": "text",
+                                "text": "Kết dính tuần tự: trong một môđun, đầu ra của phần tử này là đầu vào của phần tử khác."
+                              }
+                            ]
+                          }
+                        ]
+                      },
+                      {
+                        "type": "listItem",
+                        "content": [
+                          {
+                            "type": "paragraph",
+                            "content": [
+                              {
+                                "type": "text",
+                                "text": "Kết dính chức năng: Mỗi phần của môđun đều là cần thiết để thi hành cùng một chức năng nào đó. Các lớp kết dính này không được định nghĩa chặt chẽ và cũng không phải luôn luôn xác định được. Một đối tượng kết dính nếu nó thể hiện như một thực thể đơn: tất cả các phép toán trên thực thể đó đều nằm trong thực thể đó. Vậy có thể xác định một lớp kết dính nữa là:"
+                              }
+                            ]
+                          }
+                        ]
+                      },
+                      {
+                        "type": "listItem",
+                        "content": [
+                          {
+                            "type": "paragraph",
+                            "content": [
+                              {
+                                "type": "text",
+                                "text": "Kết dính đối tượng: mỗi phép toán đều liên quan đến thay đổi, kiểm tra và sử dụng thuộc tính của một đối tượng, là cơ sở cung cấp các dịch vụ của đối tượng."
+                              }
+                            ]
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "type": "listItem",
+                "content": [
+                  {
+                    "type": "paragraph",
+                    "content": [
+                      {
+                        "type": "text",
+                        "text": "Sự ghép nối (Coupling) :Ghép nối là độ đo sự nối ghép với nhau giữa các đơn vị (môđun) của hệ thống. Hệ thống có nối ghép cao thì các môđun phụ thuộc lẫn nhau lớn. Hệ thống nối ghép lỏng lẻo thì các môđun là độc lập hoặc là tương đối độc lập với nhau và chúng ta sẽ dễ bảo trì nó. Các mô đun được ghép nối chặt chẽ nếu chúng dùng các biến chung và nếu chúng trao đổi các thông tin điều khiển (ghép nối chung nhau và ghép nối điều khiển). Ghép nối lỏng lẻo đạt được khi bảo đảm rằng các thông tin cục bộ được che dấu trong các môđun và các môđun trao đổi thông tin thông qua danh sách tham số (giao diện) xác định. Có thể chia ghép nối thành các mức từ chặt chẽ đến lỏng lẻo như sau:"
+                      }
+                    ]
+                  },
+                  {
+                    "type": "orderedList",
+                    "attrs": {
+                      "start": 1
+                    },
+                    "content": [
+                      {
+                        "type": "listItem",
+                        "content": [
+                          {
+                            "type": "paragraph",
+                            "content": [
+                              {
+                                "type": "text",
+                                "text": "Ghép nối nội dung: hai hay nhiều môđun dùng lẫn dữ liệu của nhau, đây là mức xấu nhất, thường xẩy ra đối với các ngôn ngữ mức thấp dùng các dữ liệu toàn cục hay lạm dụng lệnh GOTO."
+                              }
+                            ]
+                          }
+                        ]
+                      },
+                      {
+                        "type": "listItem",
+                        "content": [
+                          {
+                            "type": "paragraph",
+                            "content": [
+                              {
+                                "type": "text",
+                                "text": "Ghép nối chung: một số môđun dùng các biến chung, nếu xẩy ra lỗi thao tác dữ liệu, sẽ khó xác định được lỗi đó do môđun nào gây ra."
+                              }
+                            ]
+                          }
+                        ]
+                      },
+                      {
+                        "type": "listItem",
+                        "content": [
+                          {
+                            "type": "paragraph",
+                            "content": [
+                              {
+                                "type": "text",
+                                "text": "Ghép nối điều khiển: một môđun truyền các thông tin điều khiển để điều khiển hoạt động của một môđun khác."
+                              }
+                            ]
+                          }
+                        ]
+                      },
+                      {
+                        "type": "listItem",
+                        "content": [
+                          {
+                            "type": "paragraph",
+                            "content": [
+                              {
+                                "type": "text",
+                                "text": "Ghép nối dư thừa: môđun nhận thông tin thừa không liên quan trực tiếp đến chức năng của nó, điều này sẽ làm giảm khả năng thích nghi của môđun đó."
+                              }
+                            ]
+                          }
+                        ]
+                      },
+                      {
+                        "type": "listItem",
+                        "content": [
+                          {
+                            "type": "paragraph",
+                            "content": [
+                              {
+                                "type": "text",
+                                "text": "Ghép nối dữ liệu: Các môđun trao đổi thông tin thông qua tham số và giá trị trả lại."
+                              }
+                            ]
+                          }
+                        ]
+                      },
+                      {
+                        "type": "listItem",
+                        "content": [
+                          {
+                            "type": "paragraph",
+                            "content": [
+                              {
+                                "type": "text",
+                                "text": "Ghép nối không có trao đổi thông tin: môđun thực hiện một chức năng độc lập và hoàn toàn không nhận tham số và không có giá trị trả lại."
+                              }
+                            ]
+                          }
+                        ]
+                      },
+                      {
+                        "type": "listItem",
+                        "content": [
+                          {
+                            "type": "paragraph",
+                            "content": [
+                              {
+                                "type": "text",
+                                "text": "Ưu việt của thiết kế hướng đối tượng là do bản chất che dấu thông tin của đối tượng dẫn tới việc tạo ra các hệ ghép nối lỏng lẻo. Việc thừa kế trong hệ thống hướng đối tượng lại dẫn tới một dạng khác của ghép nối, ghép nối giữa đối tượng mức cao và đối tượng kế thừa nó."
+                              }
+                            ]
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "type": "listItem",
+                "content": [
+                  {
+                    "type": "paragraph",
+                    "content": [
+                      {
+                        "type": "text",
+                        "text": "Sự hiểu được (Understandability): Sự hiểu được của thiết kế liên quan tới một số đặc trưng sau đây:"
+                      }
+                    ]
+                  },
+                  {
+                    "type": "orderedList",
+                    "attrs": {
+                      "start": 1
+                    },
+                    "content": [
+                      {
+                        "type": "listItem",
+                        "content": [
+                          {
+                            "type": "paragraph",
+                            "content": [
+                              {
+                                "type": "text",
+                                "text": "Tính kết dính: có thể hiểu được thành phần đó mà không cần tham khảo tới một thành phần nào khác hay không?"
+                              }
+                            ]
+                          }
+                        ]
+                      },
+                      {
+                        "type": "listItem",
+                        "content": [
+                          {
+                            "type": "paragraph",
+                            "content": [
+                              {
+                                "type": "text",
+                                "text": "Đặt tên: phải chăng là mọi tên được dùng trong thành phần đó đều có nghĩa? Tên có nghĩa là những tên phản ánh tên của thực thể trong thế giới thực được mô hình bởi thành phần đó."
+                              }
+                            ]
+                          }
+                        ]
+                      },
+                      {
+                        "type": "listItem",
+                        "content": [
+                          {
+                            "type": "paragraph",
+                            "content": [
+                              {
+                                "type": "text",
+                                "text": "Soạn tư liệu: Thành phần có được soạn thảo tư liệu sao cho ánh xạ giữa các thực thể trong thế giới thực và thành phần đó là rõ ràng."
+                              }
+                            ]
+                          }
+                        ]
+                      },
+                      {
+                        "type": "listItem",
+                        "content": [
+                          {
+                            "type": "paragraph",
+                            "content": [
+                              {
+                                "type": "text",
+                                "text": "Độ phức tạp: độ phức tạp của các thuật toán được dùng để thực hiện thành phần đó như thế nào? Độ phức tạp cao ám chỉ nhiều quan hệ giữa các thành phần khác nhau của thành phần thiết kế đó và một cấu trúc logic phức tạp mà nó dính líu đến độ sâu lồng nhau của cấu trúc ifưthenưelsse. Các thành phần phức tạp là khó hiểu, vì thế người thiết kế nên làm cho thiết kế thành phần càng đơn giản càng tốt. Đa số công việc về đo chất lượng thiết kế được tập trung vào cố gắng đo độ phức tạp của thành phần và từ đó thu được một vài độ đo về sự dễ hiểu của thành phần. Độ phức tạp phản ánh độ dễ hiểu, nhưng cũng có một số nhân tố khác ảnh hưởng đến độ dễ hiểu, chẳng hạn như tổ chức dữ liệu và kiểu cách mô tả thiết kế. Các số đo độ phức tạp có thể chỉ cung cấp một chỉ số cho độ dễ hiểu của một thành phần."
+                              }
+                            ]
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "type": "listItem",
+                "content": [
+                  {
+                    "type": "paragraph",
+                    "content": [
+                      {
+                        "type": "text",
+                        "text": "Sự thích nghi được (Adaptability): Một thiết kế dễ bảo trì thì nó phải sẵn sàng thích nghi được, nghĩa là các thành phần của chúng nên được ghép nối lỏng lẻo. Một thành phần có thể là ghép nối lỏng lẻo theo nghĩa là chỉ hợp tác với các thành phần khác thông qua việc truyền các thông báo. Sự thích nghi được còn có nghĩa là thiết kế phải được soạn thảo tư liệu tốt, dễ hiểu và nhất quán. Để có độ thích nghi thì hệ thống còn cần phải phải tự chứa. Muốn là tự chứa một cách hoàn toàn thì một hệ thống không nên dùng các thành phần khác được xác định ngoại lai. Tuy nhiên, điều đó lại mâu thuẫn với kinh nghiệm nói rằng các thành phần hiện có nên là dùng lại được. Vậy là cần có một cân bằng giữa tính ưu việt của sự dùng lại các thành phần và sự mất mát tính thích nghi được của hệ thống. Một trong những ưu việt chính của kế thừa trong thiết kế hướng đối tượng là các thành phần này có thể sẵn sàng thích nghi được. Cơ cấu thích nghi được này không dựa trên việc cải biên thành phần đã có mà dựa trên việc tạo ra một thành phần mới thừa kế các thuộc tính và các chức năng của thành phần đó. Chúng ta chỉ cần thêm các thuộc tính và chức năng cần thiết cho thành phần mới. Các thành phần khác dựa trên thành phần cơ bản đó sẽ không bị ảnh hưởng gì."
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "type": "heading",
+            "attrs": {
+              "level": 1
+            },
+            "content": [
+              {
+                "type": "text",
+                "text": "Thiết kế hướng chức năng"
+              }
+            ]
+          },
+          {
+            "type": "heading",
+            "attrs": {
+              "level": 2
+            },
+            "content": [
+              {
+                "type": "text",
+                "text": "Cách tiếp cận hướng chức năng"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Thiết kế hướng chức năng là một cách tiếp cận thiết kế phần mềm trong đó bản thiết kế được phân giải thành một bộ các đơn thể tác động lẫn nhau, mà mỗi đơn thể có một chức năng được xác định rõ ràng. Các chức năng có các trạng thái cục bộ nhưng chúng chia sẻ với nhau trạng thái hệ thống, trạng thái này là tập trung và mọi chức năng đều có thể truy cập được. Nhiều tổ chức đã phát triển các chuẩn và các phương pháp dựa trên sự phân giải chức năng. Nhiều phương pháp thiết kế kết hợp với công cụ CASE đều là hướng chức năng. Vô khối các hệ thống đã được phát triển bằng cách sử dụng phương pháp tiếp cận hướng chức năng. Các hệ thống đó sẽ được bảo trì cho một tương lai xa xôi. Bởi vậy thiết kế hướng chức năng vẫn sẽ còn được tiếp tục sử dụng rộng rãi."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Trong thiết kế hướng chức năng, người ta dùng các biểu đồ luồng dữ liệu (mô tả việc xử lý dữ liệu), các lược đồ cấu trúc (nó chỉ ra cấu trúc của phần mềm), và các mô tả thiết kế chi tiết. Thiết kế hướng chức năng gắn với các chi tiết của một thuật toán của chức năng đó nhưng các thông tin trạng thái hệ thống là không bị che dấu. Việc thay đổi một chức năng và cách nó sử dụng trạng thái của hệ thống có thể gây ra những tương tác bất ngờ đối với các chức năng khác. Cách tiếp cận chức năng để thiết kế là tốt nhất khi mà khối lượng thông tin trạng thái hệ thống được làm nhỏ nhất và thông tin dùng chung nhau là rõ ràng."
+              }
+            ]
+          },
+          {
+            "type": "heading",
+            "attrs": {
+              "level": 2
+            },
+            "content": [
+              {
+                "type": "text",
+                "text": "Biểu đồ luồng dữ liệu"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Biểu đồ luồng dữ liệu chỉ ra cách thức biến đổi dữ liệu vào thành dữ liệu ra thông qua một dãy các phép biến đổi. Bước thứ nhất của thiết kế hướng chức năng là phát triển một biểu đồ luồng dữ liệu hệ thống. Biểu đồ này không nhất thiết bao gồm các thông tin điều khiển nhưng nên lập tư liệu các phép biến đổi dữ liệu. Biểu đồ luồng dữ liệu là một phần hợp nhất của một số các phương pháp thiết kế và các công cụ CASE thường trợ giúp cho việc tạo ra biểu đồ luồng dữ liệu."
+              }
+            ]
+          },
+          {
+            "type": "heading",
+            "attrs": {
+              "level": 2
+            },
+            "content": [
+              {
+                "type": "text",
+                "text": "Lược đồ cấu trúc"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Lược đồ cấu trúc chỉ ra cấu trúc các thành phần theo thứ bậc của hệ thống. Nó chỉ ra rằng các phần tử của một biểu đồ luồng dữ liệu có thể được thực hiện như thế nào với tư cách là một thứ bậc của các đơn vị chương trình. Lược đồ cấu trúc có thể được dùng như là một mô tả chương trình nhìn thấy được với các thông tin xác định các sự lựa chọn và các vòng lặp. Lược đồ cấu trúc được dùng để trình bày một tổ chức tĩnh của thiết kế."
+              }
+            ]
+          },
+          {
+            "type": "heading",
+            "attrs": {
+              "level": 2
+            },
+            "content": [
+              {
+                "type": "text",
+                "text": "Các từ điển dữ liệu"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Từ điển dữ liệu vừa có ích cho việc bảo trì hệ thống vừa có ích trong quá trình thiết kế. Với mỗi khái niệm thiết kế, cần có một từ khóa mô tả ứng với từ khóa (entry) của từ điển dữ liệu cung cấp thông tin về khái niệm đó (kiểu, chức năng của dữ liệu...). Đôi khi người ta gọi cái này là một mô tả ngắn của chức năng thành phần."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Các từ điển dữ liệu dùng để nối các mô tả thiết kế kiểu biểu đồ và các mô tả thiết kế kiểu văn bản. Một vài bộ công cụ CASE cung cấp một phép nối tự động biểu đồ luồng dữ liệu và từ điển dữ liệu."
+              }
+            ]
+          },
+          {
+            "type": "heading",
+            "attrs": {
+              "level": 1
+            },
+            "content": [
+              {
+                "type": "text",
+                "text": "Thiết kế hướng đối tượng"
+              }
+            ]
+          },
+          {
+            "type": "heading",
+            "attrs": {
+              "level": 2
+            },
+            "content": [
+              {
+                "type": "text",
+                "text": "Cách tiếp cận hướng đối tượng"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Thiết kế hướng đối tượng dựa trên chiến lược che dấu thông tin cấu trúc vào bên trong các thành phần. Cái đó ngầm hiểu rằng việc kết hợp điều khiển logic và cấu trúc dữ liệu được thực hiện trong thiết kế càng chậm càng tốt. Liên lạc thông qua các thông tin trạng thái dùng chung (các biến tổng thể) là ít nhất, nhờ vậy khả năng hiểu được nâng lên. Thiết kế là tương đối dễ thay đổi vì sự thay đổi cấu trúc một thành phần có thể không cần quan tâm tới các hiệu ứng phụ trên các thành phần khác."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Việc che dấu thông tin trong thiết kế hướng đối tượng là dựa trên sự nhìn hệ phần mềm như là một bộ các đối tượng tương tác với nhau chứ không phải là bộ các chức năng như cách tiếp cận chức năng. Các đối tượng có một trạng thái riêng được che dấu và các phép toán trên trạng thái đó. Thiết kế biểu thị các dịch vụ được yêu cầu cùng với những hỗ trợ mà các đối tượng có tương tác với nó cung cấp."
+              }
+            ]
+          },
+          {
+            "type": "heading",
+            "attrs": {
+              "level": 2
+            },
+            "content": [
+              {
+                "type": "text",
+                "text": "Ba đặc trưng của thiết kế hướng đối tượng"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Thiết kế hướng đối tượng bao gồm các đặc trưng chính sau:"
+              }
+            ]
+          },
+          {
+            "type": "orderedList",
+            "attrs": {
+              "start": 1
+            },
+            "content": [
+              {
+                "type": "listItem",
+                "content": [
+                  {
+                    "type": "paragraph",
+                    "content": [
+                      {
+                        "type": "text",
+                        "text": "Không có vùng dữ liệu dùng chung. Các đối tượng liên lạc với nhau bằng cách trao đổi thông báo."
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "type": "listItem",
+                "content": [
+                  {
+                    "type": "paragraph",
+                    "content": [
+                      {
+                        "type": "text",
+                        "text": "Các đối tượng là các thực thể độc lập, dễ thay đổi vì rằng tất cả các trạng thái và các thông tin biểu diễn chỉ ảnh hưởng trong phạm vi chính đối tượng đó thôi. Các thay đổi về biểu diễn thông tin có thể được thực hiện không cần sự tham khảo tới các đối tượng khác."
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "type": "listItem",
+                "content": [
+                  {
+                    "type": "paragraph",
+                    "content": [
+                      {
+                        "type": "text",
+                        "text": "Các đối tượng có thể phân tán và có thể hoạt động tuần tự hoặc song song. Đây là một trong những lý do khiến cho thiết kế hướng đối tượng được sử dụng rộng rãi trong các hệ thống nhúng."
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "type": "heading",
+            "attrs": {
+              "level": 2
+            },
+            "content": [
+              {
+                "type": "text",
+                "text": "Cơ sở của thiết kế hướng đối tượng"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Cơ sở của thiết kế hướng đối tượng là các lớp. Lớp là một trừu tượng mô tả cho một nhóm sự vật. Đối tượng của một lớp là một thực thể (cụ thể hóa) của lớp đó. Thiết kế của một lớp bao gồm:"
+              }
+            ]
+          },
+          {
+            "type": "bulletList",
+            "content": [
+              {
+                "type": "listItem",
+                "content": [
+                  {
+                    "type": "paragraph",
+                    "content": [
+                      {
+                        "type": "text",
+                        "text": "Cấu trúc dữ liệu (thuộc tính)"
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "type": "listItem",
+                "content": [
+                  {
+                    "type": "paragraph",
+                    "content": [
+                      {
+                        "type": "text",
+                        "text": "Hàm, thủ tục (chức năng)"
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "type": "listItem",
+                "content": [
+                  {
+                    "type": "paragraph",
+                    "content": [
+                      {
+                        "type": "text",
+                        "text": "Giao diện (cung cấp khả năng trao đổi dữ liệu đối với các lớp khác, về bản chất là các chức năng của đối tượng)"
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Việc cài đặt các giao diện là một yếu tố quan trọng để đảm bao che dấu cấu trúc dữ liệu. Tức là thiết kế nội tại của đối tượng độc lập với giao diện do đó chúng ta có thể sửa đổi thiết kế mà không sợ ảnh hưởng tới các đối tượng khác."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Các đối tượng trao đổi với nhau bằng cách truyền các thông báo. Tức là một đối tượng yêu cầu một đối tượng khác thực hiện một chức năng nào đó. Thông báo bao gồm: tên đối tượng, tên phương thức, và các tham số."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Vòng đời của một đối tượng khi hệ thống hoạt động như sau:"
+              }
+            ]
+          },
+          {
+            "type": "bulletList",
+            "content": [
+              {
+                "type": "listItem",
+                "content": [
+                  {
+                    "type": "paragraph",
+                    "content": [
+                      {
+                        "type": "text",
+                        "text": "Khởi tạo: hệ thống tạo ra đối tượng bằng cách xác lập vùng dữ liệu đồng thời tự động thực hiện các chức năng liên quan đến khởi tạo đối tượng."
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "type": "listItem",
+                "content": [
+                  {
+                    "type": "paragraph",
+                    "content": [
+                      {
+                        "type": "text",
+                        "text": "Hoạt động: đối tượng nhận các thông báo và thực hiện các chức năng được yêu cầu."
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "type": "listItem",
+                "content": [
+                  {
+                    "type": "paragraph",
+                    "content": [
+                      {
+                        "type": "text",
+                        "text": "Phá hủy: hệ thống giải phóng vùng nhớ đã được cấp phát sau khi thực hiện tự động các thao tác cần thiết để hủy đối tượng."
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Nhờ có chức năng khởi tạo và phá hủy được gọi tự động chúng ta có thể tự động hóa được một số công việc và tránh được nhiều sai sót trong lập trình như quên khởi tạo dữ liệu, quên cấp phát hay quên giải phóng vùng nhớ động."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Sự kế thừa. Kế thừa là một khái niệm quan trọng trong thiết kế hướng đối tượng. Một lớp có thể được định nghĩa dựa trên sự kế thừa một hoặc nhiều lớp đã được định nghĩa. Kế thừa ở đây bao gồm"
+              }
+            ]
+          },
+          {
+            "type": "bulletList",
+            "content": [
+              {
+                "type": "listItem",
+                "content": [
+                  {
+                    "type": "paragraph",
+                    "content": [
+                      {
+                        "type": "text",
+                        "text": ". Kế thừa cấu trúc dữ liệu"
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "type": "listItem",
+                "content": [
+                  {
+                    "type": "paragraph",
+                    "content": [
+                      {
+                        "type": "text",
+                        "text": ". Kế thừa chức năng"
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Khả năng kế thừa giúp cho rút gọn được chương trình và nâng cao tính tái sử dụng. Một chiến lược chung là trước tiên tạo ra các lớp trừu tượng (để có thể dùng chung) và đối với các bài toán cụ thể tạo ra các lớp kế thừa bằng cách thêm các thông tin đặc thù."
+              }
+            ]
+          },
+          {
+            "type": "heading",
+            "attrs": {
+              "level": 2
+            },
+            "content": [
+              {
+                "type": "text",
+                "text": "Các bước thiết kế"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Thiết kế hướng đối tượng bao gồm các bước chính sau:"
+              }
+            ]
+          },
+          {
+            "type": "orderedList",
+            "attrs": {
+              "start": 1
+            },
+            "content": [
+              {
+                "type": "listItem",
+                "content": [
+                  {
+                    "type": "paragraph",
+                    "content": [
+                      {
+                        "type": "text",
+                        "text": "Xác định lớp đối tượng."
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "type": "listItem",
+                "content": [
+                  {
+                    "type": "paragraph",
+                    "content": [
+                      {
+                        "type": "text",
+                        "text": "Xác định thuộc tính cho lớp: các biến của lớp"
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "type": "listItem",
+                "content": [
+                  {
+                    "type": "paragraph",
+                    "content": [
+                      {
+                        "type": "text",
+                        "text": "Xác định hành vi (chức năng): các hàm"
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "type": "listItem",
+                "content": [
+                  {
+                    "type": "paragraph",
+                    "content": [
+                      {
+                        "type": "text",
+                        "text": "Xác định tương tác giữa các lớp đối tượng: giao diện (thông báo)."
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "type": "listItem",
+                "content": [
+                  {
+                    "type": "paragraph",
+                    "content": [
+                      {
+                        "type": "text",
+                        "text": "Áp dụng tính kế thừa: xây dựng các lớp trừu tượng có các thuộc tính chung, đây là một khâu đặc trưng của thiết kế hướng đối tượng."
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Ví dụ, giả sử cần xây dựng các lớp hình tròn, elíp và đa giác. Có thể thấy elip và hình tròn có một số các thuộc tính chung như tọa độ tâm, chúng ta có thể xây dựng lớp hình nón chứa các thuộc tính chung này. Giữa hình nón và đa giác lại có thể tìm ra các thuộc tính chung như mầu nền, mầu biên..., và có thể xây dựng lớp trừu tượng hình hình học chứa các thuộc tính này."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Phương pháp xác định đối tượng Xác định đối tượng là một trong nhưng công đoạn thiết kế quan trọng, phụ thuộc nhiều vào kinh nghiệm và bài toán cụ thể. Có một số phương pháp được đề xuất, một trong các phương pháp này là phân tích từ vựng của “câu yêu cầu”. Cụ thể là danh từ trong câu yêu cầu sẽ được coi là đối tượng và động từ sẽ được coi là chức năng."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Ví dụ: Với yêu cầu Phần mềm Email cung cấp cho user khả năng gửi thư, đọc thư và soạn thảo thư điện tử., chúng ta có thể sơ bộ tạo ra các đối tượng phần mềm, user, email và các chức năng gửi, nhận, soạn thảo."
+              }
+            ]
+          },
+          {
+            "type": "heading",
+            "attrs": {
+              "level": 2
+            },
+            "content": [
+              {
+                "type": "text",
+                "text": "Ưu nhược điểm của thiết kế hướng đối tượng"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Thiết kế hướng đối tượng có các ưu điểm chính sau:"
+              }
+            ]
+          },
+          {
+            "type": "bulletList",
+            "content": [
+              {
+                "type": "listItem",
+                "content": [
+                  {
+                    "type": "paragraph",
+                    "content": [
+                      {
+                        "type": "text",
+                        "text": "Dễ bảo trì vì các đối tượng là độc lập. Các đối tượng có thể hiểu và cải biên như là một thực thể độc lập. Thay đổi trong thực hiện một đối tượng hoặc thêm các dịch vụ sẽ không làm ảnh hưởng tới các đối tượng hệ thống khác."
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "type": "listItem",
+                "content": [
+                  {
+                    "type": "paragraph",
+                    "content": [
+                      {
+                        "type": "text",
+                        "text": "Các đối tượng là các thành phần dùng lại được thích hợp do tính độc lập của chúng và khả năng kế thừa cao."
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "type": "listItem",
+                "content": [
+                  {
+                    "type": "paragraph",
+                    "content": [
+                      {
+                        "type": "text",
+                        "text": "Có một vài lớp hệ thống thể hiện phản ánh quan hệ rõ ràng giữa các thực thể có thực (chẳng hạn như các thành phần phần cứng) với các đối tượng điều khiển nó trong hệ thống. Điều này đạt được tính dễ hiểu của thiết kế."
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Nhược điểm chính của thiết kế hướng đối tượng là sự khó nhận ra các đối tượng của một hệ thống. Cách nhìn tự nhiên đối với nhiều hệ thống là cách nhìn chức năng."
+              }
+            ]
+          },
+          {
+            "type": "heading",
+            "attrs": {
+              "level": 2
+            },
+            "content": [
+              {
+                "type": "text",
+                "text": "Quan hệ giữa thiết kế và lập trình hướng đối tượng"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Thiết kế hướng đối tượng là một chiến lược thiết kế, không phụ thuộc vào ngôn ngữ thực hiện cụ thể nào. Các ngôn ngữ lập trình hướng đối tượng có các khả năng bao gói đối tượng, và kế thừa làm cho việc thực hiện thiết kế hướng đối tượng an toàn hơn và đơn giản hơn."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Một thiết kế hướng đối tượng cũng có thể được thực hiện trong một ngôn ngữ thủ tục kiểu như PASCAL hoặc C (không có các đặc điểm bao gói như vậy). Ada không phải là ngôn ngữ lập trình hướng đối tượng vì nó không trợ giúp sự thừa kế của các lớp, nhưng lại có thể thực hiện các đối tượng trong Ada bằng cách sử dụng các gói hoặc các nhiệm vụ (tasks), do đó Ada cũng được dùng để mô tả các thiết kế hướng đối tượng."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Tuy nhiên, cũng phải nhấn mạnh rằng chúng ta có thể mô tả thiết kế hướng đối tượng trên các ngôn ngữ truyền thống nhưng chúng ta không thể kiểm tra được sự tuân thủ tư tưởng hướng đối tượng trên các ngôn ngữ này, nghĩa là người phát triển vẫn có thể truy cập đến cấu trúc dữ liệu vật lý của đối tượng và việc đó làm vô nghĩa khái niệm che dấu thông tin."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Việc chấp nhận thiết kế hướng đối tượng như là một chiến lược hữu hiệu dẫn đến sự phát triển rộng rãi các phương pháp thiết kế hướng đối tượng và các ngôn ngữ lập trình hướng đối tượng."
+              }
+            ]
+          },
+          {
+            "type": "heading",
+            "attrs": {
+              "level": 2
+            },
+            "content": [
+              {
+                "type": "text",
+                "text": "Quan hệ giữa thiết kế hướng đối tượng và hướng chức năng"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Có nhiều quan niệm khác nhau về quan hệ giữa thiết kế hướng đối tượng và thiết kế hướng chức năng. Có người cho rằng, hai chiến lược thiết kế này hỗ trợ lẫn nhau, cụ thể là"
+              }
+            ]
+          },
+          {
+            "type": "bulletList",
+            "content": [
+              {
+                "type": "listItem",
+                "content": [
+                  {
+                    "type": "paragraph",
+                    "content": [
+                      {
+                        "type": "text",
+                        "text": "DFD dưa ra mô hình về các thuộc tính và chức năng"
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "type": "listItem",
+                "content": [
+                  {
+                    "type": "paragraph",
+                    "content": [
+                      {
+                        "type": "text",
+                        "text": "Luồng giao tác đưa ra hướng dẫn về tương tác giữa các đối tượng (thông báo)"
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "type": "listItem",
+                "content": [
+                  {
+                    "type": "paragraph",
+                    "content": [
+                      {
+                        "type": "text",
+                        "text": "Mô hình E - R đưa ra hướng dẫn xây dựng đối tượng"
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Thêm nữa, thiết kế nội tại của lớp đối tượng có nhiều điểm tương đồng với thiết kế hướng chức năng."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Một quan điểm khác cho rằng thiết kế hướng đối tượng và thiết kế hướng chức năng là hai cách tiếp cận hoàn toàn khác nhau, các khái niệm như che dấu thông tin, kế thừa là đặc trưng quan trọng và bản chất của thiết kế hướng đối tượng và nếu không dứt bỏ cách nhìn thiết kế hướng chức năng thì không thể khai thác hiệu quả các đặc trưng này."
+              }
+            ]
+          },
+          {
+            "type": "heading",
+            "attrs": {
+              "level": 1
+            },
+            "content": [
+              {
+                "type": "text",
+                "text": "Thiết kế giao diện người sử dụng"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Thiết kế hệ thống máy tính bao gồm một phổ rất rộng các công việc từ thiết kế phần cứng cho đến thiết kế giao diện người sử dụng. Giao diện của hệ thống thường là tiêu chuẩn so sánh để phán xét về hệ thống. Giao diện được thiết kế kém sẽ gây ra những nhầm lẫn cho người sử dụng, khiến cho họ không sử dụng được các chức năng cần thiết và trong trường hợp xấu có thể thực hiện các thao tác nguy hiểm như phá hủy thông tin cần thiết."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Tầm quan trọng của giao diện còn được xem xét trên hai yếu tố:"
+              }
+            ]
+          },
+          {
+            "type": "bulletList",
+            "content": [
+              {
+                "type": "listItem",
+                "content": [
+                  {
+                    "type": "paragraph",
+                    "content": [
+                      {
+                        "type": "text",
+                        "text": "Khía cạnh nghiệp vụ: người dùng thông qua giao diện để tương tác với hệ thống, đây là khâu nghiệp vụ thủ công duy nhất do đó nếu được thiết kế tốt sẽ nâng cao tốc độ xử lý công việc và dẫn tới hiệu quả kinh tế cao."
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "type": "listItem",
+                "content": [
+                  {
+                    "type": "paragraph",
+                    "content": [
+                      {
+                        "type": "text",
+                        "text": "Khía cạnh thương mại: đối với các sản phẩm bán hàng loạt, giao diện được thiết kế tốt (dễ sử dụng, đẹp) sẽ gây ấn tượng với khách hàng và là yếu tố chính khi khách hàng chọn mua sản phẩm."
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Ngoài các yếu tố hiệu quả công việc, đẹp, dễ học dễ sử dụng, một thiết kế giao diện hiện đại nên có tính độc lập cao với khối chương trình xử lý dữ liệu. Đối với nhiều hệ thống, giao diện là bộ phận có tầm quan trọng chủ chốt và có yêu cầu sửa đổi thường xuyên. Do đó, để tiện cho việc sửa đổi, giao diện nên được thiết kế có tính môđun hóa cao và nên có độ độc lập tối đa với khối chương trình xử lý dữ liệu. Điều này cũng dẫn đến khả năng chúng ta có thể xây dựng nhiều giao diện khác nhau cho các đối tượng sử dụng khác nhau hay chạy trên các hệ thống khác nhau."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Có hai dòng giao diện chính là:"
+              }
+            ]
+          },
+          {
+            "type": "bulletList",
+            "content": [
+              {
+                "type": "listItem",
+                "content": [
+                  {
+                    "type": "paragraph",
+                    "content": [
+                      {
+                        "type": "text",
+                        "text": "Giao diện dòng lệnh: là loại giao diện đơn giản nhất, thường được thiết kế gắn chặt với chương trình và có tính di chuyển cao (tương đương với chương trình). Giao diện dòng lệnh phù hợp với các ứng dụng thuần túy xử lý dữ liệu, nhất là đối với các chương trình mà đầu ra là đầu vào của chương trình khác. Giao diện dòng lệnh gọn nhẹ, dễ xây dựng nhưng thường khó học, khó sử dụng và chỉ phù hợp với người dùng chuyên nghiệp trong các ứng dụng đặc thù."
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "type": "listItem",
+                "content": [
+                  {
+                    "type": "paragraph",
+                    "content": [
+                      {
+                        "type": "text",
+                        "text": "Giao diện đồ họa: sử dụng các cửa sổ, menu, icon... cho phép người dùng có thể truy cập song song đến nhiều thông tin khác nhau; người dùng thường tương tác bằng cách phối hợp cả bàn phím và con chuột; giao diện đồ họa dễ học, dễ sử dụng và trở nên rất thông dụng và có độ chuẩn hóa cao."
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Nhìn trên khía cạnh độc lập với khối chương trình xử lý, có một số cách thức xây dựng giao diện khác nhau:"
+              }
+            ]
+          },
+          {
+            "type": "bulletList",
+            "content": [
+              {
+                "type": "listItem",
+                "content": [
+                  {
+                    "type": "paragraph",
+                    "content": [
+                      {
+                        "type": "text",
+                        "text": "Giao diện đồ họa (GUI) truyền thống: là giao diện đồ họa được thiết kế có độ liên kết cao với chương trình (được xây dựng cùng ngôn ngữ, cùng bộ công cụ...), hầu hết các chương trình trên máy tính cá nhân sử dụng loại giao diện này."
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "type": "listItem",
+                "content": [
+                  {
+                    "type": "paragraph",
+                    "content": [
+                      {
+                        "type": "text",
+                        "text": "X protocol: giao diện đồ họa sử dụng giao thức X protocol, phổ biến trên các máy Unix/Linux. Loại giao diện này có ưu diểm là có thể hoạt động độc lập với khối chương trình còn lại, tức là ta có thể chạy giao diện trên một máy tính trong khi đó phần xử lý bên trong lại hoạt động trên một máy khác. Đáng tiếc là phương thức này vẫn chưa phổ biến trên các máy tính cá nhân (chạy hệ điều hành MS Windows)."
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "type": "listItem",
+                "content": [
+                  {
+                    "type": "paragraph",
+                    "content": [
+                      {
+                        "type": "text",
+                        "text": "Client/server: một cách tiếp cận để hướng tới tính độc lập và khả chuyển của giao diện là xây dựng giao diện như là một chương trình client, tương tác với khối chương trình xử lý (server) thông qua các giao thức trao đổi thông tin trên mạng (TCP/IP)."
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "type": "listItem",
+                "content": [
+                  {
+                    "type": "paragraph",
+                    "content": [
+                      {
+                        "type": "text",
+                        "text": "Web based: một trong các cách thức xây dựng giao diện phổ biến hiện nay là dựa trên nền web, sử dụng các trình duyệt web để trao dổi thông tin với server. Tuy có một số nhược điểm về an toàn thông tin và tốc độ nhưng với tính độc lập hoàn toàn với phần xử lý, độ chuẩn hóa cao và khả năng sẵn có trên hầu hết các thiết bị nối mạng, phương thức này đang được ứng dụng rộng rãi."
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Thiết kế giao diện khác với thiết kế các chức năng khác của phần mềm ở điểm hướng tới người sử dụng, cần người sử dụng đánh giá. Các công đoạn thiết kế khác như thiết kế dữ liệu, thiết kế thuật toán che dấu hoạt động kỹ thuật chi tiết khỏi khách hàng. Ngược lại, khách hàng (người dùng tiềm ẩn) nên tham gia vào quá trình thiết kế giao diện. Kinh nghiệm và khả năng của họ cần phải được tính đến khi thiết kế giao diện."
+              }
+            ]
+          },
+          {
+            "type": "heading",
+            "attrs": {
+              "level": 2
+            },
+            "content": [
+              {
+                "type": "text",
+                "text": "Một số vấn đề thiết kế"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Trong thiết kế giao diện, cần chú ý tới một số vấn đề sau:"
+              }
+            ]
+          },
+          {
+            "type": "orderedList",
+            "attrs": {
+              "start": 1
+            },
+            "content": [
+              {
+                "type": "listItem",
+                "content": [
+                  {
+                    "type": "paragraph",
+                    "content": [
+                      {
+                        "type": "text",
+                        "text": "Thời gian phản hồi. Chúng ta cần quan tâm tới hai loại thời gian là"
+                      }
+                    ]
+                  },
+                  {
+                    "type": "bulletList",
+                    "content": [
+                      {
+                        "type": "listItem",
+                        "content": [
+                          {
+                            "type": "paragraph",
+                            "content": [
+                              {
+                                "type": "text",
+                                "text": "Thời gian đáp ứng trung bình: là thời gian trung bình mà hệ thống phản hồi đối với một yêu cầu của người dùng. Thời gian để sinh ra “kết quả thực sự” của yêu cầu sẽ phụ thuộc vào bản chất yêu cầu, thuật toán, tốc độ của máy tính, tuy nhiên chúng ta cần quan tâm khía cạnh tâm lý là nếu người dùng đợi quá lâu mà không nhận được thông tin gì thì họ sẽ nghĩ là có vấn đề và có thể sẽ tiến hành các thao tác ngoài mong đợi như lặp lại thao tác hay dừng hệ thống."
+                              }
+                            ]
+                          }
+                        ]
+                      },
+                      {
+                        "type": "listItem",
+                        "content": [
+                          {
+                            "type": "paragraph",
+                            "content": [
+                              {
+                                "type": "text",
+                                "text": "Độ biến thiên của thời gian: độ biến thiên của thời gian cũng là đại lượng cần quan tâm. Nếu độ biến thiên lớn, ví dụ một thao tác thường được đáp ứng trong 1 giây mà có trường hợp phải mất 5 giây mới hoàn thành thì cũng có thể làm cho người dùng đưa ra các thao tác sai."
+                              }
+                            ]
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "type": "listItem",
+                "content": [
+                  {
+                    "type": "paragraph",
+                    "content": [
+                      {
+                        "type": "text",
+                        "text": "Các tiện ích. Một giao diện tốt cần có các tiện ích để trợ giúp người sử dụng. Có các loại tiện ích sau"
+                      }
+                    ]
+                  },
+                  {
+                    "type": "bulletList",
+                    "content": [
+                      {
+                        "type": "listItem",
+                        "content": [
+                          {
+                            "type": "paragraph",
+                            "content": [
+                              {
+                                "type": "text",
+                                "text": "Tích hợp: là tiện ích được tích hợp vào giao diện như nút Help cung cấp các thuyết minh về thao tác."
+                              }
+                            ]
+                          }
+                        ]
+                      },
+                      {
+                        "type": "listItem",
+                        "content": [
+                          {
+                            "type": "paragraph",
+                            "content": [
+                              {
+                                "type": "text",
+                                "text": "Phụ thêm: là các tiện ích phụ thêm như các tài liệu trực tuyến."
+                              }
+                            ]
+                          }
+                        ]
+                      },
+                      {
+                        "type": "listItem",
+                        "content": [
+                          {
+                            "type": "paragraph",
+                            "content": [
+                              {
+                                "type": "text",
+                                "text": "Macro: một số chương trình còn cho phép người dùng tự động hóa một số thao tác bằng các lệnh kiểu macro."
+                              }
+                            ]
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "type": "listItem",
+                "content": [
+                  {
+                    "type": "paragraph",
+                    "content": [
+                      {
+                        "type": "text",
+                        "text": "Thông báo. Các thông báo do hệ thống đưa ra cần"
+                      }
+                    ]
+                  },
+                  {
+                    "type": "bulletList",
+                    "content": [
+                      {
+                        "type": "listItem",
+                        "content": [
+                          {
+                            "type": "paragraph",
+                            "content": [
+                              {
+                                "type": "text",
+                                "text": "Có nghĩa: mọi thông báo cần có nghĩa đối với người dùng."
+                              }
+                            ]
+                          }
+                        ]
+                      },
+                      {
+                        "type": "listItem",
+                        "content": [
+                          {
+                            "type": "paragraph",
+                            "content": [
+                              {
+                                "type": "text",
+                                "text": "Ngắn gọn: các thông báo cần ngắn gọn đi vào bản chất vấn đề, đặc biệt là đối với kiểu giao diện dòng lệnh."
+                              }
+                            ]
+                          }
+                        ]
+                      },
+                      {
+                        "type": "listItem",
+                        "content": [
+                          {
+                            "type": "paragraph",
+                            "content": [
+                              {
+                                "type": "text",
+                                "text": "Có tính xây dựng: thông báo nên có tính xây dựng như đưa ra các nguyên nhân và các hướng khắc phục."
+                              }
+                            ]
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "type": "heading",
+            "attrs": {
+              "level": 2
+            },
+            "content": [
+              {
+                "type": "text",
+                "text": "Một số hướng dẫn thiết kế"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Dưới đây là một số yếu tố mà giao diện tốt nên có:"
+              }
+            ]
+          },
+          {
+            "type": "bulletList",
+            "content": [
+              {
+                "type": "listItem",
+                "content": [
+                  {
+                    "type": "paragraph",
+                    "content": [
+                      {
+                        "type": "text",
+                        "text": "Hướng người dùng: đối tượng người dùng phải rõ ràng, giao diện nên được thiết kế có tính đến năng lực, thói quen... của loại đối tượng đó."
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "type": "listItem",
+                "content": [
+                  {
+                    "type": "paragraph",
+                    "content": [
+                      {
+                        "type": "text",
+                        "text": "Có khả năng tùy biến cao: giao diện nên có khả năng tùy biến cao để phục vụ cho các cá nhân có cách sử dụng khác nhau, các môi trường hoạt động khác nhau."
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Các phần mềm trên hệ UNIX với giao diện theo chuẩn X protocol thường được thiết kế có độ tùy biến rất cao."
+              }
+            ]
+          },
+          {
+            "type": "bulletList",
+            "content": [
+              {
+                "type": "listItem",
+                "content": [
+                  {
+                    "type": "paragraph",
+                    "content": [
+                      {
+                        "type": "text",
+                        "text": "Nhất quán: các biểu tượng, thông báo, cách thức nhập dữ liệu phải nhất quán và nên tuân theo các chuẩn thông thường."
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "type": "listItem",
+                "content": [
+                  {
+                    "type": "paragraph",
+                    "content": [
+                      {
+                        "type": "text",
+                        "text": "An toàn: nên có chế độ xác nhận lại đối với các thao tác nguy hiểm (như xóa dữ liệu) và nên có khả năng phục hồi trạng thái cũ (undo)."
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "type": "listItem",
+                "content": [
+                  {
+                    "type": "paragraph",
+                    "content": [
+                      {
+                        "type": "text",
+                        "text": "Dễ học, dễ sử dụng: giao diện luôn cần được thiết kế hướng tới tính dễ học, dễ sử dụng, tức là không đòi hỏi người dùng phải có các năng lực đặc biệt. Ví dụ như không cần nhớ nhiều thao tác, không đòi hỏi phải thao tác nhanh, các thông tin trên màn hình dễ đọc... Một cách tốt nhất để xây dựng giao diện dễ học dễ sử dụng là tuân theo các chuẩn giao diện thông dụng."
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Tổng kết: Thiết kế là cái lõi của kỹ nghệ phần mềm. Trong khi thiết kế người ta sẽ phát triển, xét duyệt và làm tư liệu cho việc làm mịn dần các chi tiết thủ tục, cấu trúc chương trình, cấu trúc dữ liệu. Thông qua thiết kế và xét duyệt, chúng ta có thể thẩm định được chất lượng phần mềm. Tính môđun (trong cả chương trình và dữ liệu) và khái niệm trừu tượng làm cho người thiết kế có khả năng đơn giản hóa và dùng lại các thành phần phần mềm. Việc làm mịn đưa ra một cơ chế để biểu diễn các tầng kế tiếp của chi tiết chức năng. Cấu trúc chương trình và dữ liệu đóng góp cho một quan điểm tổng thể về kiến trúc phần mềm, trong khi thủ tục lại đưa ra những chi tiết cần thiết cho việc cài đặt thuật toán. Che dấu thông tin và độc lập chức năng đưa ra những trực cảm để đạt tới tính môđun có hiệu quả. Thiết kế phần mềm có thể được xem xét hoặc theo cách nhìn kỹ thuật hoặc theo cách nhìn quản lý dự án. Theo quan điểm kỹ thuật, thiết kế bao gồm 4 hoạt động: thiết kế dữ liệu, thiết kế kiến trúc, thiết kế thủ tục và thiết kế giao diện. Theo quan điểm quản lý, thiết kế tiến hóa từ thiết kế sơ bộ sang thiết kế chi tiết. Ký pháp thiết kế, đi kèm với các khái niệm lập trình có cấu trúc làm cho người thiết kế biểu diễn được chi tiết thủ tục theo cách thức làm thuận tiện cho việc dịch sang mã chương trình. Chúng ta có thể sử dụng các ký pháp đồ họa, bảng và ngôn ngữ mô tả."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Còn nhiều phương pháp thiết kế phần mềm quan trọng như thiết kế hướng chức năng, hướng đối tượng. Những phương pháp này, được kết hợp với những nền tảng đã trình bày ở trên tạo nên cơ sở cho một cách nhìn đầy đủ về thiết kế phần mềm."
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "title": "Quy trình thiết kế giao diện người dùng",
+      "description": null,
+      "estimatedMinutes": null,
+      "orderIndex": 6,
+      "content": {
+        "type": "doc",
+        "content": [
+          {
+            "type": "heading",
+            "attrs": {
+              "level": 1
+            },
+            "content": [
+              {
+                "type": "text",
+                "text": "Quy trình thiết kế"
+              }
+            ]
+          },
+          {
+            "type": "heading",
+            "attrs": {
+              "level": 2
+            },
+            "content": [
+              {
+                "type": "text",
+                "text": "Giới thiệu"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Thiết kế giao diện người dùng là một quy trình lặp lại bao gồm sự cộng tác giữa người sử dụng và người thiết kế. Trong quy trình này gồm 3 hoạt động cơ bản:"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "- Phân tích người sử dụng: tìm hiểu những gì người sử dụng sẽ làm với hệ thống."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "- Lập mẫu thử hệ thống: xây dựng một tập các mẫu thử để thử nghiệm"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "- Đánh giá giao diện: thử nghiệm các mẫu thử cùng với người sử dụng."
+              }
+            ]
+          },
+          {
+            "type": "heading",
+            "attrs": {
+              "level": 2
+            },
+            "content": [
+              {
+                "type": "text",
+                "text": "Mục tiêu"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "- Hiểu được quy trình thiết kế giao diện người dùng"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "- Nắm được chi tiết từng hoạt động trong quy trình thiết kế giao diện người dùng"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "- Với mỗi hoạt động, chúng ta có rất nhiều cách để thực hiện. Do đó, phải có khả năng lựa chọn phương pháp nào là thích hợp nhất cho từng hoàn cảnh cụ thể."
+              }
+            ]
+          },
+          {
+            "type": "heading",
+            "attrs": {
+              "level": 1
+            },
+            "content": [
+              {
+                "type": "text",
+                "text": "Phân tích người sử dụng"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Nếu ta không hiểu rõ những gì người sử dụng muốn làm với hệ thống, thì ta sẽ không thể thiết kế được một giao diện hiệu quả."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Phân tích người sử dụng phải được mô tả theo những thuật ngữ để người sử dụng và những người thiết kế khác có thể hiểu được."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Các ngữ cảnh mà ta mô tả thao tác ở trong đó là một trong những cách mô tả phân tích người dùng. Ta có thể lấy được rất nhiều yêu cầu của người sử dụng từ đó."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Các kỹ thuật phân tích:"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "- Phân tích nhiệm vụ: mô hình hoá các bước cần thực hiện để hoàn thành một nhiệm vụ."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "- Phân tích nhiệm vụ phân cấp."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "- Phỏng vấn và trắc nghiệm: hỏi người sử dụng về những gì mà họ làm. Khi phỏng vấn, chúng ta nên dựa trên những câu hỏi có kết thúc mở. Sau đó, người sử dụng cung cấp những thông tin mà họ nghĩ rằng nó là cần thiết; nhưng không phải tất cả các thông tin đó là có thể được sử dụng. Ngoài ra, chúng ta có thể thực hiện phỏng vấn với cả nhóm người sử dụng, điều đó cho phép người sử dụng thảo luận với nhau về những gì họ làm."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "- Mô tả: quan sát người sử dụng làm việc và hỏi họ về những cách mà không được biết tới. Nên nhớ rằng có nhiều nhiệm vụ của người sử dụng thuộc về trực giác và rất khó để mô tả và giải thích chúng. Dựa trên kỹ thuật này ta có thể hiểu thêm về các ảnh hưởng xã hội và tổ chức tác động tới công việc đó."
+              }
+            ]
+          },
+          {
+            "type": "heading",
+            "attrs": {
+              "level": 1
+            },
+            "content": [
+              {
+                "type": "text",
+                "text": "Lập mẫu thử giao diện người dùng"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Mẫu thử cho phép người sử dụng có được những kinh nghiệm trực tiếp với giao diện. Nếu không có những kinh nghiệm trực tiếp như vậy thì không thể đánh giá được khả năng có thể sử dụng được của giao diện."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Lập mẫu thử là một quy trình gồm 2 trạng thái:"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "- Lập các mẫu thử trên giấy."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "- Tinh chỉnh mẫu thử và xây dựng chúng"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Các kỹ thuật lập mẫu thử:"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "- Mẫu thử hướng nguyên mẫu: sử dụng công cụ như Macromedia Director để xây dựng một tập hợp các nguyên mẫu và màn hình. Khi người sử dụng tương tác với chúng thì màn hình sẽ thay đổi để hiển thị trạng thái kế tiếp."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "- Lập trình trực quan: sử dụng các ngôn ngữ được thiết kế cho việc phát triển nhanh như Visual Basic."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "- Mẫu thử dựa Internet: sử dụng web browser và script."
+              }
+            ]
+          },
+          {
+            "type": "heading",
+            "attrs": {
+              "level": 1
+            },
+            "content": [
+              {
+                "type": "text",
+                "text": "Đánh giá giao diện người dùng"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Ta nên đánh giá bản thiết kế giao diện người dùng để xác định khả năng phù hợp của nó. Tuy nhiên, việc đánh giá trên phạm vi rộng tốn nhiều chi phí và không thể thực hiện được đối với hầu hết các hệ thống."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Các kỹ thuật đánh giá đơn giản:"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "- Trắc nghiệm lại các phản hồi của người sử dụng"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "- Ghi lại quá trình sử dụng mẫu thử của hệ thống và đánh giá nó."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "- Lựa chọn những thông tin về việc sử dụng dễ dàng và các lỗi của người sử dụng."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "- Cung cấp mã lệnh trong phần mềm để thu thập những phản hồi của người sử dụng một cách trực tuyến."
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "title": "Thực trạng của quá trình kiểm thử phần mềm",
+      "description": null,
+      "estimatedMinutes": null,
+      "orderIndex": 7,
+      "content": {
+        "type": "doc",
+        "content": [
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Trong phần 1, bạn đã được tìm hiểu những khái niệm cơ bản về kiểm thử phần mềm và quy trình phát triển phần mềm. Những thông tin đã biểu diễn trong các bài này chỉ là ở mức tổng quan, và cho bạn cái nhìn về cách mà các dự án phần mềm có thể hoạt động. Nhưng thật không may, trong thế giới thật, bạn sẽ không bao giờ thấy một phần mềm hoàn hảo theo một bất kỳ một mô hình phát triển phần mềm nào. Bạn sẽ không thể đưa ra được một bản đặc tả chi tiết hoàn toàn đầy đủ mà khách hàng cần và bạn cũng sẽ không đủ thời gian để làm tất cả những bài kiểm tra mà bạn cần phải làm. Không có vấn đề gì cả. Nhưng để trở thành một tester làm việc có hiệu quả, bạn cần phải biết tưởng tượng ra quy trình phần mềm làm việc như thế nào để đạt được mục đích."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Mục đích của bài này là làm dịu đi tác động của chủ nghĩa lý tưởng lên quá trình kiểm tra thực tế trên phần mềm. Nó sẽ giúp bạn thấy rằng, trong thực tế, sự thỏa hiệp và nhượng bộ phải xuyên suốt vòng đời phát triển phần mềm . Nhiều điều trong những sự thỏa hiệp này là liên quan quan trực tiếp đến nỗ lực kiểm thử phần mềm. Những lỗi mà bạn tìm thấy và những vấn đề mà bạn ngăn chặn, tất cả đều có ảnh hưởng đặc biệt tới dự án của bạn. Sau khi đọc bài này, bạn sẽ thu nhận được rất nhiều quy tắc, sự tiếp xúc, và những khả năng hồi đáp mà tester cần và hi vọng rằng bạn sẽ đưa ra những quyết định giúp kiến tạo ra một sản phẩm phần mềm."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Trọng tâm của bài này bao gồm:"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "- Tại sao phần mềm không bao giờ là hoàn hảo"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "- Tại sao kiểm thử phần mềm không phải là một vấn đề mang tích chất khuôn mẫu"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "- Những thuật ngữ phổ biến được sử dụng trong kiểm thử phần mềm"
+              }
+            ]
+          },
+          {
+            "type": "heading",
+            "attrs": {
+              "level": 1
+            },
+            "content": [
+              {
+                "type": "text",
+                "text": "Phương châm của việc kiểm thử"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Đoạn đầu của bài này là một danh sách các phương châm hoặc các chân lý. Hãy coi chúng giống như “quy tắc đi đường” (\"rules of the road\") hoặc “chân lý của cuộc sống” (\"facts of life\") dành cho quá trình kiểm thử hoặc phát triển phần mềm. Mỗi một phương châm này là một sự hiểu biết nho nhỏ giúp họ đặt một số khía cạnh của toàn bộ quá trình xử lý vào viễn cảnh tương lai."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "a) Tầm quan trọng của việc kiểm thử đầy đủ một chương trình:"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Là một tester, bạn có thể tin rằng bạn có khả năng tiếp cận với một khía cạnh của phần mềm, kiểm tra nó, tìm ra tất cả các lỗi, và đảm bảo rằng phần mềm là hoàn hảo. Nhưng thật không may, điều này là không thể được, thậm chí là với một chương trình rất đơn giản, vì 4 lý do sau:"
+              }
+            ]
+          },
+          {
+            "type": "bulletList",
+            "content": [
+              {
+                "type": "listItem",
+                "content": [
+                  {
+                    "type": "paragraph",
+                    "content": [
+                      {
+                        "type": "text",
+                        "text": "Số lượng các dữ liệu có thể là đầu vào là rất lớn"
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "type": "listItem",
+                "content": [
+                  {
+                    "type": "paragraph",
+                    "content": [
+                      {
+                        "type": "text",
+                        "text": "Số lượng các dữ liệu có thể đưa ra cũng vô cùng lớn"
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "type": "listItem",
+                "content": [
+                  {
+                    "type": "paragraph",
+                    "content": [
+                      {
+                        "type": "text",
+                        "text": "Số lượng các “lối đi” trong phần mềm là rất lớn"
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "type": "listItem",
+                "content": [
+                  {
+                    "type": "paragraph",
+                    "content": [
+                      {
+                        "type": "text",
+                        "text": "Đặc tả phần mềm có tính chất chủ quan. Bạn có thể nói rằng lỗi là những khuyết điểm dưới con mắt của độc giả."
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Tất cả các trường hợp trên nếu kết hợp cùng nhau, bạn sẽ thu được một tập các điều kiện vô cùng lớn đến mức không thể thử hết được . Nếu bạn không tin điều này thì có thể xem xét trong hình 3.1, phần mềm Microsoft Windows Calculator."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Thậm chí một chương trình đơn giản như Windows Calculator cũng quá phức tạp để kiểm thử đầy đủ"
+              }
+            ]
+          },
+          {
+            "type": "bulletList",
+            "content": [
+              {
+                "type": "listItem",
+                "content": [
+                  {
+                    "type": "paragraph",
+                    "content": [
+                      {
+                        "type": "text",
+                        "text": "Khi bạn được phân công kiểm tra phần mềm Windows Calculator . Bạn quyết định là sẽ bắt đầu kiểm tra phép cộng. Bạn thử nghiệm xem 1+0=? Bạn nhận được câu trả lời là 1. Phép kiểm tra này cho kết quả đúng. Sau đó, bạn tiếp tục kiểm tra 1+1=? Kết quả nhận được là 2. Bạn đi bao xa? Máy tính chấp nhận một số có 32 chữ số, vì vậy, bạn phải cố gắng thử tất cả các khả năng có thể:"
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "1+99999999999999999999999999999999="
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Sau lần đầu tiên, bạn hoàn thành chuỗi số trên, bạn cũng có thể thử trên các phép toán 2+0=?, 2+1=?, 2+2=?... Và cứ tiếp tục như vậy. Cuối cùng, bạn sẽ phải thử nghiệm trên phép tính:"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "99999999999999999999999999999999+99999999999999999999999999999999="
+              }
+            ]
+          },
+          {
+            "type": "bulletList",
+            "content": [
+              {
+                "type": "listItem",
+                "content": [
+                  {
+                    "type": "paragraph",
+                    "content": [
+                      {
+                        "type": "text",
+                        "text": "Tiếp theo bạn sẽ phải thử trên các giá trị thập phân: 1.0+0.1=?, 1.0+0.2=?...."
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "type": "listItem",
+                "content": [
+                  {
+                    "type": "paragraph",
+                    "content": [
+                      {
+                        "type": "text",
+                        "text": "Một khi bạn đã kiểm tra tính đúng đắn của tổng các số, không nên kiểm tra các giá trị liên tiếp, bạn cần cố gắng đưa vào các dữ liệu bất hợp lý để kiểm tra tính đúng đắn của phần mềm. Hãy nhớ rằng, bạn không được phép giới hạn những số mà người sử dụng nhập vào , họ có quyền nhấn bất kỳ phím nào trên bàn phím. Những giá trị nên được thử nghiệm có lẽ là: 1+a, z+1, 1a1+2b2,… Như vậy, thì sẽ có đến hàng tỷ trường hợp cần kiểm tra."
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "type": "listItem",
+                "content": [
+                  {
+                    "type": "paragraph",
+                    "content": [
+                      {
+                        "type": "text",
+                        "text": "Những dữ liệu được biên tập cũng phải được kiểm tra. Phần mềm Windows Calculator cho phép sử dụng các phím Backspace và Delete . Vì vậy, bạn nên thử nghiệm với chúng. Ví dụ, 1<backspace>2+2 phải cho ra kết quả là 4. Những thứ mà bạn đã thực hiện kiểm tra trong chừng mực nào đó, phải được kiểm tra lại bằng cách nhấn vào phím Backspace cho mỗi “lối vào” ( entry ), cho mỗi cặp “lối vào” ( two entries ), và cứ tiếp tục như vậy."
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "type": "listItem",
+                "content": [
+                  {
+                    "type": "paragraph",
+                    "content": [
+                      {
+                        "type": "text",
+                        "text": "Nếu bạn hoặc nhân viên của bạn được giao nhiệm vụ hoàn thiện tất cả các trường hợp này. Sau đó, bạn có thể tiếp tục tiến hành trên 3 chữ số, sau đó là 4 chữ số,…"
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Có rất nhiều lối ( entry ) vào có thể khiến bạn không bao giờ hoàn thành được chúng, thậm chí, nếu bạn sử dụng một siêu máy tính để chuyển dữ liệu vào Calculator . Nếu bạn quyết định loại bỏ một vài điều kiện kiểm tra bởi vì bạn thấy chúng dư thừa hoặc không cần thiết, hoặc chỉ để tiết kiệm thời gian ( or just to save time ), thì có nghĩa là bạn đã không kiểm tra chương trình một cách đầy đủ."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "b) Kiểm thử phần mềm là một bài kiểm tra phụ thuộc vào sự rủi ro"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Nếu bạn quyết định không kiểm tra mọi trường hợp kiểm thử, bạn sẽ phải chịu trách nhiệm về những rủi ro. Trong ví dụ về Calculator , trường hợp mà bạn lựa chọn để kiểm thử có lẽ là những trường hợp thông thường: 1024+1024=2048? Và có thể, lập trình viên đã tình cờ loại bỏ lỗi trong hoàn cảnh này. Nhưng trong những trường hợp không được kiểm tra, bạn cũng không thể đảm bảo rằng nó không có lỗi, và sẽ đến lúc khách hàng khám phá ra nó. Và khi đó, chi phí cho việc sửa lỗi sẽ là lớn hơn rất nhiều so với việc sửa lỗi ngay từ đầu."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Điều này thật đáng sợ ( This may all sound pretty scary ). Bạn không thể kiểm tra mọi thứ, và nếu không kiểm tra mọi trường hợp thì bạn sẽ bỏ sót lỗi. Sản phẩm phải được tung ra thị trường, vì vậy, bạn cần dừng việc kiểm tra, nhưng nếu dừng quá sớm thì một số vùng sẽ không được kiểm thử. Bạn phải làm như thế nào?"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Một nội dung quan trọng mà tester cần phải tìm hiểu là làm thế nào để giảm số lượng các trường hợp kiểm thử rất lớn thành một tập các test case có thể thực thi được, và làm thế nào để sáng suốt lựa chọn những quyết định ít rủi ro nhất. Điều này buộc tester phải xác định được đâu là vấn đề quan trọng và đâu là vấn đề không quan trọng."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Hình 3.2 mô tả mối quan hệ giữa số lượng các trường hợp test với số lượng các lỗi được tìm thấy. Nếu bạn cố thử kiểm tra mọi thứ, chi phí có thể tăng lên đột ngột và những lỗi bị bỏ quên sẽ giảm xuống thấp nhất, nhưng cũng sẽ không còn chi phí để tiếp tục dự án. Nếu bạn cắt giảm công việc kiểm thử thì chi phí cho nó sẽ ít, nhưng bạn sẽ bỏ quên rất nhiều lỗi. Mục đích là bạn phải lọc ra số các trường hợp kiểm thử tối ưu, để đảm bảo bạn không phải kiểm thử quá nhiều hay quá ít các trường hợp."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Mọi dự án phần mềm đều có một điểm nỗ lực kiểm thử tối ưu"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Bạn sẽ được tìm hiểu làm thế nào để thiết kế và lựa chọn các kịch bản kiểm thử ( test scenarios ) sao cho ít rủi ro nhất và quá trình kiểm tra là tối ưu nhất."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "c) Quá trình kiểm thử không thể biểu diễn những lỗi không tồn tại"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Hãy nghĩ về điều này trong chốc nát. Bạn là một “kẻ hủy diệt” ( exterminator ) với bài kiểm tra các lỗi. Bạn xem xét hàng giờ và tìm ra dấu vết của các lỗi, lỗi này có thể vẫn đang tồn tại ( live bug ), đã được sửa ( dead bug ), hoặc còn đang tiềm ẩn ( nest ). Bạn có thể nói một cách an toàn rằng “ the house has bugs ”"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Bạn đến thăm một “ house” khác. Lần này, bạn không tìm thấy dấu vết của lỗi. Bạn hãy nhìn vào tất cả những địa điểm rõ ràng ( obvious place ) và tìm xem không có dấu hiệu nào của sự tàn phá. Có lẽ bạn nên tìm một vài lỗi đã từng được xử lý hoặc tiềm ẩn từ lâu, nhưng bạn hãy coi như không thấy gì cả. Có thể bạn tuyên bố một cách chắc chắn rằng “ the house is bug free” ? Không. Kết luận cuối cùng, có thể bạn không tìm thấy một live bug nào cả. Ngược lại, bạn tháo gỡ hoàn toàn the house thành foundation , bạn không thể chắc chắn rằng: bạn không bỏ quên một số lỗi đơn giản."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Tester làm việc chính xác như một “kẻ hủy diệt”. Nếu có thể biểu diễn những lỗi đang tồn tại, nhưng không thể biểu diễn những lỗi không tồn tại. Bạn có thể thực hiện bài kiểm tra của bạn, tìm và báo cáo các lỗi, nhưng bạn có thể kết luận rằng: lỗi không được tìm thấy nữa. Bạn có thể tiếp tục kiểm tra và khả năng tìm thấy lỗi là lớn hơn."
+              }
+            ]
+          },
+          {
+            "type": "heading",
+            "attrs": {
+              "level": 2
+            },
+            "content": [
+              {
+                "type": "text",
+                "text": "d) Những lỗi được tìm thấy và những lỗi không thể tìm thấy (The More Bugs You Find, the More Bugs There Are)"
+              }
+            ]
+          },
+          {
+            "type": "heading",
+            "attrs": {
+              "level": 2
+            },
+            "content": [
+              {
+                "type": "text",
+                "text": "Thậm chí, có rất nhiều điểm tương đồng giữa real bug và software bug. Cả hai loại này đều cần đưa vào một nhóm. Thường thì một tester sẽ chạy phần mềm như thể nó không có một lỗi nào. Sau đó, anh ta sẽ tìm ra một lỗi rồi những lỗi khác, lỗi khác nữa. Có một vài lý do cho điều này:"
+              }
+            ]
+          },
+          {
+            "type": "bulletList",
+            "content": [
+              {
+                "type": "listItem",
+                "content": [
+                  {
+                    "type": "paragraph",
+                    "content": [
+                      {
+                        "type": "text",
+                        "text": "Các lập trình viên có những ngày thật tội tệ: Giống như tất cả chúng ra, những người lập trình có thể có những lúc không được minh mẫm lắm. Vào một thời điểm này code có thể được viết rất hoàn hảo, nhưng lúc khác anh ta lại viết code rất cẩu thả. Một lỗi có thể là một dấu hiệu tell – tale rất quen thuộc."
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "type": "listItem",
+                "content": [
+                  {
+                    "type": "paragraph",
+                    "content": [
+                      {
+                        "type": "text",
+                        "text": "Một lập trình viên thường xuyên mắc những lỗi tương tự nhau: Ai cũng có những thói quen. Một lập trình viên thiên về một loại lỗi nào đó mà thường xuyên mắc đi mắc lại."
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "type": "listItem",
+                "content": [
+                  {
+                    "type": "paragraph",
+                    "content": [
+                      {
+                        "type": "text",
+                        "text": "Một số lỗi thật sự nguy hiểm như đỉnh của một tảng băng chôi: Thường thì trong các bản thiết kế và kiến trúc của phần mềm đều ẩn chứa một số vấn đề chưa được phát hiện. Tester đã tìm được một số lỗi mà dường như nó không liên quan đến nhau. Nhưng không hẳn thế, những lỗi này lại có những quan hệ mật thiết với nhau và đều xuất phát từ một lý do chính vô cùng quan trọng."
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "type": "heading",
+            "attrs": {
+              "level": 2
+            },
+            "content": [
+              {
+                "type": "text",
+                "text": "Vấn đề quan trọng bây giờ là cần chú ý rằng ngược với ý tưởng “bugs follow bugs” này cũng có thể coi là đúng. Nếu bạn không thể tìm ra lỗi của phần mềm thì cũng không có vấn đề gì. Sẽ rất thuận lợi nếu các đặc trưng mà bạn kiểm tra được viết một cách trong sáng và quả thực sẽ có một vài điều nếu như bất kỳ một lỗi nào được tìm ra."
+              }
+            ]
+          },
+          {
+            "type": "heading",
+            "attrs": {
+              "level": 2
+            },
+            "content": [
+              {
+                "type": "text",
+                "text": "e) Nghịch lý về thuốc trừ sâu (The Pesticide Paradox)"
+              }
+            ]
+          },
+          {
+            "type": "heading",
+            "attrs": {
+              "level": 2
+            },
+            "content": [
+              {
+                "type": "text",
+                "text": "Vào năm 1990, Boris Beizer, trong cuốn sách Software Testing Techniques, tái bản lần 2, đã xây dựng thuật ngữ Pesticide Paradox để mô tả một hiện tượng bạn kiểm thử phần mềm. Những điều tương tự với hiện tượng này đã xảy ra khi bạn dùng pesticides để diệt sâu bọ (mô tả trong hình 3.3). Nếu bạn liên tục dùng một loại pesticide giống nhau, sâu bọ sẽ kháng cự lại thuốc, và pesticide không còn hiệu quả nữa."
+              }
+            ]
+          },
+          {
+            "type": "heading",
+            "attrs": {
+              "level": 2
+            },
+            "content": [
+              {
+                "type": "text",
+                "text": "Phần mềm đã phải trải qua những phép thử lặp đi lặp lại tương tự nhau để chống lại các lỗi"
+              }
+            ]
+          },
+          {
+            "type": "heading",
+            "attrs": {
+              "level": 2
+            },
+            "content": [
+              {
+                "type": "text",
+                "text": "Hãy nhớ về mô hình xoắn ốc của quy trình phát triển phần mềm được mô tả trong bài 2. Quá trình kiểm thử cũng phải lặp đi lặp lại mỗi lần quanh vòng lặp. Với mỗi lần lặp lại, tester nhận phần mềm để kiểm tra và chạy các trường hợp kiểm thử của họ. Cuối cùng, ngoài một vài trường hợp phần mềm chạy đúng yêu cầu, thì các trường hợp kiểm tra của tester sẽ tìm ra và phơi bày các lỗi. Nhưng ở lần lặp sau, nếu tester vẫn tiếp tục chạy các trường hợp kiểm thử này, chúng sẽ không giúp tìm ra lỗi mới."
+              }
+            ]
+          },
+          {
+            "type": "heading",
+            "attrs": {
+              "level": 2
+            },
+            "content": [
+              {
+                "type": "text",
+                "text": "Để cách vượt qua pesticide paradox, tester phải viết thêm các trường hợp kiểm thử khác nữa, và tìm những cách tiếp cận mới để kiểm tra chương trình và tìm ra nhiều lỗi hơn."
+              }
+            ]
+          },
+          {
+            "type": "heading",
+            "attrs": {
+              "level": 2
+            },
+            "content": [
+              {
+                "type": "text",
+                "text": "f) Không phải tất cả các lỗi mà bạn phát hiện sẽ được sửa"
+              }
+            ]
+          },
+          {
+            "type": "heading",
+            "attrs": {
+              "level": 2
+            },
+            "content": [
+              {
+                "type": "text",
+                "text": "Một trong những điều thật sự đáng buồn của kiểm thử phần mềm là sau tất cả những lỗ lực cố gắng làm việc của bạn, không phải tất cả các lỗi bạn phát hiện ra sẽ được sửa. Nhưng điều này cũng không gây thất vọng bởi vì nó không có nghĩa rằng bạn đã làm sai điều gì khi cố gắng thực hiện mục đích của mình, cũng không có nghĩa rằng bạn cùng với cả đội của bạn sẽ phải chấp nhận giao cho khách hàng một sản phẩm kém chất lượng. Tuy nhiên, nó có nghĩa rằng, bạn sẽ cần dựa trên những cặp tiêu chí về nghề tester đã được liệt kê trong bài 1. Bạn và đội của bạn cần mô tả lại những quyết định dựa trên sự rủi ro cho riêng từng lỗi và cho tất cả các lỗi, để đưa ra quyết định cái nào sẽ được sửa và cái nào thì không."
+              }
+            ]
+          },
+          {
+            "type": "heading",
+            "attrs": {
+              "level": 2
+            },
+            "content": [
+              {
+                "type": "text",
+                "text": "Có một số lý do khiến một số lỗi không được fix:"
+              }
+            ]
+          },
+          {
+            "type": "bulletList",
+            "content": [
+              {
+                "type": "listItem",
+                "content": [
+                  {
+                    "type": "paragraph",
+                    "content": [
+                      {
+                        "type": "text",
+                        "text": "Không đủ thời gian: Trong mọi dự án luôn có rất nhiều feature của phần mềm, nhưng bạn lại có quá ít người để viết mã và kiểm thử chúng, và cũng không đủ khả năng để thay đổi kế hoạch làm việc cho đến khi kết thúc. Nếu bạn đang làm việc cho một chương trình đòi hỏi những thử thách lớn, mà thời hạn hoàn thành đã sắp đến thì bạn buộc phải bỏ qua một số lỗi"
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "type": "listItem",
+                "content": [
+                  {
+                    "type": "paragraph",
+                    "content": [
+                      {
+                        "type": "text",
+                        "text": "Nó không hẳn là một lỗi: Có lẽ bạn cũng đã từng nghe thấy thành ngữ sau: “ it’s not a bug, it’s a feature !” Không phải là hiếm những trường hợp: hiểu sai, lỗi do quá trình kiểm tra, hoặc đặc tả thay đổi dẫn đến kết quả có thể phát sinh lỗi trong tương lai"
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "type": "listItem",
+                "content": [
+                  {
+                    "type": "paragraph",
+                    "content": [
+                      {
+                        "type": "text",
+                        "text": "Có quá nhiều rủi ro khi sửa lỗi: Thật không may điều này là quá thường xuyên xảy đến. Phần mềm có thể rất dễ hỏng, các bộ phận gắn kết chặt chẽ với nhau, và đôi khi chúng giống như “ món mì Ý ”. Có thể bạn sửa một lỗi lại khiến một lỗi khác xuất hiện. Dưới áp lực về thời gian hoàn thành sản phẩm, dưới một lịch trình kín đặc, thì có lẽ thay đổi phần mềm là một quyết định chứa quá nhiều rủi ro. Có lẽ tốt hơn hết là bỏ qua những lỗi có thể chấp nhận được để tránh phát sinh những lỗi mới, những rủi ro mới."
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "type": "listItem",
+                "content": [
+                  {
+                    "type": "paragraph",
+                    "content": [
+                      {
+                        "type": "text",
+                        "text": "Nó không đáng để phải sửa: điều này nghe có vẻ bất hợp lý, nhưng nó là sự thật. Những lỗi hiếm khi xuất hiện hoặc những lỗi xuất hiện trong những feature ít sử dụng thì có thể bỏ qua được. Những lỗi “work- around” , tức là có cách để người sử dụng có thể ngăn chặn hoặc tránh được lỗi, thì thường không được sửa. Tất cả các quyết định phải mang tính chất thị trường dựa trên độ rủi ro."
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "type": "heading",
+            "attrs": {
+              "level": 2
+            },
+            "content": [
+              {
+                "type": "text",
+                "text": "Quá trình xử lý các quyết định này thường bao gồm các tester, các project manager, các coder. Mỗi người sẽ có những cách nhận định về một viễn cảnh xảy ra khi một số lỗi không được sửa. Nếu lỗi không được fix, tester hiểu khách hàng sẽ phải gánh chịu những hậu quả như thế nào. Project manager có tầm nhìn chiến lược và đoán nhận được những hậu quả có thể xảy ra với dự án khi lỗi không được giải quyết. Và coder hiểu được rằng nếu fix lỗi này thì chi phí cho việc đó sẽ lớn như thế nào. Dựa vào đó, họ sẽ đưa ra những lý do tại sao họ nên sửa hoặc không nên sửa các lỗi đó."
+              }
+            ]
+          },
+          {
+            "type": "heading",
+            "attrs": {
+              "level": 2
+            },
+            "content": [
+              {
+                "type": "text",
+                "text": "CHUYỆN GÌ SẼ XẢY ĐẾN KHI BẠN ĐƯA RA MỘT QUYẾT ĐỊNH SAI:"
+              }
+            ]
+          },
+          {
+            "type": "heading",
+            "attrs": {
+              "level": 2
+            },
+            "content": [
+              {
+                "type": "text",
+                "text": "Hãy nhớ lại về lỗi mà hãng Intel Pentium mô tả trong bài 1. Hãng Intel đã tìm ra lỗi này trước khi sản phẩm được tung ra thị trường, nhưng đội phát triển sản phẩm đã quyết định rằng: nó là một lỗi quá nhỏ và không đáng để phải sửa. Họ có một lịch làm việc quá dày đặc và đã đến hạn hoàn thành sản phẩm. Vì vậy, họ đã quyết định việc sửa lỗi này sẽ được thực hiện trong phiên bản sau của chip."
+              }
+            ]
+          },
+          {
+            "type": "heading",
+            "attrs": {
+              "level": 2
+            },
+            "content": [
+              {
+                "type": "text",
+                "text": "Nhưng thật không may, lỗi này đã bị khách hàng phát hiện ra. Trong một số khía cạnh của phần mềm, có thể có tới hàng trăm lỗi không được sửa bởi vì họ nhận thấy rằng hiệu quả tích cực của nó là không lớn. Vậy rất khó để có thể nói rằng các quyết định này là đúng hay sai."
+              }
+            ]
+          },
+          {
+            "type": "heading",
+            "attrs": {
+              "level": 2
+            },
+            "content": [
+              {
+                "type": "text",
+                "text": "g) Một lỗi có tồn tại nhưng không ai phát hiện thì có phải là lỗi không? (When a Bug's a Bug Is Difficult to Say)"
+              }
+            ]
+          },
+          {
+            "type": "heading",
+            "attrs": {
+              "level": 2
+            },
+            "content": [
+              {
+                "type": "text",
+                "text": "Nếu có một vấn đề trong phần mềm, nhưng không một ai phát hiện ra nó, không phải lập trình viên, không phải một tester, và thậm chí là một khách hàng nào đó, thì nó có được gọi là lỗi không?"
+              }
+            ]
+          },
+          {
+            "type": "heading",
+            "attrs": {
+              "level": 2
+            },
+            "content": [
+              {
+                "type": "text",
+                "text": "Một nhóm các tester ở trong một phòng và hỏi chúng tôi câu hỏi này. Bạn sẽ phải thảo luận về vấn đề này. Ai cũng có ý kiến riêng của mình và có thể là bạn cũng thế. Vấn đề ở đây là không có câu trả lời xác định. Câu trả lời phụ thuộc vào bạn và đội phát triển của bạn với việc đưa ra những quyết định tốt nhất cho mình."
+              }
+            ]
+          },
+          {
+            "type": "heading",
+            "attrs": {
+              "level": 2
+            },
+            "content": [
+              {
+                "type": "text",
+                "text": "Với mục đích của cuốn sách này, bạn hãy tham khảo những quy tắc để xác định một lỗi trong bài 1:"
+              }
+            ]
+          },
+          {
+            "type": "orderedList",
+            "attrs": {
+              "start": 1
+            },
+            "content": [
+              {
+                "type": "listItem",
+                "content": [
+                  {
+                    "type": "paragraph",
+                    "content": [
+                      {
+                        "type": "text",
+                        "text": "Phần mềm không thực hiện một số thứ giống như mô tả trong bản đặc tả phần mềm"
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "type": "listItem",
+                "content": [
+                  {
+                    "type": "paragraph",
+                    "content": [
+                      {
+                        "type": "text",
+                        "text": "Phần mềm thực hiện một số việc mà bản đặc tả yêu cầu nó không được thực hiện"
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "type": "listItem",
+                "content": [
+                  {
+                    "type": "paragraph",
+                    "content": [
+                      {
+                        "type": "text",
+                        "text": "Phần mềm thực hiện một số chức năng mà bản đặc tả không đề cập tới"
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "type": "listItem",
+                "content": [
+                  {
+                    "type": "paragraph",
+                    "content": [
+                      {
+                        "type": "text",
+                        "text": "Phần mềm không thực hiện một số việc mà bản đặc tả không đề cập tới, nhưng là những việc nên làm"
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "type": "listItem",
+                "content": [
+                  {
+                    "type": "paragraph",
+                    "content": [
+                      {
+                        "type": "text",
+                        "text": "Trong con mắt của người kiểm thử phần mềm là khó hiểu, khó sử dụng, chậm đối với người sử dụng"
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Quy tắc này sẽ giúp chúng ra lọc ra những tình huống khó xử để đưa ra quyết định. Có một cách khác để suy xét nó. Không phải là hiếm những trường hợp mà 2 người sử dụng có những nhận xét hoàn toàn trái ngược nhau về vấn đề chất lượng phần mềm. Một người thì nói rằng chương trình như vậy là không thể chấp nhận và người còn lại thì quả quyết rằng chương trình này là hoàn hảo. Có thể cả hai đều đúng? Câu trả lời là một người sử dụng sản phẩm theo cách mà rất nhiều lỗi bị bộc lộ. Còn người kia thì không."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Chú ý: Lỗi không được khám phá hoặc chưa từng được chú ý thì thường được gọi là lỗi ngầm ( latent bug )"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Nếu điều này quá khó hiểu thì cũng đừng lo lắng. Hãy đem nó ra thảo luận với đồng nghiệp trong đội kiểm thử của bạn và cố gắng hiểu điều mà họ nghĩ. Hãy lắng nghe những ý kiến khác, kiểm tra ý tưởng của họ và định hình lại suy nghĩ của chính mình. Hãy nhớ lại một câu hỏi quen thuộc: “ nếu một cái cây đổ trong rừng và không ai nghe thấy gì cả, vậy nó có tạo ra âm thanh không?” (\" If a tree falls in the forest and there's no one there to hear it, does it make a sound? \")."
+              }
+            ]
+          },
+          {
+            "type": "heading",
+            "attrs": {
+              "level": 2
+            },
+            "content": [
+              {
+                "type": "text",
+                "text": "h) Xây dựng bản đặc tả phần mềm là công việc không bao giờ kết thúc"
+              }
+            ]
+          },
+          {
+            "type": "heading",
+            "attrs": {
+              "level": 2
+            },
+            "content": [
+              {
+                "type": "text",
+                "text": "Phát triển phần mềm có một vấn đề. Ngành công nghiệp này đang phát triển quá nhanh: năm ngoái nó có thể là một sản phẩm sắc bén, nhưng năm nay nó đã trở lên lỗi thời. Tại cùng một thời điểm, phần mềm có quy mô lớn hơn, có nhiều feature hơn và tương đối phức tạp, dẫn đến kế hoạch phát triển sẽ lâu ưhơn. Có 2 vấn đề đối lập nhau, và kết quả là liên tục phải thay đổi bản đặc tả sản phẩm."
+              }
+            ]
+          },
+          {
+            "type": "heading",
+            "attrs": {
+              "level": 2
+            },
+            "content": [
+              {
+                "type": "text",
+                "text": "Không có cách nào khác để phản ứng lại sự thay đổi mau lẹ của bản đặc tả. Bạn cho rằng, sản phẩm của bạn đã bị khóa và chúng ta tuyệt đối không thể thay đổi bản đặc tả sản phẩm. Bạn đã đi được nửa chặng đường trong kế hoạch phát triển 2 năm của sản phẩm, đối thủ chính của bạn thì đã tung ra thị trường một sản phẩm hoàn toàn tương tự với sản phẩm của bạn. Mà thậm chí một vài feature rất tuyệt vời mà sản phẩm của bạn không có được. Liệu bạn có nên tiếp tục với bản đặc tả của mình và giao cho khách hàng một sản phẩm thua kém hơn không? Hay đội phát triển dự án của bạn nên tập hợp lại, suy ngẫm lại về những feature của sản phẩm, viết lại bản đặc tả và làm việc trên một sản phẩm được sửa lại? Trong hầu hết các trường hợp, những nhà kinh doanh sáng suốt sẽ tuyên bố sau cùng."
+              }
+            ]
+          },
+          {
+            "type": "heading",
+            "attrs": {
+              "level": 2
+            },
+            "content": [
+              {
+                "type": "text",
+                "text": "Là một tester, bạn phải thừa nhận rằng bản đặc tả sẽ thường xuyên thay đổi. Các feature sẽ được thêm vào mà nó không hề nằm trong kế hoạch kiểm thử. Các feature sẽ thay đổi và thậm chí là bị xóa hoàn toàn khi bạn đã kiểm tra và sẵn sàng báo cáo lỗi về nó. Điều này hoàn toàn có thể xảy ra. Bạn sẽ được tìm hiểu các kỹ thuật linh hoạt để lập kế hoạch và thực thi việc kiểm thử trong phần còn lại của cuốn sách."
+              }
+            ]
+          },
+          {
+            "type": "heading",
+            "attrs": {
+              "level": 2
+            },
+            "content": [
+              {
+                "type": "text",
+                "text": "k) Tester không phải là thành viên được mọi người chờ đợi trong một dự án"
+              }
+            ]
+          },
+          {
+            "type": "heading",
+            "attrs": {
+              "level": 2
+            },
+            "content": [
+              {
+                "type": "text",
+                "text": "Hãy nhớ lại mục đích của quá trình kiểm thử phần mềm là gì? Mục đích của một tester là tìm ra lỗi, tìm thấy chúng sớm nhất có thể, và chắc chắn rằng chúng phải được sửa."
+              }
+            ]
+          },
+          {
+            "type": "heading",
+            "attrs": {
+              "level": 2
+            },
+            "content": [
+              {
+                "type": "text",
+                "text": "Công việc của bạn là xem xét thật kỹ lưỡng và phê bình công việc của các đồng nghiệp của bạn, phát hiện những vấn đề của công việc, và phải thực hiện công khai những gì bạn tìm thấy. Và bạn sẽ phải cố gắng chiến thắng trong các cuộc tranh luận với các đồng nghiệp."
+              }
+            ]
+          },
+          {
+            "type": "heading",
+            "attrs": {
+              "level": 2
+            },
+            "content": [
+              {
+                "type": "text",
+                "text": "Hãy giữ thái độ hòa bình với những đồng nghiệp trong đội của bạn:"
+              }
+            ]
+          },
+          {
+            "type": "bulletList",
+            "content": [
+              {
+                "type": "listItem",
+                "content": [
+                  {
+                    "type": "paragraph",
+                    "content": [
+                      {
+                        "type": "text",
+                        "text": "Phát hiện lỗi thật sớm: Dĩ nhiên, đây là công việc của bạn, và bạn phải kiên trì làm công việc này. Và dĩ nhiên, nếu bạn phát hiện một lỗi nguy hiểm trước 3 tháng thì tốt hơn là 1 ngày trước khi đến thời điểm tung sản phẩm ra thị trường."
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "type": "listItem",
+                "content": [
+                  {
+                    "type": "paragraph",
+                    "content": [
+                      {
+                        "type": "text",
+                        "text": "Giữ thái độ hăng hái, nhiệt tình: Tốt thôi, bạn thật sự yêu công việc của mình. Bạn sẽ cảm thấy phấn khích khi bạn tìm được một lỗi khủng khiếp. Nhưng nếu bạn huênh hoang dồn ép lập trình viên và nói với anh ta rằng bạn vừa mới tìm được một lỗi kinh khủng nhất ( nastiest bug ) trong suốt quá trình làm việc của bạn, thì chắc hẳn rằng anh ta sẽ cảm thấy khó chịu."
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "type": "listItem",
+                "content": [
+                  {
+                    "type": "paragraph",
+                    "content": [
+                      {
+                        "type": "text",
+                        "text": "Đừng chỉ báo cáo những thông tin xấu: Nếu bạn đã phát hiện ra một đoạn mã chứa đầy lỗi, hãy nói cho mọi người biết, dù bạn sẽ bị phản đối. Bởi vì nếu bạn chưa từng phát hiện ra lỗi của các lập trình viên, mọi người cũng sẽ tránh xa bạn."
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "type": "heading",
+            "attrs": {
+              "level": 2
+            },
+            "content": [
+              {
+                "type": "text",
+                "text": "i) Kiểm thử phần mềm là một công việc đòi hỏi tính kỷ luật"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Kiểm thử phần mềm là công việc được thực hiện sau khi có sản phẩm. Các sản phẩm phần mềm và không phức tạp. Số lượng người với máy tính sử dụng phần mềm là bị giới hạn. Và, một số ít lập trình viên trong đội dự án của bạn có khả năng gỡ lỗi cho mỗi đoạn mã của người khác. Các lỗi là một vấn đề không tốt. Chúng xuất hiện và sớm được sửa chữa thì chi phí cho chúng sẽ không nhiều. Thường thì các tester không được huấn luyện và họ vẫn phát huy khả năng của họ trong các dự án sau để làm thay đổi nhiều thứ."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Hãy nhìn xem sản phẩm phần mềm cần được giúp đỡ và bạn sẽ nhìn thấy một danh sách các tester. Ngành công nghiệp phần mềm đang phát triển vượt bậc với mũi nhọn là đội ngũ tester chuyên nghiệp. Bởi vì hiện tại, người ta đã mất quá nhiều chi phí để xây dựng lên những phần mềm kém chất lượng."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Thật là tội tệ, không phải mọi công ty đều thống nhất quan điểm đó. Nhiều computer game và những công ty phần mềm nhỏ vẫn thường xuyên sử dụng những mô hình phát triển lỏng lẻo như big-bang hoặc code-and-fix . Nhưng bây giờ, nhiều phần mềm được phát triển và luôn tuân thủ kỷ luật. Các tester trở thành lực lượng lòng cốt, những thành viên sống còn trong nhiệm vụ của họ."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Đây sẽ là một vấn đề lớn, nếu bạn là thấy hứng thú với kiểm thử phần mềm. Nó đã trở thành một nghề nghiệp được nhiều người lựa chọn và cần phải được đào tạo, làm việc có kỷ luật và thúc đẩy sự tiến bộ."
+              }
+            ]
+          }
+        ]
+      }
+    }
+  ]
+}

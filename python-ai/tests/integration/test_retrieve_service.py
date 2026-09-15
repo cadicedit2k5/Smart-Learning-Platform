@@ -1,52 +1,16 @@
-from app.configs.config import get_settings
-from app.configs.database import AsyncSessionLocal
-from app.infrastructure.ai.embeddings import create_embeddings
+import pytest
+
 from app.repositories.chunk_repository import ChunkRepository
 from app.services.retrieval_service import RetrievalService
 
 
-async def test_real_retrieval_without_course_id():
-    settings = get_settings()
-
-    async with AsyncSessionLocal() as session:
-
-        repository = ChunkRepository(
-            session
-        )
-
-        embeddings = create_embeddings(
-            settings
-        )
-
-        service = RetrievalService(
-            embeddings=embeddings,
-            repository=repository,
-            settings=settings,
-        )
-
-        results = await service.retrieve(
-            question=(
-                "Dependency Injection là gì?"
-            ),
-        )
-
-        assert results
-        assert all(result.content.strip() for result in results)
-
-        for result in results:
-            print()
-            print(
-                "distance:",
-                result.distance,
-            )
-            print(
-                "document:",
-                result.document_id,
-            )
-            print(
-                "locator:",
-                result.source_locator,
-            )
-            print(
-                result.content[:500],
-            )
+@pytest.mark.parametrize("scoped", [True, False])
+async def test_retrieval_of_seeded_document(db_session, embeddings, settings, indexed_source, scoped):
+    service = RetrievalService(embeddings=embeddings, repository=ChunkRepository(db_session), settings=settings)
+    results = await service.retrieve(course_id=indexed_source.course_id if scoped else None,
+                                     question="Dependency Injection?")
+    assert len(results) == 1
+    assert results[0].source_type == "DOCUMENT"
+    assert results[0].source_id == indexed_source.source_id
+    assert results[0].document_id == indexed_source.document_id
+    assert results[0].content == "Dependency Injection reduces coupling."

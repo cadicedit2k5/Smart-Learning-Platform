@@ -2,21 +2,27 @@ package com.smartlearning.core.course.service.impl;
 
 import com.smartlearning.common.error.ApplicationException;
 import com.smartlearning.common.error.CommonErrorCode;
-import com.smartlearning.common.dto.request.PagingRequest;
+import com.smartlearning.core.course.dto.request.MyCourseFilterRequest;
+import com.smartlearning.core.course.dto.request.PublicCourseFilterRequest;
 import com.smartlearning.common.dto.response.pagination.PagingResponse;
 import com.smartlearning.core.course.dto.request.CourseCreateRequest;
 import com.smartlearning.core.course.dto.request.CourseUpdateRequest;
 import com.smartlearning.core.course.dto.response.CourseResponse;
+import com.smartlearning.core.course.dto.response.PublicCourseDetailResponse;
 import com.smartlearning.core.course.dto.response.PublicCourseResponse;
 import com.smartlearning.core.course.entity.Course;
+import com.smartlearning.core.course.entity.CourseChapter;
 import com.smartlearning.core.course.entity.CourseMember;
+import com.smartlearning.core.course.entity.CourseTopic;
 import com.smartlearning.core.course.entity.enums.CourseMemberRole;
 import com.smartlearning.core.course.entity.enums.CourseMemberStatus;
 import com.smartlearning.core.course.entity.enums.CourseStatus;
 import com.smartlearning.core.course.entity.enums.CourseVisibility;
 import com.smartlearning.core.course.mapper.CourseMapper;
+import com.smartlearning.core.course.repository.CourseChapterRepository;
 import com.smartlearning.core.course.repository.CourseMemberRepository;
 import com.smartlearning.core.course.repository.CourseRepository;
+import com.smartlearning.core.course.repository.CourseTopicRepository;
 import com.smartlearning.core.course.sercurity.CourseAccessPolicy;
 import com.smartlearning.core.course.utils.CourseUtils;
 import org.junit.jupiter.api.BeforeEach;
@@ -32,6 +38,8 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 
 import java.time.Instant;
 import java.util.List;
@@ -39,10 +47,7 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Stream;
 
-import static com.smartlearning.core.support.CoreTestData.COURSE_ID;
-import static com.smartlearning.core.support.CoreTestData.OWNER_ID;
-import static com.smartlearning.core.support.CoreTestData.course;
-import static com.smartlearning.core.support.CoreTestData.courseResponse;
+import static com.smartlearning.core.support.CoreTestData.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
@@ -70,6 +75,10 @@ class CourseServiceImplTest {
     private CourseUtils courseUtils;
     @InjectMocks
     private CourseServiceImpl courseService;
+    @Mock
+    private CourseChapterRepository chapterRepository;
+    @Mock
+    private CourseTopicRepository topicRepository;
 
     @BeforeEach
     void mapRoleLikeTheRealUtility() {
@@ -194,39 +203,68 @@ class CourseServiceImplTest {
     }
 
     @Test
-    void getMyCourses_mapsOnlyActiveMembershipCourses() {
-        Course first = course();
-        Course second = course();
-        second.setId(java.util.UUID.randomUUID());
-        second.setTitle("Second course");
-        CourseResponse firstResponse = courseResponse(first);
-        CourseResponse secondResponse = courseResponse(second);
-        CourseMember firstMembership = com.smartlearning.core.support.CoreTestData.member(
-                CourseMemberRole.OWNER,
-                CourseMemberStatus.ACTIVE
-        );
-        firstMembership.setCourse(first);
-        CourseMember secondMembership = com.smartlearning.core.support.CoreTestData.member(
-                CourseMemberRole.STUDENT,
-                CourseMemberStatus.ACTIVE
-        );
-        secondMembership.setCourse(second);
-        when(memberRepository.findAllByUserIdAndStatusAndCourseDeletedAtIsNullOrderByCourseUpdatedAtDesc(
-                OWNER_ID,
-                CourseMemberStatus.ACTIVE
-        )).thenReturn(List.of(firstMembership, secondMembership));
-        when(courseMapper.toResponse(first)).thenReturn(firstResponse);
-        when(courseMapper.toResponse(second)).thenReturn(secondResponse);
+    void getPublicCourseDetail_returnsCourseOutline() {
+        Course course = course();
+        course.setVisibility(CourseVisibility.PUBLIC);
+        course.setStatus(CourseStatus.PUBLISHED);
+        course.setPublishedAt(TEST_TIME);
+        course.setCoverUrl("course-cover");
 
-        List<CourseResponse> result = courseService.getMyCourses(OWNER_ID);
-        assertThat(result).extracting(CourseResponse::currentUserRole)
-                .containsExactly(CourseMemberRole.OWNER, CourseMemberRole.STUDENT);
-        assertThat(result).extracting(CourseResponse::id)
-                .containsExactly(firstResponse.id(), secondResponse.id());
+        CourseChapter chapter = chapter();
+        chapter.setCourse(course);
+
+        CourseTopic topic = topic(chapter);
+
+        CourseMember membership = member(CourseMemberRole.STUDENT, CourseMemberStatus.PENDING);
+        membership.setCourse(course);
+
+        when(courseUtils.requireCourse(COURSE_ID)).thenReturn(course);
+        when(memberRepository.findByCourseIdAndUserId(COURSE_ID, STUDENT_ID))
+                .thenReturn(Optional.of(membership));
+        when(chapterRepository.findAllByCourseIdAndDeletedAtIsNullOrderByOrderIndexAsc(COURSE_ID))
+                .thenReturn(List.of(chapter));
+        when(topicRepository.findAllActiveByCourseIdOrderByPosition(COURSE_ID))
+                .thenReturn(List.of(topic));
+        when(courseMapper.toImageUrl(course)).thenReturn("/courses/" + COURSE_ID + "/image?v=1");
+
+        PublicCourseDetailResponse response = courseService.getPublicCourseDetail(COURSE_ID, STUDENT_ID);
+
+        assertThat(response.id()).isEqualTo(COURSE_ID);
+        assertThat(response.currentUserMembershipStatus()).isEqualTo(CourseMemberStatus.PENDING);
+        assertThat(response.chapters()).hasSize(1);
+        assertThat(response.chapters().getFirst().title()).isEqualTo("Chapter 1");
+        assertThat(response.chapters().getFirst().topics()).hasSize(1);
+        assertThat(response.chapters().getFirst().topics().getFirst().title()).isEqualTo("Topic 1");
+        assertThat(response.chapters().getFirst().topics().getFirst().estimatedMinutes()).isEqualTo(30);
     }
 
     @Test
-    void getPublicCourses_returnsOnlyRepositoryPageAndCurrentMembershipStatus() {
+    void getMyCourses_returnsMappedPageWithRequestedPagination() {
+        Course first = course();
+        Course second = course();
+        second.setId(UUID.randomUUID());
+        second.setTitle("Second course");
+        MyCourseFilterRequest request = new MyCourseFilterRequest();
+        request.setPage(2);
+        request.getOrders().put("title", "ASC");
+        var pageable = request.pageable();
+        when(courseRepository.findAll(org.mockito.ArgumentMatchers.<Specification<Course>>any(), eq(pageable)))
+                .thenReturn(new PageImpl<>(List.of(first, second), pageable, 8));
+        when(courseMapper.toResponse(first)).thenReturn(courseResponse(first));
+        when(courseMapper.toResponse(second)).thenReturn(courseResponse(second));
+
+        PagingResponse<CourseResponse> result = courseService.getMyCourses(OWNER_ID, request);
+
+        assertThat(result.getContent()).extracting(CourseResponse::id)
+                .containsExactly(first.getId(), second.getId());
+        assertThat(result.getPageable().getPage()).isEqualTo(2);
+        assertThat(result.getPageable().getSize()).isEqualTo(6);
+        assertThat(result.getPageable().getTotalElements()).isEqualTo(8);
+        assertThat(result.getPageable().getTotalPages()).isEqualTo(2);
+    }
+
+    @Test
+    void getPublicCourses_returnsPageAndCurrentMembershipStatusWithDefaultSort() {
         Course first = course();
         first.setVisibility(CourseVisibility.PUBLIC);
         first.setStatus(CourseStatus.PUBLISHED);
@@ -238,33 +276,43 @@ class CourseServiceImplTest {
         second.setStatus(CourseStatus.PUBLISHED);
         second.setPublishedAt(Instant.parse("2026-08-27T12:00:00Z"));
         CourseMember pending = com.smartlearning.core.support.CoreTestData.member(
-                CourseMemberRole.STUDENT,
-                CourseMemberStatus.PENDING
-        );
+                CourseMemberRole.STUDENT, CourseMemberStatus.PENDING);
         pending.setCourse(first);
-        PagingRequest pagingRequest = new PagingRequest();
-        PageRequest pageable = PageRequest.of(0, 10);
-        when(courseRepository.findAllByVisibilityAndStatusAndDeletedAtIsNullOrderByPublishedAtDesc(
-                eq(CourseVisibility.PUBLIC),
-                eq(CourseStatus.PUBLISHED),
-                any()
-        )).thenReturn(new PageImpl<>(List.of(first, second), pageable, 2));
+        PublicCourseFilterRequest request = new PublicCourseFilterRequest();
+        request.setPage(2);
+        PageRequest pageable = PageRequest.of(1, 6, Sort.by(Sort.Direction.DESC, "publishedAt"));
+        when(courseRepository.findAll(org.mockito.ArgumentMatchers.<Specification<Course>>any(), eq(pageable)))
+                .thenReturn(new PageImpl<>(List.of(first, second), pageable, 8));
         when(memberRepository.findAllByCourseIdInAndUserId(
-                List.of(first.getId(), second.getId()),
-                OWNER_ID
-        )).thenReturn(List.of(pending));
+                List.of(first.getId(), second.getId()), OWNER_ID))
+                .thenReturn(List.of(pending));
 
-        PagingResponse<PublicCourseResponse> result = courseService.getPublicCourses(
-                pagingRequest,
-                OWNER_ID
-        );
+        PagingResponse<PublicCourseResponse> result = courseService.getPublicCourses(request, OWNER_ID);
 
         assertThat(result.getContent()).extracting(PublicCourseResponse::id)
                 .containsExactly(first.getId(), second.getId());
         assertThat(result.getContent()).extracting(PublicCourseResponse::currentUserMembershipStatus)
                 .containsExactly(CourseMemberStatus.PENDING, null);
+        assertThat(result.getPageable().getPage()).isEqualTo(2);
+        assertThat(result.getPageable().getSize()).isEqualTo(6);
+        assertThat(result.getPageable().getTotalElements()).isEqualTo(8);
+        assertThat(result.getPageable().getTotalPages()).isEqualTo(2);
     }
 
+    @Test
+    void getPublicCourses_preservesRequestedSortAndSkipsMembershipLookupForEmptyPage() {
+        PublicCourseFilterRequest request = new PublicCourseFilterRequest();
+        request.getOrders().put("title", "ASC");
+        var pageable = request.pageable();
+        when(courseRepository.findAll(org.mockito.ArgumentMatchers.<Specification<Course>>any(), eq(pageable)))
+                .thenReturn(new PageImpl<>(List.of(), pageable, 0));
+
+        PagingResponse<PublicCourseResponse> result = courseService.getPublicCourses(request, OWNER_ID);
+
+        assertThat(result.getContent()).isEmpty();
+        assertThat(result.getPageable().getTotalElements()).isZero();
+        verifyNoInteractions(memberRepository);
+    }
     @Test
     void updateCourse_appliesPartialUpdateAndTrimsTitle() {
         CourseUpdateRequest request = new CourseUpdateRequest(

@@ -1,0 +1,94 @@
+{
+  "users": [
+    {
+      "email": "lecturer01@example.com",
+      "password": "12345678",
+      "fullName": "Nguyễn Minh Anh",
+      "roleCode": "LECTURER"
+    },
+    {
+      "email": "lecturer02@example.com",
+      "password": "12345678",
+      "fullName": "Trần Hoàng Nam",
+      "roleCode": "LECTURER"
+    },
+    {
+      "email": "lecturer03@example.com",
+      "password": "12345678",
+      "fullName": "Lê Thu Hà",
+      "roleCode": "LECTURER"
+    },
+    {
+      "email": "student01@example.com",
+      "password": "12345678",
+      "fullName": "Phạm Gia Huy",
+      "roleCode": "STUDENT"
+    },
+    {
+      "email": "student02@example.com",
+      "password": "12345678",
+      "fullName": "Nguyễn Thảo Vy",
+      "roleCode": "STUDENT"
+    },
+    {
+      "email": "student03@example.com",
+      "password": "12345678",
+      "fullName": "Trần Quốc Bảo",
+      "roleCode": "STUDENT"
+    },
+    {
+      "email": "student04@example.com",
+      "password": "12345678",
+      "fullName": "Lê Minh Khang",
+      "roleCode": "STUDENT"
+    },
+    {
+      "email": "student05@example.com",
+      "password": "12345678",
+      "fullName": "Võ Ngọc Mai",
+      "roleCode": "STUDENT"
+    },
+    {
+      "email": "student06@example.com",
+      "password": "12345678",
+      "fullName": "Đặng Anh Tuấn",
+      "roleCode": "STUDENT"
+    },
+    {
+      "email": "student07@example.com",
+      "password": "12345678",
+      "fullName": "Bùi Khánh Linh",
+      "roleCode": "STUDENT"
+    },
+    {
+      "email": "student08@example.com",
+      "password": "12345678",
+      "fullName": "Hoàng Đức Long",
+      "roleCode": "STUDENT"
+    },
+    {
+      "email": "student09@example.com",
+      "password": "12345678",
+      "fullName": "Phan Ngọc Hân",
+      "roleCode": "STUDENT"
+    },
+    {
+      "email": "student10@example.com",
+      "password": "12345678",
+      "fullName": "Đỗ Quang Minh",
+      "roleCode": "STUDENT"
+    },
+    {
+      "email": "student11@example.com",
+      "password": "12345678",
+      "fullName": "Nguyễn Hải Yến",
+      "roleCode": "STUDENT"
+    },
+    {
+      "email": "student12@example.com",
+      "password": "12345678",
+      "fullName": "Trương Minh Nhật",
+      "roleCode": "STUDENT"
+    }
+  ]
+}
