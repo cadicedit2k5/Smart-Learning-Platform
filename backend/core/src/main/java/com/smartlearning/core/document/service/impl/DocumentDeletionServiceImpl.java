@@ -15,7 +15,6 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
-import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -37,34 +36,6 @@ public class DocumentDeletionServiceImpl implements DocumentDeletionService {
         document.setDeletedAt(Instant.now());
 
         publishDeletionEvent(document);
-    }
-
-    @Transactional(propagation = Propagation.MANDATORY)
-    public void deleteByScope(UUID courseId, UUID chapterId, UUID topicId) {
-        List<Document> documents = documentRepository.findAllByDeletionScope(
-                        courseId,
-                        chapterId,
-                        topicId);
-
-        documents.stream().filter(document -> document.getDeletedAt() == null).forEach(this::requireDeletable);
-
-        for (Document document : documents) {
-            if (document.getDeletedAt() == null) {
-                document.setDeletedAt(Instant.now());
-                publishDeletionEvent(
-                        document);
-            }
-
-            if (topicId != null) {
-                document.setTopic(null);
-            }
-
-            if (chapterId != null) {
-                document.setChapter(null);
-            }
-        }
-
-        documentRepository.flush();
     }
 
     private void requireDeletable(Document document) {

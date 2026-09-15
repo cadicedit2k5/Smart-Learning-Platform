@@ -1,8 +1,11 @@
 .idea/
+__pycache__/
+
+docs
 
 tmp
-
-scripts
+.venv-seed
+docs
 target/
 
 tmp
@@ -21,6 +24,7 @@ logs/
 # Spring boot
 *.properties
 *.yml
+!docker-compose.yml
 
 # Compiled class file
 *.class

@@ -1,68 +1,115 @@
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
+import { useRoute } from 'vue-router'
 import {
   ArrowLeft,
+  Bell,
   BookOpen,
   Bot,
-  CalendarDays,
+  CheckCircle2,
+  ClipboardList,
   FileText,
-  GraduationCap,
   Layers3,
-  UserRoundCheck,
+  MessagesSquare,
+  Play,
 } from 'lucide-vue-next'
-import { useRoute } from 'vue-router'
-
-import BaseAlert from '@/shared/components/BaseAlert.vue'
-import BaseButton from '@/shared/components/BaseButton.vue'
-import BaseCard from '@/shared/components/BaseCard.vue'
 
 import {
-  getCurrentMembership,
-  type CourseMembership,
-} from '../api/courseApi'
-import StudentAiTutorPanel from '../components/StudentAiTutorPanel.vue'
-import StudentDocumentsPanel from '../components/StudentDocumentsPanel.vue'
-import StudentCourseContentPanel from '../components/StudentCourseContentPanel.vue'
-import { useStudentApiError } from '../composables/useStudentApiError'
-import type { Course } from '@/shared/course/types.ts'
-import { getCourse } from '@/shared/course/api.ts'
-import { BaseTabs } from '@/shared/components/index.ts'
-import { formatDate } from '@/shared/utils/date.ts'
+  BaseAlert,
+  BaseButton,
+  BaseTabs,
+} from '@/shared/components'
+import CourseCover from '@/shared/course/CourseCover.vue'
+import { getCourse, type Course } from '@/shared/course'
+import {
+  hasRichTextContent,
+  parseStoredRichText,
+  RichTextViewer,
+} from '@/shared/rich-text'
+import DiscussionPanel from '@/features/discusstion/components/DiscussionPanel.vue'
 
-type DetailTab = 'overview' | 'content' | 'documents' | 'ai'
+import {
+  getCourseProgress,
+  type CourseLearningProgress,
+} from '../api/learningProgressApi'
+import StudentAiTutorPanel from '../components/StudentAiTutorPanel.vue'
+import StudentAnnouncementsPanel from '../components/StudentAnnouncementsPanel.vue'
+import StudentAssignmentsPanel from '../components/StudentAssignmentsPanel.vue'
+import StudentCourseContentPanel from '../components/StudentCourseContentPanel.vue'
+import StudentDocumentsPanel from '../components/StudentDocumentsPanel.vue'
+import { useStudentApiError } from '../composables/useStudentApiError'
+
+type DetailTab =
+  | 'overview'
+  | 'announcements'
+  | 'content'
+  | 'assignments'
+  | 'documents'
+  | 'discussion'
+  | 'ai'
 
 const route = useRoute()
 const { handleApiError } = useStudentApiError()
+
 const courseId = computed(() => String(route.params.courseId))
 const course = ref<Course | null>(null)
-const membership = ref<CourseMembership | null>(null)
+const progress = ref<CourseLearningProgress | null>(null)
 const activeTab = ref<DetailTab>('overview')
 const loading = ref(true)
 const loadError = ref('')
 
-const tabs: Array<{ id: DetailTab; label: string; icon: typeof BookOpen }> = [
+const descriptionContent = computed(() =>
+  parseStoredRichText(course.value?.description),
+)
+
+const hasDescription = computed(() =>
+  hasRichTextContent(descriptionContent.value),
+)
+
+const progressCompleted = computed(() =>
+  (progress.value?.progressPercentage ?? 0) >= 100,
+)
+
+const tabs: Array<{
+  id: DetailTab
+  label: string
+  icon: typeof BookOpen
+}> = [
   { id: 'overview', label: 'Tổng quan', icon: BookOpen },
+  { id: 'announcements', label: 'Thông báo', icon: Bell },
   { id: 'content', label: 'Bài học', icon: Layers3 },
+  { id: 'assignments', label: 'Bài tập', icon: ClipboardList },
   { id: 'documents', label: 'Tài liệu', icon: FileText },
+  { id: 'discussion', label: 'Thảo luận', icon: MessagesSquare },
   { id: 'ai', label: 'AI tutor', icon: Bot },
 ]
 
 const loadDetail = async () => {
   loading.value = true
   loadError.value = ''
+
   try {
-    const [courseData, membershipData] = await Promise.all([
+    const [courseData, progressData] = await Promise.all([
       getCourse(courseId.value),
-      getCurrentMembership(courseId.value),
+      getCourseProgress(courseId.value),
     ])
+
     course.value = courseData
-    membership.value = membershipData
+    progress.value = progressData
   } catch (error) {
-    loadError.value = handleApiError(error, 'Không thể tải thông tin khóa học.').message
+    loadError.value = handleApiError(
+      error,
+      'Không thể tải thông tin khóa học.',
+    ).message
   } finally {
     loading.value = false
   }
 }
+
+watch(courseId, () => {
+  activeTab.value = 'overview'
+  void loadDetail()
+})
 
 onMounted(() => void loadDetail())
 </script>
@@ -71,139 +118,215 @@ onMounted(() => void loadDetail())
   <section class="mx-auto max-w-app space-y-6">
     <RouterLink
       :to="{ name: 'student-courses' }"
-      class="inline-flex items-center gap-2 text-sm font-semibold text-secondary hover:underline"
-      ><ArrowLeft :size="17" />Quay lại khóa học</RouterLink
+      class="inline-flex items-center gap-2 text-sm font-semibold text-app-text-muted transition hover:text-secondary"
     >
+      <ArrowLeft :size="17" />
+      Khóa học của tôi
+    </RouterLink>
 
     <div v-if="loading" class="space-y-5">
-      <div class="h-48 animate-pulse rounded-panel bg-app-surface-muted" />
-      <div class="h-96 animate-pulse rounded-panel bg-app-surface-muted" />
+      <div class="h-12 animate-pulse rounded-card bg-app-surface-muted" />
+      <div class="h-80 animate-pulse rounded-panel bg-app-surface-muted" />
+      <div class="h-52 animate-pulse rounded-panel bg-app-surface-muted" />
     </div>
+
     <BaseAlert v-else-if="loadError">
       <div class="flex flex-wrap items-center justify-between gap-3">
-        <span>{{ loadError }}</span
-        ><BaseButton variant="secondary" @click="loadDetail">Thử lại</BaseButton>
+        <span>{{ loadError }}</span>
+
+        <BaseButton variant="secondary" @click="loadDetail">
+          Thử lại
+        </BaseButton>
       </div>
     </BaseAlert>
 
-    <template v-else-if="course && membership">
-      <header
-        class="relative overflow-hidden rounded-panel border border-app-border bg-app-surface p-6 shadow-card sm:p-8"
-      >
-        <div
-          class="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-secondary via-primary to-ai"
-        />
-
-        <div
-          class="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between"
-        >
-          <div class="max-w-4xl">
-            <div
-              class="flex flex-wrap items-center gap-2"
-            >
-              <span
-                class="rounded-pill bg-secondary-soft px-3 py-1 text-xs font-semibold text-secondary"
-              >
-                Khóa học đang tham gia
-              </span>
-
-              <span
-                v-if="course.level"
-                class="rounded-pill bg-app-surface-muted px-3 py-1 text-xs font-medium text-app-text-muted"
-              >
-                {{ course.level }}
-              </span>
-            </div>
-
-            <h1
-              class="mt-5 font-heading text-3xl font-bold tracking-tight text-app-text sm:text-4xl"
-            >
-              {{ course.title }}
-            </h1>
-
-            <p
-              class="mt-3 max-w-3xl text-sm leading-7 text-app-text-muted sm:text-base"
-            >
-              {{
-                course.description ||
-                'Khóa học chưa có mô tả.'
-              }}
-            </p>
-          </div>
-
-          <div
-            class="flex items-center gap-3 rounded-card bg-ai-soft px-4 py-3 text-ai"
-          >
-            <UserRoundCheck :size="20" />
-
-            <div>
-              <p class="text-xs opacity-75">
-                Trạng thái
-              </p>
-
-              <p class="text-sm font-bold">
-                Thành viên
-              </p>
-            </div>
-          </div>
-        </div>
-      </header>
-
+    <template v-else-if="course">
       <BaseTabs
         v-model="activeTab"
         :tabs="tabs"
         aria-label="Nội dung khóa học"
       />
 
-      <div v-if="activeTab === 'overview'" class="grid gap-5 lg:grid-cols-[minmax(0,1fr)_20rem]">
-        <BaseCard>
-          <template #header
-            ><h2 class="font-heading text-xl font-bold text-app-text">
-              Thông tin khóa học
-            </h2></template
+      <div
+        v-if="activeTab === 'overview'"
+        class="space-y-6"
+      >
+        <section
+          class="overflow-hidden rounded-[1.5rem] border border-app-border bg-app-surface shadow-card"
+        >
+          <div
+            class="grid items-stretch lg:grid-cols-[minmax(0,1fr)_24rem]"
           >
-          <dl class="grid gap-5 sm:grid-cols-2">
-            <div>
-              <dt class="flex items-center gap-2 text-sm text-app-text-muted">
-                <GraduationCap :size="17" />Cấp độ
-              </dt>
-              <dd class="mt-2 font-semibold text-app-text">
-                {{ course.level || 'Chưa cập nhật' }}
-              </dd>
+            <div
+              class="flex min-w-0 flex-col justify-center p-6 sm:p-8 lg:p-9"
+            >
+              <span
+                v-if="course.level"
+                class="w-fit rounded-pill bg-secondary-soft px-3 py-1 text-xs font-semibold text-secondary"
+              >
+                {{ course.level }}
+              </span>
+
+              <h1
+                class="mt-4 max-w-3xl font-heading text-3xl font-bold leading-tight tracking-tight text-app-text sm:text-4xl"
+              >
+                {{ course.title }}
+              </h1>
+
+              <div class="mt-6 max-w-3xl">
+                <RichTextViewer
+                  v-if="hasDescription"
+                  :content="descriptionContent"
+                />
+
+                <p
+                  v-else
+                  class="text-sm leading-7 text-app-text-muted"
+                >
+                  Khóa học chưa có mô tả.
+                </p>
+              </div>
             </div>
-            <div>
-              <dt class="flex items-center gap-2 text-sm text-app-text-muted">
-                <CalendarDays :size="17" />Cập nhật gần nhất
-              </dt>
-              <dd class="mt-2 font-semibold text-app-text">{{ formatDate(course.updatedAt) }}</dd>
+
+            <div
+              class="border-t border-app-border bg-app-surface-muted/40 p-4 lg:border-l lg:border-t-0"
+            >
+              <div
+                class="overflow-hidden rounded-[1.15rem] bg-app-surface shadow-card"
+              >
+                <CourseCover
+                  :image-url="course.imageUrl"
+                  :title="course.title"
+                />
+              </div>
             </div>
-          </dl>
-        </BaseCard>
-        <BaseCard>
-          <template #header
-            ><h2 class="font-heading text-lg font-bold text-app-text">Membership</h2></template
+          </div>
+        </section>
+
+        <section
+          v-if="progress"
+          class="rounded-[1.35rem] border border-app-border bg-app-surface p-6 shadow-card sm:p-7"
+        >
+          <div
+            class="flex flex-col gap-5 sm:flex-row sm:items-start sm:justify-between"
           >
-          <dl class="space-y-4 text-sm">
             <div>
-              <dt class="text-app-text-muted">Vai trò</dt>
-              <dd class="mt-1 font-semibold text-app-text">{{ membership.role }}</dd>
+              <h2
+                class="font-heading text-xl font-bold text-app-text"
+              >
+                Tiến độ học tập
+              </h2>
+
+              <p class="mt-1 text-sm text-app-text-muted">
+                {{ progress.completedTopics }}
+                /
+                {{ progress.totalTopics }}
+                bài học đã hoàn thành
+              </p>
             </div>
-            <div>
-              <dt class="text-app-text-muted">Trạng thái</dt>
-              <dd class="mt-1 font-semibold text-app-text">{{ membership.status }}</dd>
-            </div>
-            <div v-if="membership.joinedAt">
-              <dt class="text-app-text-muted">Tham gia ngày</dt>
-              <dd class="mt-1 font-semibold text-app-text">
-                {{ formatDate(membership.joinedAt) }}
-              </dd>
-            </div>
-          </dl>
-        </BaseCard>
+
+            <span
+              class="font-heading text-3xl font-bold"
+              :class="
+                progressCompleted
+                  ? 'text-ai'
+                  : 'text-secondary'
+              "
+            >
+              {{ progress.progressPercentage }}%
+            </span>
+          </div>
+
+          <div
+            class="mt-5 h-2.5 overflow-hidden rounded-pill bg-app-surface-muted"
+          >
+            <div
+              class="h-full rounded-pill transition-all duration-500"
+              :class="
+                progressCompleted
+                  ? 'bg-ai'
+                  : 'bg-secondary'
+              "
+              :style="{
+                width: `${progress.progressPercentage}%`,
+              }"
+            />
+          </div>
+
+          <div
+            class="mt-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between"
+          >
+            <p class="text-sm leading-6 text-app-text-muted">
+              <template v-if="progressCompleted">
+                Bạn đã hoàn thành khóa học.
+              </template>
+
+              <template v-else-if="progress.lastTopicId">
+                Tiếp tục từ bài học gần nhất.
+              </template>
+
+              <template v-else>
+                Bắt đầu bài học đầu tiên của khóa học.
+              </template>
+            </p>
+
+            <BaseButton
+              class="shrink-0"
+              @click="activeTab = 'content'"
+            >
+              <template #leading>
+                <CheckCircle2
+                  v-if="progressCompleted"
+                  :size="17"
+                />
+
+                <Play
+                  v-else
+                  :size="17"
+                />
+              </template>
+
+              {{
+                progressCompleted
+                  ? 'Xem lại bài học'
+                  : progress.lastTopicId
+                    ? 'Tiếp tục học'
+                    : 'Bắt đầu học'
+              }}
+            </BaseButton>
+          </div>
+        </section>
       </div>
-      <StudentCourseContentPanel v-else-if="activeTab === 'content'":course-id="course.id"/>
-      <StudentDocumentsPanel v-else-if="activeTab === 'documents'" :course-id="course.id" />
-      <StudentAiTutorPanel v-else :course-id="course.id" />
+
+      <StudentAnnouncementsPanel
+        v-else-if="activeTab === 'announcements'"
+        :course-id="course.id"
+      />
+
+      <StudentCourseContentPanel
+        v-else-if="activeTab === 'content'"
+        :course-id="course.id"
+      />
+
+      <StudentAssignmentsPanel
+        v-else-if="activeTab === 'assignments'"
+        :course-id="course.id"
+      />
+
+      <StudentDocumentsPanel
+        v-else-if="activeTab === 'documents'"
+        :course-id="course.id"
+      />
+
+      <DiscussionPanel
+        v-else-if="activeTab === 'discussion'"
+        :course-id="course.id"
+      />
+
+      <StudentAiTutorPanel
+        v-else-if="activeTab === 'ai'"
+        :course-id="course.id"
+      />
     </template>
   </section>
 </template>

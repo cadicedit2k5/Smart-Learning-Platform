@@ -1,0 +1,30 @@
+package com.smartlearning.core.course.repository;
+
+import com.smartlearning.core.course.entity.Assignment;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
+
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
+
+public interface AssignmentRepository extends JpaRepository<Assignment, UUID> {
+
+    @Query("""
+            SELECT a
+            FROM Assignment a
+            WHERE a.course.id = :courseId
+              AND a.deletedAt IS NULL
+            ORDER BY
+                CASE WHEN a.dueAt >= CURRENT_TIMESTAMP THEN 0 ELSE 1 END ASC,
+                CASE WHEN a.dueAt >= CURRENT_TIMESTAMP THEN a.dueAt END ASC,
+                CASE WHEN a.dueAt < CURRENT_TIMESTAMP THEN a.dueAt END DESC
+            """)
+    List<Assignment> findAllByCourseIdOrdered(@Param("courseId") UUID courseId);
+
+    Optional<Assignment> findByIdAndCourseIdAndDeletedAtIsNull(
+            UUID assignmentId,
+            UUID courseId
+    );
+}

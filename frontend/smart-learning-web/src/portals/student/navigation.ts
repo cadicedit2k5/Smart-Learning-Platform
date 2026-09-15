@@ -3,11 +3,11 @@ import { BookOpenCheck, CircleUserRound, Compass, LayoutDashboard } from 'lucide
 import { markRaw } from 'vue'
 
 export const studentNavigation: NavigationItem[] = [
-  // {
-  //   label: 'Tổng quan',
-  //   routeName: 'student-dashboard',
-  //   icon: markRaw(LayoutDashboard),
-  // },
+  {
+    label: 'Tổng quan',
+    routeName: 'student-dashboard',
+    icon: markRaw(LayoutDashboard),
+  },
   {
     label: 'Khám phá khóa học',
     routeName: 'student-public-courses',

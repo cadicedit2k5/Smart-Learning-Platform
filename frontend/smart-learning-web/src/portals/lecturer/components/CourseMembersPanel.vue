@@ -1,157 +1,260 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
-import { ChevronLeft, ChevronRight, Search, Trash2, UserPlus, UsersRound } from 'lucide-vue-next'
+import { Search, Trash2, UserPlus, UsersRound, X } from 'lucide-vue-next'
 
-import BaseAlert from '@/shared/components/BaseAlert.vue'
-import BaseButton from '@/shared/components/BaseButton.vue'
-import BaseInput from '@/shared/components/BaseInput.vue'
 import type { PaginatedData } from '@/shared/api'
+import type { CourseStatus, CourseVisibility } from '@/shared/course'
+import { BaseAlert, BaseButton, BasePagination} from '@/shared/components'
+import { formatDate } from '@/shared/utils'
 
 import {
   addStudent,
   getCourseMembers,
+  getStudents,
   removeCourseMember,
-  searchStudents,
   type CourseMemberDetail,
   type UserLookup,
 } from '../api/memberApi'
 import { useLecturerApiError } from '../composables/useLecturerApiError'
-import { formatDate } from '@/shared/utils'
-import type { CourseStatus, CourseVisibility } from '@/shared/course'
 
-const props = defineProps<{ 
+const props = defineProps<{
   courseId: string
   visibility: CourseVisibility
   status: CourseStatus
- }>()
+}>()
+
 const { handleApiError } = useLecturerApiError()
 
-const members = ref<CourseMemberDetail[]>([])
-const loading = ref(true)
-const message = ref('')
-const keyword = ref('')
-const searchPage = ref(1)
-const searching = ref(false)
-const addingUserId = ref('')
-const removingMemberId = ref('')
-const results = ref<PaginatedData<UserLookup>>({
+const membersPage = ref<PaginatedData<CourseMemberDetail>>({
   content: [],
-  pageable: { page: 1, size: 10, totalElements: 0, totalPages: 0 },
+  pageable: {
+    page: 1,
+    size: 0,
+    totalElements: 0,
+    totalPages: 0,
+  },
 })
 
-const canInviteStudent = computed(() =>
-    props.status === 'PUBLISHED'
-)
-const memberUserIds = computed(() => new Set(members.value.map((member) => member.userId)))
-const availableStudents = computed(() =>
-  results.value.content.filter((user) => !memberUserIds.value.has(user.id)),
-)
+const studentsPage = ref<PaginatedData<UserLookup>>({
+  content: [],
+  pageable: {
+    page: 1,
+    size: 0,
+    totalElements: 0,
+    totalPages: 0,
+  },
+})
+
+const memberPage = ref(1)
+const studentPage = ref(1)
+
+const keyword = ref('')
+const appliedKeyword = ref('')
+
+const loadingMembers = ref(false)
+const loadingStudents = ref(false)
+const addingUserId = ref('')
+const removingMemberId = ref('')
+
+const memberMessage = ref('')
+const studentMessage = ref('')
+
+const canInviteStudent = computed(() => props.status === 'PUBLISHED')
+const isInviteOnly = computed(() => props.visibility === 'INVITE_ONLY')
+
+const members = computed(() => membersPage.value.content)
+const memberTotalPages = computed(() => membersPage.value.pageable.totalPages)
+const studentTotalPages = computed(() => studentsPage.value.pageable.totalPages)
 
 const loadMembers = async () => {
-  loading.value = true
-  message.value = ''
+  loadingMembers.value = true
+  memberMessage.value = ''
 
   try {
-    members.value = await getCourseMembers(props.courseId);
+    membersPage.value = await getCourseMembers(props.courseId, memberPage.value)
   } catch (error) {
-    message.value = handleApiError(error, 'Không thể tải danh sách thành viên.').message
+    memberMessage.value = handleApiError(
+      error,
+      'Không thể tải danh sách thành viên.',
+    ).message
   } finally {
-    loading.value = false
+    loadingMembers.value = false
   }
 }
 
-const runSearch = async (page = 1) => {
-  const value = keyword.value.trim()
-  if (!value) {
-    results.value = {
-      content: [],
-      pageable: { page: 1, size: 10, totalElements: 0, totalPages: 0 },
-    }
-    return
-  }
+const loadStudents = async () => {
+  if (!canInviteStudent.value) return
 
-  searching.value = true
-  message.value = ''
+  loadingStudents.value = true
+  studentMessage.value = ''
+
   try {
-    searchPage.value = page
-    results.value = await searchStudents(value, page)
+    studentsPage.value = await getStudents({
+      page: studentPage.value,
+      keyword: appliedKeyword.value || undefined,
+    })
   } catch (error) {
-    message.value = handleApiError(error, 'Không thể tìm học viên.').message
+    studentMessage.value = handleApiError(
+      error,
+      'Không thể tải danh sách học viên.',
+    ).message
   } finally {
-    searching.value = false
+    loadingStudents.value = false
   }
+}
+
+const applySearch = () => {
+  appliedKeyword.value = keyword.value.trim()
+  studentPage.value = 1
+  void loadStudents()
+}
+
+const resetSearch = () => {
+  keyword.value = ''
+  appliedKeyword.value = ''
+  studentPage.value = 1
+  void loadStudents()
+}
+
+const goToMemberPage = (page: number) => {
+  if (
+    page < 1 ||
+    page > memberTotalPages.value ||
+    page === memberPage.value
+  ) return
+
+  memberPage.value = page
+  void loadMembers()
+}
+
+const goToStudentPage = (page: number) => {
+  if (
+    page < 1 ||
+    page > studentTotalPages.value ||
+    page === studentPage.value
+  ) return
+
+  studentPage.value = page
+  void loadStudents()
 }
 
 const handleAdd = async (user: UserLookup) => {
   addingUserId.value = user.id
-  message.value = ''
+  studentMessage.value = ''
+
   try {
     await addStudent(props.courseId, user.id)
+
+    memberPage.value = 1
     await loadMembers()
-    await runSearch(searchPage.value)
   } catch (error) {
-    message.value = handleApiError(error, 'Không thể thêm học viên.').message
+    studentMessage.value = handleApiError(
+      error,
+      'Không thể thêm học viên.',
+    ).message
   } finally {
     addingUserId.value = ''
   }
 }
 
 const handleRemove = async (member: CourseMemberDetail) => {
-  const displayName = member.user?.fullName || member.user?.email || member.userId
-  if (!window.confirm(`Xóa ${displayName} khỏi khóa học?`))
-    return
+  const displayName =
+    member.user?.fullName ||
+    member.user?.email ||
+    member.userId
+
+  if (!window.confirm(`Xóa ${displayName} khỏi khóa học?`)) return
 
   removingMemberId.value = member.id
-  message.value = ''
+  memberMessage.value = ''
+
   try {
     await removeCourseMember(props.courseId, member.id)
-    members.value = members.value.filter((item) => item.id !== member.id)
+    await loadMembers()
+
+    if (
+      membersPage.value.content.length === 0 &&
+      memberPage.value > 1
+    ) {
+      memberPage.value -= 1
+      await loadMembers()
+    }
   } catch (error) {
-    message.value = handleApiError(error, 'Không thể xóa thành viên.').message
+    memberMessage.value = handleApiError(
+      error,
+      'Không thể xóa thành viên.',
+    ).message
   } finally {
     removingMemberId.value = ''
   }
 }
 
-
-onMounted(() => void loadMembers())
+onMounted(async () => {
+  await Promise.all([
+    loadMembers(),
+    loadStudents(),
+  ])
+})
 </script>
 
 <template>
-  <section
-    class="grid gap-5"
-    :class="canInviteStudent
-        ? 'xl:grid-cols-[minmax(0,1fr)_minmax(22rem,0.8fr)]'
-        : 'grid-cols-1'">
+  <section class="grid gap-5 xl:grid-cols-[minmax(0,1fr)_minmax(24rem,0.9fr)]">
+    <!-- Thành viên khóa học -->
     <article
       class="overflow-hidden rounded-card border border-app-border bg-app-surface shadow-card"
     >
-      <header class="flex items-center justify-between border-b border-app-border px-5 py-4">
+      <header
+        class="flex items-center justify-between border-b border-app-border px-5 py-4"
+      >
         <div>
-          <h2 class="font-heading text-xl font-bold text-app-text">Thành viên khóa học</h2>
+          <h2 class="font-heading text-xl font-bold text-app-text">
+            Thành viên khóa học
+          </h2>
+
           <p class="mt-1 text-sm text-app-text-muted">
-            {{ members.length }} thành viên đang hoạt động
+            {{ membersPage.pageable.totalElements }} thành viên đang hoạt động
           </p>
         </div>
+
         <UsersRound :size="22" class="text-secondary" />
       </header>
 
-      <BaseAlert v-if="message" class="m-4">{{ message }}</BaseAlert>
+      <BaseAlert
+        v-if="memberMessage"
+        class="m-4"
+      >
+        {{ memberMessage }}
+      </BaseAlert>
 
-      <div v-if="loading" class="space-y-3 p-5">
+      <div
+        v-if="loadingMembers"
+        class="space-y-3 p-5"
+      >
         <div
           v-for="index in 4"
           :key="index"
           class="h-16 animate-pulse rounded-control bg-app-surface-muted"
         />
       </div>
-      <div v-else-if="members.length === 0" class="p-10 text-center text-sm text-app-text-muted">
+
+      <div
+        v-else-if="members.length === 0"
+        class="p-10 text-center text-sm text-app-text-muted"
+      >
         Chưa có thành viên.
       </div>
-      <ul v-else class="divide-y divide-app-border">
-        <li v-for="member in members" :key="member.id" class="flex items-center gap-3 px-5 py-4">
+
+      <ul
+        v-else
+        class="divide-y divide-app-border"
+      >
+        <li
+          v-for="member in members"
+          :key="member.id"
+          class="flex items-center gap-3 px-5 py-4"
+        >
           <span
-            class="flex h-10 w-10 shrink-0 items-center justify-center rounded-pill bg-secondary-soft font-semibold text-secondary"
+            class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-secondary-soft font-semibold text-secondary"
           >
             {{
               (member.user?.fullName || member.user?.email || '?')
@@ -159,6 +262,7 @@ onMounted(() => void loadMembers())
                 .toUpperCase()
             }}
           </span>
+
           <div class="min-w-0 flex-1">
             <p class="truncate font-semibold text-app-text">
               {{
@@ -167,6 +271,7 @@ onMounted(() => void loadMembers())
                 member.userId
               }}
             </p>
+
             <p class="truncate text-sm text-app-text-muted">
               {{
                 member.user?.email ||
@@ -174,10 +279,13 @@ onMounted(() => void loadMembers())
               }}
             </p>
           </div>
+
           <span
             class="rounded-pill bg-app-surface-muted px-2.5 py-1 text-xs font-semibold text-app-text-muted"
-            >{{ member.role }}</span
           >
+            {{ member.role === 'OWNER' ? 'Chủ sở hữu' : 'Học viên' }}
+          </span>
+
           <button
             v-if="member.role !== 'OWNER'"
             type="button"
@@ -190,69 +298,232 @@ onMounted(() => void loadMembers())
           </button>
         </li>
       </ul>
-    </article>
-
-    <article
-        v-if="canInviteStudent"
-        class="rounded-card border border-app-border bg-app-surface p-5 shadow-card"
-      >
-      <h2 class="font-heading text-lg font-bold text-app-text">Thêm học viên</h2>
-
-      <form class="mt-5 flex gap-2" @submit.prevent="runSearch(1)">
-        <BaseInput v-model="keyword" class="min-w-0 flex-1" placeholder="Tên hoặc email học viên">
-          <template #leading><Search :size="17" /></template>
-        </BaseInput>
-        <BaseButton type="submit" :loading="searching">Tìm</BaseButton>
-      </form>
 
       <div
-        v-if="availableStudents.length === 0"
-        class="mt-5 rounded-control bg-app-surface-muted p-5 text-center text-sm text-app-text-muted"
+        v-if="membersPage.pageable.totalElements > 0"
+        class="border-t border-app-border p-4"
       >
-        {{
-          results.pageable.totalElements > 0
-            ? 'Các kết quả đều đã là thành viên.'
-            : 'Nhập từ khóa để tìm học viên.'
-        }}
+        <BasePagination
+          :page="memberPage"
+          :total-pages="memberTotalPages"
+          :total-elements="membersPage.pageable.totalElements"
+          @previous="goToMemberPage(memberPage - 1)"
+          @next="goToMemberPage(memberPage + 1)"
+        />
       </div>
-      <ul v-else class="mt-5 divide-y divide-app-border rounded-control border border-app-border">
-        <li v-for="user in availableStudents" :key="user.id" class="flex items-center gap-3 p-3">
-          <div class="min-w-0 flex-1">
-            <p class="truncate text-sm font-semibold text-app-text">{{ user.fullName }}</p>
-            <p class="truncate text-xs text-app-text-muted">{{ user.email }}</p>
+    </article>
+
+    <!-- Danh sách học viên có thể thêm -->
+    <article
+      v-if="canInviteStudent"
+      class="overflow-hidden rounded-card border border-app-border bg-app-surface shadow-card"
+    >
+      <header class="border-b border-app-border p-5">
+        <div class="flex items-start gap-3">
+          <div
+            class="flex h-10 w-10 shrink-0 items-center justify-center rounded-card bg-secondary-soft text-secondary"
+          >
+            <UserPlus :size="17" />
           </div>
+
+          <div>
+            <h2 class="font-heading text-lg font-bold text-app-text">
+              Mời học viên
+            </h2>
+          </div>
+        </div>
+
+        <form
+          class="mt-5 flex gap-2"
+          @submit.prevent="applySearch"
+        >
+          <div class="relative min-w-0 flex-1">
+            <Search
+              :size="17"
+              class="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-app-text-muted"
+            />
+
+            <input
+              v-model="keyword"
+              type="search"
+              placeholder="Tìm tên hoặc email..."
+              class="h-11 w-full rounded-control border border-app-border bg-app-surface pl-10 pr-10 text-sm outline-none transition focus:border-secondary focus:ring-2 focus:ring-secondary/20"
+            />
+
+            <button
+              v-if="keyword"
+              type="button"
+              aria-label="Xóa từ khóa"
+              class="absolute right-2 top-1/2 -translate-y-1/2 rounded-control p-1 text-app-text-muted hover:bg-app-surface-muted"
+              @click="resetSearch"
+            >
+              <X :size="16" />
+            </button>
+          </div>
+
+          <BaseButton
+            type="submit"
+            :loading="loadingStudents"
+          >
+            Tìm
+          </BaseButton>
+        </form>
+
+        <div
+          v-if="appliedKeyword"
+          class="mt-3 flex items-center justify-between gap-3 text-xs text-app-text-muted"
+        >
+          <span>
+            Kết quả cho “{{ appliedKeyword }}”
+          </span>
+
+          <button
+            type="button"
+            class="font-semibold text-secondary hover:underline"
+            @click="resetSearch"
+          >
+            Xem tất cả
+          </button>
+        </div>
+      </header>
+
+      <BaseAlert
+        v-if="studentMessage"
+        class="m-4"
+      >
+        {{ studentMessage }}
+      </BaseAlert>
+
+      <div
+        v-if="loadingStudents"
+        class="space-y-2 p-4"
+      >
+        <div
+          v-for="index in 5"
+          :key="index"
+          class="h-16 animate-pulse rounded-control bg-app-surface-muted"
+        />
+      </div>
+
+      <div
+        v-else-if="studentsPage.content.length === 0"
+        class="p-10 text-center"
+      >
+        <p class="text-sm font-semibold text-app-text">
+          {{
+            appliedKeyword
+              ? 'Không tìm thấy học viên'
+              : 'Chưa có học viên'
+          }}
+        </p>
+
+        <p class="mt-1 text-sm text-app-text-muted">
+          {{
+            appliedKeyword
+              ? 'Hãy thử tìm bằng tên hoặc email khác.'
+              : 'Hiện chưa có tài khoản học viên trong hệ thống.'
+          }}
+        </p>
+      </div>
+
+      <ul
+        v-else
+        class="divide-y divide-app-border"
+      >
+        <li
+          v-for="user in studentsPage.content"
+          :key="user.id"
+          class="flex items-center gap-3 px-5 py-4"
+        >
+          <span
+            class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-app-surface-muted text-sm font-semibold text-app-text"
+          >
+            {{ (user.fullName || user.email).charAt(0).toUpperCase() }}
+          </span>
+
+          <div class="min-w-0 flex-1">
+            <p class="truncate text-sm font-semibold text-app-text">
+              {{ user.fullName }}
+            </p>
+
+            <p class="truncate text-xs text-app-text-muted">
+              {{ user.email }}
+            </p>
+          </div>
+
           <BaseButton
             variant="secondary"
             :loading="addingUserId === user.id"
             @click="handleAdd(user)"
           >
-            <template #leading><UserPlus :size="16" /></template>
+            <template #leading>
+              <UserPlus :size="16" />
+            </template>
+
             Thêm
           </BaseButton>
         </li>
       </ul>
 
       <div
-        v-if="results.pageable.totalPages > 1"
-        class="mt-4 flex items-center justify-between text-sm text-app-text-muted"
+        v-if="studentsPage.pageable.totalElements > 0"
+        class="border-t border-app-border p-4"
       >
-        <button
-          type="button"
-          class="rounded-control p-2 disabled:opacity-40"
-          :disabled="searchPage <= 1 || searching"
-          @click="runSearch(searchPage - 1)"
+        <BasePagination
+          :page="studentPage"
+          :total-pages="studentTotalPages"
+          :total-elements="studentsPage.pageable.totalElements"
+          @previous="goToStudentPage(studentPage - 1)"
+          @next="goToStudentPage(studentPage + 1)"
+        />
+      </div>
+    </article>
+
+    <!-- Chưa publish -->
+    <article
+      v-else-if="isInviteOnly"
+      class="rounded-card border border-app-border bg-app-surface p-5 shadow-card"
+    >
+      <div class="flex items-start gap-3">
+        <div
+          class="flex h-10 w-10 shrink-0 items-center justify-center rounded-card bg-secondary-soft text-secondary"
         >
-          <ChevronLeft :size="18" />
-        </button>
-        <span>Trang {{ searchPage }} / {{ results.pageable.totalPages }}</span>
-        <button
-          type="button"
-          class="rounded-control p-2 disabled:opacity-40"
-          :disabled="searchPage >= results.pageable.totalPages || searching"
-          @click="runSearch(searchPage + 1)"
+          <UserPlus :size="19" />
+        </div>
+
+        <div>
+          <h2 class="font-heading text-lg font-bold text-app-text">
+            Mời học viên
+          </h2>
+
+          <p class="mt-2 text-sm leading-6 text-app-text-muted">
+            Hãy xuất bản khóa học trước khi thêm học viên vào khóa học.
+          </p>
+        </div>
+      </div>
+    </article>
+
+    <article
+      v-else
+      class="rounded-card border border-app-border bg-app-surface p-5 shadow-card"
+    >
+      <div class="flex items-start gap-3">
+        <div
+          class="flex h-10 w-10 shrink-0 items-center justify-center rounded-card bg-secondary-soft text-secondary"
         >
-          <ChevronRight :size="18" />
-        </button>
+          <UsersRound :size="19" />
+        </div>
+
+        <div>
+          <h2 class="font-heading text-lg font-bold text-app-text">
+            Khóa học công khai
+          </h2>
+
+          <p class="mt-2 text-sm leading-6 text-app-text-muted">
+            Học viên có thể gửi yêu cầu tham gia khóa học. Bạn có thể xem và
+            xử lý các yêu cầu trong mục “Yêu cầu tham gia”.
+          </p>
+        </div>
       </div>
     </article>
   </section>

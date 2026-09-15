@@ -18,8 +18,6 @@ export interface CourseDocumentVersion {
 export interface CourseDocument {
   id: string
   courseId: string
-  chapterId: string | null
-  topicId: string | null
   title: string
   description: string | null
   lifecycleStatus: DocumentLifecycleStatus
@@ -36,35 +34,19 @@ export interface DocumentFilters {
 
 const documentsPath = (courseId: string) => `/courses/${courseId}/documents`
 
-export const getDocuments = async (
-  courseId: string,
-  filters: DocumentFilters = {},
-): Promise<PaginatedData<CourseDocument>> => {
-  const response = await httpClient.get<ApiResponse<PaginatedData<CourseDocument>>>(
-    documentsPath(courseId),
-    {
-      params: {
-        keyword: filters.keyword || undefined,
-        page: filters.page ?? 1,
-      },
-    },
-  )
+export const getDocuments = async (courseId: string, filters: DocumentFilters = {}): Promise<PaginatedData<CourseDocument>> => {
+  const response = await httpClient.get<ApiResponse<PaginatedData<CourseDocument>>>(documentsPath(courseId), {
+    params: { keyword: filters.keyword || undefined, page: filters.page ?? 1 },
+  })
   return response.data.data
 }
 
-export const getDocument = async (
-  courseId: string,
-  documentId: string,
-): Promise<CourseDocument> => {
-  const response = await httpClient.get<ApiResponse<CourseDocument>>(
-    `${documentsPath(courseId)}/${documentId}`,
-  )
+export const getDocument = async (courseId: string, documentId: string): Promise<CourseDocument> => {
+  const response = await httpClient.get<ApiResponse<CourseDocument>>(`${documentsPath(courseId)}/${documentId}`)
   return response.data.data
 }
 
 export const downloadDocument = async (courseId: string, documentId: string): Promise<Blob> => {
-  const response = await httpClient.get(`${documentsPath(courseId)}/${documentId}/download`, {
-    responseType: 'blob',
-  })
+  const response = await httpClient.get(`${documentsPath(courseId)}/${documentId}/download`, { responseType: 'blob' })
   return response.data as Blob
 }

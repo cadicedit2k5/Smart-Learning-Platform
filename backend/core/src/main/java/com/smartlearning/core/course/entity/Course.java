@@ -1,13 +1,15 @@
 package com.smartlearning.core.course.entity;
 
 import com.smartlearning.common.entity.BaseEntity;
-import com.smartlearning.core.course.entity.enums.CourseVisibility;
 import com.smartlearning.core.course.entity.enums.CourseStatus;
+import com.smartlearning.core.course.entity.enums.CourseVisibility;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
 import java.time.Instant;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.UUID;
 
 @Getter
@@ -21,6 +23,9 @@ public class Course extends BaseEntity {
 
     @Column(columnDefinition = "TEXT")
     private String description;
+
+    @Column(name = "cover_url", columnDefinition = "TEXT")
+    private String coverUrl;
 
     @Column(length = 50)
     private String level;
@@ -41,4 +46,7 @@ public class Course extends BaseEntity {
 
     @Column(name = "deleted_at")
     private Instant deletedAt;
+
+    @OneToMany(mappedBy = "course", fetch = FetchType.LAZY)
+    private Set<CourseMember> members = new HashSet<>();
 }

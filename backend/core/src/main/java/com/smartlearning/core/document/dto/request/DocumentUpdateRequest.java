@@ -3,8 +3,6 @@ package com.smartlearning.core.document.dto.request;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 
-import java.util.UUID;
-
 public record DocumentUpdateRequest(
         @NotBlank(
                 message = "Tiêu đề không được để trống"
@@ -13,10 +11,6 @@ public record DocumentUpdateRequest(
         String title,
 
         @Size(max = 10_000, message = "Mô tả không được vượt quá 10000 ký tự")
-        String description,
-
-        UUID chapterId,
-
-        UUID topicId
+        String description
 ) {
 }

@@ -26,4 +26,18 @@ public interface CourseTopicRepository extends JpaRepository<CourseTopic, UUID> 
     Integer findMaxOrderIndex(UUID chapterId);
 
     List<CourseTopic> findAllByChapterIdOrderByOrderIndexAsc(UUID chapterId);
+
+    long countByChapterCourseIdAndDeletedAtIsNullAndChapterDeletedAtIsNull(
+            UUID courseId
+    );
+
+    @Query("""
+    select topic
+    from CourseTopic topic
+    where topic.chapter.course.id = :courseId
+      and topic.deletedAt is null
+      and topic.chapter.deletedAt is null
+    order by topic.chapter.orderIndex asc, topic.orderIndex asc
+    """)
+    List<CourseTopic> findAllActiveByCourseIdOrderByPosition(UUID courseId);
 }

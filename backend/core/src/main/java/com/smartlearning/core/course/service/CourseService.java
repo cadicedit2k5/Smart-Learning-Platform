@@ -1,46 +1,34 @@
 package com.smartlearning.core.course.service;
 
+import com.smartlearning.common.dto.response.pagination.PagingResponse;
 import com.smartlearning.core.course.dto.request.CourseCreateRequest;
 import com.smartlearning.core.course.dto.request.CourseUpdateRequest;
+import com.smartlearning.core.course.dto.request.MyCourseFilterRequest;
+import com.smartlearning.core.course.dto.request.PublicCourseFilterRequest;
 import com.smartlearning.core.course.dto.response.CourseResponse;
+import com.smartlearning.core.course.dto.response.PublicCourseDetailResponse;
 import com.smartlearning.core.course.dto.response.PublicCourseResponse;
-import com.smartlearning.common.dto.request.PagingRequest;
-import com.smartlearning.common.dto.response.pagination.PagingResponse;
+import com.smartlearning.storage.dto.StoredFile;
 
-import java.util.List;
 import java.util.UUID;
 
 public interface CourseService {
-    CourseResponse createCourse(
-            CourseCreateRequest request,
-            UUID currentUserId
-    );
 
-    CourseResponse getCourse(
-            UUID courseId,
-            UUID currentUserId
-    );
+    CourseResponse createCourse(CourseCreateRequest request, UUID currentUserId);
 
-    List<CourseResponse> getMyCourses(UUID currentUserId);
+    CourseResponse getCourse(UUID courseId, UUID currentUserId);
 
-    PagingResponse<PublicCourseResponse> getPublicCourses(
-            PagingRequest pagingRequest,
-            UUID currentUserId
-    );
+    PagingResponse<CourseResponse> getMyCourses(UUID currentUserId, MyCourseFilterRequest request);
 
-    CourseResponse updateCourse(
-            UUID courseId,
-            CourseUpdateRequest request,
-            UUID currentUserId
-    );
+    PagingResponse<PublicCourseResponse> getPublicCourses(PublicCourseFilterRequest request, UUID currentUserId);
 
-    CourseResponse publishCourse(
-            UUID courseId,
-            UUID currentUserId
-    );
+    PublicCourseDetailResponse getPublicCourseDetail(UUID courseId, UUID currentUserId);
 
-    void deleteCourse(
-            UUID courseId,
-            UUID currentUserId
-    );
+    CourseResponse updateCourse(UUID courseId, CourseUpdateRequest request, UUID currentUserId);
+
+    StoredFile getCourseImage(UUID courseId, UUID currentUserId);
+
+    CourseResponse publishCourse(UUID courseId, UUID currentUserId);
+
+    void deleteCourse(UUID courseId, UUID currentUserId);
 }

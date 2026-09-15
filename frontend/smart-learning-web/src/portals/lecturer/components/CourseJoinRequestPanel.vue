@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted, ref } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import {
   Check,
   Clock3,
@@ -17,6 +17,8 @@ import {
 } from '../api/memberApi'
 import { useLecturerApiError } from '../composables/useLecturerApiError'
 import { formatDateTime } from '@/shared/utils'
+import type { PaginatedData } from '@/shared/api'
+import { BasePagination } from '@/shared/components'
 
 const props = defineProps<{
   courseId: string
@@ -24,20 +26,36 @@ const props = defineProps<{
 
 const { handleApiError } = useLecturerApiError()
 
-const requests = ref<CourseMemberDetail[]>([])
+const requestsPage = ref<PaginatedData<CourseMemberDetail>>({
+  content: [],
+  pageable: {
+    page: 1,
+    size: 10,
+    totalElements: 0,
+    totalPages: 0,
+  },
+})
+
+const currentPage = ref(1)
+
 const loading = ref(true)
 const message = ref('')
 
-const approvingId = ref('')
-const rejectingId = ref('')
+const processingId = ref('')
+
+const totalPages = computed(
+  () => requestsPage.value.pageable.totalPages,
+)
 
 const loadRequests = async () => {
   loading.value = true
   message.value = ''
 
   try {
-    requests.value =
-      await getJoinRequests(props.courseId)
+    requestsPage.value = await getJoinRequests(
+      props.courseId,
+      currentPage.value
+    )
   } catch (error) {
     message.value = handleApiError(
       error,
@@ -48,10 +66,35 @@ const loadRequests = async () => {
   }
 }
 
+const goToPage = (page: number) => {
+  if (
+    page < 1 ||
+    page > totalPages.value ||
+    page === currentPage.value
+  ) {
+    return
+  }
+
+  currentPage.value = page
+  void loadRequests()
+}
+
+const reloadAfterDecision = async () => {
+  if (requestsPage.value.content.length === 1 &&
+    currentPage.value > 1
+  ) {
+    currentPage.value -= 1
+  }
+
+  await loadRequests()
+}
+
 const handleApprove = async (
   request: CourseMemberDetail,
 ) => {
-  approvingId.value = request.id
+   if (processingId.value) return
+
+  processingId.value = request.id
   message.value = ''
 
   try {
@@ -60,23 +103,23 @@ const handleApprove = async (
       request.id,
     )
 
-    requests.value = requests.value.filter(
-      (item) => item.id !== request.id,
-    )
+    await reloadAfterDecision();
   } catch (error) {
     message.value = handleApiError(
       error,
       'Không thể chấp nhận yêu cầu.',
     ).message
   } finally {
-    approvingId.value = ''
+    processingId.value = ''
   }
 }
 
 const handleReject = async (
   request: CourseMemberDetail,
 ) => {
-  rejectingId.value = request.id
+  if (processingId.value) return
+
+  processingId.value = request.id
   message.value = ''
 
   try {
@@ -85,16 +128,14 @@ const handleReject = async (
       request.id,
     )
 
-    requests.value = requests.value.filter(
-      (item) => item.id !== request.id,
-    )
+    await reloadAfterDecision()
   } catch (error) {
     message.value = handleApiError(
       error,
-      'Không thể từ chối yêu cầu.',
+      'Không thể từ chối yêu cầu tham gia.',
     ).message
   } finally {
-    rejectingId.value = ''
+    processingId.value = ''
   }
 }
 
@@ -119,7 +160,7 @@ onMounted(() => {
         </h2>
 
         <p class="mt-1 text-sm text-app-text-muted">
-          {{ requests.length }}
+          {{ requestsPage.pageable.totalElements }}
           yêu cầu đang chờ duyệt
         </p>
       </div>
@@ -149,7 +190,7 @@ onMounted(() => {
     </div>
 
     <div
-      v-else-if="requests.length === 0"
+      v-else-if="requestsPage.content.length === 0"
       class="p-10 text-center text-sm text-app-text-muted"
     >
       Không có yêu cầu tham gia đang chờ duyệt.
@@ -160,7 +201,7 @@ onMounted(() => {
       class="divide-y divide-app-border"
     >
       <li
-        v-for="request in requests"
+        v-for="request in requestsPage.content"
         :key="request.id"
         class="flex flex-wrap items-center gap-4 px-5 py-4"
       >
@@ -194,8 +235,8 @@ onMounted(() => {
         <div class="flex gap-2">
           <BaseButton
             variant="secondary"
-            :loading="rejectingId === request.id"
-            :disabled="approvingId === request.id"
+            :loading="processingId === request.id"
+            :disabled="Boolean(processingId) && processingId === request.id"
             @click="handleReject(request)"
           >
             <template #leading>
@@ -206,8 +247,8 @@ onMounted(() => {
           </BaseButton>
 
           <BaseButton
-            :loading="approvingId === request.id"
-            :disabled="rejectingId === request.id"
+            :loading="processingId === request.id"
+            :disabled="Boolean(processingId) && processingId === request.id"
             @click="handleApprove(request)"
           >
             <template #leading>
@@ -219,5 +260,23 @@ onMounted(() => {
         </div>
       </li>
     </ul>
+
+    <div
+      v-if="
+        !loading &&
+        requestsPage.pageable.totalElements > 0
+      "
+      class="border-t border-app-border px-5 py-4"
+    >
+      <BasePagination
+        :page="currentPage"
+        :total-pages="totalPages"
+        :total-elements="
+          requestsPage.pageable.totalElements
+        "
+        @previous="goToPage(currentPage - 1)"
+        @next="goToPage(currentPage + 1)"
+      />
+    </div>
   </section>
 </template>

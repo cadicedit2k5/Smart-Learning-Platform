@@ -10,10 +10,8 @@ from app.configs.config import Settings, get_settings
 from app.configs.database import get_db_connection
 from app.infrastructure.ai.chat_model import create_chat_model
 from app.infrastructure.ai.embeddings import create_embeddings
-from app.infrastructure.documents.loader import DocumentLoader
 from app.repositories.chunk_repository import ChunkRepository
 from app.services.course_preview_service import CoursePreviewService
-from app.services.knowledge_ingestion_service import KnowledgeIngestionService
 from app.services.rag_service import RagService
 from app.services.retrieval_service import RetrievalService
 
@@ -84,36 +82,6 @@ def get_rag_service(
 RagServiceDep = Annotated[
     RagService,
     Depends(get_rag_service),
-]
-
-@lru_cache
-def get_document_loader() -> DocumentLoader:
-    return DocumentLoader()
-
-DocumentLoaderDep = Annotated[
-    DocumentLoader,
-    Depends(get_document_loader),
-]
-
-def get_ingestion_service(
-    session: SessionDep,
-    loader: DocumentLoaderDep,
-    embeddings: EmbeddingsDep,
-    repository: ChunkRepositoryDep,
-    settings: SettingsDep,
-) -> KnowledgeIngestionService:
-
-    return KnowledgeIngestionService(
-        session=session,
-        loader=loader,
-        embeddings=embeddings,
-        repository=repository,
-        settings=settings,
-    )
-
-IngestionServiceDep = Annotated[
-    KnowledgeIngestionService,
-    Depends(get_ingestion_service),
 ]
 
 def get_course_preview_service(chat_model: ChatModelDep) -> CoursePreviewService:

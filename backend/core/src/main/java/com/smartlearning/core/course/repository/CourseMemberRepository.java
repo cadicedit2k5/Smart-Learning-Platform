@@ -1,7 +1,10 @@
 package com.smartlearning.core.course.repository;
 
 import com.smartlearning.core.course.entity.CourseMember;
+import com.smartlearning.core.course.entity.enums.CourseMemberRole;
 import com.smartlearning.core.course.entity.enums.CourseMemberStatus;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
@@ -12,9 +15,10 @@ public interface CourseMemberRepository extends JpaRepository<CourseMember, UUID
 
     Optional<CourseMember> findByCourseIdAndUserId(UUID courseId, UUID userId);
 
-    List<CourseMember> findAllByCourseIdAndStatus(
+    Page<CourseMember> findAllByCourseIdAndStatus(
             UUID courseId,
-            CourseMemberStatus status
+            CourseMemberStatus status,
+            Pageable pageable
     );
 
     List<CourseMember> findAllByCourseIdInAndUserId(
@@ -22,9 +26,16 @@ public interface CourseMemberRepository extends JpaRepository<CourseMember, UUID
             UUID userId
     );
 
-    List<CourseMember> findAllByUserIdAndStatusAndCourseDeletedAtIsNullOrderByCourseUpdatedAtDesc(
-            UUID userId,
+    List<CourseMember> findAllByCourseIdAndRoleAndStatus(
+            UUID courseId,
+            CourseMemberRole role,
             CourseMemberStatus status
     );
 
+    Page<CourseMember> findAllByCourseIdAndRoleAndStatus(
+            UUID courseId,
+            CourseMemberRole role,
+            CourseMemberStatus status,
+            Pageable pageable
+    );
 }

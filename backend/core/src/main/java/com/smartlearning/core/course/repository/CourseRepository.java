@@ -14,10 +14,4 @@ import java.util.UUID;
 public interface CourseRepository extends JpaRepository<Course, UUID>, JpaSpecificationExecutor<Course> {
 
     Optional<Course> findByIdAndDeletedAtIsNull(UUID id);
-
-    Page<Course> findAllByVisibilityAndStatusAndDeletedAtIsNullOrderByPublishedAtDesc(
-            CourseVisibility visibility,
-            CourseStatus status,
-            Pageable pageable
-    );
 }

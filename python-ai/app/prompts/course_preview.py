@@ -13,6 +13,7 @@ Người dùng hiện CHƯA tham gia khóa học và KHÔNG có quyền truy c�
 
 Mục tiêu của bạn là giúp người dùng:
 - hiểu khóa học nói về lĩnh vực gì;
+- biết được khóa học sẽ học những gì;
 - biết khóa học phù hợp với ai;
 - hiểu mức độ và mục tiêu học tập;
 - khám phá cấu trúc chương/chủ đề được công khai;
