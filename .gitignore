@@ -1,8 +1,9 @@
 .idea/
+__pycache__/
 
 tmp
-demo-data
-scripts/
+.venv-seed
+docs
 target/
 
 tmp

@@ -1,0 +1,2934 @@
+{
+  "image": "images/computer-architecture.jpg",
+  "source": {
+    "provider": "VOER",
+    "collection_title": "Kiến trúc máy tính",
+    "collection_url": "https://voer.edu.vn/c/kien-truc-may-tinh/c046e931",
+    "author": "Phạm Hữu Tài",
+    "license": "CC BY 3.0"
+  },
+  "course": {
+    "title": "Kiến trúc máy tính",
+    "description": "Kiến thức về tổ chức máy tính, kiến trúc RISC, pipeline, bộ nhớ và ngôn ngữ máy.",
+    "level": null,
+    "visibility": "PUBLIC"
+  },
+  "chapter": {
+    "title": "Nội dung Kiến trúc máy tính",
+    "description": null,
+    "learningObjectives": null,
+    "orderIndex": 0
+  },
+  "topics": [
+    {
+      "title": "Tổng quan về kiến trúc máy tính",
+      "description": null,
+      "estimatedMinutes": null,
+      "orderIndex": 1,
+      "content": {
+        "type": "doc",
+        "content": [
+          {
+            "type": "heading",
+            "attrs": {
+              "level": 1
+            },
+            "content": [
+              {
+                "type": "text",
+                "text": "Mục tiêu môn học"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Sau khi hoàn thành module này, người học có khả năng:"
+              }
+            ]
+          },
+          {
+            "type": "bulletList",
+            "content": [
+              {
+                "type": "listItem",
+                "content": [
+                  {
+                    "type": "paragraph",
+                    "content": [
+                      {
+                        "type": "text",
+                        "text": "Giải thích được cách thức lưu trữ và xử lý thông tin bên trong máy tính."
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "type": "listItem",
+                "content": [
+                  {
+                    "type": "paragraph",
+                    "content": [
+                      {
+                        "type": "text",
+                        "text": "Đọc và giải thích được các thông số kỹ thuật trên các thiết bị phần cứng. Lựa chọn được các thiết bị để lắp hoàn chỉnh máy tính phù hợp yêu cầu sử dụng."
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "type": "listItem",
+                "content": [
+                  {
+                    "type": "paragraph",
+                    "content": [
+                      {
+                        "type": "text",
+                        "text": "Phân tích được cấu tạo, nguyên lý hoạt động của các thành phần chính tạo nên một máy tính (BUS, CPU, Hệ thống nhớ, hệ thống vào ra)"
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "type": "listItem",
+                "content": [
+                  {
+                    "type": "paragraph",
+                    "content": [
+                      {
+                        "type": "text",
+                        "text": "Thiết kế được sơ đồ, mô hình cấu tạo hoàn chỉnh một máy tính đơn giản có đầy đủ các khối chức năng cơ bản."
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "type": "listItem",
+                "content": [
+                  {
+                    "type": "paragraph",
+                    "content": [
+                      {
+                        "type": "text",
+                        "text": "Tăng tính chủ động trong việc nghiên cứu, tổ chức thực hiện."
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Module này sẽ giúp người học phát triển các năng lực: Phân tích, tư vấn , thiết kế ở mức 1"
+              }
+            ]
+          },
+          {
+            "type": "heading",
+            "attrs": {
+              "level": 1
+            },
+            "content": [
+              {
+                "type": "text",
+                "text": "Nội dung môn học"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Bài 1: Tổng quan về môn học, phương pháp và nguồn học liệu phục vụ cho môn học"
+              }
+            ]
+          },
+          {
+            "type": "bulletList",
+            "content": [
+              {
+                "type": "listItem",
+                "content": [
+                  {
+                    "type": "paragraph",
+                    "content": [
+                      {
+                        "type": "text",
+                        "text": "Mục tiêu môn học"
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "type": "listItem",
+                "content": [
+                  {
+                    "type": "paragraph",
+                    "content": [
+                      {
+                        "type": "text",
+                        "text": "Nội dung môn học"
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "type": "listItem",
+                "content": [
+                  {
+                    "type": "paragraph",
+                    "content": [
+                      {
+                        "type": "text",
+                        "text": "Phương pháp học tập"
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "type": "listItem",
+                "content": [
+                  {
+                    "type": "paragraph",
+                    "content": [
+                      {
+                        "type": "text",
+                        "text": "Nguồn học liệu"
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "type": "listItem",
+                "content": [
+                  {
+                    "type": "paragraph",
+                    "content": [
+                      {
+                        "type": "text",
+                        "text": "Các tiêu chí đánh giá"
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Bài 2: Giới thiệu chung về Kiến trúc máy tính"
+              }
+            ]
+          },
+          {
+            "type": "bulletList",
+            "content": [
+              {
+                "type": "listItem",
+                "content": [
+                  {
+                    "type": "paragraph",
+                    "content": [
+                      {
+                        "type": "text",
+                        "text": "Cấu tạo cơ bản và hoạt động của máy tính"
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "type": "listItem",
+                "content": [
+                  {
+                    "type": "paragraph",
+                    "content": [
+                      {
+                        "type": "text",
+                        "text": "Lịch sử phát triển của máy tính"
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "type": "listItem",
+                "content": [
+                  {
+                    "type": "paragraph",
+                    "content": [
+                      {
+                        "type": "text",
+                        "text": "Phân loại máy tính"
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "type": "listItem",
+                "content": [
+                  {
+                    "type": "paragraph",
+                    "content": [
+                      {
+                        "type": "text",
+                        "text": "Biểu diễn thông tin trong máy tính"
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Bài 3: Các phần tử logic cơ bản và mạch logic tổ hợp"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "3.1. Các phần tử logic cơ bản"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "3.2. Mạch logic tổ hợp"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "3.2.1. Mạch cộng"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "3.2.2. Mạch trừ"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "3.2.3. Mạch so sánh"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "3.2.4. Mạch mã hoá và giải mã"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "3.2.5. Mạch dồn kênh và phân kênh"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Bài 4: Các thành phần cơ bản của một máy tính"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "4.1. Mainboard"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "4.2. CPU"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "4.3. Bộ nhớ trong"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "4.4. Các thiết bị lưu trữ"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "4.5. Các thiết bị vào/ra"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "4.6. Tính tương thích giữa các thành phần"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Bài 5: Thực hành:"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Đọc các thông số kỹ thuật trên các thiết bị phần cứng"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Bài 6: Thực hành:"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Lắp đặt phần cứng máy tính"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Bài 7: Bộ nhớ bán dẫn"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "7.1. Các phần tử nhớ cơ bản"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "7.2. Phân loại bộ nhớ bán dẫn"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "7.3. Bộ nhớ ROM"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "7.4. Bộ nhớ RAM"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Bài 8: Bộ nhớ đặc biệt"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "8.1. Bộ nhớ CACHE"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "8.2. Bộ nhớ ảo"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Bài 9: Bộ nhớ từ"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "9.1. Phương pháp lưu trữ từ tính"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "9.2. Đĩa từ và ổ đĩa từ"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Bài 10: Bộ nhớ quang"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "10.1. Phương pháp lưu trữ quang"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "10.2. Đĩa quang và ổ đĩa quang"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Bài 11: Thực hành"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Phân tích cấu tạo bên trong của bộ nhớ và các ổ đĩa"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Bài 12: Cấu tạo chung bộ Vi xử lý"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "12.1. Lịch sử phát triển của bộ vi xử lý"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "12.2. Cấu trúc bộ vi xử lý 8086"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Bài 13: Tập thanh ghi của bộ vi xử lý 8086"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Bài 14: Tập lệnh của bộ vi xử lý 8086"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Bài 15: Thực hành: Sử dụng DEBUG"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Bài 16: Các kiến trúc bộ Vi xử lý khác"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "16.1. Kiến trúc bộ vi xử lý RISC"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "16.2. Kiến trúc bộ vi xử lý VLIW"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Bài 17: Thực hành"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Sử dụng PCSpim cho hệ vi xử lý RISC"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Bài 18: Kiến trúc cơ bản của hệ thống vào ra"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "18.1. Các dạng tín hiệu"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "18.2. Các kiến trúc BUS vào ra"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "18.3. Hệ thống các cổng vào ra"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "18.4. Các phương pháp trao đổi tin"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Bài 19: Các thiết bị vào cơ bản"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "19.1. Bàn phím"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "19.2. Chuột"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "19.3. Scanner"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Bài 20: Các thiết bị ra cơ bản"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "20.1. Màn hình"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "20.2. Máy in"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Bài 21: Thực hành"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Phân tích cấu tạo của bàn phím, chuột. Thiết kế mô hình"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Bài 22: Thực hành"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Phân tích cấu tạo của màn hình, máy in. Thiết kế mô hình"
+              }
+            ]
+          },
+          {
+            "type": "heading",
+            "attrs": {
+              "level": 1
+            },
+            "content": [
+              {
+                "type": "text",
+                "text": "Phương pháp học tập"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "- Dựa vào khung chương trình đã xây dựng, giảng viên hướng dẫn sinh viên nghiên cứu các nội dung liên quan trong từng bài học. Một số nội dung giảng viên cần giảng giải kỹ lưỡng cho sinh viên."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Thông qua sự hướng dẫn của giảng viên, sinh viên cần suy nghĩ độc lập và phân tích vấn đề gặp phải, sau đó thảo luận trước lớp. Trong thời gian thảo luận, giảng viên có thể chia lớp thành các nhóm. Việc thảo luận trước lớp được thực hiện với các thành viên (do nhóm chọn ra) với sự định hướng của giảng viên"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "- Sinh viên cần chủ động đặt câu hỏi về những vấn đề mà mình còn chưa hiểu rõ hoặc những vấn đề khác đang quan tâm có liên quan đến bài học. Những câu hỏi do sinh viên đặt ra có thể được thành viên khác trong lớp giải đáp, song chủ yếu vẫn là sự giải đáp hoặc kết luận của thầy."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "- Giảng viên đưa ra một tài liệu tham khảo chính để sinh viên không bị phân tán. Sinh viên dựa chủ yếu tài liệu này. Song, có thể vấn đề đang nghiên cứu không có trong tài liệu này, sinh viên cần phải tham khảo một số tài liệu khác (giảng viên hướng dẫn)."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "- Sinh viên cần phải có ý kiến phản hồi cho giảng viên về nội dung, phương pháp dạy-học, các nguồn học liệu, các thiết bị, dụng cụ thực hành,... Từ đó, giảng viên có hướng điều chỉnh cho các bài học sau."
+              }
+            ]
+          },
+          {
+            "type": "heading",
+            "attrs": {
+              "level": 1
+            },
+            "content": [
+              {
+                "type": "text",
+                "text": "Nguồn học liệu"
+              }
+            ]
+          },
+          {
+            "type": "heading",
+            "attrs": {
+              "level": 2
+            },
+            "content": [
+              {
+                "type": "text",
+                "text": "Sách giáo khoa, giáo trình, máy tính, Projector, vật mẫu."
+              }
+            ]
+          },
+          {
+            "type": "heading",
+            "attrs": {
+              "level": 2
+            },
+            "content": [
+              {
+                "type": "text",
+                "text": "Tài liệu tham khảo"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "*[1] Computer Architecture and Organization"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "*[2] Nguyễn Nam Trung. \"Cấu trúc máy vi tính và các thiết bị ngoại vi\". NXB Khoa học và kỹ thuật – 1996."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "[3] Hennessy. \"Fundamentals of Computer Design\" (E-book)"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "[4] Parhami. \"Computer Architecture\". UCSB - 2006 (Ebook)"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "[5] http://ocw.mit.edu/OcwWeb/Electrical-Engineering-and-Computer-Science/6-823Fall-2005/LectureNotes/index.htm"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "[6] http://ebook.moet.gov.vn/?page=1.3&view=507"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "[7] Trần Quang Vinh. \"Cấu trúc Máy vi tính\". NXB Giáo dục - 1998"
+              }
+            ]
+          },
+          {
+            "type": "heading",
+            "attrs": {
+              "level": 1
+            },
+            "content": [
+              {
+                "type": "text",
+                "text": "Các tiêu chí đánh giá"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Phương pháp đánh giá:"
+              }
+            ]
+          },
+          {
+            "type": "bulletList",
+            "content": [
+              {
+                "type": "listItem",
+                "content": [
+                  {
+                    "type": "paragraph",
+                    "content": [
+                      {
+                        "type": "text",
+                        "text": "Đánh giá thông qua bài tập lớn: Kết quả báo cáo, hình thức tổ chức"
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "type": "listItem",
+                "content": [
+                  {
+                    "type": "paragraph",
+                    "content": [
+                      {
+                        "type": "text",
+                        "text": "Đánh giá quá trình thực hành"
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "type": "listItem",
+                "content": [
+                  {
+                    "type": "paragraph",
+                    "content": [
+                      {
+                        "type": "text",
+                        "text": "Đánh giá thông qua thi hết môn"
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Điều kiện đánh giá:"
+              }
+            ]
+          },
+          {
+            "type": "bulletList",
+            "content": [
+              {
+                "type": "listItem",
+                "content": [
+                  {
+                    "type": "paragraph",
+                    "content": [
+                      {
+                        "type": "text",
+                        "text": "Bài tập lớn: 20%"
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "type": "listItem",
+                "content": [
+                  {
+                    "type": "paragraph",
+                    "content": [
+                      {
+                        "type": "text",
+                        "text": "Kiểm tra bài thực hành: 30%"
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "type": "listItem",
+                "content": [
+                  {
+                    "type": "paragraph",
+                    "content": [
+                      {
+                        "type": "text",
+                        "text": "Thi kết thúc môn học: 50%"
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "title": "KIẾN TRÚC RISC ( Reduced Instruction Set Computer)",
+      "description": null,
+      "estimatedMinutes": null,
+      "orderIndex": 2,
+      "content": {
+        "type": "doc",
+        "content": [
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Các kiến trúc với tập lệnh phức tạp CISC (Complex Instruction Set Computer) được nghĩ ra từ những năm 1960. Vào thời kỳ này, người ta nhận thấy các chương trình dịch khó dùng các thanh ghi, rằng các vi lệnh được thực hiện nhanh hơn các lệnh và cần thiết phải làm giảm độ dài các chương trình. Các đặc tính nầy khiến người ta ưu tiên chọn các kiểu ô nhớ - ô nhớ và ô nhớ - thanh ghi, với những lệnh phức tạp và dùng nhiều kiểu định vị. Điều này dẫn tới việc các lệnh có chiều dài thay đổi và như thế thì dùng bộ điều khiển vi chương trình là hiệu quả nhất."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Bảng II.6 cho các đặc tính của vài máy CISC tiêu biểu. Ta nhận thấy cả ba máy đều có điểm chung là có nhiều lệnh, các lệnh có chiều dài thay đổi. Nhiều cách thực hiện lệnh và nhiều vi chương trình được dùng."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Tiến bộ trong lãnh vực mạch kết (IC) và kỹ thuật dịch chương trình làm cho các nhận định trước đây phải được xem xét lại, nhất là khi đã có một khảo sát định lượng về việc dùng tập lệnh các máy CISC."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Bảng II.6: Đặc tính của một vài máy CISC"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Ví dụ, chương trình dịch đã biết sử dụng các thanh ghi và không có sự khác biệt đáng kể nào khi sử dụng ô nhớ cho các vi chương trình hay ô nhớ cho các chương trình. Điều này dẫn tới việc đưa vào khái niệm về một máy tính với tập lệnh rút gọn RISC vào đầu những năm 1980. Các máy RISC dựa chủ yếu trên một tập lệnh cho phép thực hiện kỹ thuật ống dẫn một cách thích hợp nhất bằng cách thiết kế các lệnh có chiều dài cố định, có dạng đơn giản, dễ giải mã. Máy RISC dùng kiểu thực hiện lệnh thanh ghi - thanh ghi. Chỉ có các lệnh ghi hoặc đọc ô nhớ mới cho phép thâm nhập vào ô nhớ. Bảng II.7 diễn tả ba mẫu máy RISC đầu tiên: mẫu máy của IBM (IBM 801) của Berkeley (RISC1 của Patterson) và của Stanford (MIPS của Hennessy). Ta nhận thấy cả ba máy đó đều có bộ điều khiển bằng mạch điện (không có ô nhớ vi chương trình), có chiều dài các lệnh cố định (32 bits), có một kiểu thi hành lệnh (kiểu thanh ghi - thanh ghi) và chỉ có một số ít lệnh."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Bảng II.7 : Đặc tính của ba mẫu đầu tiên máy RISC"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Tóm lại, ta có thể định nghĩa mạch xử lý RISC bởi các tính chất sau:"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "- Có một số ít lệnh (thông thường dưới 100 lệnh )."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "- Có một số ít các kiểu định vị (thông thường hai kiểu: định vị tức thì và định vị gián tiếp thông qua một thanh ghi)."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "- Có một số ít dạng lệnh (một hoặc hai)"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "- Các lệnh đều có cùng chiều dài."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "- Chỉ có các lệnh ghi hoặc đọc ô nhớ mới thâm nhập vào bộ nhớ."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "- Dùng bộ tạo tín hiệu điều khiển bằng mạch điện để tránh chu kỳ giải mã các vi lệnh làm cho thời gian thực hiện lệnh kéo dài."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "- Bộ xử lý RISC có nhiều thanh ghi để giảm bớt việc thâm nhập vào bộ nhớ trong."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Ngoài ra các bộ xử lý RISC đầu tiên thực hiện tất cả các lệnh trong một chu kỳ máy."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Bộ xử lý RISC có các lợi điểm sau :"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "- Diện tích của bộ xử lý dùng cho bộ điều khiển giảm từ 60% (cho các bộ xử lý CISC) xuống còn 10% (cho các bộ xử lý RISC). Như vậy có thể tích hợp thêm vào bên trong bộ xử lý các thanh ghi, các cổng vào ra và bộ nhớ cache ....."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "- Tốc độ tính toán cao nhờ vào việc giải mã lệnh đơn giản, nhờ có nhiều thanh ghi (ít thâm nhập bộ nhớ), và nhờ thực hiện kỹ thuật ống dẫn liên tục và có hiệu quả (các lệnh đều có thời gian thực hiện giống nhau và có cùng dạng)."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "- Thời gian cần thiết để thiết kế bộ điều khiển là ít. Điều này góp phần làm giảm chi phí thiết kế."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "- Bộ điều khiển trở nên đơn giản và gọn làm cho ít rủi ro mắc phải sai sót mà ta gặp thường trong bộ điều khiển."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Trước những điều lợi không chối cãi được, kiến trúc RISC có một số bất lợi:"
+              }
+            ]
+          },
+          {
+            "type": "bulletList",
+            "content": [
+              {
+                "type": "listItem",
+                "content": [
+                  {
+                    "type": "paragraph",
+                    "content": [
+                      {
+                        "type": "text",
+                        "text": "Các chương trình dài ra so với chương trình viết cho bộ xử lý CISC. Điều này do các nguyên nhân sau :"
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "type": "bulletList",
+            "content": [
+              {
+                "type": "listItem",
+                "content": [
+                  {
+                    "type": "paragraph",
+                    "content": [
+                      {
+                        "type": "text",
+                        "text": "Cấm thâm nhập bộ nhớ đối với tất cả các lệnh ngoại trừ các lệnh đọc và ghi vào bộ nhớ. Do đó ta buộc phải dùng nhiều lệnh để làm một công việc nhất định."
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "type": "listItem",
+                "content": [
+                  {
+                    "type": "paragraph",
+                    "content": [
+                      {
+                        "type": "text",
+                        "text": "Cần thiết phải tính các địa chỉ hiệu dụng vì không có nhiều cách định vị."
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "type": "listItem",
+                "content": [
+                  {
+                    "type": "paragraph",
+                    "content": [
+                      {
+                        "type": "text",
+                        "text": "Tập lệnh có ít lệnh nên các lệnh không có sẵn phải được thay thế bằng một chuỗi lệnh của bộ xử lý RISC."
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "type": "bulletList",
+            "content": [
+              {
+                "type": "listItem",
+                "content": [
+                  {
+                    "type": "paragraph",
+                    "content": [
+                      {
+                        "type": "text",
+                        "text": "Các chương trình dịch gặp nhiều khó khăn vì có ít lệnh làm cho có ít lựa chọn để diễn dịch các cấu trúc của chương trình gốc. Sự cứng nhắc của kỹ thuật ống dẫn cũng gây khó khăn."
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "type": "listItem",
+                "content": [
+                  {
+                    "type": "paragraph",
+                    "content": [
+                      {
+                        "type": "text",
+                        "text": "Có ít lệnh trợ giúp cho ngôn ngữ cấp cao."
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Các bộ xử lý CISC trợ giúp mạnh hơn các ngôn ngữ cao cấp nhờ có tập lệnh phức tạp. Hãng Honeywell đã chế tạo một máy có một lệnh cho mỗi động từ của ngôn ngữ COBOL."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Các tiến bộ gần đây cho phép xếp đặt trong một vi mạch, một bộ xử lý RISC nền và nhiều toán tử chuyên dùng."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Thí dụ, bộ xử lý 860 của Intel bao gồm một bộ xử lý RISC, bộ làm tính với các số lẻ và một bộ tạo tín hiệu đồ hoạ."
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "title": "KỸ THUẬT ỐNG DẪN (PIPELINE)",
+      "description": null,
+      "estimatedMinutes": null,
+      "orderIndex": 3,
+      "content": {
+        "type": "doc",
+        "content": [
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Đây là một kỹ thuật làm cho các giai đoạn khác nhau của nhiều lệnh được thi hành cùng một lúc."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Ví dụ: Chúng ta có những lệnh đều đặn, mỗi lệnh được thực hiện trong cùng một khoản thời gian. Giả sử, mỗi lệnh được thực hiện trong 5 giai đoạn và mỗi giai đoạn được thực hiện trong 1 chu kỳ xung nhịp. Các giai đoạn thực hiện một lệnh là: lấy lệnh (IF: Instruction Fetch), giải mã (ID: Instruction Decode), thi hành (EX: Execute), thâm nhập bộ nhớ (MEM: Memory Access), lưu trữ kết quả (RS: Result Storing)."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Hình III.4 cho thấy chỉ trong một chu kỳ xung nhịp, bộ xử lý có thể thực hiện một lệnh (bình thường lệnh này được thực hiện trong 5 chu kỳ)."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Hình III.4: Các giai đoạn khác nhau của nhiều lệnh được thi hành cùng một lúc"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "So sánh với kiểu xử lý tuần tự thông thường, 5 lệnh được thực hiện trong 25 chu kỳ xung nhịp, thì xử lý lệnh theo kỹ thuật ống dẫn thực hiện 5 lậnh chỉ trong 9 chu kỳ xung nhịp."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Như vậy kỹ thuật ống dẫn làm tăng tốc độ thực hiện các lệnh. Tuy nhiên kỹ thuật ống dẫn có một số ràng buộc:"
+              }
+            ]
+          },
+          {
+            "type": "bulletList",
+            "content": [
+              {
+                "type": "listItem",
+                "content": [
+                  {
+                    "type": "paragraph",
+                    "content": [
+                      {
+                        "type": "text",
+                        "text": "Cần phải có một mạch điện để thi hành mỗi giai đoạn của lệnh vì tất cả các giai đoạn của lệnh được thi hành cùng lúc. Trong một bộ xử lý không dùng kỹ thuật ống dẫn, ta có thể dùng bộ làm toán ALU để cập nhật thanh ghi PC, cập nhật địa chỉ của toán hạng bộ nhớ, địa chỉ ô nhớ mà chương trình cần nhảy tới, làm các phép tính trên các toán hạng vì các phép tính này có thể xảy ra ở nhiều giai đoạn khác nhau."
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "type": "listItem",
+                "content": [
+                  {
+                    "type": "paragraph",
+                    "content": [
+                      {
+                        "type": "text",
+                        "text": "Phải có nhiều thanh ghi khác nhau dùng cho các tác vụ đọc và viết. Trên hình III.4, tại một chu kỳ xung nhịp, ta thấy cùng một lúc có 2 tác vụ đọc (ID, MEM) và 1 tác vụ viết (RS)."
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "type": "listItem",
+                "content": [
+                  {
+                    "type": "paragraph",
+                    "content": [
+                      {
+                        "type": "text",
+                        "text": "Trong một máy có kỹ thuật ống dẫn, có khi kết quả của một tác vụ trước đó, là toán hạng nguồn của một tác vụ khác. Như vậy sẽ có thêm những khó khăn mà ta sẽ đề cập ở mục tới."
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "type": "listItem",
+                "content": [
+                  {
+                    "type": "paragraph",
+                    "content": [
+                      {
+                        "type": "text",
+                        "text": "Cần phải giải mã các lệnh một cách đơn giản để có thể giải mã và đọc các toán hạng trong một chu kỳ duy nhất của xung nhịp."
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "type": "listItem",
+                "content": [
+                  {
+                    "type": "paragraph",
+                    "content": [
+                      {
+                        "type": "text",
+                        "text": "Cần phải có các bộ làm tính ALU hữu hiệu để có thể thi hành lệnh số học dài nhất, có số giữ, trong một khoảng thời gian ít hơn một chu kỳ của xung nhịp."
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "type": "listItem",
+                "content": [
+                  {
+                    "type": "paragraph",
+                    "content": [
+                      {
+                        "type": "text",
+                        "text": "Cần phải có nhiều thanh ghi lệnh để lưu giữ lệnh mà chúng ta phải xem xét cho mỗi giai đoạn thi hành lệnh."
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "type": "listItem",
+                "content": [
+                  {
+                    "type": "paragraph",
+                    "content": [
+                      {
+                        "type": "text",
+                        "text": "Cuối cùng phải có nhiều thanh ghi bộ đếm chương trình PC để có thể tái tục các lệnh trong trường hợp có ngắt quãng."
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "title": "CÁC CẤP BỘ NHỚ",
+      "description": null,
+      "estimatedMinutes": null,
+      "orderIndex": 4,
+      "content": {
+        "type": "doc",
+        "content": [
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Mục đích: Chương này giới thiệu chức năng và nguyên lý hoạt động của các cấp bộ nhớ máy tính: bộ nhớ cache: nguyên lý vận hành, phân loại các mức, đánh giá hiệu quả hoạt động; và nguyên lý vận hành của bộ nhớ ảo."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Yêu cầu: Sinh viên phải hiểu được các cấp bộ nhớ và cách thức vận hành của các loại bộ nhớ được giới thiệu để có thể đánh giá được hiệu năng hoạt động của các loại bộ nhớ."
+              }
+            ]
+          },
+          {
+            "type": "heading",
+            "attrs": {
+              "level": 2
+            },
+            "content": [
+              {
+                "type": "text",
+                "text": "CÁC LOẠI BỘ NHỚ"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Bộ nhớ chứa chương trình, nghĩa là chứa lệnh và số liệu. Người ta phân biệt các loại bộ nhớ: Bộ nhớ trong (RAM-Bộ nhớ vào ra ngẫu nhiên), được chế tạo bằng chất bán dẫn; bộ nhớ chỉ đọc (ROM) cũng là loại bộ nhớ chỉ đọc và bộ nhớ ngoài bao gồm: đĩa cứng, đĩa mềm, băng từ, trống từ, các loại đĩa quang, các loại thẻ nhớ,..."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Bộ nhớ RAM có đặc tính là các ô nhớ có thể được đọc hoặc viết vào trong khoảng thời gian bằng nhau cho dù chúng ở bất kỳ vị trí nào trong bộ nhớ. Mỗi ô nhớ có một địa chỉ, thông thường, mỗi ô nhớ là một byte (8 bit), nhưng hệ thống có thể đọc ra hay viết vào nhiều byte (2,4, hay 8 byte). Bộ nhớ trong (RAM) được đặc trưng bằng dung lượng và tổ chức của nó (số ô nhớ và số bit cho mỗi ô nhớ), thời gian thâm nhập (thời gian từ lúc đua ra địa chỉ ô nhớ đến lúc đọc được nội dung ô nhớ đó) và chu kỳ bộ nhớ (thời gian giữa hai lần liên tiếp thâm nhập bộ nhớ)."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Hình IV.1: Vận hành của bộ nhớ RAM"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "(Wi, Wj, R/W là các tín hiệu điều khiển)"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Tuỳ theo công nghệ chế tạo, người ta phân biệt RAM tĩnh (SRAM: Static RAM) và RAM động (Dynamic RAM)."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "RAM tĩnh được chế tạo theo công nghệ ECL (CMOS và BiCMOS). Mỗi bit nhớ gồm có các cổng logic với độ 6 transistor MOS, việc nhớ một dữ liệu là tồn tại nếu bộ nhớ được cung cấp điện. SRAM là bộ nhớ nhanh, việc đọc không làm huỷ nội dung của ô nhớ và thời gian thâm nhập bằng chu kỳ bộ nhớ."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "RAM động dùng kỹ thuật MOS. Mỗi bit nhớ gồm có một transistor và một tụ điện. Cũng như SRAM, việc nhớ một dữ liệu là tồn tại nếu bộ nhớ được cung cấp điện. Việc ghi nhớ dựa vào việc duy trì điện tích nạp vào tụ điện và như vậy việc đọc một bit nhớ làm nội dung bit này bị huỷ. Vậy sau mỗi lần đọc một ô nhớ, bộ phận điều khiển bộ nhớ phải viết lại ô nhớ đó nội dung vừa đọc và do đó chu kỳ bộ nhớ động ít nhất là gấp đôi thời gian thâm nhập ô nhớ. Việc lưu giữ thông tin trong bit nhớ chỉ là tạm thời vì tụ điện sẽ phóng hết điện tích đã nạp vào và như vậy phải làm tươi bộ nhớ sau mỗi 2μs. Làm tươi bộ nhớ là đọc ô nhớ và viết lại nội dung đó vào lại ô nhớ. Việc làm tươi được thực hiện với tất cả các ô nhớ trong bộ nhớ. Việc làm tươi bộ nhớ được thực hiện tự động bởi một vi mạch bộ nhớ. Bộ nhớ DRAM chậm nhưng rẻ tiền hơn SRAM."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Hình IV.2: SRAM và DRAM"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "SDRAM (Synchronous DRAM – DRAM đồng bộ), một dạng DRAM đồng bộ bus bộ nhớ. Tốc độ SDRAM đạt từ 66-133MHz (thời gian thâm nhập bộ nhớ từ 75ns-150ns)."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "DDR SDRAM (Double Data Rate SDRAM) là cải tiến của bộ nhớ SDRAM với tốc độ truyền tải gấp đôi SDRAM nhờ vào việc truyền tải hai lần trong một chu kỳ bộ nhớ. Tốc độ DDR SDRAM đạt từ 200-400MHz"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "RDRAM (Rambus RAM) là một loại DRAM được thiết kế với kỹ thuật hoàn toàn mới so với kỹ thuật SDRAM. RDRAM hoạt động đồng bộ theo một hệ thống lặp và truyền dữ liệu theo một hướng. Một kênh bộ nhớ RDRAM có thể hỗ trợ đến 32 chip DRAM. Mỗi chip được ghép nối tuần tự trên một module gọi là RIMM (Rambus Inline Memory Module) nhưng việc truyền dữ liệu giữa các mạch điều khiển và từng chíp riêng biệt chứ không truyền giữa các chip với nhau. Bus bộ nhớ RDRAM là đường dẫn liên tục đi qua các chip và module trên bus, mỗi module có các chân vào và ra trên các đầu đối diện. Do đó, nếu các khe cắm không chứa RIMM sẽ phải gắn một module liên tục để đảm bảo đường truyền được nối liền.Tốc độ RDRAM đạt từ 400-800MHz"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Bộ nhớ chỉ đọc ROM cũng được chế tạo bằng công nghệ bán dẫn. Chương trình trong ROM được viết vào lúc chế tạo nó. Thông thường, ROM chứa chương trình khởi động máy tính, chương trình điều khiển trong các thiết bị điều khiển tự động,..."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "PROM (Programable ROM): Chế tạo bằng các mối nối (cầu chì - có thể làm đứt bằng điện). Chương trình nằm trong PROM có thể được viết vào bởi người sử dụng bằng thiết bị đặc biệt và không thể xóa được."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "EPROM (Erasable Programable ROM): Chế tạo bằng nguyên tắt phân cực tĩnh điện. Chương trình nằm trong ROM có thể được viết vào (bằng điện) và có thể xóa (bằng tia cực tím - trung hòa tĩnh điện) để viết lại bởi người sử dụng."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "EEPROM (Eletrically Erasable Programable ROM): Chế tạo bằng công nghệ bán dẫn. Chương trình nằm trong ROM có thể được viết vào và có thể xóa (bằng điện) để viết lại bởi người sử dụng."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Bảng IV.1: Các kiểu bộ nhớ bán dẫn"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "title": "Hợp ngữ",
+      "description": null,
+      "estimatedMinutes": null,
+      "orderIndex": 5,
+      "content": {
+        "type": "doc",
+        "content": [
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Hợp ngữ (assembly language) là một ngôn ngữ cấp thấp dùng để viết các chương trình máy tính. Cách dùng các thuật nhớ (mnemonics) thân thiện để viết chương trình đã thay thế cách lập trình trực tiếp lên máy tính bằng mã máy dạng số (numeric machine code) - từng áp dụng cho những máy tính đầu tiên - vốn rất mệt nhọc, dễ gây lỗi và tốn nhiều thời giờ. Một chương trình viết bằng hợp ngữ sẽ được dịch sang ngôn ngữ máy bằng một tiện ích gọi là trình hợp dịch. Lưu ý rằng, trình hợp dịch khác hoàn toàn với trình biên dịch, vốn dùng để biên dịch các ngôn ngữ cấp cao sang các chỉ thị lệnh cấp thấp mà sau đó sẽ được trình hợp dịch chuyển đổi sang ngôn ngữ máy. Các chương trình hợp ngữ thường phụ thuộc chặt chẽ vào một kiến trúc máy tính xác định, nó khác với ngôn ngữ cấp cao thường độc lập đối với các nền tảng kiến trúc phần cứng. Nhiều trình hợp dịch phức tạp ngoài các tính năng cơ bản còn cung cấp thêm các cơ chế giúp cho việc viết chương trình, kiểm soát quá trình dịch cũng như việc gỡ rối được dễ dàng hơn. Hợp ngữ đã từng được dùng rộng rãi trong tất cả các khía cạnh lập trình, nhưng ngày nay nó có xu hướng chỉ được dùng trong một số lãnh vực hẹp, chủ yếu để giao tiếp trực tiếp với phần cứng hoặc xử lý các vấn đề liên quan đến tốc độ cao điển hình như các trình điều khiển thiết bị, các hệ thống nhúng cấp thấp và các ứng dụng thời gian thực."
+              }
+            ]
+          },
+          {
+            "type": "heading",
+            "attrs": {
+              "level": 1
+            },
+            "content": [
+              {
+                "type": "text",
+                "text": "Các khái niệm"
+              }
+            ]
+          },
+          {
+            "type": "heading",
+            "attrs": {
+              "level": 2
+            },
+            "content": [
+              {
+                "type": "text",
+                "text": "Trình hợp dịch (Assembler)"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Thông thường, một trình hợp dịch hiện đại tạo ra mã nhị phân (object code) bằng cách phiên dịch các lệnh hợp ngữ thành mã thực thi (opcodes) và phân tích các biểu danh (symbolic names) ứng với các vùng nhớ cùng các thực thể khác. Việc dùng các biểu danh để tham chiếu là một tính năng then chốt của các trình hợp dịch, nó tiết kiệm một khối lượng lớn công việc tính toán và sửa đổi thủ công sau mỗi lần cải tiến ứng dụng. Hầu hết các trình hợp dịch đều hỗ trợ macro nhằm giúp cho việc thay thế một nhóm lệnh bằng một định danh ngắn gọn. Trong quá trình dịch, nhóm lệnh tương ứng sẽ được chèn trực tiếp vào vị trí macro thay vì một lời gọi hàm (subroutine). Các trình hợp dịch nói chung dễ tạo hơn so với các chương trình dịch cho ngôn ngữ cấp cao. Những trình hợp ngữ đầu tiên xuất hiện từ những thập niên 1950, trong buổi đầu sơ khai của máy tính đã tạo ra một bước ngoặt lớn đối với những lập trình viên vốn rất mệt mỏi vì việc lập trình bằng ngôn ngữ máy. Các trình hợp dịch hiện đại ngày nay, đặc biệt cho các dòng chip RISC như MIPS, Sun SPARC và HP PA-RISC, thường tối ưu việc sắp xếp và đồng bộ các chỉ thị lệnh (instruction scheduling) để tận dụng các kênh chuyền dữ liệu (pipeline) của CPU một cách hiệu quả."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Nhiều trình hợp dịch cấp cao còn hỗ trợ khả năng ngôn ngữ trừu tượng như:"
+              }
+            ]
+          },
+          {
+            "type": "bulletList",
+            "content": [
+              {
+                "type": "listItem",
+                "content": [
+                  {
+                    "type": "paragraph",
+                    "content": [
+                      {
+                        "type": "text",
+                        "text": "Các cấu trúc điều khiển nâng cao"
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "type": "listItem",
+                "content": [
+                  {
+                    "type": "paragraph",
+                    "content": [
+                      {
+                        "type": "text",
+                        "text": "Các khai báo hàm cấp cao"
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "type": "listItem",
+                "content": [
+                  {
+                    "type": "paragraph",
+                    "content": [
+                      {
+                        "type": "text",
+                        "text": "Các kiểu dữ liệu trừu tượng cấp cao bao gồm các structures/records, unions, classes, và sets"
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "type": "listItem",
+                "content": [
+                  {
+                    "type": "paragraph",
+                    "content": [
+                      {
+                        "type": "text",
+                        "text": "Các macro phức tạp"
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Tham khảo phần Thiết kế ngôn ngữ bên dưới để rõ hơn."
+              }
+            ]
+          },
+          {
+            "type": "heading",
+            "attrs": {
+              "level": 2
+            },
+            "content": [
+              {
+                "type": "text",
+                "text": "Hợp ngữ (Assembly language)"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Một chương trình viết bằng hợp ngữ bao gồm một chuỗi các lệnh (instructions) dễ nhớ tương ứng với một luồng các chỉ thị khả thi (executable) mà khi được dịch bằng một trình hợp dịch, chúng có khả năng nạp được vào bộ nhớ đồng thời thực thi được. Ví dụ, bộ vi xử lý x86/IA-32 có thể thực hiện được chỉ thị nhị phân sau (thể hiện ở dạng ngôn ngữ máy):"
+              }
+            ]
+          },
+          {
+            "type": "bulletList",
+            "content": [
+              {
+                "type": "listItem",
+                "content": [
+                  {
+                    "type": "paragraph",
+                    "content": [
+                      {
+                        "type": "text",
+                        "text": "10110000 01100001 (thập lục phân: 0xb061)"
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Lện trên tương đương với một chỉ thị hợp ngữ dễ nhớ hơn sau:"
+              }
+            ]
+          },
+          {
+            "type": "bulletList",
+            "content": [
+              {
+                "type": "listItem",
+                "content": [
+                  {
+                    "type": "paragraph",
+                    "content": [
+                      {
+                        "type": "text",
+                        "text": "mov al, 061h"
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Chỉ thị lệnh trên có nghĩa là: gán giá trị thập lục phân 61 (97 dạng thập phân) cho thanh ghi trong bộ vi xử lý có tên là \"al\". Thuật từ “mov” là mã thực thi (operation code / opcode), được người thiết kế tập lệnh đặt tên thay thế cho từ “move”, các đối/ tham số của lệnh theo sau và ngăn cách với opcode bởi một dấu phảy “,”."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Trình hợp dịch thực hiện chuyển đổi hợp ngữ sang ngôn ngữ máy và trình phân dịch (disassembler) thực hiện quá trình trên ngược lại. Không giống các ngôn ngữ bậc cao, các chỉ thị hợp ngữ cơ bản thường có mối liên hệ tương ứng 1-1 với các chỉ thị ngôn ngữ máy. Tuy nhiên trong một số trường hợp, một trình hợp dịch có thể bổ sung các lệnh giả (pseudo-instructions) vào tập lệnh ngôn ngữ máy nhằm cung cấp các chức năng được dùng thường xuyên. Hầu hết các trình hợp dịch đa chức năng đều cung cấp thêm một tập macro phong phú để nhà sản xuất thiết bị và lập trình viên có thể tạo các mã lệnh và các dãy dữ liệu phức tạp."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Mỗi kiến trúc máy tính đều có ngôn ngữ máy riêng và do đó cũng có hợp ngữ riêng, chúng phân biệt với nhau bằng số lượng và kiểu của các lệnh mà chúng hỗ trợ. Chúng cũng có thể khác nhau về số lượng và kích cỡ của các thanh ghi cũng như cách thể hiện các kiểu dữ liệu trong bộ lưu trữ (bộ nhớ). Hầu hết các máy tính công dụng chung đều có khả năng thực hiện cùng chức năng nhưng cách mà chúng thực hiện thì khác nhau, điều đó phản ánh sự khác nhau giữa các hợp ngữ tương ứng với mỗi kiểu máy tính."
+              }
+            ]
+          },
+          {
+            "type": "heading",
+            "attrs": {
+              "level": 2
+            },
+            "content": [
+              {
+                "type": "text",
+                "text": "Ngôn ngữ máy (Machine language)"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Ngôn ngữ máy được xây dựng từ các chỉ thị và các lệnh rời rạc, tùy vào mỗi kiến trúc xử lý mà tập lệnh được xác lập bởi các đặc thù riêng:"
+              }
+            ]
+          },
+          {
+            "type": "bulletList",
+            "content": [
+              {
+                "type": "listItem",
+                "content": [
+                  {
+                    "type": "paragraph",
+                    "content": [
+                      {
+                        "type": "text",
+                        "text": "Các thanh ghi dùng cho tính toán số học"
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "type": "listItem",
+                "content": [
+                  {
+                    "type": "paragraph",
+                    "content": [
+                      {
+                        "type": "text",
+                        "text": "Cách bố trí bộ nhớ và tính địa chỉ"
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "type": "listItem",
+                "content": [
+                  {
+                    "type": "paragraph",
+                    "content": [
+                      {
+                        "type": "text",
+                        "text": "Cách điều khiển rẽ nhánh"
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "type": "listItem",
+                "content": [
+                  {
+                    "type": "paragraph",
+                    "content": [
+                      {
+                        "type": "text",
+                        "text": "Các kiểu đánh địa chỉ đặc thù dùng để giải các toán hạng"
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Nhiều lệnh phức hợp được tạo dựng bằng cách kết hợp nhiều chỉ thị đơn giản với nhau, các chỉ thị này tuân theo nguyên lý máy tính Von Neumann, tức là thực thi tuần tự và rẽ nhánh theo lệnh phân luồng. Một số lệnh điển hình có mặt trong hầu hết các tập lệnh gồm có:"
+              }
+            ]
+          },
+          {
+            "type": "bulletList",
+            "content": [
+              {
+                "type": "listItem",
+                "content": [
+                  {
+                    "type": "paragraph",
+                    "content": [
+                      {
+                        "type": "text",
+                        "text": "Lệnh gán"
+                      }
+                    ]
+                  },
+                  {
+                    "type": "bulletList",
+                    "content": [
+                      {
+                        "type": "listItem",
+                        "content": [
+                          {
+                            "type": "paragraph",
+                            "content": [
+                              {
+                                "type": "text",
+                                "text": "Gán cho một thanh ghi (một vùng nhớ tạm thời trong CPU) một giá trị hằng số xác định"
+                              }
+                            ]
+                          }
+                        ]
+                      },
+                      {
+                        "type": "listItem",
+                        "content": [
+                          {
+                            "type": "paragraph",
+                            "content": [
+                              {
+                                "type": "text",
+                                "text": "Chuyển dữ liệu từ một vùng nhớ sang một thanh ghi hoặc ngược lại. Thao tác này dùng để chuẩn bị dữ liệu cho một tính toán sau đó hoặc để lưu kết quả của một tính toán trước đó."
+                              }
+                            ]
+                          }
+                        ]
+                      },
+                      {
+                        "type": "listItem",
+                        "content": [
+                          {
+                            "type": "paragraph",
+                            "content": [
+                              {
+                                "type": "text",
+                                "text": "Đọc /ghi dữ liệu từ/vào các thiết bị phần cứng"
+                              }
+                            ]
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "type": "listItem",
+                "content": [
+                  {
+                    "type": "paragraph",
+                    "content": [
+                      {
+                        "type": "text",
+                        "text": "Lệnh cho tính toán"
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "type": "bulletList",
+            "content": [
+              {
+                "type": "listItem",
+                "content": [
+                  {
+                    "type": "bulletList",
+                    "content": [
+                      {
+                        "type": "listItem",
+                        "content": [
+                          {
+                            "type": "paragraph",
+                            "content": [
+                              {
+                                "type": "text",
+                                "text": "Cộng, trừ, nhân hoặc chia các giá trị chứa trong các thanh ghi và lưu kết quả vào một thanh ghi"
+                              }
+                            ]
+                          }
+                        ]
+                      },
+                      {
+                        "type": "listItem",
+                        "content": [
+                          {
+                            "type": "paragraph",
+                            "content": [
+                              {
+                                "type": "text",
+                                "text": "Thực hiện các phép thao tác bit “và”/”hoặc” (AND/OR) trên một cặp thanh ghi, hoặc phép phủ định bit trên một thanh ghi"
+                              }
+                            ]
+                          }
+                        ]
+                      },
+                      {
+                        "type": "listItem",
+                        "content": [
+                          {
+                            "type": "paragraph",
+                            "content": [
+                              {
+                                "type": "text",
+                                "text": "So sánh nhỏ hơn/lớn hơn/ bằng nhau giữa hai giá trị lưu trong hai thanh ghi"
+                              }
+                            ]
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "type": "listItem",
+                "content": [
+                  {
+                    "type": "paragraph",
+                    "content": [
+                      {
+                        "type": "text",
+                        "text": "Lệnh điều khiển rẽ nhánh"
+                      }
+                    ]
+                  },
+                  {
+                    "type": "bulletList",
+                    "content": [
+                      {
+                        "type": "listItem",
+                        "content": [
+                          {
+                            "type": "paragraph",
+                            "content": [
+                              {
+                                "type": "text",
+                                "text": "Nhảy tới một vị trí trong chương trình và thực thi các lệnh ở đó"
+                              }
+                            ]
+                          }
+                        ]
+                      },
+                      {
+                        "type": "listItem",
+                        "content": [
+                          {
+                            "type": "paragraph",
+                            "content": [
+                              {
+                                "type": "text",
+                                "text": "Nhảy tới một vị trí khác nếu một điều kiện nhất định được thỏa mãn"
+                              }
+                            ]
+                          }
+                        ]
+                      },
+                      {
+                        "type": "listItem",
+                        "content": [
+                          {
+                            "type": "paragraph",
+                            "content": [
+                              {
+                                "type": "text",
+                                "text": "Nhảy tới một vị trí nhưng lưu lại vị trí của lệnh tiếp theo để làm điểm nhảy trở về (thường là một lời gọi hàm)"
+                              }
+                            ]
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Một số máy tính bao gồm các chỉ thị lệnh phức hợp trong tập lệnh của chúng. Một lệnh phức hợp thường thực hiện những tác vụ cần nhiều chỉ thị lệnh trên nhiều máy khác nhau, chúng thực hiện trong nhiều bước, điều khiển nhiều đơn vị chức năng. Danh sách minh họa một số lệnh phức hợp:"
+              }
+            ]
+          },
+          {
+            "type": "bulletList",
+            "content": [
+              {
+                "type": "listItem",
+                "content": [
+                  {
+                    "type": "paragraph",
+                    "content": [
+                      {
+                        "type": "text",
+                        "text": "Lưu lại nhiều thanh ghi trên ngăn xếp chỉ một lần"
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "type": "listItem",
+                "content": [
+                  {
+                    "type": "paragraph",
+                    "content": [
+                      {
+                        "type": "text",
+                        "text": "Di chuyển các khối vùng nhớ lớn"
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "type": "listItem",
+                "content": [
+                  {
+                    "type": "paragraph",
+                    "content": [
+                      {
+                        "type": "text",
+                        "text": "Các phép toán dấu phảy động phức tạp (sine, cosine, square root, etc.)"
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "type": "listItem",
+                "content": [
+                  {
+                    "type": "paragraph",
+                    "content": [
+                      {
+                        "type": "text",
+                        "text": "Các lệnh ALU liên kết với một toán hạng từ bộ nhớ thay vì với một thanh ghi"
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Một kiểu lệnh phức hợp được dùng phổ biến ngày nay là các phép toán SIMD hay các lệnh vector (vector instruction) có khả năng thực hiện cùng một phép toán số học trên nhiều phần của dữ liệu trong cùng một thời điểm. Các lệnh SIMD (single instruction multile data) cho phép thực hiện song song nhiều thuật toán liên quan đến xử lý âm thanh, hình ảnh và video một cách dễ dàng. Nhiều tập lệnh thực thi SIMD tích hợp trong CPU đã được thương mại hóa dưới các thương hiệu như MMX và SSE, SSE2, SSE3, SSE4 (Intel), 3DNow! (AMD), AltiVec (IBM), tm3260 và tm5250 (Nexperia - Philips) …"
+              }
+            ]
+          },
+          {
+            "type": "heading",
+            "attrs": {
+              "level": 1
+            },
+            "content": [
+              {
+                "type": "text",
+                "text": "Thiết kế"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Chỉ thị lệnh trong hợp ngữ nói chung là đơn giản, không giống như trong ngôn ngữ bậc cao. Mỗi chỉ thị lệnh điển hình thường bao gồm một mã lệnh (operation/ opcode hay đơn giản là instruction) theo với một hoặc nhiều toán hạng (operands), hoặc không có toán hạng nào. Hầu hết các chỉ thị lệnh đều tham khảo tới một giá trị đơn hoặc cặp giá trị. Mỗi chỉ thị lệnh thường được mã hóa tương ứng trực tiếp với một chỉ thị ngôn ngữ máy khả thi đơn lẻ. Những thành phần thông thường có trong hầu hết các hợp ngữ gồm có:"
+              }
+            ]
+          },
+          {
+            "type": "bulletList",
+            "content": [
+              {
+                "type": "listItem",
+                "content": [
+                  {
+                    "type": "paragraph",
+                    "content": [
+                      {
+                        "type": "text",
+                        "text": "Các định nghĩa dữ liệu (Data definitions). Các chỉ thị phụ cho phép lập trình viên dành riêng một vùng nhớ cho các câu lệnh ngôn ngữ máy tham khảo tới. Vùng nhớ này thường được khởi tạo bằng các ký tự, chuỗi và các kiểu dữ liệu cơ sở khác"
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "type": "listItem",
+                "content": [
+                  {
+                    "type": "paragraph",
+                    "content": [
+                      {
+                        "type": "text",
+                        "text": "Nhãn (Labels). Các định nghĩa dữ liệu được tham chiếu tới bằng cách sử dụng các định danh (nhãn hoặc ký hiệu) do lập trình viên chỉ định. Chúng có thể là các hằng số, các biến hay các thành phần của cấu trúc. Nhãn cũng có thể được gán cho các vùng mã thực thi như địa chỉ bắt đầu của một thủ tục hoặc đích nhảy tới của lệng GOTO. Hầu hết các trình hợp dịch đều có khả năng quản lý các nhãn một cách linh hoạt, giúp cho lập trình viên thao tác trên nhiều không gian tên khác nhau, tự động tính độ lệch địa chỉ trong các cấu trúc dữ liệu và tham chiếu tới các nhãn chứa giá trị định trước hay kết quả của một tính toán."
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "type": "listItem",
+                "content": [
+                  {
+                    "type": "paragraph",
+                    "content": [
+                      {
+                        "type": "text",
+                        "text": "Chú dẫn (Comments). Giống như nhiều ngôn ngữ máy tính khác, hợp ngữ cũng hỗ trợ việc thêm các chú dẫn vào trong mã nguồn, chúng sẽ được trình hợp dịch bỏ qua trong quá trình biên dịch"
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "type": "listItem",
+                "content": [
+                  {
+                    "type": "paragraph",
+                    "content": [
+                      {
+                        "type": "text",
+                        "text": "Tập lệnh bó (Macros). Hầu hết các trình hợp dịch đều nhúng ngôn ngữ macro vào tập lệnh chính. Lập trình viên dùng macro để tránh phải lặp lại những đoạn mã tương tự, trong quá trình tiền biên dịch tùy vào các đối số của macro mà các lệnh trong thân macro sẽ được sửa đổi và chèn vào vị trí gọi macro. Ngoài ra macro cũng được nhà sản xuất thiết bị dùng để đóng gói các phép tính đặc biệt ví dụ như:"
+                      }
+                    ]
+                  },
+                  {
+                    "type": "bulletList",
+                    "content": [
+                      {
+                        "type": "listItem",
+                        "content": [
+                          {
+                            "type": "paragraph",
+                            "content": [
+                              {
+                                "type": "text",
+                                "text": "Các bộ vi xử lý 8 bit thường dùng macro để tăng hoặc giảm một giá trị 16 bit lưu trong hai byte liên tục, đây là phép toán thường phải thực hiện trong trong ba hoặc bốn chỉ thị lệnh đơn lẻ. (bộ vi xử lý MOS Technology 6502)"
+                              }
+                            ]
+                          }
+                        ]
+                      },
+                      {
+                        "type": "listItem",
+                        "content": [
+                          {
+                            "type": "paragraph",
+                            "content": [
+                              {
+                                "type": "text",
+                                "text": "Nhà sản xuất cũng hỗ trợ các macro để dùng cho các giao tiếp hệ thống như các thao tác vào/ra (I/O) hay các yêu cầu cấp thấp từ hệ điều hành. Trong các máy tính lớn của IBM, các thư viện macro khổng lồ cung cấp các phương thức truy xuất và các dịch vụ hệ thống khác"
+                              }
+                            ]
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Những tính năng trên được mượn từ các thiết kế ngôn ngữ bậc cao nên đã đơn giản hóa những vấn đề trong lập trình và bảo trì mã nguồn cấp thấp. Mã nguồn hợp ngữ thô cũng có thể tạo ra bằng các trình biên dịch ngôn ngữ bậc cao (compiler) hoặc bằng các trình phân dịch mã máy (disassembler), nhưng chúng thường không có chú dẫn cũng như các định danh dễ hiểu nên rất khó đọc."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Ngoài các đặc tính cơ bản ở trên, tuy nhiên vài hợp ngữ cũng có những tính năng ngoại lệ như:"
+              }
+            ]
+          },
+          {
+            "type": "bulletList",
+            "content": [
+              {
+                "type": "listItem",
+                "content": [
+                  {
+                    "type": "paragraph",
+                    "content": [
+                      {
+                        "type": "text",
+                        "text": "Nhiều trình hợp dịch bao gồm các ngôn ngữ macro rất phức tạp, cho phép phối hợp với các phần tử của ngôn ngữ bậc cao như các biến tượng trưng, các lệnh điều kiện, các thao tác chuỗi và các phép tính số học. Do đó một macro có thể thay thế một lượng lớn các lệnh hợp ngữ hoặc các định nghĩa dữ liệu dựa trên các tham số của nó. Nó có thể dùng để sinh ra các cấu trúc kiểu bản ghi hay các vòng lặp “mở” (unrolled) hoặc dựa trên các tham số phức tạp nó có thể giải quyết trọn vẹn một thuật giải."
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "type": "heading",
+            "attrs": {
+              "level": 1
+            },
+            "content": [
+              {
+                "type": "text",
+                "text": "Ứng dụng"
+              }
+            ]
+          },
+          {
+            "type": "heading",
+            "attrs": {
+              "level": 2
+            },
+            "content": [
+              {
+                "type": "text",
+                "text": "Trong quá khứ"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Về mặt lịch sử, đã từng có một số lượng lớn các chương trình đã được viết hoàn toàn bằng hợp ngữ. Trước khi xuất hiện ngôn ngữ C vào những năm 1970 và đầu thập niên 1980, các hệ điều hành hầu như được độc quyền viết bằng hợp ngữ. Nhiều ứng dụng thương mại cũng được viết bằng hợp ngữ, bao gồm một khối lượng lớn các phần mềm cho máy tính lớn của IMB được các tập đoàn lớn viết. Cuối cùng thì ngôn ngữ COBOL và FORTRAN đã thay thế hợp ngữ mặc dù còn nhiều tổ chức vẫn giữ lại các kiến trúc ứng dụng kiểu hợp ngữ trong suốt thập niên 1980. Hầu hết các máy vi tính (micro-computer) buổi đầu chủ yếu vận hành bằng hợp ngữ, bao gồm các hệ điều hành và các ứng dụng lớn. Lý do là bởi các hệ thống này bị hạn chế về tài nguyên, thiết bị, bộ nhớ và kiến trúc hiển thị cũng như các dịch vụ hệ thống dễ lỗi. Lý do quan trọng hơn, có lẽ là sự thiếu hụt các trình biên dịch bậc cao tiên tiến vốn thích hợp cho các hệ thống vi tính. Các ứng dụng lớn viết bằng hợp ngữ điển hình như hệ điều hành CP/M và MS-DOS, bảng tính spreadsheet và Lotus-123 trong các máy IBM-PC đời đầu, và nhiều các trò chơi phổ biến cho máy Commodore 64. Thậm chí tới những năm 1990, nhiều các trò chơi video giải trí vẫn được viết bằng hợp ngữ, bao gồm các trò chơi cho máy Mega Drive/Genesis và Super Nintendo Entertainment System."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Ngoài ra còn một dạng \"ứng dụng\" không được khuyến khích đó là virus máy tính. Trong các những năm '80 và đầu những năm '90 hầu hết virus máy tính được viết bằng hợp ngữ, lý do là sự giảm thiểu kích thước của virus cũng như khả năng can thiệp sâu vào hệ thống của hợp ngữ."
+              }
+            ]
+          },
+          {
+            "type": "heading",
+            "attrs": {
+              "level": 2
+            },
+            "content": [
+              {
+                "type": "text",
+                "text": "Hiện nay"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Đã từng có nhiều tranh luận về tiện dụng và hiệu năng của hợp ngữ so với các ngôn ngữ bậc cao, tuy ngày nay người ta ít chú ý tới điều đó nữa. Hợp ngữ vẫn đóng vai trò quan trong trong một số nhu cầu cần thiết. Nói chung, các trình biên dịch hiện đại ngày nay đều có khả năng biên dịch các ngôn ngữ bậc cao thành mã mà có thể thực thi nhanh ít nhất bằng hợp ngữ. Độ phức tạp của các bộ vi xử lý hiện đại cho phép tối ưu mã một cách hiệu quả, hơn nữa, phần lớn thời gian hoạt động của CPU rơi vào trạng thái rỗi bởi nó phải đợi kết quả từ cá các tính toán “thắt cổ chai” như các thao tác I/O và truy xuất bộ nhớ. Vì thế tốc độ thực thi mã thô (raw code) trở thành vấn đề ít quan trọng đối với hầu hết lập trình viên, sự xuất hiện các ngôn ngữ thông dịch (interpreted language) ngày càng nhiều là một minh chứng cho điều này."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Ngày nay có một số ít tình huống mà các chuyên gia thực sự muốn dùng hợp ngữ cho công việc của họ là:"
+              }
+            ]
+          },
+          {
+            "type": "bulletList",
+            "content": [
+              {
+                "type": "listItem",
+                "content": [
+                  {
+                    "type": "paragraph",
+                    "content": [
+                      {
+                        "type": "text",
+                        "text": "Khi các thiết bị hoạt động độc lập mà không cần tài nguyên hay các thư viện liên kết với ngôn ngữ bậc cao. Đây có lẽ là trường hợp phổ biến nhất"
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "type": "listItem",
+                "content": [
+                  {
+                    "type": "paragraph",
+                    "content": [
+                      {
+                        "type": "text",
+                        "text": "Khi cần giao tiếp trực tiếp với phần cứng như trình điều khiển thiết bị, hoặc khi muốn dùng các chỉ thị vi xử lý mà trình biên dịch không tận dụng được"
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "type": "listItem",
+                "content": [
+                  {
+                    "type": "paragraph",
+                    "content": [
+                      {
+                        "type": "text",
+                        "text": "Khi cần tối ưu khắt khe như các thuật toán có dùng vòng lặp tiêu tốn nhiều năng lực xử lý"
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "type": "listItem",
+                "content": [
+                  {
+                    "type": "paragraph",
+                    "content": [
+                      {
+                        "type": "text",
+                        "text": "Khi một hệ thống cần phải viết mã thủ công để tận dụng nguồn tài nguyên hạn hẹp. Ngày nay điều đó có vẻ không phổ biến nữa do giá cả CPU giảm đồng thời hiệu năng hoạt động CPU đã cải thiện đáng kể."
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "type": "listItem",
+                "content": [
+                  {
+                    "type": "paragraph",
+                    "content": [
+                      {
+                        "type": "text",
+                        "text": "Khi các ngôn ngữ bậc cao không thể áp dụng được trên một CPU mới hoặc CPU chuyên dụng."
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Ngày nay lập trình viên có thể chọn một ngôn ngữ cấp thấp như C để viết các ứng dụng cần hiệu năng cao, tuy điều đó không dễ dàng bởi một ứng dụng viết bằng C sẽ không hiểu quả hơn ứng dụng viết bằng hợp ngữ. Ngoài ra, hợp ngữ vẫn còn được giảng dạy trong hầu hết các chương trình Khoa học máy tính, các khái niệm nền tảng vẫn có ý nghĩa quan trọng. Chẳng hạn như số học nhị phân, cấp phát bộ nhớ, xử lý ngăn xếp, mã hóa tập ký tự, xử lý ngắt và thiết kế trình dịch vẫn được nghiên cứu một cách chi tiết và hệ thống bất kể phần cứng máy tính hoạt động như thế nào. Cách hoạt động của máy tính được xác định bởi tập lệnh cơ sở của nó, vì vậy để hiểu các khái niệm cơ sở đó cách tốt nhất là nghiên cứu hợp ngữ của nó. May thay, hầu như các máy tính hiện đại đều có các tập lệnh tương tự nhau, do đó chỉ nắm được một hợp ngữ cũng có đủ để hiểu được các khái niệm cơ bản ở các hợp ngữ trên hệ thống khác."
+              }
+            ]
+          },
+          {
+            "type": "heading",
+            "attrs": {
+              "level": 2
+            },
+            "content": [
+              {
+                "type": "text",
+                "text": "Các ứng dụng điển hình"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Hợp ngữ mã cấp thấp thường được dùng cho BIOS lưu trong ROM của một hệ thống để khởi tạo và kiểm tra phần cứng hệ thống trước khi khởi tạo hệ điều hành. Khi khởi tạo phần cứng hoàn thành, quyền điều khiển hệ thống sẽ được chuyển qua cho các phần mã thự thi khác (thường được viết bằng ngôn ngữ bậc cao). Điều này cũng đúng cho hầu hết các trình khởi động (boot loader)."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Nhiều trình biên dịch chuyển đổi các ngôn ngữ bậc cao thành hợp ngữ trước khi biên dịch thực sự, điều này cho phép kiểm tra mã phục vụ mục đích gỡ rối và tối ưu. Các ngôn ngữ cấp thấp như C thường cung cấp các cú pháp đặc biệt cho phép nhúng trực tiếp hợp ngữ vào mã nguồn. Các chương trình tận dụng tính năng này như Nhân Linux có thể tạo ra các tầng trừu tượng để sử dụng trên nhiều kiến trúc phần cứng khác nhau."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Hợp ngữ cũng có giá trị trong kỹ thuật dịch ngược (reverse engineering). Các chương trình lớn vốn chỉ được phân phối dưới dạng mã máy, chúng thường dễ dàng dịch ngược thành hợp ngữ để kiểm tra nhưng rất khó dịch ngược ra mã ngôn ngữ bậc cao."
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "title": "MỘT SỐ BIỆN PHÁP AN TOÀN DỮ LIỆU TRONG VIỆC LƯU TRỮ THÔNG TIN TRONG ĐĨA TỪ",
+      "description": null,
+      "estimatedMinutes": null,
+      "orderIndex": 6,
+      "content": {
+        "type": "doc",
+        "content": [
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Người ta thường chú trọng đến sự an toàn trong lưu giữ thông tin ở đĩa từ hơn là sự an toàn của thông tin trong bộ xử lý. Bộ xử lý có thể hư mà không làm tổn hại đến thông tin. Ổ đĩa của máy tính bị hư có thể gây ra các thiệt hại rất to lớn."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Một phương pháp giúp tăng cường độ an toàn của thông tin trên đĩa từ là dùng một mảng đĩa từ. Mảng đĩa từ này được gọi là Hệ thống đĩa dự phòng ( RAID - Redundant Array of Independent Disks ). Cách lưu trữ dư thông tin làm tăng giá tiền và sự an toàn (ngoại trừ RAID 0). Cơ chế RAID có các đặc tính sau:"
+              }
+            ]
+          },
+          {
+            "type": "orderedList",
+            "attrs": {
+              "start": 1
+            },
+            "content": [
+              {
+                "type": "listItem",
+                "content": [
+                  {
+                    "type": "paragraph",
+                    "content": [
+                      {
+                        "type": "text",
+                        "text": "RAID là một tập hợp các ổ đĩa cứng (vật lý) được thiết lập theo một kỹ thuật mà hệ điều hành chỉ “nhìn thấy” chỉ là một ổ đĩa (logic) duy nhất."
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "type": "listItem",
+                "content": [
+                  {
+                    "type": "paragraph",
+                    "content": [
+                      {
+                        "type": "text",
+                        "text": "Với cơ chế đọc/ghi thông tin diễn ra trên nhiều đĩa (ghi đan chéo hay soi gương)."
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "type": "listItem",
+                "content": [
+                  {
+                    "type": "paragraph",
+                    "content": [
+                      {
+                        "type": "text",
+                        "text": "Trong mảng đĩa có lưu các thông tin kiểm tra lỗi dữ liệu; do đó, dữ liệu có thể được phục hồi nếu có một đĩa trong mảng đĩa bị hư hỏng ."
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Tuỳ theo kỹ thuật thiết lập, RAID có thể có các mức sau:"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "i). RAID 0 : Thực ra, kỹ thuật này không nằm trong số các kỹ thuật có cơ chế an toàn dữ liệu. Khi mảng được thiết lập theo RAID 0, ổ đĩa logic có được (mà hệ điều hành nhận biết) có dung dượng bằng tổng dung lượng của các ổ đĩa thành viên. Điều này giúp cho người dùng có thể có một ổ đĩa logic có dung lượng lớn hơn rất nhiều so với dung lượng thật của ổ đĩa vật lý cùng thời điểm. Dữ liệu được ghi phân tán trên tất cả các đĩa trong mảng. Đây chính là sự khác biệt so với việc ghi dữ liệu trên các đĩa riêng lẻ bình thường bởi vì thời gian đọc-ghi dữ liệu trên đĩa tỉ lệ nghịch với số đĩa có trong tập hợp (số đĩa trong tập hợp càng nhiều, thời gian đọc – ghi dữ liệu càng nhanh). Tính chất này của RAID 0 thật sự hữu ích trong các ứng dụng yêu cầu nhiều thâm nhập đĩa với dung lượng lớn, tốc độ cao (đa phương tiện, đồ hoạ,…). Tuy nhiên, như đã nói ở trên, kỹ thuật này không có cơ chế an toàn dữ liệu, nên khi có bất kỳ một hư hỏng nào trên một đĩa thành viên trong mảng cũng sẽ dẫn đến việc mất dữ liệu toàn bộ trong mảng đĩa. Xác suất"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "hư hỏng đĩa tỉ lệ thuận với số lượng đĩa được thiết lập trong RAID 0. RIAD 0 có thể được thiết lập bằng phần cứng (RAID controller) hay phần mềm (Stripped Applications)"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "iii) RAID 2 : Dùng kỹ thuật truy cập đĩa song song, tất cả các đĩa thành viên trong RAID đều được đọc khi có một yêu cầu từ ngoại vi. Một mã sửa lỗi (ECC) được tính toán dựa vào các dữ liệu được ghi trên đĩa lưu dữ liệu, các bit được mã hoá được lưu trong các đĩa dùng làm đĩa kiểm tra. Khi có một yêu cầu dữ liệu, tất cả các đĩa được truy cập đồng thời. Khi phát hiện có lỗi, bộ điều khiển nhận dạng và sửa lỗi ngay mà không làm giảm thời gian truy cập đĩa. Với một thao tác ghi dữ liệu lên một đĩa, tất cả các đĩa dữ liệu và đĩa sửa lỗi đều được truy cập để tiến hành thao tác ghi. Thông thường, RAID 2 dùng mã Hamming để thiết lập cơ chế mã hoá, theo đó, để mã hoá dữ liệu được ghi, người ta dùng một bit sửa lỗi và hai bit phát hiện lỗi. RAID 2 thích hợp cho hệ thống yêu cầu giảm thiểu được khả năng xảy ra nhiều đĩa hư hỏng cùng lúc."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "iv) RAID 4: từ RAID 4 đến RAID 6 dùng kỹ thuật truy cập các đĩa trong mảng độc lập. Trong một mảng truy cập độc lập, mỗi đĩa thành viên được truy xuất độc lập, do đó mảng có thể đáp ứng được các yêu cầu song song của ngoại vi. Kỹ thuật này thích hợp với các ứng dụng yêu cầu nhiều ngoại vi là các ứng dụng yêu cầu tốc độ truyền dữ liệu"
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "cao. Trong RAID 4, một đĩa dùng để chứa các bit kiểm tra được tính toán từ dữ liệu được lưu trên các đĩa dữ liệu. Khuyết điểm lớn nhất của RAID 4 là bị nghẽn cổ chai tại đĩa kiểm tra khi có nhiều yêu cầu đồng thời từ các ngoại vi."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "v). RAID 5: yêu cầu thiết lập giống như RAID 4, dữ liệu được ghi từng khối trên các đĩa thành viên, các bit chẵn lẻ được tính toán mức độ khối được ghi trải đều lên trên tất cả các ổ đĩa trong mảng. Tương tự RAID 4, khi một đĩa bất kỳ trong mảng bị hư hỏng, hệ thống vẫn hoạt động bình thường. Khi thay thế một đĩa mới vào mảng, căn cứ vào dữ liệu trên các đĩa còn lại, hệ thống tái tạo thông tin. Hiệu suất sử dụng đĩa cho cách thiết lập này là n-1/n. RAID 5 chỉ có thể được thiết lập bằng phần cứng (RAID controller). Cơ chế này khắc phục được khuyết điểm đã nêu trong cơ chế RAID 4."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "vi). RAID 6: Trong kỹ thuật này, cần có n+2 đĩa trong mảng. Trong đó, n đĩa dữ liệu và 2 đĩa riêng biệt để lưu các khối kiểm tra. Một trong hai đĩa kiểm tra dùng cơ chế kiểm tra như trong RAID 4&5, đĩa còn lại kiểm tra độc lập theo một giải thuật kiểm tra. Qua đó, nó có thể phục hồi được dữ liệu ngay cả khi có hai đĩa dữ liệu trong mảng bị hư hỏng."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "Hiện nay, RAID 0,1,5 được dùng nhiều trong các hệ thống. Các giải pháp RAID trên đây (trừ RAID 6) chỉ đảm bảo an toàn dữ liệu khi có một đĩa trong mảng bị hư hỏng. Ngoài ra, các hư hỏng dữ liệu do phần mềm hay chủ quan của con người không được đề cập trong chương trình. Người dùng cần phải có kiến thức đầy đủ về hệ thống để các hệ thống thông tin hoạt động hiệu quả và an toàn."
+              }
+            ]
+          },
+          {
+            "type": "paragraph",
+            "content": [
+              {
+                "type": "text",
+                "text": "*****"
+              }
+            ]
+          }
+        ]
+      }
+    }
+  ]
+}
