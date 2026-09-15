@@ -51,7 +51,6 @@ class TopicKnowledgeConsumer:
         max_retries = 5
 
         for attempt in range(max_retries):
-
             try:
                 await self._handler.handle(event)
 
@@ -60,17 +59,22 @@ class TopicKnowledgeConsumer:
                 return
 
             except Exception as exc:
-
                 message = str(exc)
 
-                retryable = (
+                is_rate_limit = (
                         "429" in message
                         or "RESOURCE_EXHAUSTED" in message
-                        or "503" in message
+                )
+
+                is_unavailable = (
+                        "503" in message
                         or "UNAVAILABLE" in message
                 )
 
-                if not retryable:
+                if not (
+                        is_rate_limit
+                        or is_unavailable
+                ):
                     logger.exception(
                         "Topic knowledge indexing failed: "
                         "topic_id=%s",
@@ -86,14 +90,23 @@ class TopicKnowledgeConsumer:
                     )
                     raise
 
-                delay = min(
-                    2 ** attempt + random.uniform(0, 1),
-                    60,
-                )
+                if is_rate_limit:
+                    # Gemini free-tier RPM resets
+                    # roughly after one minute.
+                    delay = 65
+
+                else:
+                    # Temporary Gemini outage.
+                    delay = min(
+                        2 ** attempt
+                        + random.uniform(0, 1),
+                        30,
+                    )
 
                 logger.warning(
                     "Temporary embedding error. "
-                    "topic_id=%s retry=%s/%s "
+                    "topic_id=%s "
+                    "retry=%s/%s "
                     "waiting=%.1fs",
                     event.topic_id,
                     attempt + 1,
