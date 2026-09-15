@@ -1,5 +1,7 @@
+import asyncio
 import json
 import logging
+import random
 
 from aiokafka import AIOKafkaConsumer
 from pydantic import ValidationError
@@ -46,10 +48,57 @@ class TopicKnowledgeConsumer:
             logger.exception("Invalid topic knowledge event")
             raise
 
-        try:
-            await self._handler.handle(event)
-        except Exception:
-            logger.exception("Topic knowledge indexing failed: topic_id=%s", event.topic_id)
-            raise
+        max_retries = 5
 
-        await self._consumer.commit()
+        for attempt in range(max_retries):
+
+            try:
+                await self._handler.handle(event)
+
+                await self._consumer.commit()
+
+                return
+
+            except Exception as exc:
+
+                message = str(exc)
+
+                retryable = (
+                        "429" in message
+                        or "RESOURCE_EXHAUSTED" in message
+                        or "503" in message
+                        or "UNAVAILABLE" in message
+                )
+
+                if not retryable:
+                    logger.exception(
+                        "Topic knowledge indexing failed: "
+                        "topic_id=%s",
+                        event.topic_id,
+                    )
+                    raise
+
+                if attempt == max_retries - 1:
+                    logger.exception(
+                        "Topic knowledge indexing failed "
+                        "after retries: topic_id=%s",
+                        event.topic_id,
+                    )
+                    raise
+
+                delay = min(
+                    2 ** attempt + random.uniform(0, 1),
+                    60,
+                )
+
+                logger.warning(
+                    "Temporary embedding error. "
+                    "topic_id=%s retry=%s/%s "
+                    "waiting=%.1fs",
+                    event.topic_id,
+                    attempt + 1,
+                    max_retries,
+                    delay,
+                )
+
+                await asyncio.sleep(delay)

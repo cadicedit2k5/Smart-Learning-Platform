@@ -56,7 +56,7 @@ public class AssignmentServiceImpl
         );
 
         return assignmentRepository
-                .findAllByCourseIdAndDeletedAtIsNullOrderByDueAtAsc(
+                .findAllByCourseIdOrdered(
                         courseId
                 )
                 .stream()

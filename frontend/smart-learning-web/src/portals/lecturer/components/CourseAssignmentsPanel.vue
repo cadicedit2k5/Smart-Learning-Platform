@@ -103,19 +103,12 @@ const studentName = (studentId: string) => {
 const studentEmail = (studentId: string) =>
   users.value[studentId]?.email ?? ''
 
-const sortAssignments = () => {
-  assignments.value.sort(
-    (a, b) => new Date(a.dueAt).getTime() - new Date(b.dueAt).getTime(),
-  )
-}
-
 const loadAssignments = async () => {
   loadingAssignments.value = true
   actionMessage.value = ''
 
   try {
     assignments.value = await getAssignments(props.courseId)
-    sortAssignments()
   } catch (error) {
     actionMessage.value = handleApiError(
       error,
@@ -236,12 +229,10 @@ const submitForm = async (input: AssignmentInput) => {
       if (index >= 0) assignments.value[index] = updated
       if (selectedAssignment.value?.id === updated.id) selectedAssignment.value = updated
 
-      sortAssignments()
       successMessage.value = 'Đã cập nhật bài tập.'
     } else {
       const created = await createAssignment(props.courseId, input)
       assignments.value.push(created)
-      sortAssignments()
       successMessage.value = 'Đã tạo bài tập mới.'
     }
 
@@ -703,7 +694,8 @@ onMounted(() => void loadAssignments())
         </div>
       </section>
 
-      <AssignmentFormModal
+    </template>
+     <AssignmentFormModal
         :open="formOpen"
         :assignment="editingAssignment"
         :loading="saving"
@@ -715,7 +707,7 @@ onMounted(() => void loadAssignments())
       <ConfirmDialog
         :open="deleteOpen"
         title="Xóa bài tập?"
-        :description="`Bạn có chắc muốn xóa “${selectedAssignment.title}”?`"
+        :description="`Bạn có chắc muốn xóa “${selectedAssignment?.title}”?`"
         confirm-text="Xóa bài tập"
         :loading="deleting"
         @close="deleteOpen = false"
@@ -727,11 +719,10 @@ onMounted(() => void loadAssignments())
         :submission="reviewingSubmission"
         :student-name="reviewingSubmission ? studentName(reviewingSubmission.studentId) : ''"
         :student-email="reviewingSubmission ? studentEmail(reviewingSubmission.studentId) : ''"
-        :max-score="selectedAssignment.maxScore"
+        :max-score="selectedAssignment?.maxScore ?? 0"
         :loading="grading"
         @close="closeSubmission"
         @grade="handleGrade"
       />
-    </template>
   </section>
 </template>

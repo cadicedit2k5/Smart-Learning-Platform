@@ -141,10 +141,6 @@ onMounted(() => void loadCourse())
               {{ course.title }}
             </h1>
 
-            <p class="mt-5 max-w-2xl text-base leading-7 text-app-text-muted sm:text-lg">
-              {{ descriptionPreview }}
-            </p>
-
             <div class="mt-8 flex flex-wrap gap-x-6 gap-y-4">
               <div class="flex items-center gap-2 text-sm text-app-text-muted">
                 <Layers3 :size="18" class="text-secondary" />
