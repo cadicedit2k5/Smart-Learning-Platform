@@ -28,7 +28,7 @@ import requests
 
 BASE_DIR = Path(__file__).resolve().parents[1]
 
-USERS_FILE = BASE_DIR / "demo-data" / "system" / "user.json"
+DATA_FILE = BASE_DIR / "demo-data" / "system" / "user.json"
 
 SYSTEM_API_URL = os.getenv(
     "SYSTEM_API_URL",

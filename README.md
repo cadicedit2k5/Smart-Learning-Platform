@@ -43,13 +43,84 @@ tài liệu học tập và tương tác với AI Tutor dựa trên RAG.
 - Python 3.x
 - Docker / Docker Compose
 
-## Run
+## Run Project
 
-Configure environment variables using the provided `.env.example`
-and `application.properties.example` files.
+### Requirements
 
-Start infrastructure:
+- Git
+- Docker Desktop / Docker Engine
+- Google Gemini API Key
 
-docker compose up -d
+### 1. Clone Project
 
-Then start backend services, Python AI Engine and frontend.
+```bash
+git clone -b refactor/document-course-only --single-branch https://github.com/cadicedit2k5/Smart-Learning-Platform.git
+cd Smart-Learning-Platform
+```
+
+### 2. Configure Environment
+
+Create `.env` from `.env.example`.
+
+**Windows PowerShell**
+
+```powershell
+Copy-Item .env.example .env
+```
+
+**Linux / macOS**
+
+```bash
+cp .env.example .env
+```
+
+Open `.env` and provide your Gemini API Key:
+
+```env
+GOOGLE_API_KEY=YOUR_GOOGLE_GEMINI_API_KEY
+```
+
+### 3. Start the Application
+
+```bash
+docker compose up --build -d
+```
+
+Check container status:
+
+```bash
+docker compose ps -a
+```
+
+Docker Compose will automatically start the backend services, Python AI Engine, frontend, PostgreSQL, Kafka, MinIO, and load demo data.
+
+### 4. Access the Application
+
+| Service | URL |
+| --- | --- |
+| Frontend | http://localhost:5173 |
+| API Gateway | http://localhost:8080 |
+| MinIO Console | http://localhost:9001 |
+
+### Demo Accounts
+
+| Role | Email | Password |
+| --- | --- | --- |
+| Admin | admin@gmail.com | Admin@123456 |
+| Lecturer | lecturer01@example.com | 12345678 |
+| Student | student01@example.com | 12345678 |
+
+### Stop the Application
+
+```bash
+docker compose down
+```
+
+To reset all data and initialize the project again:
+
+```bash
+docker compose down -v
+docker compose up --build -d
+```
+
+> `docker compose down -v` removes all Docker volumes, including PostgreSQL and MinIO data.
