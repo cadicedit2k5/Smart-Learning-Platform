@@ -24,6 +24,7 @@ logs/
 # Spring boot
 *.properties
 *.yml
+!docker-compose.yml
 
 # Compiled class file
 *.class

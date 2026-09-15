@@ -26,15 +26,9 @@ from pathlib import Path
 
 import requests
 
+BASE_DIR = Path(__file__).resolve().parents[1]
 
-BASE_DIR = Path(__file__).resolve().parent.parent
-
-DATA_FILE = Path(
-    os.getenv(
-        "SYSTEM_SEED_FILE",
-        BASE_DIR / "demo-data/system/users.json",
-    )
-)
+USERS_FILE = BASE_DIR / "demo-data" / "system" / "user.json"
 
 SYSTEM_API_URL = os.getenv(
     "SYSTEM_API_URL",

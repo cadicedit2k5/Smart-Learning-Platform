@@ -32,11 +32,12 @@ from pathlib import Path
 import mimetypes
 import requests
 
+BASE_DIR = Path(__file__).resolve().parents[1]
 
 DATA_DIR = Path(
     os.getenv(
         "DEMO_DATA_DIR",
-        "../demo-data/courses",
+        BASE_DIR / "demo-data" / "courses"
     )
 )
 

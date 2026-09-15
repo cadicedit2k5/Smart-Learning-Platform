@@ -6,8 +6,16 @@ ARG SERVICE
 
 COPY . .
 
-RUN chmod +x mvnw \
-    && ./mvnw -pl ${SERVICE} -am clean package -DskipTests
+RUN if [ -f "${SERVICE}/src/main/resources/application.properties.example" ]; then \
+        cp "${SERVICE}/src/main/resources/application.properties.example" \
+           "${SERVICE}/src/main/resources/application.properties"; \
+    fi \
+    && if [ -f "${SERVICE}/src/main/resources/application.yml.example" ]; then \
+        cp "${SERVICE}/src/main/resources/application.yml.example" \
+           "${SERVICE}/src/main/resources/application.yml"; \
+    fi \
+    && chmod +x mvnw \
+    && ./mvnw -pl "${SERVICE}" -am clean package -DskipTests
 
 FROM eclipse-temurin:21-jre-alpine
 
