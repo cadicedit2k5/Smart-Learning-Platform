@@ -2,16 +2,14 @@ package com.smartlearning.core.course.service.impl;
 
 import com.smartlearning.common.error.ApplicationException;
 import com.smartlearning.common.error.CommonErrorCode;
-import com.smartlearning.core.course.dto.request.AssignmentCreateRequest;
-import com.smartlearning.core.course.dto.request.AssignmentGradeRequest;
-import com.smartlearning.core.course.dto.request.AssignmentSubmissionRequest;
-import com.smartlearning.core.course.dto.request.AssignmentUpdateRequest;
+import com.smartlearning.core.course.dto.request.*;
 import com.smartlearning.core.course.dto.response.AssignmentResponse;
 import com.smartlearning.core.course.dto.response.AssignmentSubmissionResponse;
 import com.smartlearning.core.course.entity.Assignment;
 import com.smartlearning.core.course.entity.AssignmentSubmission;
 import com.smartlearning.core.course.entity.Course;
 import com.smartlearning.core.course.entity.CourseMember;
+import com.smartlearning.core.course.entity.enums.AssignmentStatus;
 import com.smartlearning.core.course.entity.enums.AssignmentSubmissionStatus;
 import com.smartlearning.core.course.entity.enums.CourseMemberRole;
 import com.smartlearning.core.course.repository.AssignmentRepository;
@@ -25,6 +23,7 @@ import com.smartlearning.storage.dto.FileUploadResponse;
 import com.smartlearning.storage.service.FileStorageService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -35,8 +34,7 @@ import java.util.UUID;
 @Service
 @Transactional
 @RequiredArgsConstructor
-public class AssignmentServiceImpl
-        implements AssignmentService {
+public class AssignmentServiceImpl implements AssignmentService {
 
     private final AssignmentRepository assignmentRepository;
     private final AssignmentSubmissionRepository submissionRepository;
@@ -45,134 +43,122 @@ public class AssignmentServiceImpl
     private final FileStorageService fileStorageService;
     private final NotificationService notificationService;
 
-    @Override
-    public List<AssignmentResponse> getAssignments(
-            UUID courseId,
-            UUID userId
-    ) {
-        courseAccessPolicy.requireActiveMember(
-                courseId,
-                userId
+    @Scheduled(fixedDelay = 60_000)
+    public void closeOverdueAssignments() {
+        assignmentRepository.closeOverdueAssignments(
+                AssignmentStatus.PUBLISHED,
+                AssignmentStatus.CLOSED,
+                Instant.now()
         );
+    }
 
-        return assignmentRepository
-                .findAllByCourseIdOrdered(
-                        courseId
-                )
-                .stream()
+    @Override
+    public List<AssignmentResponse> getAssignments(UUID courseId, UUID userId) {
+        CourseMember member = courseAccessPolicy.requireActiveMember(courseId, userId);
+        boolean canManage = member == null || member.getRole() == CourseMemberRole.OWNER;
+
+        return assignmentRepository.findAllByCourseIdOrdered(courseId).stream()
+                .filter(assignment -> canManage || assignment.getStatus() != AssignmentStatus.DRAFT)
                 .map(this::toAssignmentResponse)
                 .toList();
     }
 
     @Override
-    public AssignmentResponse createAssignment(
-            UUID courseId,
-            UUID userId,
-            AssignmentCreateRequest request
-    ) {
-        courseAccessPolicy.requireOwner(
-                courseId,
-                userId
-        );
+    public AssignmentResponse createAssignment(UUID courseId, UUID userId, AssignmentCreateRequest request) {
+        courseAccessPolicy.requireOwner(courseId, userId);
 
-        Course course = courseRepository
-                .findById(courseId)
-                .orElseThrow(() ->
-                        new ApplicationException(
-                                CommonErrorCode.RESOURCE_NOT_FOUND
-                        )
-                );
+        Course course = courseRepository.findById(courseId)
+                .orElseThrow(() -> new ApplicationException(CommonErrorCode.RESOURCE_NOT_FOUND));
 
         Assignment assignment = new Assignment();
-
         assignment.setCourse(course);
         assignment.setTitle(request.title().trim());
-        assignment.setDescription(
-                normalize(request.description())
-        );
+        assignment.setDescription(normalize(request.description()));
         assignment.setDueAt(request.dueAt());
         assignment.setMaxScore(request.maxScore());
         assignment.setCreatedBy(userId);
+        assignment.setStatus(AssignmentStatus.DRAFT);
 
-        Assignment saved = assignmentRepository.save(assignment);
+        return toAssignmentResponse(assignmentRepository.save(assignment));
+    }
+
+    @Override
+    public AssignmentResponse updateAssignment(UUID courseId, UUID assignmentId, UUID userId, AssignmentUpdateRequest request) {
+        courseAccessPolicy.requireOwner(courseId, userId);
+
+        Assignment assignment = requireAssignment(courseId, assignmentId);
+        requireDraft(assignment);
+
+        if (request.title() != null) assignment.setTitle(request.title().trim());
+        if (request.description() != null) assignment.setDescription(normalize(request.description()));
+        if (request.dueAt() != null) assignment.setDueAt(request.dueAt());
+        if (request.maxScore() != null) assignment.setMaxScore(request.maxScore());
+
+        return toAssignmentResponse(assignment);
+    }
+
+    @Override
+    public AssignmentResponse publishAssignment(UUID courseId, UUID assignmentId, UUID userId) {
+        courseAccessPolicy.requireOwner(courseId, userId);
+
+        Assignment assignment = requireAssignment(courseId, assignmentId);
+        requireDraft(assignment);
+
+        Instant now = Instant.now();
+
+        if (!assignment.getDueAt().isAfter(now)) {
+            throw new ApplicationException(CommonErrorCode.VALIDATION_FAILED, "Hạn nộp phải nằm sau thời điểm đăng bài.");
+        }
+
+        assignment.setStatus(AssignmentStatus.PUBLISHED);
+        assignment.setPublishedAt(now);
 
         notificationService.createForCourseStudents(
                 courseId,
                 NotificationType.ASSIGNMENT_CREATED,
                 "Bài tập mới",
-                "Giảng viên đã giao bài tập: " + saved.getTitle()
+                "Giảng viên đã giao bài tập: " + assignment.getTitle()
         );
 
-        return toAssignmentResponse(saved);
+        return toAssignmentResponse(assignment);
     }
 
     @Override
-    public AssignmentResponse updateAssignment(
-            UUID courseId,
-            UUID assignmentId,
-            UUID userId,
-            AssignmentUpdateRequest request
-    ) {
-        courseAccessPolicy.requireOwner(
-                courseId,
-                userId
-        );
+    public AssignmentResponse closeAssignment(UUID courseId, UUID assignmentId, UUID userId) {
+        courseAccessPolicy.requireOwner(courseId, userId);
 
-        Assignment assignment =
-                requireAssignment(
-                        courseId,
-                        assignmentId
-                );
+        Assignment assignment = requireAssignment(courseId, assignmentId);
+        Instant now = Instant.now();
 
-        if (request.title() != null) {
-            assignment.setTitle(
-                    request.title().trim()
+        closeIfOverdue(assignment, now);
+
+        if (assignment.getStatus() != AssignmentStatus.PUBLISHED) {
+            throw new ApplicationException(
+                    CommonErrorCode.DATA_CONFLICT,
+                    "Chỉ có thể đóng bài tập đang mở."
             );
         }
 
-        if (request.description() != null) {
-            assignment.setDescription(
-                    normalize(request.description())
-            );
-        }
+        assignment.setStatus(AssignmentStatus.CLOSED);
+        assignment.setClosedAt(now);
 
-        if (request.dueAt() != null) {
-            assignment.setDueAt(
-                    request.dueAt()
-            );
-        }
-
-        if (request.maxScore() != null) {
-            assignment.setMaxScore(
-                    request.maxScore()
-            );
-        }
-
-        return toAssignmentResponse(
-                assignmentRepository.save(assignment)
-        );
+        return toAssignmentResponse(assignment);
     }
 
     @Override
-    public void deleteAssignment(
-            UUID courseId,
-            UUID assignmentId,
-            UUID userId
-    ) {
-        courseAccessPolicy.requireOwner(
-                courseId,
-                userId
-        );
+    public void deleteAssignment(UUID courseId, UUID assignmentId, UUID userId) {
+        courseAccessPolicy.requireOwner(courseId, userId);
 
-        Assignment assignment =
-                requireAssignment(
-                        courseId,
-                        assignmentId
-                );
+        Assignment assignment = requireAssignment(courseId, assignmentId);
 
-        assignment.setDeletedAt(
-                Instant.now()
-        );
+        if (submissionRepository.existsByAssignmentId(assignmentId)) {
+            throw new ApplicationException(
+                    CommonErrorCode.DATA_CONFLICT,
+                    "Bài tập đã có bài nộp và không thể xóa."
+            );
+        }
+
+        assignment.setDeletedAt(Instant.now());
     }
 
     @Override
@@ -184,11 +170,8 @@ public class AssignmentServiceImpl
     ) {
         requireStudent(courseId, userId);
 
-        Assignment assignment =
-                requireAssignment(
-                        courseId,
-                        assignmentId
-                );
+        Assignment assignment = requireAssignment(courseId, assignmentId);
+        requireOpenForSubmission(assignment);
 
         String content =
                 normalize(request.content());
@@ -403,6 +386,75 @@ public class AssignmentServiceImpl
     }
 
     @Override
+    public AssignmentResponse extendDeadline(
+            UUID courseId,
+            UUID assignmentId,
+            UUID userId,
+            AssignmentDeadlineUpdateRequest request
+    ) {
+        courseAccessPolicy.requireOwner(courseId, userId);
+
+        Assignment assignment = requireAssignment(courseId, assignmentId);
+        Instant now = Instant.now();
+
+        closeIfOverdue(assignment, now);
+
+        if (assignment.getStatus() == AssignmentStatus.DRAFT) {
+            throw new ApplicationException(
+                    CommonErrorCode.DATA_CONFLICT,
+                    "Bài tập nháp có thể chỉnh sửa deadline trực tiếp."
+            );
+        }
+
+        if (!request.dueAt().isAfter(now)) {
+            throw new ApplicationException(
+                    CommonErrorCode.VALIDATION_FAILED,
+                    "Deadline mới phải nằm trong tương lai."
+            );
+        }
+
+        if (!request.dueAt().isAfter(assignment.getDueAt())) {
+            throw new ApplicationException(
+                    CommonErrorCode.VALIDATION_FAILED,
+                    "Deadline mới phải muộn hơn deadline hiện tại."
+            );
+        }
+
+        assignment.setDueAt(request.dueAt());
+
+        return toAssignmentResponse(assignment);
+    }
+
+    @Override
+    public AssignmentResponse reopenAssignment(UUID courseId, UUID assignmentId, UUID userId) {
+        courseAccessPolicy.requireOwner(courseId, userId);
+
+        Assignment assignment = requireAssignment(courseId, assignmentId);
+        Instant now = Instant.now();
+
+        closeIfOverdue(assignment, now);
+
+        if (assignment.getStatus() != AssignmentStatus.CLOSED) {
+            throw new ApplicationException(
+                    CommonErrorCode.DATA_CONFLICT,
+                    "Chỉ có thể mở lại bài tập đã đóng."
+            );
+        }
+
+        if (!assignment.getDueAt().isAfter(now)) {
+            throw new ApplicationException(
+                    CommonErrorCode.VALIDATION_FAILED,
+                    "Hãy gia hạn deadline trước khi mở lại bài tập."
+            );
+        }
+
+        assignment.setStatus(AssignmentStatus.PUBLISHED);
+        assignment.setClosedAt(null);
+
+        return toAssignmentResponse(assignment);
+    }
+
+    @Override
     public void deleteMySubmission(
             UUID courseId,
             UUID assignmentId,
@@ -411,6 +463,7 @@ public class AssignmentServiceImpl
         requireStudent(courseId, userId);
 
         Assignment assignment = requireAssignment(courseId, assignmentId);
+        requireOpenForSubmission(assignment);
 
         AssignmentSubmission submission = submissionRepository
                 .findByAssignmentIdAndStudentId(assignment.getId(), userId)
@@ -430,6 +483,26 @@ public class AssignmentServiceImpl
         }
 
         submissionRepository.delete(submission);
+    }
+
+    private void requireDraft(Assignment assignment) {
+        if (assignment.getStatus() != AssignmentStatus.DRAFT) {
+            throw new ApplicationException(CommonErrorCode.DATA_CONFLICT, "Chỉ có thể chỉnh sửa bài tập đang ở trạng thái nháp.");
+        }
+    }
+
+    private AssignmentStatus effectiveStatus(Assignment assignment) {
+        if (assignment.getStatus() == AssignmentStatus.PUBLISHED && !assignment.getDueAt().isAfter(Instant.now())) {
+            return AssignmentStatus.CLOSED;
+        }
+
+        return assignment.getStatus();
+    }
+
+    private void requireOpenForSubmission(Assignment assignment) {
+        if (effectiveStatus(assignment) != AssignmentStatus.PUBLISHED) {
+            throw new ApplicationException(CommonErrorCode.DATA_CONFLICT, "Bài tập đã đóng!");
+        }
     }
 
     private Assignment requireAssignment(
@@ -469,9 +542,14 @@ public class AssignmentServiceImpl
         }
     }
 
-    private AssignmentResponse toAssignmentResponse(
-            Assignment assignment
-    ) {
+    private void closeIfOverdue(Assignment assignment, Instant now) {
+        if (assignment.getStatus() == AssignmentStatus.PUBLISHED && !assignment.getDueAt().isAfter(now)) {
+            assignment.setStatus(AssignmentStatus.CLOSED);
+            assignment.setClosedAt(assignment.getDueAt());
+        }
+    }
+
+    private AssignmentResponse toAssignmentResponse(Assignment assignment) {
         return new AssignmentResponse(
                 assignment.getId(),
                 assignment.getCourse().getId(),
@@ -480,8 +558,10 @@ public class AssignmentServiceImpl
                 assignment.getDueAt(),
                 assignment.getMaxScore(),
                 assignment.getCreatedBy(),
-                assignment.getDueAt()
-                        .isBefore(Instant.now()),
+                effectiveStatus(assignment),
+                assignment.getPublishedAt(),
+                assignment.getClosedAt(),
+                !assignment.getDueAt().isAfter(Instant.now()),
                 assignment.getCreatedAt(),
                 assignment.getUpdatedAt()
         );

@@ -1,3 +1,5 @@
+export type AssignmentStatus = 'DRAFT' | 'PUBLISHED' | 'CLOSED'
+
 export interface Assignment {
   id: string
   courseId: string
@@ -6,6 +8,9 @@ export interface Assignment {
   dueAt: string
   maxScore: number
   createdBy: string
+  status: AssignmentStatus
+  publishedAt: string | null
+  closedAt: string | null
   expired: boolean
   createdAt: string
   updatedAt: string

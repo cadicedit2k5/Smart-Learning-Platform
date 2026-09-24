@@ -3,10 +3,7 @@ package com.smartlearning.core.course.controller.api;
 import com.smartlearning.common.dto.response.*;
 import com.smartlearning.common.entity.Authorities;
 import com.smartlearning.common.utils.JwtUtils;
-import com.smartlearning.core.course.dto.request.AssignmentCreateRequest;
-import com.smartlearning.core.course.dto.request.AssignmentGradeRequest;
-import com.smartlearning.core.course.dto.request.AssignmentSubmissionRequest;
-import com.smartlearning.core.course.dto.request.AssignmentUpdateRequest;
+import com.smartlearning.core.course.dto.request.*;
 import com.smartlearning.core.course.dto.response.AssignmentResponse;
 import com.smartlearning.core.course.dto.response.AssignmentSubmissionResponse;
 import com.smartlearning.core.course.service.AssignmentService;
@@ -96,6 +93,51 @@ public class ApiAssignmentController {
         );
 
         return ApiResponses.noContent();
+    }
+
+    @PostMapping("/{assignmentId}/publish")
+    @PreAuthorize(Authorities.COURSE_MANAGE)
+    public ResponseEntity<ApiResponse<AssignmentResponse>> publish(
+            @PathVariable UUID courseId,
+            @PathVariable UUID assignmentId,
+            @AuthenticationPrincipal Jwt jwt
+    ) {
+        return ApiResponses.ok(assignmentService.publishAssignment(courseId, assignmentId, JwtUtils.getUserId(jwt)));
+    }
+
+    @PostMapping("/{assignmentId}/close")
+    @PreAuthorize(Authorities.COURSE_MANAGE)
+    public ResponseEntity<ApiResponse<AssignmentResponse>> close(
+            @PathVariable UUID courseId,
+            @PathVariable UUID assignmentId,
+            @AuthenticationPrincipal Jwt jwt
+    ) {
+        return ApiResponses.ok(assignmentService.closeAssignment(courseId, assignmentId, JwtUtils.getUserId(jwt)));
+    }
+
+    @PatchMapping("/{assignmentId}/deadline")
+    @PreAuthorize(Authorities.COURSE_MANAGE)
+    public ResponseEntity<ApiResponse<AssignmentResponse>> extendDeadline(
+            @PathVariable UUID courseId,
+            @PathVariable UUID assignmentId,
+            @Valid @RequestBody AssignmentDeadlineUpdateRequest request,
+            @AuthenticationPrincipal Jwt jwt
+    ) {
+        return ApiResponses.ok(
+                assignmentService.extendDeadline(courseId, assignmentId, JwtUtils.getUserId(jwt), request)
+        );
+    }
+
+    @PostMapping("/{assignmentId}/reopen")
+    @PreAuthorize(Authorities.COURSE_MANAGE)
+    public ResponseEntity<ApiResponse<AssignmentResponse>> reopen(
+            @PathVariable UUID courseId,
+            @PathVariable UUID assignmentId,
+            @AuthenticationPrincipal Jwt jwt
+    ) {
+        return ApiResponses.ok(
+                assignmentService.reopenAssignment(courseId, assignmentId, JwtUtils.getUserId(jwt))
+        );
     }
 
     @PostMapping(

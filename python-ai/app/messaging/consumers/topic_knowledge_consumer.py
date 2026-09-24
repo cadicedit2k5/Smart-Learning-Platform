@@ -48,70 +48,33 @@ class TopicKnowledgeConsumer:
             logger.exception("Invalid topic knowledge event")
             raise
 
-        max_retries = 5
+        unavailable_attempt = 0
 
-        for attempt in range(max_retries):
+        while True:
             try:
                 await self._handler.handle(event)
-
                 await self._consumer.commit()
-
+                logger.info("Topic knowledge indexed: topic_id=%s", event.topic_id)
                 return
 
             except Exception as exc:
                 message = str(exc)
-
-                is_rate_limit = (
-                        "429" in message
-                        or "RESOURCE_EXHAUSTED" in message
-                )
-
-                is_unavailable = (
-                        "503" in message
-                        or "UNAVAILABLE" in message
-                )
-
-                if not (
-                        is_rate_limit
-                        or is_unavailable
-                ):
-                    logger.exception(
-                        "Topic knowledge indexing failed: "
-                        "topic_id=%s",
-                        event.topic_id,
-                    )
-                    raise
-
-                if attempt == max_retries - 1:
-                    logger.exception(
-                        "Topic knowledge indexing failed "
-                        "after retries: topic_id=%s",
-                        event.topic_id,
-                    )
-                    raise
+                is_rate_limit = "429" in message or "RESOURCE_EXHAUSTED" in message
+                is_unavailable = "503" in message or "UNAVAILABLE" in message
 
                 if is_rate_limit:
-                    # Gemini free-tier RPM resets
-                    # roughly after one minute.
                     delay = 65
+                    logger.warning("Embedding rate limit reached. topic_id=%s waiting=%ss", event.topic_id, delay)
+                    await asyncio.sleep(delay)
+                    continue
 
-                else:
-                    # Temporary Gemini outage.
-                    delay = min(
-                        2 ** attempt
-                        + random.uniform(0, 1),
-                        30,
-                    )
+                if is_unavailable:
+                    unavailable_attempt += 1
+                    delay = min(2 ** unavailable_attempt + random.uniform(0, 1), 30)
+                    logger.warning("Embedding service unavailable. topic_id=%s retry=%s waiting=%.1fs", event.topic_id,
+                                   unavailable_attempt, delay)
+                    await asyncio.sleep(delay)
+                    continue
 
-                logger.warning(
-                    "Temporary embedding error. "
-                    "topic_id=%s "
-                    "retry=%s/%s "
-                    "waiting=%.1fs",
-                    event.topic_id,
-                    attempt + 1,
-                    max_retries,
-                    delay,
-                )
-
-                await asyncio.sleep(delay)
+                logger.exception("Topic knowledge indexing failed: topic_id=%s", event.topic_id)
+                raise

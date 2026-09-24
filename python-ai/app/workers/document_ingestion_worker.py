@@ -88,6 +88,8 @@ async def main() -> None:
         for item in reversed(consumers):
             await item.stop()
 
+        await result_publisher.stop()
+
 if __name__ == "__main__":
 
     logging.basicConfig(level=logging.INFO)

@@ -62,6 +62,40 @@ export const updateAssignment = async (
   return response.data.data
 }
 
+export const publishAssignment = async (courseId: string, assignmentId: string): Promise<Assignment> => {
+  const response = await httpClient.post<ApiResponse<Assignment>>(`${path(courseId)}/${assignmentId}/publish`)
+  return response.data.data
+}
+
+export const closeAssignment = async (courseId: string, assignmentId: string): Promise<Assignment> => {
+  const response = await httpClient.post<ApiResponse<Assignment>>(`${path(courseId)}/${assignmentId}/close`)
+  return response.data.data
+}
+
+export const extendAssignmentDeadline = async (
+  courseId: string,
+  assignmentId: string,
+  dueAt: string,
+): Promise<Assignment> => {
+  const response = await httpClient.patch<ApiResponse<Assignment>>(
+    `${path(courseId)}/${assignmentId}/deadline`,
+    { dueAt },
+  )
+
+  return response.data.data
+}
+
+export const reopenAssignment = async (
+  courseId: string,
+  assignmentId: string,
+): Promise<Assignment> => {
+  const response = await httpClient.post<ApiResponse<Assignment>>(
+    `${path(courseId)}/${assignmentId}/reopen`,
+  )
+
+  return response.data.data
+}
+
 export const deleteAssignment = async (
   courseId: string,
   assignmentId: string,

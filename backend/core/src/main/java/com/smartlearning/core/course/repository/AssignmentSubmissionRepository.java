@@ -31,4 +31,6 @@ public interface AssignmentSubmissionRepository extends JpaRepository<Assignment
             UUID submissionId,
             UUID assignmentId
     );
+
+    boolean existsByAssignmentId(UUID assignmentId);
 }

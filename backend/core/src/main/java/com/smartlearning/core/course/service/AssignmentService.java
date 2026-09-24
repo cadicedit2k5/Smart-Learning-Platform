@@ -2,10 +2,7 @@ package com.smartlearning.core.course.service;
 
 
 
-import com.smartlearning.core.course.dto.request.AssignmentCreateRequest;
-import com.smartlearning.core.course.dto.request.AssignmentGradeRequest;
-import com.smartlearning.core.course.dto.request.AssignmentSubmissionRequest;
-import com.smartlearning.core.course.dto.request.AssignmentUpdateRequest;
+import com.smartlearning.core.course.dto.request.*;
 import com.smartlearning.core.course.dto.response.AssignmentResponse;
 import com.smartlearning.core.course.dto.response.AssignmentSubmissionResponse;
 
@@ -14,29 +11,17 @@ import java.util.UUID;
 
 public interface AssignmentService {
 
-    List<AssignmentResponse> getAssignments(
-            UUID courseId,
-            UUID userId
-    );
+    List<AssignmentResponse> getAssignments(UUID courseId, UUID userId);
 
-    AssignmentResponse createAssignment(
-            UUID courseId,
-            UUID userId,
-            AssignmentCreateRequest request
-    );
+    AssignmentResponse createAssignment(UUID courseId, UUID userId, AssignmentCreateRequest request);
 
-    AssignmentResponse updateAssignment(
-            UUID courseId,
-            UUID assignmentId,
-            UUID userId,
-            AssignmentUpdateRequest request
-    );
+    AssignmentResponse updateAssignment(UUID courseId, UUID assignmentId, UUID userId, AssignmentUpdateRequest request);
 
-    void deleteAssignment(
-            UUID courseId,
-            UUID assignmentId,
-            UUID userId
-    );
+    AssignmentResponse publishAssignment(UUID courseId, UUID assignmentId, UUID userId);
+
+    AssignmentResponse closeAssignment(UUID courseId, UUID assignmentId, UUID userId);
+
+    void deleteAssignment(UUID courseId, UUID assignmentId, UUID userId);
 
     AssignmentSubmissionResponse submit(
             UUID courseId,
@@ -69,4 +54,8 @@ public interface AssignmentService {
             UUID assignmentId,
             UUID userId
     );
+
+    AssignmentResponse extendDeadline(UUID courseId, UUID assignmentId, UUID userId, AssignmentDeadlineUpdateRequest request);
+
+    AssignmentResponse reopenAssignment(UUID courseId, UUID assignmentId, UUID userId);
 }
