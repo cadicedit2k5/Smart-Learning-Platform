@@ -12,6 +12,7 @@ import com.smartlearning.core.course.entity.CourseMember;
 import com.smartlearning.core.course.entity.enums.AssignmentStatus;
 import com.smartlearning.core.course.entity.enums.AssignmentSubmissionStatus;
 import com.smartlearning.core.course.entity.enums.CourseMemberRole;
+import com.smartlearning.core.course.entity.enums.CourseStatus;
 import com.smartlearning.core.course.repository.AssignmentRepository;
 import com.smartlearning.core.course.repository.AssignmentSubmissionRepository;
 import com.smartlearning.core.course.repository.CourseRepository;
@@ -155,6 +156,13 @@ public class AssignmentServiceImpl implements AssignmentService {
 
         Assignment assignment = requireAssignment(courseId, assignmentId);
         requireDraft(assignment);
+
+        if (assignment.getCourse().getStatus() != CourseStatus.PUBLISHED) {
+            throw new ApplicationException(
+                    CommonErrorCode.DATA_CONFLICT,
+                    "Chỉ có thể đăng bài tập khi khóa học đã được xuất bản."
+            );
+        }
 
         Instant now = Instant.now();
 
