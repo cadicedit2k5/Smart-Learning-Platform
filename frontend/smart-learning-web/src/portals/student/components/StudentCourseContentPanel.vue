@@ -24,6 +24,7 @@ import {
   completeTopic,
   getCourseProgress,
   recordTopicActivity,
+  startTopicActivity,
   type CourseLearningProgress,
   type TopicLearningProgress,
 } from '../api/learningProgressApi'
@@ -53,7 +54,7 @@ const expandedChapters = ref<Set<string>>(new Set())
 const lastInteractionAt = ref(Date.now())
 
 let activityTimer: ReturnType<typeof setInterval> | null = null
-let activityPending = false
+let activityRequest: Promise<void> | null = null
 
 const selectedChapter = computed(() => {
   if (!selectedTopic.value) return null
@@ -66,7 +67,7 @@ const hasMeaningfulContent = (value: unknown): boolean => {
   if (value && typeof value === 'object') {
     const record = value as Record<string, unknown>
 
-    if (typeof record.text === 'string' && record.text.trim().length > 0) return true
+    if (typeof record.text === 'string' && record.text.trim()) return true
     if (record.content) return hasMeaningfulContent(record.content)
   }
 
@@ -112,6 +113,18 @@ const nextTopic = computed(() => {
   return allTopics.value[index + 1]
 })
 
+const formatStudyTime = (seconds: number) => {
+  if (seconds < 60) return `${seconds} giây`
+
+  const minutes = Math.floor(seconds / 60)
+  if (minutes < 60) return `${minutes} phút`
+
+  const hours = Math.floor(minutes / 60)
+  const remainingMinutes = minutes % 60
+
+  return remainingMinutes ? `${hours} giờ ${remainingMinutes} phút` : `${hours} giờ`
+}
+
 const toggleChapter = (chapterId: string) => {
   const next = new Set(expandedChapters.value)
 
@@ -135,6 +148,7 @@ const updateLocalProgress = (updated: TopicLearningProgress) => {
   progress.value.progressPercentage = progress.value.totalTopics === 0
     ? 0
     : Math.round(completed * 100 / progress.value.totalTopics)
+
   progress.value.lastTopicId = updated.topicId
 }
 
@@ -147,44 +161,72 @@ const canTrackActivity = () =>
   document.hasFocus() &&
   Date.now() - lastInteractionAt.value <= IDLE_LIMIT_MS
 
-const trackSelectedTopic = async () => {
-  if (!selectedTopic.value || activityPending || !canTrackActivity()) return
-
-  activityPending = true
-
+const startActivity = async (topicId: string) => {
   try {
-    const updated = await recordTopicActivity(props.courseId, selectedTopic.value.id)
-    updateLocalProgress(updated)
+    updateLocalProgress(await startTopicActivity(props.courseId, topicId))
   } catch {
-    // Tracking lỗi không được làm gián đoạn việc học.
-  } finally {
-    activityPending = false
+    // Tracking không được làm gián đoạn màn hình học.
   }
 }
 
-const selectTopic = (chapter: ChapterWithTopics, topic: CourseTopic) => {
+const recordActivity = (topicId: string) => {
+  if (activityRequest) return activityRequest
+
+  activityRequest = recordTopicActivity(props.courseId, topicId)
+    .then(updateLocalProgress)
+    .catch(() => {})
+    .finally(() => {
+      activityRequest = null
+    })
+
+  return activityRequest
+}
+
+const trackSelectedTopic = async () => {
+  if (!selectedTopic.value || !canTrackActivity()) return
+  await recordActivity(selectedTopic.value.id)
+}
+
+const selectTopic = async (chapter: ChapterWithTopics, topic: CourseTopic) => {
+  if (selectedTopic.value?.id === topic.id) return
+
+  const previousTopicId = selectedTopic.value?.id
+
+  if (previousTopicId) {
+    await recordActivity(previousTopicId)
+  }
+
   expandedChapters.value = new Set([...expandedChapters.value, chapter.id])
   selectedTopic.value = topic
   markInteraction()
+
+  await startActivity(topic.id)
 }
 
 const findChapterByTopic = (topicId: string) =>
   chapters.value.find(chapter => chapter.topics.some(topic => topic.id === topicId))
 
-const goToTopic = (topic: CourseTopic | null) => {
+const goToTopic = async (topic: CourseTopic | null) => {
   if (!topic) return
 
   const chapter = findChapterByTopic(topic.id)
-  if (chapter) selectTopic(chapter, topic)
+
+  if (chapter) {
+    await selectTopic(chapter, topic)
+  }
 }
 
 const handleCompleteTopic = async () => {
   if (!selectedTopic.value) return
 
-  completingTopicId.value = selectedTopic.value.id
+  const topicId = selectedTopic.value.id
+  completingTopicId.value = topicId
 
   try {
-    const updated = await completeTopic(props.courseId, selectedTopic.value.id)
+    await recordActivity(topicId)
+
+    const updated = await completeTopic(props.courseId, topicId)
+
     updateLocalProgress(updated)
     toast.success('Đã hoàn thành bài học.')
   } catch (error) {
@@ -195,7 +237,20 @@ const handleCompleteTopic = async () => {
 }
 
 const handleVisibilityChange = () => {
-  if (document.visibilityState === 'visible') markInteraction()
+  const topicId = selectedTopic.value?.id
+  if (!topicId) return
+
+  if (document.visibilityState === 'hidden') {
+    void recordActivity(topicId)
+    return
+  }
+
+  markInteraction()
+
+  void (async () => {
+    if (activityRequest) await activityRequest
+    await startActivity(topicId)
+  })()
 }
 
 const loadContent = async () => {
@@ -236,24 +291,14 @@ const loadContent = async () => {
     if (chapterToOpen && topicToOpen) {
       expandedChapters.value = new Set([chapterToOpen.id])
       selectedTopic.value = topicToOpen
+
+      await startActivity(topicToOpen.id)
     }
   } catch (error) {
     toast.error(handleApiError(error, 'Không thể tải nội dung khóa học.').message)
   } finally {
     loading.value = false
   }
-}
-
-const formatStudyTime = (seconds: number) => {
-  if (seconds < 60) return `${seconds} giây`
-
-  const minutes = Math.floor(seconds / 60)
-  if (minutes < 60) return `${minutes} phút`
-
-  const hours = Math.floor(minutes / 60)
-  const remainingMinutes = minutes % 60
-
-  return remainingMinutes > 0 ? `${hours} giờ ${remainingMinutes} phút` : `${hours} giờ`
 }
 
 const interactionEvents = ['pointerdown', 'keydown', 'scroll', 'touchstart'] as const
@@ -270,6 +315,9 @@ onMounted(async () => {
 
 onBeforeUnmount(() => {
   if (activityTimer) clearInterval(activityTimer)
+
+  const topicId = selectedTopic.value?.id
+  if (topicId) void recordActivity(topicId)
 
   interactionEvents.forEach(event => window.removeEventListener(event, markInteraction))
   window.removeEventListener('focus', markInteraction)

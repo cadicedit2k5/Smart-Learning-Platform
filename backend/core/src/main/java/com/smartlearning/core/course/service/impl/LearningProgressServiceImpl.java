@@ -54,6 +54,21 @@ public class LearningProgressServiceImpl implements LearningProgressService {
     private final SystemClient systemClient;
 
     @Override
+    public TopicLearningProgressResponse startTopicActivity(UUID courseId, UUID topicId, UUID userId) {
+        requireStudent(courseId, userId);
+
+        CourseTopic topic = requireTopic(courseId, topicId);
+        Instant now = Instant.now();
+
+        LearningProgress progress = progressRepository.findByUserIdAndTopicId(userId, topicId)
+                .orElseGet(() -> createProgress(userId, topic, now));
+
+        progress.setLastAccessedAt(now);
+
+        return toResponse(progressRepository.save(progress));
+    }
+
+    @Override
     public TopicLearningProgressResponse recordActivity(UUID courseId, UUID topicId, UUID userId) {
         requireStudent(courseId, userId);
 
@@ -63,17 +78,12 @@ public class LearningProgressServiceImpl implements LearningProgressService {
         LearningProgress progress = progressRepository.findByUserIdAndTopicId(userId, topicId).orElse(null);
 
         if (progress == null) {
-            progress = new LearningProgress();
-            progress.setUserId(userId);
-            progress.setTopic(topic);
-            progress.setStatus(LearningProgressStatus.IN_PROGRESS);
-            progress.setStartedAt(now);
-            progress.setActiveSeconds(HEARTBEAT_SECONDS);
+            progress = createProgress(userId, topic, now);
         } else {
             addActiveTime(progress, now);
+            progress.setLastAccessedAt(now);
         }
 
-        progress.setLastAccessedAt(now);
         return toResponse(progressRepository.save(progress));
     }
 
@@ -84,20 +94,19 @@ public class LearningProgressServiceImpl implements LearningProgressService {
         CourseTopic topic = requireTopic(courseId, topicId);
         Instant now = Instant.now();
 
-        LearningProgress progress = progressRepository.findByUserIdAndTopicId(userId, topicId).orElseGet(() -> {
-            LearningProgress created = new LearningProgress();
-            created.setUserId(userId);
-            created.setTopic(topic);
-            created.setActiveSeconds(0);
-            created.setStartedAt(now);
-            created.setLastAccessedAt(now);
-            return created;
-        });
+        LearningProgress progress = progressRepository.findByUserIdAndTopicId(userId, topicId).orElse(null);
 
-        if (progress.getStatus() != LearningProgressStatus.COMPLETED) {
-            progress.setStatus(LearningProgressStatus.COMPLETED);
-            progress.setCompletedAt(now);
+        if (progress == null) {
+            progress = createProgress(userId, topic, now);
+        } else if (progress.getStatus() == LearningProgressStatus.COMPLETED) {
+            return toResponse(progress);
+        } else {
+            addActiveTime(progress, now);
         }
+
+        progress.setStatus(LearningProgressStatus.COMPLETED);
+        progress.setCompletedAt(now);
+        progress.setLastAccessedAt(now);
 
         return toResponse(progressRepository.save(progress));
     }
@@ -279,6 +288,17 @@ public class LearningProgressServiceImpl implements LearningProgressService {
                 percentage,
                 chapterResponses
         );
+    }
+
+    private LearningProgress createProgress(UUID userId, CourseTopic topic, Instant now) {
+        LearningProgress progress = new LearningProgress();
+        progress.setUserId(userId);
+        progress.setTopic(topic);
+        progress.setStatus(LearningProgressStatus.IN_PROGRESS);
+        progress.setActiveSeconds(0);
+        progress.setStartedAt(now);
+        progress.setLastAccessedAt(now);
+        return progress;
     }
 
     private LecturerCourseProgressResponse.StudentSummary buildStudentSummary(

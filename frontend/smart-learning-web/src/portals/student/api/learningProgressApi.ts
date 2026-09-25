@@ -22,6 +22,13 @@ export interface CourseLearningProgress {
 
 const learningPath = (courseId: string) => `/courses/${courseId}/learning`
 
+export const startTopicActivity = async (courseId: string, topicId: string): Promise<TopicLearningProgress> => {
+  const response = await httpClient.post<ApiResponse<TopicLearningProgress>>(
+    `${learningPath(courseId)}/topics/${topicId}/activity/start`,
+  )
+  return response.data.data
+}
+
 export const recordTopicActivity = async (courseId: string, topicId: string): Promise<TopicLearningProgress> => {
   const response = await httpClient.post<ApiResponse<TopicLearningProgress>>(
     `${learningPath(courseId)}/topics/${topicId}/activity`,
