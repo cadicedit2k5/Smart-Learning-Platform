@@ -44,8 +44,6 @@ import java.util.stream.Collectors;
 public class LearningProgressServiceImpl implements LearningProgressService {
 
     private static final long HEARTBEAT_SECONDS = 30;
-    private static final long DEFAULT_MINIMUM_COMPLETION_SECONDS = 60;
-    private static final double MINIMUM_COMPLETION_RATIO = 0.6;
 
     private final LearningProgressRepository progressRepository;
     private final CourseTopicRepository topicRepository;
@@ -82,38 +80,26 @@ public class LearningProgressServiceImpl implements LearningProgressService {
     @Override
     public TopicLearningProgressResponse completeTopic(UUID courseId, UUID topicId, UUID userId) {
         requireStudent(courseId, userId);
-        requireTopic(courseId, topicId);
 
-        LearningProgress progress = progressRepository.findByUserIdAndTopicId(userId, topicId)
-                .orElseThrow(() -> new ApplicationException(
-                        CommonErrorCode.DATA_CONFLICT,
-                        "Bạn cần học bài trước khi đánh dấu hoàn thành."
-                ));
-
+        CourseTopic topic = requireTopic(courseId, topicId);
         Instant now = Instant.now();
-        addActiveTime(progress, now);
-        progress.setLastAccessedAt(now);
 
-        if (progress.getStatus() == LearningProgressStatus.COMPLETED) {
-            return toResponse(progress);
+        LearningProgress progress = progressRepository.findByUserIdAndTopicId(userId, topicId).orElseGet(() -> {
+            LearningProgress created = new LearningProgress();
+            created.setUserId(userId);
+            created.setTopic(topic);
+            created.setActiveSeconds(0);
+            created.setStartedAt(now);
+            created.setLastAccessedAt(now);
+            return created;
+        });
+
+        if (progress.getStatus() != LearningProgressStatus.COMPLETED) {
+            progress.setStatus(LearningProgressStatus.COMPLETED);
+            progress.setCompletedAt(now);
         }
 
-        long minimumSeconds = minimumCompletionSeconds(progress.getTopic());
-
-        if (progress.getActiveSeconds() < minimumSeconds) {
-            long remainingSeconds = minimumSeconds - progress.getActiveSeconds();
-            long remainingMinutes = Math.max(1, (long) Math.ceil(remainingSeconds / 60.0));
-
-            throw new ApplicationException(
-                    CommonErrorCode.DATA_CONFLICT,
-                    "Bạn cần học thêm khoảng " + remainingMinutes + " phút trước khi đánh dấu hoàn thành."
-            );
-        }
-
-        progress.setStatus(LearningProgressStatus.COMPLETED);
-        progress.setCompletedAt(now);
-
-        return toResponse(progress);
+        return toResponse(progressRepository.save(progress));
     }
 
     @Override
@@ -378,21 +364,6 @@ public class LearningProgressServiceImpl implements LearningProgressService {
         progress.setActiveSeconds(progress.getActiveSeconds() + Math.min(elapsedSeconds, HEARTBEAT_SECONDS));
     }
 
-    // ponytail: 60% estimated time is only an engagement heuristic. Replace with assessment-based rules if completion must represent knowledge mastery.
-    private long minimumCompletionSeconds(CourseTopic topic) {
-        if (topic.getEstimatedMinutes() == null) return DEFAULT_MINIMUM_COMPLETION_SECONDS;
-
-        long estimatedSeconds = topic.getEstimatedMinutes() * 60L;
-        return Math.max(DEFAULT_MINIMUM_COMPLETION_SECONDS, Math.round(estimatedSeconds * MINIMUM_COMPLETION_RATIO));
-    }
-
-    private int studyPercentage(LearningProgress progress) {
-        if (progress.getStatus() == LearningProgressStatus.COMPLETED) return 100;
-
-        long minimumSeconds = minimumCompletionSeconds(progress.getTopic());
-        return (int) Math.min(100, Math.round(progress.getActiveSeconds() * 100.0 / minimumSeconds));
-    }
-
     private CourseTopic requireTopic(UUID courseId, UUID topicId) {
         return topicRepository
                 .findByIdAndChapterCourseIdAndDeletedAtIsNullAndChapterDeletedAtIsNull(topicId, courseId)
@@ -435,17 +406,10 @@ public class LearningProgressServiceImpl implements LearningProgressService {
     }
 
     private TopicLearningProgressResponse toResponse(LearningProgress progress) {
-        long minimumSeconds = minimumCompletionSeconds(progress.getTopic());
-        boolean canComplete = progress.getStatus() == LearningProgressStatus.COMPLETED
-                || progress.getActiveSeconds() >= minimumSeconds;
-
         return new TopicLearningProgressResponse(
                 progress.getTopic().getId(),
                 progress.getStatus(),
                 progress.getActiveSeconds(),
-                minimumSeconds,
-                studyPercentage(progress),
-                canComplete,
                 progress.getStartedAt(),
                 progress.getCompletedAt(),
                 progress.getLastAccessedAt()

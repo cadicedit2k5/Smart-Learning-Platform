@@ -93,17 +93,6 @@ const selectedTopicProgress = computed(() => {
   return topicProgress(selectedTopic.value.id) ?? null
 })
 
-const remainingStudyMinutes = computed(() => {
-  const current = selectedTopicProgress.value
-
-  if (!current || current.canComplete) return 0
-
-  return Math.max(
-    1,
-    Math.ceil((current.minimumCompletionSeconds - current.activeSeconds) / 60),
-  )
-})
-
 const allTopics = computed(() => chapters.value.flatMap(chapter => chapter.topics))
 
 const selectedTopicIndex = computed(() => {
@@ -255,6 +244,18 @@ const loadContent = async () => {
   }
 }
 
+const formatStudyTime = (seconds: number) => {
+  if (seconds < 60) return `${seconds} giây`
+
+  const minutes = Math.floor(seconds / 60)
+  if (minutes < 60) return `${minutes} phút`
+
+  const hours = Math.floor(minutes / 60)
+  const remainingMinutes = minutes % 60
+
+  return remainingMinutes > 0 ? `${hours} giờ ${remainingMinutes} phút` : `${hours} giờ`
+}
+
 const interactionEvents = ['pointerdown', 'keydown', 'scroll', 'touchstart'] as const
 
 onMounted(async () => {
@@ -394,7 +395,7 @@ onBeforeUnmount(() => {
                   </span>
 
                   <span v-else-if="topicProgress(topic.id)" class="font-medium text-secondary">
-                    {{ topicProgress(topic.id)?.studyPercentage }}%
+                    Đang học
                   </span>
                 </div>
               </button>
@@ -452,6 +453,10 @@ onBeforeUnmount(() => {
             </BaseButton>
 
             <div class="flex flex-col items-end gap-2">
+              <p class="text-xs text-app-text-muted">
+                Thời gian đã học: {{ formatStudyTime(selectedTopicProgress?.activeSeconds ?? 0) }}
+              </p>
+
               <div
                 v-if="selectedTopicProgress?.status === 'COMPLETED'"
                 class="inline-flex h-11 items-center gap-2 rounded-control bg-ai-soft px-4 text-sm font-semibold text-ai"
@@ -460,46 +465,14 @@ onBeforeUnmount(() => {
                 Đã hoàn thành
               </div>
 
-              <template v-else>
-                <div class="flex flex-col gap-3 sm:flex-row sm:items-center">
-                  <div class="min-w-40">
-                    <div class="flex items-center justify-between gap-3 text-xs text-app-text-muted">
-                      <span>Thời gian học</span>
-                      <span>{{ selectedTopicProgress?.studyPercentage ?? 0 }}%</span>
-                    </div>
-
-                    <div class="mt-1.5 h-1.5 overflow-hidden rounded-pill bg-app-surface-muted">
-                      <div
-                        class="h-full rounded-pill bg-secondary transition-all"
-                        :style="{ width: `${selectedTopicProgress?.studyPercentage ?? 0}%` }"
-                      />
-                    </div>
-                  </div>
-
-                  <BaseButton
-                    :disabled="!selectedTopicProgress?.canComplete"
-                    :loading="completingTopicId === selectedTopic.id"
-                    @click="handleCompleteTopic"
-                  >
-                    <template #leading><CheckCircle2 :size="17" /></template>
-                    Hoàn thành bài học
-                  </BaseButton>
-                </div>
-
-                <p
-                  v-if="selectedTopicProgress && !selectedTopicProgress.canComplete"
-                  class="text-xs text-app-text-muted"
-                >
-                  Cần học thêm khoảng {{ remainingStudyMinutes }} phút để có thể đánh dấu hoàn thành.
-                </p>
-
-                <p
-                  v-else-if="selectedTopicProgress?.canComplete"
-                  class="text-xs text-app-text-muted"
-                >
-                  Bạn đã đủ thời gian học tối thiểu. Chỉ đánh dấu hoàn thành khi bạn cảm thấy đã nắm được nội dung.
-                </p>
-              </template>
+              <BaseButton
+                v-else
+                :loading="completingTopicId === selectedTopic.id"
+                @click="handleCompleteTopic"
+              >
+                <template #leading><CheckCircle2 :size="17" /></template>
+                Hoàn thành bài học
+              </BaseButton>
             </div>
 
             <BaseButton variant="secondary" :disabled="!nextTopic" @click="goToTopic(nextTopic)">

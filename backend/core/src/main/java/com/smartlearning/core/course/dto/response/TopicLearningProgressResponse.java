@@ -9,9 +9,6 @@ public record TopicLearningProgressResponse(
         UUID topicId,
         LearningProgressStatus status,
         long activeSeconds,
-        long minimumCompletionSeconds,
-        int studyPercentage,
-        boolean canComplete,
         Instant startedAt,
         Instant completedAt,
         Instant lastAccessedAt

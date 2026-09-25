@@ -6,9 +6,6 @@ export interface TopicLearningProgress {
   topicId: string
   status: LearningProgressStatus
   activeSeconds: number
-  minimumCompletionSeconds: number
-  studyPercentage: number
-  canComplete: boolean
   startedAt: string
   completedAt: string | null
   lastAccessedAt: string
@@ -25,20 +22,14 @@ export interface CourseLearningProgress {
 
 const learningPath = (courseId: string) => `/courses/${courseId}/learning`
 
-export const recordTopicActivity = async (
-  courseId: string,
-  topicId: string,
-): Promise<TopicLearningProgress> => {
+export const recordTopicActivity = async (courseId: string, topicId: string): Promise<TopicLearningProgress> => {
   const response = await httpClient.post<ApiResponse<TopicLearningProgress>>(
     `${learningPath(courseId)}/topics/${topicId}/activity`,
   )
   return response.data.data
 }
 
-export const completeTopic = async (
-  courseId: string,
-  topicId: string,
-): Promise<TopicLearningProgress> => {
+export const completeTopic = async (courseId: string, topicId: string): Promise<TopicLearningProgress> => {
   const response = await httpClient.post<ApiResponse<TopicLearningProgress>>(
     `${learningPath(courseId)}/topics/${topicId}/complete`,
   )
