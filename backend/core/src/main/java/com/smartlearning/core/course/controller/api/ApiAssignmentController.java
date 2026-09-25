@@ -128,18 +128,6 @@ public class ApiAssignmentController {
         );
     }
 
-    @PostMapping("/{assignmentId}/reopen")
-    @PreAuthorize(Authorities.COURSE_MANAGE)
-    public ResponseEntity<ApiResponse<AssignmentResponse>> reopen(
-            @PathVariable UUID courseId,
-            @PathVariable UUID assignmentId,
-            @AuthenticationPrincipal Jwt jwt
-    ) {
-        return ApiResponses.ok(
-                assignmentService.reopenAssignment(courseId, assignmentId, JwtUtils.getUserId(jwt))
-        );
-    }
-
     @PostMapping(
             value = "/{assignmentId}/submission",
             consumes = MediaType.MULTIPART_FORM_DATA_VALUE

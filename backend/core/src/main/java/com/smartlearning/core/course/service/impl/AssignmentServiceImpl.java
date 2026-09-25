@@ -474,41 +474,17 @@ public class AssignmentServiceImpl implements AssignmentService {
 
         assignment.setDueAt(request.dueAt());
 
+        if (assignment.getStatus() == AssignmentStatus.CLOSED) {
+            assignment.setStatus(AssignmentStatus.PUBLISHED);
+            assignment.setClosedAt(null);
+        }
+
         notificationService.createForCourseStudents(
                 courseId,
                 NotificationType.ASSIGNMENT_UPDATED,
                 "Hạn nộp bài tập đã thay đổi",
                 "Giảng viên đã gia hạn bài tập: " + assignment.getTitle()
         );
-
-        return toAssignmentResponse(assignment);
-    }
-
-    @Override
-    public AssignmentResponse reopenAssignment(UUID courseId, UUID assignmentId, UUID userId) {
-        courseAccessPolicy.requireOwner(courseId, userId);
-
-        Assignment assignment = requireAssignment(courseId, assignmentId);
-        Instant now = Instant.now();
-
-        closeIfOverdue(assignment, now);
-
-        if (assignment.getStatus() != AssignmentStatus.CLOSED) {
-            throw new ApplicationException(
-                    CommonErrorCode.DATA_CONFLICT,
-                    "Chỉ có thể mở lại bài tập đã đóng."
-            );
-        }
-
-        if (!assignment.getDueAt().isAfter(now)) {
-            throw new ApplicationException(
-                    CommonErrorCode.VALIDATION_FAILED,
-                    "Hãy gia hạn deadline trước khi mở lại bài tập."
-            );
-        }
-
-        assignment.setStatus(AssignmentStatus.PUBLISHED);
-        assignment.setClosedAt(null);
 
         return toAssignmentResponse(assignment);
     }

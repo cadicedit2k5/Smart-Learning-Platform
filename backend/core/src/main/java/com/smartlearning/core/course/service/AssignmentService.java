@@ -56,6 +56,4 @@ public interface AssignmentService {
     );
 
     AssignmentResponse extendDeadline(UUID courseId, UUID assignmentId, UUID userId, AssignmentDeadlineUpdateRequest request);
-
-    AssignmentResponse reopenAssignment(UUID courseId, UUID assignmentId, UUID userId);
 }

@@ -85,17 +85,6 @@ export const extendAssignmentDeadline = async (
   return response.data.data
 }
 
-export const reopenAssignment = async (
-  courseId: string,
-  assignmentId: string,
-): Promise<Assignment> => {
-  const response = await httpClient.post<ApiResponse<Assignment>>(
-    `${path(courseId)}/${assignmentId}/reopen`,
-  )
-
-  return response.data.data
-}
-
 export const deleteAssignment = async (
   courseId: string,
   assignmentId: string,

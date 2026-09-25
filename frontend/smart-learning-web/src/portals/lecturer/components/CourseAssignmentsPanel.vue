@@ -37,7 +37,6 @@ import {
   getSubmissions,
   gradeSubmission,
   publishAssignment,
-  reopenAssignment,
   updateAssignment,
   type AssignmentInput,
   type GradeInput,
@@ -261,21 +260,6 @@ const handleClose = async () => {
     toast.success('Đã đóng bài tập.')
   } catch (error) {
     toast.error(handleApiError(error, 'Không thể đóng bài tập.').message)
-  } finally {
-    changingStatus.value = false
-  }
-}
-
-const handleReopen = async () => {
-  if (!selectedAssignment.value || selectedAssignment.value.status !== 'CLOSED') return
-
-  changingStatus.value = true
-
-  try {
-    replaceAssignment(await reopenAssignment(props.courseId, selectedAssignment.value.id))
-    toast.success('Đã mở lại bài tập.')
-  } catch (error) {
-    toast.error(handleApiError(error, 'Không thể mở lại bài tập.').message)
   } finally {
     changingStatus.value = false
   }
@@ -580,15 +564,6 @@ onMounted(() => void loadAssignments())
               >
                 <template #leading><Lock :size="16" /></template>
                 Đóng bài
-              </BaseButton>
-
-              <BaseButton
-                v-if="selectedAssignment.status === 'CLOSED' && !selectedAssignment.expired"
-                :loading="changingStatus"
-                @click="handleReopen"
-              >
-                <template #leading><RotateCcw :size="16" /></template>
-                Mở lại
               </BaseButton>
 
               <button
