@@ -46,6 +46,7 @@ public class CourseContentServiceImpl implements CourseContentService {
     @Transactional(readOnly = true)
     public List<CourseChapterResponse> getChapters(UUID courseId, UUID currentUserId) {
         requireActiveMemberCourse(courseId, currentUserId);
+
         return chapterRepository.findAllByCourseIdAndDeletedAtIsNullOrderByOrderIndexAsc(courseId)
                 .stream()
                 .map(chapterMapper::toResponse)
@@ -59,13 +60,18 @@ public class CourseContentServiceImpl implements CourseContentService {
             UUID currentUserId
     ) {
         Course course = requireOwnerCourse(courseId, currentUserId);
+
         CourseChapter chapter = chapterMapper.toEntity(request);
         chapter.setCourse(course);
         chapter.setTitle(request.title().trim());
-        chapter.setOrderIndex(request.orderIndex() == null
-                ? chapterRepository.findMaxOrderIndex(courseId) + 1
-                : request.orderIndex());
+        chapter.setOrderIndex(
+                request.orderIndex() == null
+                        ? chapterRepository.findMaxOrderIndex(courseId) + 1
+                        : request.orderIndex()
+        );
+
         requireChapterOrderAvailable(courseId, chapter.getOrderIndex(), null);
+
         return chapterMapper.toResponse(chapterRepository.save(chapter));
     }
 
@@ -77,36 +83,36 @@ public class CourseContentServiceImpl implements CourseContentService {
             UUID currentUserId
     ) {
         requireOwnerCourse(courseId, currentUserId);
+
         CourseChapter chapter = requireChapter(courseId, chapterId);
+
         if (request.orderIndex() != null) {
             requireChapterOrderAvailable(courseId, request.orderIndex(), chapterId);
         }
+
         chapterMapper.partialUpdate(request, chapter);
+
         if (request.title() != null) {
             chapter.setTitle(request.title().trim());
         }
+
         return chapterMapper.toResponse(chapter);
     }
 
     @Override
     public void deleteChapter(UUID courseId, UUID chapterId, UUID currentUserId) {
         requireOwnerCourse(courseId, currentUserId);
+
         CourseChapter chapter = requireChapter(courseId, chapterId);
+        List<CourseTopic> topics = topicRepository.findAllByChapterIdAndDeletedAtIsNullOrderByOrderIndexAsc(chapterId);
         Instant deletedAt = Instant.now();
-        chapter.setDeletedAt(deletedAt);
-        List<CourseTopic> topics = topicRepository.findAllByChapterIdOrderByOrderIndexAsc((chapterId));
 
         for (CourseTopic topic : topics) {
-            publishTopicKnowledgeEvent(
-                    courseId,
-                    chapterId,
-                    topic,
-                    TopicKnowledgeOperation.DELETE
-            );
+            topic.setDeletedAt(deletedAt);
+            publishTopicKnowledgeEvent(courseId, chapterId, topic, TopicKnowledgeOperation.DELETE);
         }
-        topicRepository.deleteAll(topics);
 
-        chapterRepository.delete(chapter);
+        chapter.setDeletedAt(deletedAt);
     }
 
     @Override
@@ -114,6 +120,7 @@ public class CourseContentServiceImpl implements CourseContentService {
     public List<CourseTopicResponse> getTopics(UUID courseId, UUID chapterId, UUID currentUserId) {
         requireActiveMemberCourse(courseId, currentUserId);
         requireChapter(courseId, chapterId);
+
         return topicRepository.findAllByChapterIdAndDeletedAtIsNullOrderByOrderIndexAsc(chapterId)
                 .stream()
                 .map(topicMapper::toResponse)
@@ -128,22 +135,22 @@ public class CourseContentServiceImpl implements CourseContentService {
             UUID currentUserId
     ) {
         requireOwnerCourse(courseId, currentUserId);
+
         CourseChapter chapter = requireChapter(courseId, chapterId);
+
         CourseTopic topic = topicMapper.toEntity(request);
         topic.setChapter(chapter);
         topic.setTitle(request.title().trim());
-        topic.setOrderIndex(request.orderIndex() == null
-                ? topicRepository.findMaxOrderIndex(chapterId) + 1
-                : request.orderIndex());
-        requireTopicOrderAvailable(chapterId, topic.getOrderIndex(), null);
-        CourseTopic savedTopic = topicRepository.save(topic);
-
-        publishTopicKnowledgeEvent(
-                courseId,
-                chapterId,
-                savedTopic,
-                TopicKnowledgeOperation.UPSERT
+        topic.setOrderIndex(
+                request.orderIndex() == null
+                        ? topicRepository.findMaxOrderIndex(chapterId) + 1
+                        : request.orderIndex()
         );
+
+        requireTopicOrderAvailable(chapterId, topic.getOrderIndex(), null);
+
+        CourseTopic savedTopic = topicRepository.save(topic);
+        publishTopicKnowledgeEvent(courseId, chapterId, savedTopic, TopicKnowledgeOperation.UPSERT);
 
         return topicMapper.toResponse(savedTopic);
     }
@@ -158,7 +165,9 @@ public class CourseContentServiceImpl implements CourseContentService {
     ) {
         requireOwnerCourse(courseId, currentUserId);
         requireChapter(courseId, chapterId);
+
         CourseTopic topic = requireTopic(chapterId, topicId);
+
         if (request.orderIndex() != null) {
             requireTopicOrderAvailable(chapterId, request.orderIndex(), topicId);
         }
@@ -169,36 +178,32 @@ public class CourseContentServiceImpl implements CourseContentService {
                         request.content() != null;
 
         topicMapper.partialUpdate(request, topic);
+
         if (request.title() != null) {
             topic.setTitle(request.title().trim());
         }
 
         if (knowledgeChanged) {
-            publishTopicKnowledgeEvent(
-                    courseId,
-                    chapterId,
-                    topic,
-                    TopicKnowledgeOperation.UPSERT
-            );
+            publishTopicKnowledgeEvent(courseId, chapterId, topic, TopicKnowledgeOperation.UPSERT);
         }
 
         return topicMapper.toResponse(topic);
     }
 
     @Override
-    public void deleteTopic(UUID courseId, UUID chapterId, UUID topicId, UUID currentUserId) {
+    public void deleteTopic(
+            UUID courseId,
+            UUID chapterId,
+            UUID topicId,
+            UUID currentUserId
+    ) {
         requireOwnerCourse(courseId, currentUserId);
         requireChapter(courseId, chapterId);
+
         CourseTopic topic = requireTopic(chapterId, topicId);
-        publishTopicKnowledgeEvent(
-                courseId,
-                chapterId,
-                topic,
-                TopicKnowledgeOperation.DELETE
-        );
 
         topic.setDeletedAt(Instant.now());
-        topicRepository.delete(topic);
+        publishTopicKnowledgeEvent(courseId, chapterId, topic, TopicKnowledgeOperation.DELETE);
     }
 
     private Course requireOwnerCourse(UUID courseId, UUID currentUserId) {
@@ -230,8 +235,13 @@ public class CourseContentServiceImpl implements CourseContentService {
 
     private void requireChapterOrderAvailable(UUID courseId, Integer orderIndex, UUID excludedId) {
         boolean exists = excludedId == null
-                ? chapterRepository.existsByCourseIdAndOrderIndex(courseId, orderIndex)
-                : chapterRepository.existsByCourseIdAndOrderIndexAndIdNot(courseId, orderIndex, excludedId);
+                ? chapterRepository.existsByCourseIdAndOrderIndexAndDeletedAtIsNull(courseId, orderIndex)
+                : chapterRepository.existsByCourseIdAndOrderIndexAndIdNotAndDeletedAtIsNull(
+                courseId,
+                orderIndex,
+                excludedId
+        );
+
         if (exists) {
             throw new ApplicationException(
                     CommonErrorCode.DATA_CONFLICT,
@@ -242,8 +252,13 @@ public class CourseContentServiceImpl implements CourseContentService {
 
     private void requireTopicOrderAvailable(UUID chapterId, Integer orderIndex, UUID excludedId) {
         boolean exists = excludedId == null
-                ? topicRepository.existsByChapterIdAndOrderIndex(chapterId, orderIndex)
-                : topicRepository.existsByChapterIdAndOrderIndexAndIdNot(chapterId, orderIndex, excludedId);
+                ? topicRepository.existsByChapterIdAndOrderIndexAndDeletedAtIsNull(chapterId, orderIndex)
+                : topicRepository.existsByChapterIdAndOrderIndexAndIdNotAndDeletedAtIsNull(
+                chapterId,
+                orderIndex,
+                excludedId
+        );
+
         if (exists) {
             throw new ApplicationException(
                     CommonErrorCode.DATA_CONFLICT,
@@ -252,7 +267,12 @@ public class CourseContentServiceImpl implements CourseContentService {
         }
     }
 
-    private void publishTopicKnowledgeEvent(UUID courseId, UUID chapterId, CourseTopic topic, TopicKnowledgeOperation operation) {
+    private void publishTopicKnowledgeEvent(
+            UUID courseId,
+            UUID chapterId,
+            CourseTopic topic,
+            TopicKnowledgeOperation operation
+    ) {
         applicationEventPublisher.publishEvent(new TopicKnowledgeIndexRequestedEvent(
                 UUID.randomUUID(),
                 1,

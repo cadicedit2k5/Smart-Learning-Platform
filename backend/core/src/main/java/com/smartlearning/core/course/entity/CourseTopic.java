@@ -13,16 +13,7 @@ import java.util.Map;
 @Getter
 @Setter
 @Entity
-@Table(
-        name = "course_topic",
-        schema = "core",
-        uniqueConstraints = {
-                @UniqueConstraint(
-                        name = "uk_chapter_topic_order",
-                        columnNames = {"chapter_id", "order_index"}
-                )
-        }
-)
+@Table(name = "course_topic", schema = "core")
 public class CourseTopic extends BaseEntity {
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)

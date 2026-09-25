@@ -9,14 +9,20 @@ import java.util.Optional;
 import java.util.UUID;
 
 public interface CourseChapterRepository extends JpaRepository<CourseChapter, UUID> {
+
     Optional<CourseChapter> findByIdAndCourseIdAndDeletedAtIsNull(UUID id, UUID courseId);
 
     List<CourseChapter> findAllByCourseIdAndDeletedAtIsNullOrderByOrderIndexAsc(UUID courseId);
 
-    boolean existsByCourseIdAndOrderIndex(UUID courseId, Integer orderIndex);
+    boolean existsByCourseIdAndOrderIndexAndDeletedAtIsNull(UUID courseId, Integer orderIndex);
 
-    boolean existsByCourseIdAndOrderIndexAndIdNot(UUID courseId, Integer orderIndex, UUID id);
+    boolean existsByCourseIdAndOrderIndexAndIdNotAndDeletedAtIsNull(UUID courseId, Integer orderIndex, UUID id);
 
-    @Query("select coalesce(max(chapter.orderIndex), -1) from CourseChapter chapter where chapter.course.id = :courseId")
+    @Query("""
+            select coalesce(max(chapter.orderIndex), -1)
+            from CourseChapter chapter
+            where chapter.course.id = :courseId
+              and chapter.deletedAt is null
+            """)
     Integer findMaxOrderIndex(UUID courseId);
 }

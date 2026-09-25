@@ -139,7 +139,7 @@ class CourseContentServiceImplTest {
         );
         when(courseUtils.requireCourse(COURSE_ID)).thenReturn(course());
         when(chapterMapper.toEntity(request)).thenReturn(new CourseChapter());
-        when(chapterRepository.existsByCourseIdAndOrderIndex(COURSE_ID, 1)).thenReturn(true);
+        when(chapterRepository.existsByCourseIdAndOrderIndexAndDeletedAtIsNull(COURSE_ID, 1)).thenReturn(true);
 
         assertThatThrownBy(() -> contentService.createChapter(COURSE_ID, request, OWNER_ID))
                 .isInstanceOf(ApplicationException.class)
@@ -192,28 +192,57 @@ class CourseContentServiceImplTest {
     }
 
     @Test
-    void deleteChapter_cleansDocumentsAndPublishesTopicDeletionEvents() {
+    void deleteChapter_softDeletesChapterAndTopicsAndPublishesDeletionEvents() {
         CourseChapter chapter = chapter();
+
         CourseTopic first = topic(chapter);
         CourseTopic second = topic(chapter);
         second.setId(UUID.randomUUID());
+
         when(courseUtils.requireCourse(COURSE_ID)).thenReturn(course());
         when(chapterRepository.findByIdAndCourseIdAndDeletedAtIsNull(CHAPTER_ID, COURSE_ID))
                 .thenReturn(Optional.of(chapter));
-        when(topicRepository.findAllByChapterIdOrderByOrderIndexAsc(CHAPTER_ID))
+        when(topicRepository.findAllByChapterIdAndDeletedAtIsNullOrderByOrderIndexAsc(CHAPTER_ID))
                 .thenReturn(List.of(first, second));
 
         contentService.deleteChapter(COURSE_ID, CHAPTER_ID, OWNER_ID);
 
         assertThat(chapter.getDeletedAt()).isNotNull();
-        verify(topicRepository).deleteAll(List.of(first, second));
-        verify(chapterRepository).delete(chapter);
+        assertThat(first.getDeletedAt()).isEqualTo(chapter.getDeletedAt());
+        assertThat(second.getDeletedAt()).isEqualTo(chapter.getDeletedAt());
+
+        verify(topicRepository, never()).deleteAll(any());
+        verify(chapterRepository, never()).delete(any());
 
         ArgumentCaptor<Object> events = ArgumentCaptor.forClass(Object.class);
         verify(eventPublisher, times(2)).publishEvent(events.capture());
+
         assertThat(events.getAllValues())
                 .allSatisfy(event -> assertThat(
                         ((TopicKnowledgeIndexRequestedEvent) event).operation()
                 ).isEqualTo(TopicKnowledgeOperation.DELETE));
+    }
+
+    @Test
+    void deleteTopic_softDeletesTopicAndPublishesDeletionEvent() {
+        CourseChapter chapter = chapter();
+        CourseTopic topic = topic(chapter);
+
+        when(courseUtils.requireCourse(COURSE_ID)).thenReturn(course());
+        when(chapterRepository.findByIdAndCourseIdAndDeletedAtIsNull(CHAPTER_ID, COURSE_ID))
+                .thenReturn(Optional.of(chapter));
+        when(topicRepository.findByIdAndChapterIdAndDeletedAtIsNull(TOPIC_ID, CHAPTER_ID))
+                .thenReturn(Optional.of(topic));
+
+        contentService.deleteTopic(COURSE_ID, CHAPTER_ID, TOPIC_ID, OWNER_ID);
+
+        assertThat(topic.getDeletedAt()).isNotNull();
+        verify(topicRepository, never()).delete(any());
+
+        ArgumentCaptor<Object> event = ArgumentCaptor.forClass(Object.class);
+        verify(eventPublisher).publishEvent(event.capture());
+
+        assertThat(((TopicKnowledgeIndexRequestedEvent) event.getValue()).operation())
+                .isEqualTo(TopicKnowledgeOperation.DELETE);
     }
 }

@@ -10,16 +10,7 @@ import java.time.Instant;
 @Getter
 @Setter
 @Entity
-@Table(
-        name = "course_chapter",
-        schema = "core",
-        uniqueConstraints = {
-                @UniqueConstraint(
-                        name = "uk_course_chapter_order",
-                        columnNames = {"course_id", "order_index"}
-                )
-        }
-)
+@Table(name = "course_chapter", schema = "core")
 public class CourseChapter extends BaseEntity {
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)

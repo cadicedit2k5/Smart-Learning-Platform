@@ -9,6 +9,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 public interface CourseTopicRepository extends JpaRepository<CourseTopic, UUID> {
+
     Optional<CourseTopic> findByIdAndChapterCourseIdAndDeletedAtIsNullAndChapterDeletedAtIsNull(
             UUID id,
             UUID courseId
@@ -18,26 +19,28 @@ public interface CourseTopicRepository extends JpaRepository<CourseTopic, UUID> 
 
     List<CourseTopic> findAllByChapterIdAndDeletedAtIsNullOrderByOrderIndexAsc(UUID chapterId);
 
-    boolean existsByChapterIdAndOrderIndex(UUID chapterId, Integer orderIndex);
+    boolean existsByChapterIdAndOrderIndexAndDeletedAtIsNull(UUID chapterId, Integer orderIndex);
 
-    boolean existsByChapterIdAndOrderIndexAndIdNot(UUID chapterId, Integer orderIndex, UUID id);
-
-    @Query("select coalesce(max(topic.orderIndex), -1) from CourseTopic topic where topic.chapter.id = :chapterId")
-    Integer findMaxOrderIndex(UUID chapterId);
-
-    List<CourseTopic> findAllByChapterIdOrderByOrderIndexAsc(UUID chapterId);
-
-    long countByChapterCourseIdAndDeletedAtIsNullAndChapterDeletedAtIsNull(
-            UUID courseId
-    );
+    boolean existsByChapterIdAndOrderIndexAndIdNotAndDeletedAtIsNull(UUID chapterId, Integer orderIndex, UUID id);
 
     @Query("""
-    select topic
-    from CourseTopic topic
-    where topic.chapter.course.id = :courseId
-      and topic.deletedAt is null
-      and topic.chapter.deletedAt is null
-    order by topic.chapter.orderIndex asc, topic.orderIndex asc
-    """)
+            select coalesce(max(topic.orderIndex), -1)
+            from CourseTopic topic
+            where topic.chapter.id = :chapterId
+              and topic.deletedAt is null
+              and topic.chapter.deletedAt is null
+            """)
+    Integer findMaxOrderIndex(UUID chapterId);
+
+    long countByChapterCourseIdAndDeletedAtIsNullAndChapterDeletedAtIsNull(UUID courseId);
+
+    @Query("""
+            select topic
+            from CourseTopic topic
+            where topic.chapter.course.id = :courseId
+              and topic.deletedAt is null
+              and topic.chapter.deletedAt is null
+            order by topic.chapter.orderIndex asc, topic.orderIndex asc
+            """)
     List<CourseTopic> findAllActiveByCourseIdOrderByPosition(UUID courseId);
 }
