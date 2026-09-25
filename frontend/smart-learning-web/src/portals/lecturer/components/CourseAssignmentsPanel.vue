@@ -202,7 +202,7 @@ const openCreate = () => {
 }
 
 const openEdit = () => {
-  if (!selectedAssignment.value || selectedAssignment.value.status !== 'DRAFT') return
+  if (!selectedAssignment.value) return
 
   editingAssignment.value = selectedAssignment.value
   formMessage.value = ''
@@ -227,7 +227,7 @@ const submitForm = async (input: AssignmentInput) => {
     if (editingAssignment.value) {
       const updated = await updateAssignment(props.courseId, editingAssignment.value.id, input)
       replaceAssignment(updated)
-      successMessage.value = 'Đã cập nhật bản nháp.'
+      successMessage.value = 'Đã cập nhật bài tập.'
     } else {
       const created = await createAssignment(props.courseId, input)
       assignments.value.push(created)
@@ -582,11 +582,7 @@ onMounted(() => void loadAssignments())
             </div>
 
             <div class="flex shrink-0 flex-wrap gap-2">
-              <BaseButton
-                v-if="selectedAssignment.status === 'DRAFT'"
-                variant="secondary"
-                @click="openEdit"
-              >
+              <BaseButton variant="secondary" @click="openEdit">
                 <template #leading><Pencil :size="16" /></template>
                 Chỉnh sửa
               </BaseButton>
@@ -845,6 +841,7 @@ onMounted(() => void loadAssignments())
     <AssignmentFormModal
       :open="formOpen"
       :assignment="editingAssignment"
+      :deadline-locked="editingAssignment?.status !== 'DRAFT'"
       :loading="saving"
       :server-message="formMessage"
       @close="closeForm"

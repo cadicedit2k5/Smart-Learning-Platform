@@ -49,7 +49,7 @@ const toggle = async () => {
 
 const iconFor = (type: NotificationType) => {
   if (type === 'ANNOUNCEMENT_CREATED') return Megaphone
-  if (type === 'ASSIGNMENT_CREATED' || type === 'ASSIGNMENT_GRADED') return ClipboardList
+  if (type === 'ASSIGNMENT_CREATED' || type === 'ASSIGNMENT_UPDATED' || type === 'ASSIGNMENT_GRADED') return ClipboardList
   if (type === 'DISCUSSION_CREATED' || type === 'DISCUSSION_REPLIED') return MessageCircle
   return GraduationCap
 }

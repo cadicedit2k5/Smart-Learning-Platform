@@ -10,7 +10,7 @@ import java.util.UUID;
 
 public interface LearningProgressService {
 
-    TopicLearningProgressResponse startTopic(UUID courseId, UUID topicId, UUID userId);
+    TopicLearningProgressResponse recordActivity(UUID courseId, UUID topicId, UUID userId);
 
     TopicLearningProgressResponse completeTopic(UUID courseId, UUID topicId, UUID userId);
 

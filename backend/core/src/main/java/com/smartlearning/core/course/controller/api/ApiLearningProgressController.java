@@ -26,15 +26,15 @@ public class ApiLearningProgressController {
 
     private final LearningProgressService progressService;
 
-    @PostMapping("/topics/{topicId}/start")
+    @PostMapping("/topics/{topicId}/activity")
     @PreAuthorize(Authorities.COURSE_READ)
-    public ResponseEntity<ApiResponse<TopicLearningProgressResponse>> startTopic(
+    public ResponseEntity<ApiResponse<TopicLearningProgressResponse>> recordActivity(
             @PathVariable UUID courseId,
             @PathVariable UUID topicId,
             @AuthenticationPrincipal Jwt jwt
     ) {
         return ApiResponses.ok(
-                progressService.startTopic(courseId, topicId, JwtUtils.getUserId(jwt))
+                progressService.recordActivity(courseId, topicId, JwtUtils.getUserId(jwt))
         );
     }
 

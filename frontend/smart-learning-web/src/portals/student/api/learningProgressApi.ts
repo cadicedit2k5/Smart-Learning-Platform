@@ -1,15 +1,14 @@
-import {
-  httpClient,
-  type ApiResponse,
-} from '@/shared/api'
+import { httpClient, type ApiResponse } from '@/shared/api'
 
-export type LearningProgressStatus =
-  | 'IN_PROGRESS'
-  | 'COMPLETED'
+export type LearningProgressStatus = 'IN_PROGRESS' | 'COMPLETED'
 
 export interface TopicLearningProgress {
   topicId: string
   status: LearningProgressStatus
+  activeSeconds: number
+  minimumCompletionSeconds: number
+  studyPercentage: number
+  canComplete: boolean
   startedAt: string
   completedAt: string | null
   lastAccessedAt: string
@@ -24,20 +23,15 @@ export interface CourseLearningProgress {
   topics: TopicLearningProgress[]
 }
 
-const learningPath = (courseId: string) =>
-  `/courses/${courseId}/learning`
+const learningPath = (courseId: string) => `/courses/${courseId}/learning`
 
-export const startTopic = async (
+export const recordTopicActivity = async (
   courseId: string,
   topicId: string,
 ): Promise<TopicLearningProgress> => {
-  const response =
-    await httpClient.post<
-      ApiResponse<TopicLearningProgress>
-    >(
-      `${learningPath(courseId)}/topics/${topicId}/start`,
-    )
-
+  const response = await httpClient.post<ApiResponse<TopicLearningProgress>>(
+    `${learningPath(courseId)}/topics/${topicId}/activity`,
+  )
   return response.data.data
 }
 
@@ -45,25 +39,15 @@ export const completeTopic = async (
   courseId: string,
   topicId: string,
 ): Promise<TopicLearningProgress> => {
-  const response =
-    await httpClient.post<
-      ApiResponse<TopicLearningProgress>
-    >(
-      `${learningPath(courseId)}/topics/${topicId}/complete`,
-    )
-
+  const response = await httpClient.post<ApiResponse<TopicLearningProgress>>(
+    `${learningPath(courseId)}/topics/${topicId}/complete`,
+  )
   return response.data.data
 }
 
-export const getCourseProgress = async (
-  courseId: string,
-): Promise<CourseLearningProgress> => {
-  const response =
-    await httpClient.get<
-      ApiResponse<CourseLearningProgress>
-    >(
-      `${learningPath(courseId)}/progress/me`,
-    )
-
+export const getCourseProgress = async (courseId: string): Promise<CourseLearningProgress> => {
+  const response = await httpClient.get<ApiResponse<CourseLearningProgress>>(
+    `${learningPath(courseId)}/progress/me`,
+  )
   return response.data.data
 }

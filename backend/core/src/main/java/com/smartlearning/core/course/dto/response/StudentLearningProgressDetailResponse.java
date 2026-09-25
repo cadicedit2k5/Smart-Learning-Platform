@@ -14,6 +14,7 @@ public record StudentLearningProgressDetailResponse(
         int progressPercentage,
         List<ChapterProgress> chapters
 ) {
+
     public record ChapterProgress(
             UUID chapterId,
             String title,
@@ -30,6 +31,7 @@ public record StudentLearningProgressDetailResponse(
             String title,
             Integer orderIndex,
             String status,
+            long activeSeconds,
             Instant startedAt,
             Instant completedAt,
             Instant lastAccessedAt

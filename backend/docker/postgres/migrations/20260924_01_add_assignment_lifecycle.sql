@@ -9,3 +9,5 @@ SET status = 'PUBLISHED',
 WHERE status IS NULL;
 
 ALTER TABLE core.assignment ALTER COLUMN status SET NOT NULL;
+
+ALTER TABLE core.learning_progress ADD COLUMN IF NOT EXISTS active_seconds BIGINT NOT NULL DEFAULT 0;

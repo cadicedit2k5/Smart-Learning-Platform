@@ -29,6 +29,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 
+import java.time.Duration;
 import java.time.Instant;
 import java.util.Comparator;
 import java.util.List;
@@ -42,6 +43,10 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class LearningProgressServiceImpl implements LearningProgressService {
 
+    private static final long HEARTBEAT_SECONDS = 30;
+    private static final long DEFAULT_MINIMUM_COMPLETION_SECONDS = 60;
+    private static final double MINIMUM_COMPLETION_RATIO = 0.6;
+
     private final LearningProgressRepository progressRepository;
     private final CourseTopicRepository topicRepository;
     private final CourseChapterRepository chapterRepository;
@@ -51,48 +56,64 @@ public class LearningProgressServiceImpl implements LearningProgressService {
     private final SystemClient systemClient;
 
     @Override
-    public TopicLearningProgressResponse startTopic(UUID courseId, UUID topicId, UUID userId) {
+    public TopicLearningProgressResponse recordActivity(UUID courseId, UUID topicId, UUID userId) {
         requireStudent(courseId, userId);
+
         CourseTopic topic = requireTopic(courseId, topicId);
         Instant now = Instant.now();
 
-        LearningProgress progress = progressRepository.findByUserIdAndTopicId(userId, topicId).orElseGet(() -> {
-            LearningProgress created = new LearningProgress();
-            created.setUserId(userId);
-            created.setTopic(topic);
-            created.setStatus(LearningProgressStatus.IN_PROGRESS);
-            created.setStartedAt(now);
-            return created;
-        });
+        LearningProgress progress = progressRepository.findByUserIdAndTopicId(userId, topicId).orElse(null);
+
+        if (progress == null) {
+            progress = new LearningProgress();
+            progress.setUserId(userId);
+            progress.setTopic(topic);
+            progress.setStatus(LearningProgressStatus.IN_PROGRESS);
+            progress.setStartedAt(now);
+            progress.setActiveSeconds(HEARTBEAT_SECONDS);
+        } else {
+            addActiveTime(progress, now);
+        }
 
         progress.setLastAccessedAt(now);
-        LearningProgress saved = progressRepository.save(progress);
-        return toResponse(saved);
+        return toResponse(progressRepository.save(progress));
     }
 
     @Override
     public TopicLearningProgressResponse completeTopic(UUID courseId, UUID topicId, UUID userId) {
         requireStudent(courseId, userId);
-        CourseTopic topic = requireTopic(courseId, topicId);
+        requireTopic(courseId, topicId);
+
+        LearningProgress progress = progressRepository.findByUserIdAndTopicId(userId, topicId)
+                .orElseThrow(() -> new ApplicationException(
+                        CommonErrorCode.DATA_CONFLICT,
+                        "Bạn cần học bài trước khi đánh dấu hoàn thành."
+                ));
+
         Instant now = Instant.now();
+        addActiveTime(progress, now);
+        progress.setLastAccessedAt(now);
 
-        LearningProgress progress = progressRepository.findByUserIdAndTopicId(userId, topicId).orElseGet(() -> {
-            LearningProgress created = new LearningProgress();
-            created.setUserId(userId);
-            created.setTopic(topic);
-            created.setStartedAt(now);
-            return created;
-        });
-
-        progress.setStatus(LearningProgressStatus.COMPLETED);
-
-        if (progress.getCompletedAt() == null) {
-            progress.setCompletedAt(now);
+        if (progress.getStatus() == LearningProgressStatus.COMPLETED) {
+            return toResponse(progress);
         }
 
-        progress.setLastAccessedAt(now);
-        LearningProgress saved = progressRepository.save(progress);
-        return toResponse(saved);
+        long minimumSeconds = minimumCompletionSeconds(progress.getTopic());
+
+        if (progress.getActiveSeconds() < minimumSeconds) {
+            long remainingSeconds = minimumSeconds - progress.getActiveSeconds();
+            long remainingMinutes = Math.max(1, (long) Math.ceil(remainingSeconds / 60.0));
+
+            throw new ApplicationException(
+                    CommonErrorCode.DATA_CONFLICT,
+                    "Bạn cần học thêm khoảng " + remainingMinutes + " phút trước khi đánh dấu hoàn thành."
+            );
+        }
+
+        progress.setStatus(LearningProgressStatus.COMPLETED);
+        progress.setCompletedAt(now);
+
+        return toResponse(progress);
     }
 
     @Override
@@ -142,8 +163,7 @@ public class LearningProgressServiceImpl implements LearningProgressService {
         );
 
         long totalStudents = studentPage.getTotalElements();
-        long totalTopics = topicRepository
-                .countByChapterCourseIdAndDeletedAtIsNullAndChapterDeletedAtIsNull(courseId);
+        long totalTopics = topicRepository.countByChapterCourseIdAndDeletedAtIsNullAndChapterDeletedAtIsNull(courseId);
 
         List<LearningProgressRepository.StudentCompletionSummary> completionSummary =
                 totalStudents == 0 || totalTopics == 0
@@ -315,6 +335,7 @@ public class LearningProgressServiceImpl implements LearningProgressService {
                                 topic.getTitle(),
                                 topic.getOrderIndex(),
                                 "NOT_STARTED",
+                                0,
                                 null,
                                 null,
                                 null
@@ -326,6 +347,7 @@ public class LearningProgressServiceImpl implements LearningProgressService {
                             topic.getTitle(),
                             topic.getOrderIndex(),
                             progress.getStatus().name(),
+                            progress.getActiveSeconds(),
                             progress.getStartedAt(),
                             progress.getCompletedAt(),
                             progress.getLastAccessedAt()
@@ -349,6 +371,26 @@ public class LearningProgressServiceImpl implements LearningProgressService {
                 calculatePercentage(completedTopics, topics.size()),
                 topicResponses
         );
+    }
+
+    private void addActiveTime(LearningProgress progress, Instant now) {
+        long elapsedSeconds = Math.max(0, Duration.between(progress.getLastAccessedAt(), now).getSeconds());
+        progress.setActiveSeconds(progress.getActiveSeconds() + Math.min(elapsedSeconds, HEARTBEAT_SECONDS));
+    }
+
+    // ponytail: 60% estimated time is only an engagement heuristic. Replace with assessment-based rules if completion must represent knowledge mastery.
+    private long minimumCompletionSeconds(CourseTopic topic) {
+        if (topic.getEstimatedMinutes() == null) return DEFAULT_MINIMUM_COMPLETION_SECONDS;
+
+        long estimatedSeconds = topic.getEstimatedMinutes() * 60L;
+        return Math.max(DEFAULT_MINIMUM_COMPLETION_SECONDS, Math.round(estimatedSeconds * MINIMUM_COMPLETION_RATIO));
+    }
+
+    private int studyPercentage(LearningProgress progress) {
+        if (progress.getStatus() == LearningProgressStatus.COMPLETED) return 100;
+
+        long minimumSeconds = minimumCompletionSeconds(progress.getTopic());
+        return (int) Math.min(100, Math.round(progress.getActiveSeconds() * 100.0 / minimumSeconds));
     }
 
     private CourseTopic requireTopic(UUID courseId, UUID topicId) {
@@ -386,21 +428,24 @@ public class LearningProgressServiceImpl implements LearningProgressService {
     }
 
     private String displayName(SystemUserResponse user, UUID studentId) {
-        if (user != null && user.fullName() != null && !user.fullName().isBlank()) {
-            return user.fullName();
-        }
-
-        if (user != null && user.email() != null && !user.email().isBlank()) {
-            return user.email();
-        }
+        if (user != null && user.fullName() != null && !user.fullName().isBlank()) return user.fullName();
+        if (user != null && user.email() != null && !user.email().isBlank()) return user.email();
 
         return "Học viên " + studentId.toString().substring(0, 8);
     }
 
     private TopicLearningProgressResponse toResponse(LearningProgress progress) {
+        long minimumSeconds = minimumCompletionSeconds(progress.getTopic());
+        boolean canComplete = progress.getStatus() == LearningProgressStatus.COMPLETED
+                || progress.getActiveSeconds() >= minimumSeconds;
+
         return new TopicLearningProgressResponse(
                 progress.getTopic().getId(),
                 progress.getStatus(),
+                progress.getActiveSeconds(),
+                minimumSeconds,
+                studyPercentage(progress),
+                canComplete,
                 progress.getStartedAt(),
                 progress.getCompletedAt(),
                 progress.getLastAccessedAt()

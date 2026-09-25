@@ -29,6 +29,7 @@ import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 
 @Service
@@ -83,16 +84,67 @@ public class AssignmentServiceImpl implements AssignmentService {
     }
 
     @Override
-    public AssignmentResponse updateAssignment(UUID courseId, UUID assignmentId, UUID userId, AssignmentUpdateRequest request) {
+    public AssignmentResponse updateAssignment(
+            UUID courseId,
+            UUID assignmentId,
+            UUID userId,
+            AssignmentUpdateRequest request
+    ) {
         courseAccessPolicy.requireOwner(courseId, userId);
 
         Assignment assignment = requireAssignment(courseId, assignmentId);
-        requireDraft(assignment);
 
-        if (request.title() != null) assignment.setTitle(request.title().trim());
-        if (request.description() != null) assignment.setDescription(normalize(request.description()));
-        if (request.dueAt() != null) assignment.setDueAt(request.dueAt());
-        if (request.maxScore() != null) assignment.setMaxScore(request.maxScore());
+        if (submissionRepository.existsByAssignmentId(assignmentId)) {
+            throw new ApplicationException(
+                    CommonErrorCode.DATA_CONFLICT,
+                    "Bài tập đã có bài nộp và không thể chỉnh sửa nội dung."
+            );
+        }
+
+        boolean contentChanged = false;
+
+        if (request.title() != null) {
+            String title = request.title().trim();
+
+            if (!title.equals(assignment.getTitle())) {
+                assignment.setTitle(title);
+                contentChanged = true;
+            }
+        }
+
+        if (request.description() != null) {
+            String description = normalize(request.description());
+
+            if (!Objects.equals(description, assignment.getDescription())) {
+                assignment.setDescription(description);
+                contentChanged = true;
+            }
+        }
+
+        if (request.maxScore() != null && request.maxScore().compareTo(assignment.getMaxScore()) != 0) {
+            assignment.setMaxScore(request.maxScore());
+            contentChanged = true;
+        }
+
+        if (request.dueAt() != null && !request.dueAt().equals(assignment.getDueAt())) {
+            if (assignment.getStatus() != AssignmentStatus.DRAFT) {
+                throw new ApplicationException(
+                        CommonErrorCode.DATA_CONFLICT,
+                        "Hãy sử dụng chức năng gia hạn để thay đổi deadline của bài tập đã đăng."
+                );
+            }
+
+            assignment.setDueAt(request.dueAt());
+        }
+
+        if (contentChanged && assignment.getStatus() != AssignmentStatus.DRAFT) {
+            notificationService.createForCourseStudents(
+                    courseId,
+                    NotificationType.ASSIGNMENT_UPDATED,
+                    "Bài tập đã được cập nhật",
+                    "Giảng viên đã cập nhật bài tập: " + assignment.getTitle()
+            );
+        }
 
         return toAssignmentResponse(assignment);
     }
@@ -421,6 +473,13 @@ public class AssignmentServiceImpl implements AssignmentService {
         }
 
         assignment.setDueAt(request.dueAt());
+
+        notificationService.createForCourseStudents(
+                courseId,
+                NotificationType.ASSIGNMENT_UPDATED,
+                "Hạn nộp bài tập đã thay đổi",
+                "Giảng viên đã gia hạn bài tập: " + assignment.getTitle()
+        );
 
         return toAssignmentResponse(assignment);
     }

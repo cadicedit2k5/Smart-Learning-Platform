@@ -24,11 +24,13 @@ const props = withDefaults(
     assignment?: Assignment | null
     loading?: boolean
     serverMessage?: string
+    deadlineLocked?: boolean
   }>(),
   {
     assignment: null,
     loading: false,
     serverMessage: '',
+    deadlineLocked: false,
   },
 )
 
@@ -134,14 +136,13 @@ const submit = () => {
       </BaseAlert>
 
       <BaseInput
-        v-model="form.title"
-        label="Tên bài tập"
-        placeholder="Ví dụ: Xây dựng REST API"
-        maxlength="255"
+        v-model="form.dueAt"
+        type="datetime-local"
+        :label="deadlineLocked ? 'Hạn nộp (sử dụng chức năng Gia hạn để thay đổi)' : 'Hạn nộp'"
         required
-        :disabled="loading"
-        :error="errors.title"
-      />
+        :disabled="loading || deadlineLocked"
+        :error="errors.dueAt"
+      />    
 
       <div>
         <div class="mb-2 flex items-center justify-between gap-3">
