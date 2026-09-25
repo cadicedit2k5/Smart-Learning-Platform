@@ -11,7 +11,6 @@ import {
   GraduationCap,
 } from 'lucide-vue-next'
 
-import BaseAlert from '@/shared/components/BaseAlert.vue'
 import BaseButton from '@/shared/components/BaseButton.vue'
 import {
   getChapters,
@@ -19,6 +18,7 @@ import {
   type CourseChapter,
   type CourseTopic,
 } from '@/shared/course-content'
+import { useToastStore } from '@/shared/toast'
 
 import {
   completeTopic,
@@ -36,6 +36,7 @@ const props = defineProps<{ courseId: string }>()
 const ACTIVITY_INTERVAL_MS = 30_000
 const IDLE_LIMIT_MS = 5 * 60_000
 
+const toast = useToastStore()
 const { handleApiError } = useStudentApiError()
 
 interface ChapterWithTopics extends CourseChapter {
@@ -44,7 +45,6 @@ interface ChapterWithTopics extends CourseChapter {
 
 const chapters = ref<ChapterWithTopics[]>([])
 const loading = ref(true)
-const message = ref('')
 const progress = ref<CourseLearningProgress | null>(null)
 
 const completingTopicId = ref('')
@@ -95,6 +95,7 @@ const selectedTopicProgress = computed(() => {
 
 const remainingStudyMinutes = computed(() => {
   const current = selectedTopicProgress.value
+
   if (!current || current.canComplete) return 0
 
   return Math.max(
@@ -117,8 +118,8 @@ const previousTopic = computed(() => {
 
 const nextTopic = computed(() => {
   const index = selectedTopicIndex.value
-
   if (index < 0 || index >= allTopics.value.length - 1) return null
+
   return allTopics.value[index + 1]
 })
 
@@ -166,7 +167,7 @@ const trackSelectedTopic = async () => {
     const updated = await recordTopicActivity(props.courseId, selectedTopic.value.id)
     updateLocalProgress(updated)
   } catch {
-    // Progress tracking không được làm hỏng màn hình học.
+    // Tracking lỗi không được làm gián đoạn việc học.
   } finally {
     activityPending = false
   }
@@ -175,7 +176,6 @@ const trackSelectedTopic = async () => {
 const selectTopic = (chapter: ChapterWithTopics, topic: CourseTopic) => {
   expandedChapters.value = new Set([...expandedChapters.value, chapter.id])
   selectedTopic.value = topic
-  message.value = ''
   markInteraction()
 }
 
@@ -193,13 +193,13 @@ const handleCompleteTopic = async () => {
   if (!selectedTopic.value) return
 
   completingTopicId.value = selectedTopic.value.id
-  message.value = ''
 
   try {
     const updated = await completeTopic(props.courseId, selectedTopic.value.id)
     updateLocalProgress(updated)
+    toast.success('Đã hoàn thành bài học.')
   } catch (error) {
-    message.value = handleApiError(error, 'Chưa thể hoàn thành bài học.').message
+    toast.error(handleApiError(error, 'Chưa thể hoàn thành bài học.').message)
   } finally {
     completingTopicId.value = ''
   }
@@ -211,7 +211,6 @@ const handleVisibilityChange = () => {
 
 const loadContent = async () => {
   loading.value = true
-  message.value = ''
 
   try {
     const [chapterData, progressData] = await Promise.all([
@@ -250,7 +249,7 @@ const loadContent = async () => {
       selectedTopic.value = topicToOpen
     }
   } catch (error) {
-    message.value = handleApiError(error, 'Không thể tải nội dung khóa học.').message
+    toast.error(handleApiError(error, 'Không thể tải nội dung khóa học.').message)
   } finally {
     loading.value = false
   }
@@ -279,8 +278,6 @@ onBeforeUnmount(() => {
 
 <template>
   <section>
-    <BaseAlert v-if="message" class="mb-5">{{ message }}</BaseAlert>
-
     <div v-if="loading" class="grid gap-5 lg:grid-cols-[19rem_minmax(0,1fr)]">
       <div class="h-[36rem] animate-pulse rounded-panel bg-app-surface-muted" />
       <div class="h-[36rem] animate-pulse rounded-panel bg-app-surface-muted" />
@@ -291,8 +288,14 @@ onBeforeUnmount(() => {
       class="rounded-panel border border-dashed border-app-border bg-app-surface px-6 py-16 text-center"
     >
       <BookOpen :size="42" class="mx-auto text-app-text-muted/40" />
-      <h2 class="mt-4 font-heading text-xl font-bold text-app-text">Khóa học chưa có bài học</h2>
-      <p class="mt-2 text-sm text-app-text-muted">Giảng viên chưa thêm nội dung cho khóa học này.</p>
+
+      <h2 class="mt-4 font-heading text-xl font-bold text-app-text">
+        Khóa học chưa có bài học
+      </h2>
+
+      <p class="mt-2 text-sm text-app-text-muted">
+        Giảng viên chưa thêm nội dung cho khóa học này.
+      </p>
     </div>
 
     <div
@@ -306,7 +309,9 @@ onBeforeUnmount(() => {
             <h2 class="font-heading font-bold text-app-text">Nội dung khóa học</h2>
           </div>
 
-          <p class="mt-1.5 text-xs leading-5 text-app-text-muted">Chọn một chủ đề để bắt đầu học.</p>
+          <p class="mt-1.5 text-xs leading-5 text-app-text-muted">
+            Chọn một chủ đề để bắt đầu học.
+          </p>
         </header>
 
         <div v-if="progress" class="mx-5 mt-4">
@@ -344,7 +349,10 @@ onBeforeUnmount(() => {
                 <p class="text-[11px] font-semibold uppercase tracking-wider text-secondary">
                   Chương {{ chapterIndex + 1 }}
                 </p>
-                <p class="mt-0.5 truncate text-sm font-semibold text-app-text">{{ chapter.title }}</p>
+
+                <p class="mt-0.5 truncate text-sm font-semibold text-app-text">
+                  {{ chapter.title }}
+                </p>
               </div>
             </button>
 
@@ -385,10 +393,7 @@ onBeforeUnmount(() => {
                     Đã hoàn thành
                   </span>
 
-                  <span
-                    v-else-if="topicProgress(topic.id)"
-                    class="font-medium text-secondary"
-                  >
+                  <span v-else-if="topicProgress(topic.id)" class="font-medium text-secondary">
                     {{ topicProgress(topic.id)?.studyPercentage }}%
                   </span>
                 </div>
@@ -481,11 +486,17 @@ onBeforeUnmount(() => {
                   </BaseButton>
                 </div>
 
-                <p v-if="selectedTopicProgress && !selectedTopicProgress.canComplete" class="text-xs text-app-text-muted">
+                <p
+                  v-if="selectedTopicProgress && !selectedTopicProgress.canComplete"
+                  class="text-xs text-app-text-muted"
+                >
                   Cần học thêm khoảng {{ remainingStudyMinutes }} phút để có thể đánh dấu hoàn thành.
                 </p>
 
-                <p v-else-if="selectedTopicProgress?.canComplete" class="text-xs text-app-text-muted">
+                <p
+                  v-else-if="selectedTopicProgress?.canComplete"
+                  class="text-xs text-app-text-muted"
+                >
                   Bạn đã đủ thời gian học tối thiểu. Chỉ đánh dấu hoàn thành khi bạn cảm thấy đã nắm được nội dung.
                 </p>
               </template>

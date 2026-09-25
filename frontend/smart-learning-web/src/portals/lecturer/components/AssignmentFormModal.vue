@@ -1,12 +1,7 @@
 <script setup lang="ts">
 import { computed, reactive, ref, watch } from 'vue'
 
-import {
-  BaseAlert,
-  BaseButton,
-  BaseInput,
-  BaseModal,
-} from '@/shared/components'
+import { BaseButton, BaseInput, BaseModal } from '@/shared/components'
 import type { Assignment } from '@/shared/assignment/types'
 import type { TopicContent } from '@/shared/course-content'
 import {
@@ -23,13 +18,11 @@ const props = withDefaults(
     open: boolean
     assignment?: Assignment | null
     loading?: boolean
-    serverMessage?: string
     deadlineLocked?: boolean
   }>(),
   {
     assignment: null,
     loading: false,
-    serverMessage: '',
     deadlineLocked: false,
   },
 )
@@ -59,8 +52,7 @@ const toLocalDateTime = (value?: string | null) => {
   if (!value) return ''
 
   const date = new Date(value)
-  const local = new Date(date.getTime() - date.getTimezoneOffset() * 60_000)
-  return local.toISOString().slice(0, 16)
+  return new Date(date.getTime() - date.getTimezoneOffset() * 60_000).toISOString().slice(0, 16)
 }
 
 const reset = () => {
@@ -68,6 +60,7 @@ const reset = () => {
   description.value = parseStoredRichText(props.assignment?.description)
   form.dueAt = toLocalDateTime(props.assignment?.dueAt)
   form.maxScore = String(props.assignment?.maxScore ?? 10)
+
   errors.title = ''
   errors.dueAt = ''
   errors.maxScore = ''
@@ -86,13 +79,8 @@ const validate = () => {
   errors.dueAt = ''
   errors.maxScore = ''
 
-  if (!form.title.trim()) {
-    errors.title = 'Vui lòng nhập tên bài tập.'
-  }
-
-  if (!form.dueAt) {
-    errors.dueAt = 'Vui lòng chọn hạn nộp.'
-  }
+  if (!form.title.trim()) errors.title = 'Vui lòng nhập tên bài tập.'
+  if (!form.dueAt) errors.dueAt = 'Vui lòng chọn hạn nộp.'
 
   const score = Number(form.maxScore)
 
@@ -123,7 +111,7 @@ const submit = () => {
     :title="isEditing ? 'Chỉnh sửa bài tập' : 'Tạo bài tập'"
     :description="
       isEditing
-        ? 'Cập nhật yêu cầu, hạn nộp và điểm của bài tập.'
+        ? 'Cập nhật yêu cầu và điểm của bài tập.'
         : 'Tạo một hoạt động đánh giá mới cho khóa học.'
     "
     :loading="loading"
@@ -131,18 +119,15 @@ const submit = () => {
     @close="emit('close')"
   >
     <form class="space-y-5" @submit.prevent="submit">
-      <BaseAlert v-if="serverMessage">
-        {{ serverMessage }}
-      </BaseAlert>
-
       <BaseInput
-        v-model="form.dueAt"
-        type="datetime-local"
-        :label="deadlineLocked ? 'Hạn nộp (sử dụng chức năng Gia hạn để thay đổi)' : 'Hạn nộp'"
+        v-model="form.title"
+        label="Tên bài tập"
+        placeholder="Ví dụ: Xây dựng REST API"
+        maxlength="255"
         required
-        :disabled="loading || deadlineLocked"
-        :error="errors.dueAt"
-      />    
+        :disabled="loading"
+        :error="errors.title"
+      />
 
       <div>
         <div class="mb-2 flex items-center justify-between gap-3">
@@ -155,19 +140,16 @@ const submit = () => {
           </span>
         </div>
 
-        <RichTextEditor
-          v-model="description"
-          :disabled="loading"
-        />
+        <RichTextEditor v-model="description" :disabled="loading" />
       </div>
 
       <div class="grid gap-5 sm:grid-cols-2">
         <BaseInput
           v-model="form.dueAt"
           type="datetime-local"
-          label="Hạn nộp"
+          :label="deadlineLocked ? 'Hạn nộp (sử dụng chức năng Gia hạn để thay đổi)' : 'Hạn nộp'"
           required
-          :disabled="loading"
+          :disabled="loading || deadlineLocked"
           :error="errors.dueAt"
         />
 
@@ -184,12 +166,7 @@ const submit = () => {
       </div>
 
       <div class="flex justify-end gap-3 border-t border-app-border pt-5">
-        <BaseButton
-          type="button"
-          variant="secondary"
-          :disabled="loading"
-          @click="emit('close')"
-        >
+        <BaseButton type="button" variant="secondary" :disabled="loading" @click="emit('close')">
           Hủy
         </BaseButton>
 

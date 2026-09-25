@@ -4,7 +4,6 @@ import {
   ArrowLeft,
   CalendarClock,
   CalendarPlus,
-  CheckCircle2,
   ChevronRight,
   ClipboardList,
   Lock,
@@ -18,7 +17,7 @@ import {
   UsersRound,
 } from 'lucide-vue-next'
 
-import { BaseAlert, BaseButton, BaseInput, BaseModal, ConfirmDialog } from '@/shared/components'
+import { BaseButton, BaseInput, BaseModal, ConfirmDialog } from '@/shared/components'
 import type { Assignment, AssignmentSubmission } from '@/shared/assignment/types'
 import {
   hasRichTextContent,
@@ -26,6 +25,7 @@ import {
   RichTextViewer,
   storedRichTextToPlainText,
 } from '@/shared/rich-text'
+import { useToastStore } from '@/shared/toast'
 import { formatDateTime } from '@/shared/utils/date'
 
 import {
@@ -48,6 +48,8 @@ import AssignmentFormModal from './AssignmentFormModal.vue'
 import SubmissionReviewModal from './SubmissionReviewModal.vue'
 
 const props = defineProps<{ courseId: string }>()
+
+const toast = useToastStore()
 const { handleApiError } = useLecturerApiError()
 
 type AssignmentView = 'overview' | 'submissions'
@@ -67,16 +69,11 @@ const updatingDeadline = ref(false)
 const deleting = ref(false)
 const grading = ref(false)
 
-const actionMessage = ref('')
-const successMessage = ref('')
-const formMessage = ref('')
-
 const formOpen = ref(false)
 const editingAssignment = ref<Assignment | null>(null)
 
 const deadlineOpen = ref(false)
 const deadlineValue = ref('')
-const deadlineError = ref('')
 
 const deleteOpen = ref(false)
 const reviewOpen = ref(false)
@@ -111,6 +108,7 @@ const statusTextClass = (assignment: Assignment) => {
 
 const replaceAssignment = (assignment: Assignment) => {
   const index = assignments.value.findIndex(item => item.id === assignment.id)
+
   if (index >= 0) assignments.value[index] = assignment
   if (selectedAssignment.value?.id === assignment.id) selectedAssignment.value = assignment
 }
@@ -122,12 +120,11 @@ const toLocalDateTime = (value: string) => {
 
 const loadAssignments = async () => {
   loadingAssignments.value = true
-  actionMessage.value = ''
 
   try {
     assignments.value = await getAssignments(props.courseId)
   } catch (error) {
-    actionMessage.value = handleApiError(error, 'Không thể tải danh sách bài tập.').message
+    toast.error(handleApiError(error, 'Không thể tải danh sách bài tập.').message)
   } finally {
     loadingAssignments.value = false
   }
@@ -142,7 +139,7 @@ const loadUserLookups = async (items: AssignmentSubmission[]) => {
         const user = await getUserLookup(id)
         users.value = { ...users.value, [id]: user }
       } catch {
-        // Giữ studentId nếu không lấy được thông tin user.
+        // Giữ studentId nếu không lấy được thông tin người dùng.
       }
     }),
   )
@@ -152,15 +149,16 @@ const loadSubmissions = async () => {
   if (!selectedAssignment.value) return
 
   loadingSubmissions.value = true
-  actionMessage.value = ''
 
   try {
     const result = await getSubmissions(props.courseId, selectedAssignment.value.id)
+
     submissions.value = result
     submissionsLoaded.value = true
+
     await loadUserLookups(result)
   } catch (error) {
-    actionMessage.value = handleApiError(error, 'Không thể tải danh sách bài nộp.').message
+    toast.error(handleApiError(error, 'Không thể tải danh sách bài nộp.').message)
   } finally {
     loadingSubmissions.value = false
   }
@@ -171,8 +169,6 @@ const openAssignment = (assignment: Assignment) => {
   assignmentView.value = 'overview'
   submissions.value = []
   submissionsLoaded.value = false
-  actionMessage.value = ''
-  successMessage.value = ''
 }
 
 const backToAssignments = () => {
@@ -192,12 +188,12 @@ const openSubmissions = async () => {
   if (!selectedAssignment.value || selectedAssignment.value.status === 'DRAFT') return
 
   assignmentView.value = 'submissions'
+
   if (!submissionsLoaded.value) await loadSubmissions()
 }
 
 const openCreate = () => {
   editingAssignment.value = null
-  formMessage.value = ''
   formOpen.value = true
 }
 
@@ -205,7 +201,6 @@ const openEdit = () => {
   if (!selectedAssignment.value) return
 
   editingAssignment.value = selectedAssignment.value
-  formMessage.value = ''
   formOpen.value = true
 }
 
@@ -214,30 +209,28 @@ const closeForm = () => {
 
   formOpen.value = false
   editingAssignment.value = null
-  formMessage.value = ''
 }
 
 const submitForm = async (input: AssignmentInput) => {
   saving.value = true
-  formMessage.value = ''
-  actionMessage.value = ''
-  successMessage.value = ''
 
   try {
     if (editingAssignment.value) {
       const updated = await updateAssignment(props.courseId, editingAssignment.value.id, input)
+
       replaceAssignment(updated)
-      successMessage.value = 'Đã cập nhật bài tập.'
+      toast.success('Đã cập nhật bài tập.')
     } else {
       const created = await createAssignment(props.courseId, input)
+
       assignments.value.push(created)
-      successMessage.value = 'Đã tạo bản nháp bài tập.'
+      toast.success('Đã tạo bản nháp bài tập.')
     }
 
     formOpen.value = false
     editingAssignment.value = null
   } catch (error) {
-    formMessage.value = handleApiError(error, 'Không thể lưu bài tập.').message
+    toast.error(handleApiError(error, 'Không thể lưu bài tập.').message)
   } finally {
     saving.value = false
   }
@@ -247,15 +240,12 @@ const handlePublish = async () => {
   if (!selectedAssignment.value || selectedAssignment.value.status !== 'DRAFT') return
 
   changingStatus.value = true
-  actionMessage.value = ''
-  successMessage.value = ''
 
   try {
-    const updated = await publishAssignment(props.courseId, selectedAssignment.value.id)
-    replaceAssignment(updated)
-    successMessage.value = 'Đã đăng bài tập và gửi thông báo cho học viên.'
+    replaceAssignment(await publishAssignment(props.courseId, selectedAssignment.value.id))
+    toast.success('Đã đăng bài tập và gửi thông báo cho học viên.')
   } catch (error) {
-    actionMessage.value = handleApiError(error, 'Không thể đăng bài tập.').message
+    toast.error(handleApiError(error, 'Không thể đăng bài tập.').message)
   } finally {
     changingStatus.value = false
   }
@@ -265,15 +255,12 @@ const handleClose = async () => {
   if (!selectedAssignment.value || selectedAssignment.value.status !== 'PUBLISHED') return
 
   changingStatus.value = true
-  actionMessage.value = ''
-  successMessage.value = ''
 
   try {
-    const updated = await closeAssignment(props.courseId, selectedAssignment.value.id)
-    replaceAssignment(updated)
-    successMessage.value = 'Đã đóng bài tập.'
+    replaceAssignment(await closeAssignment(props.courseId, selectedAssignment.value.id))
+    toast.success('Đã đóng bài tập.')
   } catch (error) {
-    actionMessage.value = handleApiError(error, 'Không thể đóng bài tập.').message
+    toast.error(handleApiError(error, 'Không thể đóng bài tập.').message)
   } finally {
     changingStatus.value = false
   }
@@ -283,15 +270,12 @@ const handleReopen = async () => {
   if (!selectedAssignment.value || selectedAssignment.value.status !== 'CLOSED') return
 
   changingStatus.value = true
-  actionMessage.value = ''
-  successMessage.value = ''
 
   try {
-    const updated = await reopenAssignment(props.courseId, selectedAssignment.value.id)
-    replaceAssignment(updated)
-    successMessage.value = 'Đã mở lại bài tập.'
+    replaceAssignment(await reopenAssignment(props.courseId, selectedAssignment.value.id))
+    toast.success('Đã mở lại bài tập.')
   } catch (error) {
-    actionMessage.value = handleApiError(error, 'Không thể mở lại bài tập.').message
+    toast.error(handleApiError(error, 'Không thể mở lại bài tập.').message)
   } finally {
     changingStatus.value = false
   }
@@ -301,7 +285,6 @@ const openDeadlineModal = () => {
   if (!selectedAssignment.value || selectedAssignment.value.status === 'DRAFT') return
 
   deadlineValue.value = toLocalDateTime(selectedAssignment.value.dueAt)
-  deadlineError.value = ''
   deadlineOpen.value = true
 }
 
@@ -310,7 +293,6 @@ const closeDeadlineModal = () => {
 
   deadlineOpen.value = false
   deadlineValue.value = ''
-  deadlineError.value = ''
 }
 
 const handleExtendDeadline = async () => {
@@ -319,24 +301,21 @@ const handleExtendDeadline = async () => {
   const dueAt = new Date(deadlineValue.value)
 
   if (Number.isNaN(dueAt.getTime())) {
-    deadlineError.value = 'Deadline không hợp lệ.'
+    toast.error('Deadline không hợp lệ.')
     return
   }
 
   if (dueAt.getTime() <= Date.now()) {
-    deadlineError.value = 'Deadline mới phải nằm trong tương lai.'
+    toast.error('Deadline mới phải nằm trong tương lai.')
     return
   }
 
   if (dueAt.getTime() <= new Date(selectedAssignment.value.dueAt).getTime()) {
-    deadlineError.value = 'Deadline mới phải muộn hơn deadline hiện tại.'
+    toast.error('Deadline mới phải muộn hơn deadline hiện tại.')
     return
   }
 
   updatingDeadline.value = true
-  deadlineError.value = ''
-  actionMessage.value = ''
-  successMessage.value = ''
 
   try {
     const updated = await extendAssignmentDeadline(
@@ -349,39 +328,38 @@ const handleExtendDeadline = async () => {
     deadlineOpen.value = false
     deadlineValue.value = ''
 
-    successMessage.value = updated.status === 'CLOSED'
-      ? 'Đã gia hạn deadline. Bạn có thể mở lại bài tập.'
-      : 'Đã gia hạn deadline.'
+    toast.success(
+      updated.status === 'CLOSED'
+        ? 'Đã gia hạn deadline. Bạn có thể mở lại bài tập.'
+        : 'Đã gia hạn deadline.',
+    )
   } catch (error) {
-    deadlineError.value = handleApiError(error, 'Không thể gia hạn deadline.').message
+    toast.error(handleApiError(error, 'Không thể gia hạn deadline.').message)
   } finally {
     updatingDeadline.value = false
   }
 }
 
 const confirmDelete = () => {
-  if (!selectedAssignment.value) return
-
-  actionMessage.value = ''
-  deleteOpen.value = true
+  if (selectedAssignment.value) deleteOpen.value = true
 }
 
 const handleDelete = async () => {
   if (!selectedAssignment.value) return
 
   deleting.value = true
-  actionMessage.value = ''
   const deletingId = selectedAssignment.value.id
 
   try {
     await deleteAssignment(props.courseId, deletingId)
-    assignments.value = assignments.value.filter(item => item.id !== deletingId)
 
+    assignments.value = assignments.value.filter(item => item.id !== deletingId)
     deleteOpen.value = false
     backToAssignments()
-    successMessage.value = 'Đã xóa bài tập.'
+
+    toast.success('Đã xóa bài tập.')
   } catch (error) {
-    actionMessage.value = handleApiError(error, 'Không thể xóa bài tập.').message
+    toast.error(handleApiError(error, 'Không thể xóa bài tập.').message)
   } finally {
     deleting.value = false
   }
@@ -390,7 +368,6 @@ const handleDelete = async () => {
 const openSubmission = (submission: AssignmentSubmission) => {
   reviewingSubmission.value = submission
   reviewOpen.value = true
-  actionMessage.value = ''
 }
 
 const closeSubmission = () => {
@@ -404,8 +381,6 @@ const handleGrade = async (input: GradeInput) => {
   if (!selectedAssignment.value || !reviewingSubmission.value) return
 
   grading.value = true
-  actionMessage.value = ''
-  successMessage.value = ''
 
   try {
     const updated = await gradeSubmission(
@@ -416,12 +391,13 @@ const handleGrade = async (input: GradeInput) => {
     )
 
     const index = submissions.value.findIndex(item => item.id === updated.id)
+
     if (index >= 0) submissions.value[index] = updated
 
     reviewingSubmission.value = updated
-    successMessage.value = `Đã chấm bài của ${studentName(updated.studentId)}.`
+    toast.success(`Đã chấm bài của ${studentName(updated.studentId)}.`)
   } catch (error) {
-    actionMessage.value = handleApiError(error, 'Không thể chấm bài.').message
+    toast.error(handleApiError(error, 'Không thể chấm bài.').message)
   } finally {
     grading.value = false
   }
@@ -437,9 +413,6 @@ const resetForCourse = () => {
   reviewingSubmission.value = null
   deadlineOpen.value = false
   deadlineValue.value = ''
-  deadlineError.value = ''
-  actionMessage.value = ''
-  successMessage.value = ''
 
   void loadAssignments()
 }
@@ -450,13 +423,6 @@ onMounted(() => void loadAssignments())
 
 <template>
   <section class="space-y-6">
-    <BaseAlert v-if="actionMessage">{{ actionMessage }}</BaseAlert>
-
-    <BaseAlert v-if="successMessage" variant="success">
-      <template #icon><CheckCircle2 :size="18" /></template>
-      {{ successMessage }}
-    </BaseAlert>
-
     <template v-if="!selectedAssignment">
       <header class="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
@@ -519,6 +485,7 @@ onMounted(() => void loadAssignments())
           <div class="min-w-0">
             <div class="flex flex-wrap items-center gap-2">
               <h3 class="font-heading text-base font-bold text-app-text">{{ assignment.title }}</h3>
+
               <span class="rounded-pill px-2.5 py-1 text-xs font-semibold" :class="statusClass(assignment)">
                 {{ statusLabel(assignment) }}
               </span>
@@ -727,6 +694,7 @@ onMounted(() => void loadAssignments())
           <div class="flex flex-col gap-4 border-b border-app-border pb-5 sm:flex-row sm:items-center sm:justify-between">
             <div>
               <h3 class="font-heading text-lg font-bold text-app-text">Bài nộp của học viên</h3>
+
               <p class="mt-1 text-sm text-app-text-muted">
                 {{ submissions.length }} bài nộp · {{ ungradedCount }} chưa chấm · {{ gradedCount }} đã chấm
               </p>
@@ -768,6 +736,7 @@ onMounted(() => void loadAssignments())
                 <p class="truncate text-sm font-semibold text-app-text">
                   {{ studentName(submission.studentId) }}
                 </p>
+
                 <p class="mt-0.5 truncate text-xs text-app-text-muted">
                   {{ studentEmail(submission.studentId) || formatDateTime(submission.submittedAt) }}
                 </p>
@@ -811,8 +780,6 @@ onMounted(() => void loadAssignments())
       @close="closeDeadlineModal"
     >
       <form class="space-y-5" @submit.prevent="handleExtendDeadline">
-        <BaseAlert v-if="deadlineError">{{ deadlineError }}</BaseAlert>
-
         <BaseInput
           v-model="deadlineValue"
           type="datetime-local"
@@ -843,7 +810,6 @@ onMounted(() => void loadAssignments())
       :assignment="editingAssignment"
       :deadline-locked="editingAssignment?.status !== 'DRAFT'"
       :loading="saving"
-      :server-message="formMessage"
       @close="closeForm"
       @submit="submitForm"
     />
