@@ -2,6 +2,15 @@ export type CourseVisibility = 'PUBLIC' | 'INVITE_ONLY'
 export type CourseStatus = 'DRAFT' | 'PUBLISHED' | 'ARCHIVED'
 export type CourseMemberRole = 'OWNER' | 'STUDENT'
 
+export interface CourseFeatureConfig {
+  announcements: boolean
+  content: boolean
+  assignments: boolean
+  documents: boolean
+  discussion: boolean
+  aiTutor: boolean
+}
+
 export interface Course {
   id: string
   title: string
@@ -15,4 +24,5 @@ export interface Course {
   createdAt: string
   updatedAt: string
   currentUserRole: CourseMemberRole | null
+  featureConfig: CourseFeatureConfig
 }

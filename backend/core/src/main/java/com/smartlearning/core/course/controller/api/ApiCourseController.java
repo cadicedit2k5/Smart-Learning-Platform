@@ -92,6 +92,18 @@ public class ApiCourseController {
         );
     }
 
+    @PatchMapping("/{courseId}/feature-config")
+    @PreAuthorize(Authorities.COURSE_MANAGE)
+    public ResponseEntity<ApiResponse<CourseResponse>> updateFeatureConfig(
+            @PathVariable UUID courseId,
+            @Valid @RequestBody CourseFeatureConfigRequest request,
+            @AuthenticationPrincipal Jwt jwt
+    ) {
+        return ApiResponses.ok(
+                courseService.updateFeatureConfig(courseId, request, JwtUtils.getUserId(jwt))
+        );
+    }
+
     @GetMapping("/{courseId}/image")
     @PreAuthorize(Authorities.COURSE_READ)
     public ResponseEntity<InputStreamResource> image(

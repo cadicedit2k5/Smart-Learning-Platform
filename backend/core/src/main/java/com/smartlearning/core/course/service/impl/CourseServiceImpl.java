@@ -3,16 +3,14 @@ package com.smartlearning.core.course.service.impl;
 import com.smartlearning.common.dto.response.pagination.PagingResponse;
 import com.smartlearning.common.error.ApplicationException;
 import com.smartlearning.common.error.CommonErrorCode;
-import com.smartlearning.core.course.dto.request.CourseCreateRequest;
-import com.smartlearning.core.course.dto.request.CourseUpdateRequest;
-import com.smartlearning.core.course.dto.request.MyCourseFilterRequest;
-import com.smartlearning.core.course.dto.request.PublicCourseFilterRequest;
+import com.smartlearning.core.course.dto.request.*;
 import com.smartlearning.core.course.dto.response.CourseResponse;
 import com.smartlearning.core.course.dto.response.PublicCourseDetailResponse;
 import com.smartlearning.core.course.dto.response.PublicCourseDetailResponse.ChapterOutline;
 import com.smartlearning.core.course.dto.response.PublicCourseDetailResponse.TopicOutline;
 import com.smartlearning.core.course.dto.response.PublicCourseResponse;
 import com.smartlearning.core.course.entity.Course;
+import com.smartlearning.core.course.entity.CourseFeatureConfig;
 import com.smartlearning.core.course.entity.CourseMember;
 import com.smartlearning.core.course.entity.CourseTopic;
 import com.smartlearning.core.course.entity.enums.CourseMemberRole;
@@ -86,6 +84,26 @@ public class CourseServiceImpl implements CourseService {
         memberRepository.save(owner);
 
         return courseUtils.withRole(courseMapper.toResponse(savedCourse), CourseMemberRole.OWNER);
+    }
+
+    @Override
+    public CourseResponse updateFeatureConfig(
+            UUID courseId,
+            CourseFeatureConfigRequest request,
+            UUID currentUserId
+    ) {
+        Course course = courseUtils.requireCourse(courseId);
+        CourseMember owner = courseAccessPolicy.requireOwner(courseId, currentUserId);
+
+        CourseFeatureConfig config = course.getFeatureConfig();
+        config.setAnnouncements(request.announcements());
+        config.setContent(request.content());
+        config.setAssignments(request.assignments());
+        config.setDocuments(request.documents());
+        config.setDiscussion(request.discussion());
+        config.setAiTutor(request.aiTutor());
+
+        return courseUtils.withRole(courseMapper.toResponse(course), owner.getRole());
     }
 
     @Override

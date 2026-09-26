@@ -19,12 +19,66 @@ public record CourseResponse(
         Instant publishedAt,
         Instant createdAt,
         Instant updatedAt,
-        CourseMemberRole currentUserRole
+        CourseMemberRole currentUserRole,
+        CourseFeatureConfigResponse featureConfig
 ) {
-    public CourseResponse(UUID id, String title, String description, String level, CourseVisibility visibility,
-                          CourseStatus status, UUID createdBy, Instant publishedAt, Instant createdAt,
-                          Instant updatedAt, CourseMemberRole currentUserRole) {
-        this(id, title, description, null, level, visibility, status, createdBy, publishedAt, createdAt,
-                updatedAt, currentUserRole);
+    public CourseResponse(
+            UUID id,
+            String title,
+            String description,
+            String imageUrl,
+            String level,
+            CourseVisibility visibility,
+            CourseStatus status,
+            UUID createdBy,
+            Instant publishedAt,
+            Instant createdAt,
+            Instant updatedAt,
+            CourseMemberRole currentUserRole
+    ) {
+        this(
+                id,
+                title,
+                description,
+                imageUrl,
+                level,
+                visibility,
+                status,
+                createdBy,
+                publishedAt,
+                createdAt,
+                updatedAt,
+                currentUserRole,
+                CourseFeatureConfigResponse.allEnabled()
+        );
+    }
+
+    public CourseResponse(
+            UUID id,
+            String title,
+            String description,
+            String level,
+            CourseVisibility visibility,
+            CourseStatus status,
+            UUID createdBy,
+            Instant publishedAt,
+            Instant createdAt,
+            Instant updatedAt,
+            CourseMemberRole currentUserRole
+    ) {
+        this(
+                id,
+                title,
+                description,
+                null,
+                level,
+                visibility,
+                status,
+                createdBy,
+                publishedAt,
+                createdAt,
+                updatedAt,
+                currentUserRole
+        );
     }
 }

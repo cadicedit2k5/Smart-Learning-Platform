@@ -4,8 +4,10 @@ import com.smartlearning.common.mapper.CrudMapper;
 import com.smartlearning.common.mapper.DefaultMapperConfig;
 import com.smartlearning.core.course.dto.request.CourseCreateRequest;
 import com.smartlearning.core.course.dto.request.CourseUpdateRequest;
+import com.smartlearning.core.course.dto.response.CourseFeatureConfigResponse;
 import com.smartlearning.core.course.dto.response.CourseResponse;
 import com.smartlearning.core.course.entity.Course;
+import com.smartlearning.core.course.entity.CourseFeatureConfig;
 import org.mapstruct.*;
 
 @Mapper(config = DefaultMapperConfig.class)
@@ -14,6 +16,7 @@ public interface CourseMapper extends CrudMapper<Course, CourseCreateRequest, Co
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "createdBy", ignore = true)
     @Mapping(target = "status", ignore = true)
+    @Mapping(target = "featureConfig", ignore = true)
     @Mapping(target = "coverUrl", ignore = true)
     @Mapping(target = "publishedAt", ignore = true)
     @Mapping(target = "deletedAt", ignore = true)
@@ -31,6 +34,7 @@ public interface CourseMapper extends CrudMapper<Course, CourseCreateRequest, Co
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "createdBy", ignore = true)
     @Mapping(target = "status", ignore = true)
+    @Mapping(target = "featureConfig", ignore = true)
     @Mapping(target = "coverUrl", ignore = true)
     @Mapping(target = "publishedAt", ignore = true)
     @Mapping(target = "deletedAt", ignore = true)
@@ -39,9 +43,10 @@ public interface CourseMapper extends CrudMapper<Course, CourseCreateRequest, Co
     @Mapping(target = "members", ignore = true)
     void partialUpdate(CourseUpdateRequest request, @MappingTarget Course course);
 
+    CourseFeatureConfigResponse toResponse(CourseFeatureConfig config);
+
     default String toImageUrl(Course course) {
-        if (course == null || course.getId() == null || course.getCoverUrl() == null
-                || course.getCoverUrl().isBlank()) {
+        if (course == null || course.getId() == null || course.getCoverUrl() == null || course.getCoverUrl().isBlank()) {
             return null;
         }
 

@@ -1,10 +1,7 @@
 package com.smartlearning.core.course.service;
 
 import com.smartlearning.common.dto.response.pagination.PagingResponse;
-import com.smartlearning.core.course.dto.request.CourseCreateRequest;
-import com.smartlearning.core.course.dto.request.CourseUpdateRequest;
-import com.smartlearning.core.course.dto.request.MyCourseFilterRequest;
-import com.smartlearning.core.course.dto.request.PublicCourseFilterRequest;
+import com.smartlearning.core.course.dto.request.*;
 import com.smartlearning.core.course.dto.response.CourseResponse;
 import com.smartlearning.core.course.dto.response.PublicCourseDetailResponse;
 import com.smartlearning.core.course.dto.response.PublicCourseResponse;
@@ -15,6 +12,8 @@ import java.util.UUID;
 public interface CourseService {
 
     CourseResponse createCourse(CourseCreateRequest request, UUID currentUserId);
+
+    CourseResponse updateFeatureConfig(UUID courseId, CourseFeatureConfigRequest request, UUID currentUserId);
 
     CourseResponse getCourse(UUID courseId, UUID currentUserId);
 

@@ -2,11 +2,8 @@ package com.smartlearning.core.course.service.impl;
 
 import com.smartlearning.common.error.ApplicationException;
 import com.smartlearning.common.error.CommonErrorCode;
-import com.smartlearning.core.course.dto.request.MyCourseFilterRequest;
-import com.smartlearning.core.course.dto.request.PublicCourseFilterRequest;
+import com.smartlearning.core.course.dto.request.*;
 import com.smartlearning.common.dto.response.pagination.PagingResponse;
-import com.smartlearning.core.course.dto.request.CourseCreateRequest;
-import com.smartlearning.core.course.dto.request.CourseUpdateRequest;
 import com.smartlearning.core.course.dto.response.CourseResponse;
 import com.smartlearning.core.course.dto.response.PublicCourseDetailResponse;
 import com.smartlearning.core.course.dto.response.PublicCourseResponse;
@@ -129,6 +126,38 @@ class CourseServiceImplTest {
         assertThat(owner.getRole()).isEqualTo(CourseMemberRole.OWNER);
         assertThat(owner.getStatus()).isEqualTo(CourseMemberStatus.ACTIVE);
         assertThat(owner.getJoinedAt()).isBetween(beforeCall, afterCall);
+    }
+
+    @Test
+    void updateFeatureConfig_updatesCourseFeatureVisibility() {
+        Course existing = course();
+
+        CourseFeatureConfigRequest request = new CourseFeatureConfigRequest(
+                true,
+                true,
+                false,
+                true,
+                false,
+                false
+        );
+
+        CourseMember owner = member(CourseMemberRole.OWNER, CourseMemberStatus.ACTIVE);
+
+        when(courseUtils.requireCourse(COURSE_ID)).thenReturn(existing);
+        when(courseAccessPolicy.requireOwner(COURSE_ID, OWNER_ID)).thenReturn(owner);
+        when(courseMapper.toResponse(existing)).thenReturn(courseResponse(existing));
+
+        courseService.updateFeatureConfig(COURSE_ID, request, OWNER_ID);
+
+        assertThat(existing.getFeatureConfig().isAnnouncements()).isTrue();
+        assertThat(existing.getFeatureConfig().isContent()).isTrue();
+        assertThat(existing.getFeatureConfig().isAssignments()).isFalse();
+        assertThat(existing.getFeatureConfig().isDocuments()).isTrue();
+        assertThat(existing.getFeatureConfig().isDiscussion()).isFalse();
+        assertThat(existing.getFeatureConfig().isAiTutor()).isFalse();
+
+        verify(courseAccessPolicy).requireOwner(COURSE_ID, OWNER_ID);
+        verify(courseRepository, never()).save(any());
     }
 
     @ParameterizedTest(name = "public course with membership {0} returns role {1}")

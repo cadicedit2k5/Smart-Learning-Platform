@@ -1,5 +1,5 @@
 import { httpClient, type ApiResponse } from '@/shared/api'
-import type { Course, CourseVisibility } from '@/shared/course'
+import type { Course, CourseFeatureConfig, CourseVisibility } from '@/shared/course'
 
 export {
   getDocument,
@@ -60,6 +60,18 @@ const toCourseFormData = (input: CourseInput): FormData => {
 
 export const createCourse = async (input: CourseInput): Promise<Course> => {
   const response = await httpClient.post<ApiResponse<Course>>(coursesPath, toCourseFormData(input))
+  return response.data.data
+}
+
+export const updateCourseFeatureConfig = async (
+  courseId: string,
+  config: CourseFeatureConfig,
+): Promise<Course> => {
+  const response = await httpClient.patch<ApiResponse<Course>>(
+    `${coursesPath}/${courseId}/feature-config`,
+    config,
+  )
+
   return response.data.data
 }
 

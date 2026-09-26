@@ -35,7 +35,8 @@ public class CourseUtils {
                 response.publishedAt(),
                 response.createdAt(),
                 response.updatedAt(),
-                role
+                role,
+                response.featureConfig()
         );
     }
 }

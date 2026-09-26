@@ -38,6 +38,9 @@ public class Course extends BaseEntity {
     @Column(nullable = false, length = 30)
     private CourseStatus status = CourseStatus.DRAFT;
 
+    @Embedded
+    private CourseFeatureConfig featureConfig = new CourseFeatureConfig();
+
     @Column(name = "created_by", nullable = false)
     private UUID createdBy;
 

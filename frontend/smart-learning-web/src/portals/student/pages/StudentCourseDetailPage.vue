@@ -70,32 +70,55 @@ const progressCompleted = computed(() =>
   (progress.value?.progressPercentage ?? 0) >= 100,
 )
 
-const tabs: Array<{
+const tabs = computed<Array<{
   id: DetailTab
   label: string
   icon: typeof BookOpen
-}> = [
-  { id: 'overview', label: 'Tổng quan', icon: BookOpen },
-  { id: 'announcements', label: 'Thông báo', icon: Bell },
-  { id: 'content', label: 'Bài học', icon: Layers3 },
-  { id: 'assignments', label: 'Bài tập', icon: ClipboardList },
-  { id: 'documents', label: 'Tài liệu', icon: FileText },
-  { id: 'discussion', label: 'Thảo luận', icon: MessagesSquare },
-  { id: 'ai', label: 'AI tutor', icon: Bot },
-]
+}>>(() => {
+  const config = course.value?.featureConfig
+
+  return [
+    { id: 'overview', label: 'Tổng quan', icon: BookOpen },
+
+    ...(config?.announcements
+      ? [{ id: 'announcements' as const, label: 'Thông báo', icon: Bell }]
+      : []),
+
+    ...(config?.content
+      ? [{ id: 'content' as const, label: 'Bài học', icon: Layers3 }]
+      : []),
+
+    ...(config?.assignments
+      ? [{ id: 'assignments' as const, label: 'Bài tập', icon: ClipboardList }]
+      : []),
+
+    ...(config?.documents
+      ? [{ id: 'documents' as const, label: 'Tài liệu', icon: FileText }]
+      : []),
+
+    ...(config?.discussion
+      ? [{ id: 'discussion' as const, label: 'Thảo luận', icon: MessagesSquare }]
+      : []),
+
+    ...(config?.aiTutor
+      ? [{ id: 'ai' as const, label: 'AI tutor', icon: Bot }]
+      : []),
+  ]
+})
 
 const loadDetail = async () => {
   loading.value = true
   loadError.value = ''
+  progress.value = null
 
   try {
-    const [courseData, progressData] = await Promise.all([
-      getCourse(courseId.value),
-      getCourseProgress(courseId.value),
-    ])
+    const courseData = await getCourse(courseId.value)
 
     course.value = courseData
-    progress.value = progressData
+
+    if (courseData.featureConfig.content) {
+      progress.value = await getCourseProgress(courseId.value)
+    }
   } catch (error) {
     loadError.value = handleApiError(
       error,
