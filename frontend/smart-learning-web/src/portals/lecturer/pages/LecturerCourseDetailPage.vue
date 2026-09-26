@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onMounted, ref, watch } from 'vue'
+import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import {
   ArrowLeft,
@@ -9,6 +9,7 @@ import {
   CalendarDays,
   ChartNoAxesColumnIncreasing,
   CheckCircle2,
+  ChevronDown,
   ClipboardList,
   Eye,
   FileText,
@@ -24,6 +25,7 @@ import {
   X,
 } from 'lucide-vue-next'
 
+import DiscussionPanel from '@/features/discusstion/components/DiscussionPanel.vue'
 import BaseAlert from '@/shared/components/BaseAlert.vue'
 import BaseButton from '@/shared/components/BaseButton.vue'
 import CourseCover from '@/shared/course/CourseCover.vue'
@@ -31,7 +33,6 @@ import { getCourse, type Course, type CourseFeatureConfig } from '@/shared/cours
 import { courseStatusLabel, courseVisibilityLabel } from '@/shared/course/presentation'
 import { hasRichTextContent, parseStoredRichText, RichTextViewer } from '@/shared/rich-text'
 import { formatDateTime } from '@/shared/utils/date'
-import DiscussionPanel from '@/features/discusstion/components/DiscussionPanel.vue'
 
 import {
   deleteCourse,
@@ -64,6 +65,12 @@ type DetailTab =
   | 'discussion'
   | 'ai'
 
+interface DetailTabItem {
+  id: DetailTab
+  label: string
+  icon: typeof BookOpen
+}
+
 const route = useRoute()
 const router = useRouter()
 const { handleApiError } = useLecturerApiError()
@@ -71,6 +78,8 @@ const { handleApiError } = useLecturerApiError()
 const courseId = computed(() => String(route.params.courseId))
 const course = ref<Course | null>(null)
 const activeTab = ref<DetailTab>('overview')
+const managementMenu = ref<HTMLDetailsElement | null>(null)
+
 const loading = ref(true)
 const loadError = ref('')
 const actionMessage = ref('')
@@ -97,35 +106,14 @@ const canReviewJoinRequests = computed(() =>
 const descriptionContent = computed(() => parseStoredRichText(course.value?.description))
 const hasDescription = computed(() => hasRichTextContent(descriptionContent.value))
 
-const tabs = computed<Array<{
-  id: DetailTab
-  label: string
-  icon: typeof BookOpen
-}>>(() => {
+const mainTabs = computed<DetailTabItem[]>(() => {
   const config = course.value?.featureConfig
 
   return [
     { id: 'overview', label: 'Tổng quan', icon: BookOpen },
 
-    ...(config?.announcements
-      ? [{ id: 'announcements' as const, label: 'Thông báo', icon: Bell }]
-      : []),
-
-    ...(canManageCourse.value
-      ? [
-          { id: 'members' as const, label: 'Thành viên', icon: UsersRound },
-
-          ...(canReviewJoinRequests.value
-            ? [{ id: 'requests' as const, label: 'Yêu cầu tham gia', icon: UserRoundCheck }]
-            : []),
-
-          ...(config?.content
-            ? [
-                { id: 'content' as const, label: 'Nội dung', icon: Layers3 },
-                { id: 'progress' as const, label: 'Tiến độ', icon: ChartNoAxesColumnIncreasing },
-              ]
-            : []),
-        ]
+    ...(config?.content
+      ? [{ id: 'content' as const, label: 'Nội dung', icon: Layers3 }]
       : []),
 
     ...(config?.assignments
@@ -134,6 +122,10 @@ const tabs = computed<Array<{
 
     ...(config?.documents
       ? [{ id: 'documents' as const, label: 'Tài liệu', icon: FileText }]
+      : []),
+
+    ...(config?.announcements
+      ? [{ id: 'announcements' as const, label: 'Thông báo', icon: Bell }]
       : []),
 
     ...(config?.discussion
@@ -146,12 +138,52 @@ const tabs = computed<Array<{
   ]
 })
 
+const managementTabs = computed<DetailTabItem[]>(() => {
+  if (!canManageCourse.value) return []
+
+  return [
+    { id: 'members', label: 'Thành viên', icon: UsersRound },
+
+    ...(canReviewJoinRequests.value
+      ? [{ id: 'requests' as const, label: 'Yêu cầu tham gia', icon: UserRoundCheck }]
+      : []),
+
+    ...(course.value?.featureConfig.content
+      ? [{ id: 'progress' as const, label: 'Tiến độ học tập', icon: ChartNoAxesColumnIncreasing }]
+      : []),
+  ]
+})
+
+const managementActive = computed(() =>
+  managementTabs.value.some(tab => tab.id === activeTab.value),
+)
+
+const ensureActiveTabAvailable = () => {
+  const available = [...mainTabs.value, ...managementTabs.value].some(tab => tab.id === activeTab.value)
+  if (!available) activeTab.value = 'overview'
+}
+
+const closeManagementMenu = () => {
+  if (managementMenu.value) managementMenu.value.open = false
+}
+
+const selectManagementTab = (tab: DetailTab) => {
+  activeTab.value = tab
+  closeManagementMenu()
+}
+
+const handleOutsideManagementMenu = (event: PointerEvent) => {
+  const menu = managementMenu.value
+  if (menu?.open && !menu.contains(event.target as Node)) menu.open = false
+}
+
 const loadCourse = async () => {
   loading.value = true
   loadError.value = ''
 
   try {
     course.value = await getCourse(courseId.value)
+    ensureActiveTabAvailable()
   } catch (error) {
     loadError.value = handleApiError(error, 'Không thể tải chi tiết khóa học.').message
   } finally {
@@ -175,6 +207,7 @@ const submitUpdate = async (input: CourseInput) => {
 
   try {
     course.value = await updateCourse(course.value.id, input)
+    ensureActiveTabAvailable()
     editOpen.value = false
     successMessage.value = 'Đã cập nhật thông tin khóa học.'
   } catch (error) {
@@ -195,11 +228,7 @@ const handleFeatureConfigSave = async (config: CourseFeatureConfig) => {
 
   try {
     course.value = await updateCourseFeatureConfig(course.value.id, config)
-
-    if (!tabs.value.some(tab => tab.id === activeTab.value)) {
-      activeTab.value = 'overview'
-    }
-
+    ensureActiveTabAvailable()
     featureSettingsOpen.value = false
     successMessage.value = 'Đã cập nhật tính năng của khóa học.'
   } catch (error) {
@@ -245,10 +274,18 @@ const handleDelete = async () => {
 
 watch(courseId, () => {
   activeTab.value = 'overview'
+  closeManagementMenu()
   void loadCourse()
 })
 
-onMounted(() => void loadCourse())
+onMounted(() => {
+  document.addEventListener('pointerdown', handleOutsideManagementMenu)
+  void loadCourse()
+})
+
+onBeforeUnmount(() => {
+  document.removeEventListener('pointerdown', handleOutsideManagementMenu)
+})
 </script>
 
 <template>
@@ -269,7 +306,6 @@ onMounted(() => void loadCourse())
     <BaseAlert v-else-if="loadError">
       <div class="flex items-center justify-between gap-3">
         <span>{{ loadError }}</span>
-
         <button type="button" class="font-semibold underline" @click="loadCourse">
           Thử lại
         </button>
@@ -289,36 +325,89 @@ onMounted(() => void loadCourse())
         {{ successMessage }}
       </BaseAlert>
 
-      <div class="flex items-end justify-between gap-4 border-b border-app-border">
-        <nav class="min-w-0 flex-1 overflow-x-auto" aria-label="Nội dung khóa học">
-          <div class="flex min-w-max gap-6">
-            <button
-              v-for="tab in tabs"
-              :key="tab.id"
-              type="button"
-              class="flex h-12 shrink-0 items-center gap-2 border-b-2 px-1 text-sm font-semibold transition"
-              :class="
-                activeTab === tab.id
-                  ? 'border-secondary text-secondary'
-                  : 'border-transparent text-app-text-muted hover:text-app-text'
-              "
-              @click="activeTab = tab.id"
+      <div class="border-b border-app-border">
+        <div class="flex flex-wrap items-end gap-x-4">
+          <nav
+            class="order-last min-w-0 w-full flex-1 overflow-x-auto sm:order-none sm:w-auto"
+            aria-label="Nội dung khóa học"
+          >
+            <div class="flex min-w-max gap-6">
+              <button
+                v-for="tab in mainTabs"
+                :key="tab.id"
+                type="button"
+                class="flex h-12 shrink-0 items-center gap-2 border-b-2 px-1 text-sm font-semibold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary/30"
+                :class="
+                  activeTab === tab.id
+                    ? 'border-secondary text-secondary'
+                    : 'border-transparent text-app-text-muted hover:text-app-text'
+                "
+                @click="activeTab = tab.id"
+              >
+                <component :is="tab.icon" :size="17" />
+                {{ tab.label }}
+              </button>
+            </div>
+          </nav>
+
+          <div
+            v-if="canManageCourse"
+            class="order-first ml-auto flex w-full shrink-0 items-center justify-end gap-2 pb-2 sm:order-none sm:w-auto"
+          >
+            <details
+              v-if="managementTabs.length"
+              ref="managementMenu"
+              class="relative"
+              @keydown.esc.stop="closeManagementMenu"
             >
-              <component :is="tab.icon" :size="17" />
-              {{ tab.label }}
+              <summary
+                class="flex h-9 cursor-pointer list-none items-center gap-2 rounded-control border px-3 text-sm font-semibold transition active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary/30 [&::-webkit-details-marker]:hidden"
+                :class="
+                  managementActive
+                    ? 'border-secondary/40 bg-secondary-soft text-secondary'
+                    : 'border-app-border bg-app-surface text-app-text-muted hover:border-secondary/30 hover:text-app-text'
+                "
+              >
+                <UsersRound :size="16" />
+                Quản lý
+                <ChevronDown :size="15" />
+              </summary>
+
+              <div
+                class="absolute right-0 z-40 mt-2 w-60 overflow-hidden rounded-card border border-app-border bg-app-surface p-1.5 shadow-overlay"
+                role="menu"
+              >
+                <button
+                  v-for="tab in managementTabs"
+                  :key="tab.id"
+                  type="button"
+                  role="menuitem"
+                  class="flex w-full items-center gap-3 rounded-control px-3 py-2.5 text-left text-sm font-medium transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary/30"
+                  :class="
+                    activeTab === tab.id
+                      ? 'bg-secondary-soft text-secondary'
+                      : 'text-app-text hover:bg-app-surface-muted'
+                  "
+                  @click="selectManagementTab(tab.id)"
+                >
+                  <component :is="tab.icon" :size="17" class="shrink-0" />
+                  {{ tab.label }}
+                </button>
+              </div>
+            </details>
+
+            <button
+              type="button"
+              aria-label="Cài đặt tính năng"
+              title="Cài đặt tính năng"
+              class="flex h-9 items-center gap-2 rounded-control border border-app-border bg-app-surface px-3 text-sm font-semibold text-app-text-muted transition hover:border-secondary/30 hover:bg-secondary-soft hover:text-secondary active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary/30"
+              @click="featureSettingsOpen = true"
+            >
+              <Settings2 :size="17" />
+              <span class="hidden md:inline">Cài đặt tính năng</span>
             </button>
           </div>
-        </nav>
-
-        <button
-          v-if="canManageCourse"
-          type="button"
-          class="mb-2 flex h-9 shrink-0 items-center gap-2 rounded-control border border-app-border bg-app-surface px-3 text-sm font-semibold text-app-text-muted transition hover:border-secondary/40 hover:bg-secondary-soft hover:text-secondary"
-          @click="featureSettingsOpen = true"
-        >
-          <Settings2 :size="17" />
-          <span class="hidden sm:inline">Cài đặt tính năng</span>
-        </button>
+        </div>
       </div>
 
       <div v-if="activeTab === 'overview'" class="space-y-6">
@@ -344,7 +433,6 @@ onMounted(() => void loadCourse())
                   <template #leading>
                     <Pencil :size="16" />
                   </template>
-
                   Chỉnh sửa
                 </BaseButton>
 
@@ -356,13 +444,12 @@ onMounted(() => void loadCourse())
                   <template #leading>
                     <Rocket :size="16" />
                   </template>
-
                   Xuất bản
                 </BaseButton>
 
                 <button
                   type="button"
-                  class="inline-flex h-11 items-center gap-2 rounded-control border border-danger/30 px-4 text-sm font-semibold text-danger transition hover:bg-danger-soft"
+                  class="inline-flex h-11 items-center gap-2 rounded-control border border-danger/30 px-4 text-sm font-semibold text-danger transition hover:bg-danger-soft active:scale-[0.98]"
                   @click="deleteOpen = true"
                 >
                   <Trash2 :size="16" />
@@ -389,11 +476,7 @@ onMounted(() => void loadCourse())
               <div class="flex h-9 w-9 items-center justify-center rounded-lg bg-secondary-soft text-secondary">
                 <CheckCircle2 :size="17" />
               </div>
-
-              <p class="mt-4 text-xs font-medium text-app-text-muted">
-                Trạng thái
-              </p>
-
+              <p class="mt-4 text-xs font-medium text-app-text-muted">Trạng thái</p>
               <p class="mt-1 text-sm font-semibold text-app-text">
                 {{ courseStatusLabel[course.status] }}
               </p>
@@ -403,11 +486,7 @@ onMounted(() => void loadCourse())
               <div class="flex h-9 w-9 items-center justify-center rounded-lg bg-secondary-soft text-secondary">
                 <Eye :size="17" />
               </div>
-
-              <p class="mt-4 text-xs font-medium text-app-text-muted">
-                Quyền truy cập
-              </p>
-
+              <p class="mt-4 text-xs font-medium text-app-text-muted">Quyền truy cập</p>
               <p class="mt-1 text-sm font-semibold text-app-text">
                 {{ courseVisibilityLabel[course.visibility] }}
               </p>
@@ -417,11 +496,7 @@ onMounted(() => void loadCourse())
               <div class="flex h-9 w-9 items-center justify-center rounded-lg bg-secondary-soft text-secondary">
                 <GraduationCap :size="17" />
               </div>
-
-              <p class="mt-4 text-xs font-medium text-app-text-muted">
-                Cấp độ
-              </p>
-
+              <p class="mt-4 text-xs font-medium text-app-text-muted">Cấp độ</p>
               <p class="mt-1 text-sm font-semibold text-app-text">
                 {{ course.level || 'Chưa cập nhật' }}
               </p>
@@ -431,11 +506,9 @@ onMounted(() => void loadCourse())
               <div class="flex h-9 w-9 items-center justify-center rounded-lg bg-secondary-soft text-secondary">
                 <CalendarDays :size="17" />
               </div>
-
               <p class="mt-4 text-xs font-medium text-app-text-muted">
                 {{ course.status === 'PUBLISHED' ? 'Ngày xuất bản' : 'Cập nhật gần nhất' }}
               </p>
-
               <p class="mt-1 text-sm font-semibold text-app-text">
                 {{
                   course.status === 'PUBLISHED' && course.publishedAt
@@ -453,25 +526,8 @@ onMounted(() => void loadCourse())
         :course-id="course.id"
       />
 
-      <CourseMembersPanel
-        v-else-if="activeTab === 'members'"
-        :course-id="course.id"
-        :visibility="course.visibility"
-        :status="course.status"
-      />
-
-      <CourseJoinRequestPanel
-        v-else-if="activeTab === 'requests'"
-        :course-id="course.id"
-      />
-
       <CourseContentPanel
         v-else-if="activeTab === 'content'"
-        :course-id="course.id"
-      />
-
-      <CourseLearningProgressPanel
-        v-else-if="activeTab === 'progress'"
         :course-id="course.id"
       />
 
@@ -493,6 +549,23 @@ onMounted(() => void loadCourse())
 
       <CourseAiPanel
         v-else-if="activeTab === 'ai'"
+        :course-id="course.id"
+      />
+
+      <CourseMembersPanel
+        v-else-if="activeTab === 'members'"
+        :course-id="course.id"
+        :visibility="course.visibility"
+        :status="course.status"
+      />
+
+      <CourseJoinRequestPanel
+        v-else-if="activeTab === 'requests'"
+        :course-id="course.id"
+      />
+
+      <CourseLearningProgressPanel
+        v-else-if="activeTab === 'progress'"
         :course-id="course.id"
       />
 
@@ -533,8 +606,7 @@ onMounted(() => void loadCourse())
                 </h2>
 
                 <p class="mt-2 text-sm leading-6 text-app-text-muted">
-                  Bạn sắp xóa
-                  <strong class="text-app-text">{{ course.title }}</strong>.
+                  Bạn sắp xóa <strong class="text-app-text">{{ course.title }}</strong>.
                   Hãy chắc chắn trước khi tiếp tục.
                 </p>
               </div>
@@ -565,7 +637,6 @@ onMounted(() => void loadCourse())
                   v-if="deleting"
                   class="h-4 w-4 animate-spin rounded-full border-2 border-current border-r-transparent"
                 />
-
                 <Trash2 v-else :size="17" />
                 Xóa khóa học
               </button>
