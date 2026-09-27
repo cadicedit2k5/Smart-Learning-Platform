@@ -4,6 +4,7 @@ import com.smartlearning.common.dto.request.PagingRequest;
 import com.smartlearning.common.dto.response.pagination.PagingResponse;
 import com.smartlearning.common.error.ApplicationException;
 import com.smartlearning.common.error.CommonErrorCode;
+import com.smartlearning.core.course.activity.LearningActivityRecorder;
 import com.smartlearning.core.course.dto.response.CourseLearningProgressResponse;
 import com.smartlearning.core.course.dto.response.LecturerCourseProgressResponse;
 import com.smartlearning.core.course.dto.response.StudentLearningProgressDetailResponse;
@@ -52,6 +53,7 @@ public class LearningProgressServiceImpl implements LearningProgressService {
     private final CourseAccessPolicy courseAccessPolicy;
     private final CourseUtils courseUtils;
     private final SystemClient systemClient;
+    private final LearningActivityRecorder learningActivityRecorder;
 
     @Override
     public TopicLearningProgressResponse startTopicActivity(UUID courseId, UUID topicId, UUID userId) {
@@ -60,12 +62,22 @@ public class LearningProgressServiceImpl implements LearningProgressService {
         CourseTopic topic = requireTopic(courseId, topicId);
         Instant now = Instant.now();
 
-        LearningProgress progress = progressRepository.findByUserIdAndTopicId(userId, topicId)
-                .orElseGet(() -> createProgress(userId, topic, now));
+        LearningProgress progress = progressRepository.findByUserIdAndTopicId(userId, topicId).orElse(null);
+        boolean started = progress == null;
+
+        if (started) {
+            progress = createProgress(userId, topic, now);
+        }
 
         progress.setLastAccessedAt(now);
 
-        return toResponse(progressRepository.save(progress));
+        LearningProgress saved = progressRepository.save(progress);
+
+        if (started) {
+            learningActivityRecorder.recordTopicStarted(userId, courseId, topicId);
+        }
+
+        return toResponse(saved);
     }
 
     @Override
@@ -76,15 +88,22 @@ public class LearningProgressServiceImpl implements LearningProgressService {
         Instant now = Instant.now();
 
         LearningProgress progress = progressRepository.findByUserIdAndTopicId(userId, topicId).orElse(null);
+        boolean started = progress == null;
 
-        if (progress == null) {
+        if (started) {
             progress = createProgress(userId, topic, now);
         } else {
             addActiveTime(progress, now);
             progress.setLastAccessedAt(now);
         }
 
-        return toResponse(progressRepository.save(progress));
+        LearningProgress saved = progressRepository.save(progress);
+
+        if (started) {
+            learningActivityRecorder.recordTopicStarted(userId, courseId, topicId);
+        }
+
+        return toResponse(saved);
     }
 
     @Override
@@ -108,7 +127,16 @@ public class LearningProgressServiceImpl implements LearningProgressService {
         progress.setCompletedAt(now);
         progress.setLastAccessedAt(now);
 
-        return toResponse(progressRepository.save(progress));
+        LearningProgress saved = progressRepository.save(progress);
+
+        learningActivityRecorder.recordTopicCompleted(
+                userId,
+                courseId,
+                topicId,
+                saved.getActiveSeconds()
+        );
+
+        return toResponse(saved);
     }
 
     @Override

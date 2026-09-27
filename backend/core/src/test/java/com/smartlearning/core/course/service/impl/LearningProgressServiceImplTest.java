@@ -1,5 +1,6 @@
 package com.smartlearning.core.course.service.impl;
 
+import com.smartlearning.core.course.activity.LearningActivityRecorder;
 import com.smartlearning.core.course.dto.response.TopicLearningProgressResponse;
 import com.smartlearning.core.course.entity.CourseMember;
 import com.smartlearning.core.course.entity.CourseTopic;
@@ -30,7 +31,7 @@ import static com.smartlearning.core.support.CoreTestData.member;
 import static com.smartlearning.core.support.CoreTestData.topic;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class LearningProgressServiceImplTest {
@@ -56,6 +57,9 @@ class LearningProgressServiceImplTest {
     @Mock
     private SystemClient systemClient;
 
+    @Mock
+    private LearningActivityRecorder activityRecorder;
+
     @InjectMocks
     private LearningProgressServiceImpl learningProgressService;
 
@@ -74,6 +78,28 @@ class LearningProgressServiceImplTest {
 
         assertThat(result.activeSeconds()).isEqualTo(120);
         assertThat(progress.getActiveSeconds()).isEqualTo(120);
+        verifyNoInteractions(activityRecorder);
+    }
+
+    @Test
+    void startTopicActivity_recordsStartedEventOnlyForNewProgress() {
+        CourseTopic topic = topic();
+
+        mockStudentAccess(topic);
+
+        when(progressRepository.findByUserIdAndTopicId(STUDENT_ID, TOPIC_ID))
+                .thenReturn(Optional.empty());
+
+        when(progressRepository.save(any(LearningProgress.class)))
+                .thenAnswer(invocation -> invocation.getArgument(0));
+
+        learningProgressService.startTopicActivity(COURSE_ID, TOPIC_ID, STUDENT_ID);
+
+        verify(activityRecorder).recordTopicStarted(
+                STUDENT_ID,
+                COURSE_ID,
+                TOPIC_ID
+        );
     }
 
     @Test
@@ -109,6 +135,12 @@ class LearningProgressServiceImplTest {
         assertThat(result.status()).isEqualTo(LearningProgressStatus.COMPLETED);
         assertThat(result.activeSeconds()).isZero();
         assertThat(result.completedAt()).isNotNull();
+        verify(activityRecorder).recordTopicCompleted(
+                STUDENT_ID,
+                COURSE_ID,
+                TOPIC_ID,
+                0
+        );
     }
 
     @Test

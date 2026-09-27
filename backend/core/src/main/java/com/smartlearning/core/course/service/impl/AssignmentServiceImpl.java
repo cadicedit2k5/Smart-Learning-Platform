@@ -2,6 +2,7 @@ package com.smartlearning.core.course.service.impl;
 
 import com.smartlearning.common.error.ApplicationException;
 import com.smartlearning.common.error.CommonErrorCode;
+import com.smartlearning.core.course.activity.LearningActivityRecorder;
 import com.smartlearning.core.course.dto.request.*;
 import com.smartlearning.core.course.dto.response.AssignmentResponse;
 import com.smartlearning.core.course.dto.response.AssignmentSubmissionResponse;
@@ -44,6 +45,7 @@ public class AssignmentServiceImpl implements AssignmentService {
     private final CourseAccessPolicy courseAccessPolicy;
     private final FileStorageService fileStorageService;
     private final NotificationService notificationService;
+    private final LearningActivityRecorder learningActivityRecorder;
 
     @Scheduled(fixedDelay = 60_000)
     public void closeOverdueAssignments() {
@@ -316,11 +318,16 @@ public class AssignmentServiceImpl implements AssignmentService {
                 Instant.now()
         );
 
-        return toSubmissionResponse(
-                submissionRepository.save(
-                        submission
-                )
+        AssignmentSubmission saved = submissionRepository.save(submission);
+
+        learningActivityRecorder.recordAssignmentSubmitted(
+                userId,
+                courseId,
+                assignmentId,
+                saved.getId()
         );
+
+        return toSubmissionResponse(saved);
     }
 
     @Override
@@ -433,6 +440,15 @@ public class AssignmentServiceImpl implements AssignmentService {
         );
 
         AssignmentSubmission saved = submissionRepository.save(submission);
+
+        learningActivityRecorder.recordAssignmentGraded(
+                saved.getStudentId(),
+                courseId,
+                assignmentId,
+                saved.getId(),
+                saved.getScore(),
+                assignment.getMaxScore()
+        );
 
         notificationService.create(
                 saved.getStudentId(),
