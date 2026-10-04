@@ -12,8 +12,10 @@ public interface LearningProgressService {
 
     TopicLearningProgressResponse startTopicActivity(UUID courseId, UUID topicId, UUID userId);
 
-    TopicLearningProgressResponse recordActivity(UUID courseId, UUID topicId, UUID userId);
+    TopicLearningProgressResponse recordActivity(UUID courseId, UUID topicId, UUID userId, long activeSeconds);
 
+    TopicLearningProgressResponse endTopicActivity(UUID courseId, UUID topicId, UUID userId, long activeSeconds);
+    
     TopicLearningProgressResponse completeTopic(UUID courseId, UUID topicId, UUID userId);
 
     CourseLearningProgressResponse getMyCourseProgress(UUID courseId, UUID userId);

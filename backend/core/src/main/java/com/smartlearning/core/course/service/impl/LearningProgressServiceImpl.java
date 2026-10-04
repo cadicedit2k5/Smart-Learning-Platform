@@ -45,6 +45,7 @@ import java.util.stream.Collectors;
 public class LearningProgressServiceImpl implements LearningProgressService {
 
     private static final long HEARTBEAT_SECONDS = 30;
+    private static final long MAX_ACTIVITY_DELTA_SECONDS = 60;
 
     private final LearningProgressRepository progressRepository;
     private final CourseTopicRepository topicRepository;
@@ -81,8 +82,14 @@ public class LearningProgressServiceImpl implements LearningProgressService {
     }
 
     @Override
-    public TopicLearningProgressResponse recordActivity(UUID courseId, UUID topicId, UUID userId) {
+    public TopicLearningProgressResponse recordActivity(
+            UUID courseId,
+            UUID topicId,
+            UUID userId,
+            long activeSeconds
+    ) {
         requireStudent(courseId, userId);
+        requireValidActivityDelta(activeSeconds);
 
         CourseTopic topic = requireTopic(courseId, topicId);
         Instant now = Instant.now();
@@ -92,10 +99,10 @@ public class LearningProgressServiceImpl implements LearningProgressService {
 
         if (started) {
             progress = createProgress(userId, topic, now);
-        } else {
-            addActiveTime(progress, now);
-            progress.setLastAccessedAt(now);
         }
+
+        progress.setActiveSeconds(progress.getActiveSeconds() + activeSeconds);
+        progress.setLastAccessedAt(now);
 
         LearningProgress saved = progressRepository.save(progress);
 
@@ -104,6 +111,31 @@ public class LearningProgressServiceImpl implements LearningProgressService {
         }
 
         return toResponse(saved);
+    }
+
+    @Override
+    public TopicLearningProgressResponse endTopicActivity(
+            UUID courseId,
+            UUID topicId,
+            UUID userId,
+            long activeSeconds
+    ) {
+        requireStudent(courseId, userId);
+        requireTopic(courseId, topicId);
+
+        LearningProgress progress = progressRepository.findByUserIdAndTopicId(userId, topicId)
+                .orElseThrow(() -> new ApplicationException(CommonErrorCode.RESOURCE_NOT_FOUND));
+
+        if (activeSeconds <= 0 || activeSeconds > progress.getActiveSeconds()) {
+            throw new ApplicationException(
+                    CommonErrorCode.VALIDATION_FAILED,
+                    "Thời gian học không hợp lệ."
+            );
+        }
+
+        learningActivityRecorder.recordTopicStudied(userId, courseId, topicId, activeSeconds);
+
+        return toResponse(progress);
     }
 
     @Override
@@ -119,8 +151,6 @@ public class LearningProgressServiceImpl implements LearningProgressService {
             progress = createProgress(userId, topic, now);
         } else if (progress.getStatus() == LearningProgressStatus.COMPLETED) {
             return toResponse(progress);
-        } else {
-            addActiveTime(progress, now);
         }
 
         progress.setStatus(LearningProgressStatus.COMPLETED);
@@ -407,9 +437,13 @@ public class LearningProgressServiceImpl implements LearningProgressService {
         );
     }
 
-    private void addActiveTime(LearningProgress progress, Instant now) {
-        long elapsedSeconds = Math.max(0, Duration.between(progress.getLastAccessedAt(), now).getSeconds());
-        progress.setActiveSeconds(progress.getActiveSeconds() + Math.min(elapsedSeconds, HEARTBEAT_SECONDS));
+    private void requireValidActivityDelta(long activeSeconds) {
+        if (activeSeconds <= 0 || activeSeconds > MAX_ACTIVITY_DELTA_SECONDS) {
+            throw new ApplicationException(
+                    CommonErrorCode.VALIDATION_FAILED,
+                    "Thời gian hoạt động không hợp lệ."
+            );
+        }
     }
 
     private CourseTopic requireTopic(UUID courseId, UUID topicId) {

@@ -103,20 +103,56 @@ class LearningProgressServiceImplTest {
     }
 
     @Test
-    void recordActivity_addsAtMostOneHeartbeat() {
+    void recordActivity_addsMeasuredDeltaInsteadOfInferringFromTimestamp() {
         CourseTopic topic = topic();
         LearningProgress progress = progress(topic, LearningProgressStatus.IN_PROGRESS, 120);
         progress.setLastAccessedAt(Instant.now().minusSeconds(60));
 
         mockStudentAccess(topic);
+
         when(progressRepository.findByUserIdAndTopicId(STUDENT_ID, TOPIC_ID))
                 .thenReturn(Optional.of(progress));
         when(progressRepository.save(progress)).thenReturn(progress);
 
         TopicLearningProgressResponse result =
-                learningProgressService.recordActivity(COURSE_ID, TOPIC_ID, STUDENT_ID);
+                learningProgressService.recordActivity(
+                        COURSE_ID,
+                        TOPIC_ID,
+                        STUDENT_ID,
+                        18
+                );
 
-        assertThat(result.activeSeconds()).isEqualTo(150);
+        assertThat(result.activeSeconds()).isEqualTo(138);
+    }
+
+    @Test
+    void endTopicActivity_recordsStudyDurationWithoutChangingAggregate() {
+        CourseTopic topic = topic();
+        LearningProgress progress = progress(topic, LearningProgressStatus.IN_PROGRESS, 300);
+
+        mockStudentAccess(topic);
+
+        when(progressRepository.findByUserIdAndTopicId(STUDENT_ID, TOPIC_ID))
+                .thenReturn(Optional.of(progress));
+
+        TopicLearningProgressResponse result =
+                learningProgressService.endTopicActivity(
+                        COURSE_ID,
+                        TOPIC_ID,
+                        STUDENT_ID,
+                        120
+                );
+
+        assertThat(result.activeSeconds()).isEqualTo(300);
+
+        verify(activityRecorder).recordTopicStudied(
+                STUDENT_ID,
+                COURSE_ID,
+                TOPIC_ID,
+                120
+        );
+
+        verify(progressRepository, never()).save(any());
     }
 
     @Test
@@ -155,8 +191,7 @@ class LearningProgressServiceImplTest {
                 .thenReturn(Optional.of(progress));
         when(progressRepository.save(progress)).thenReturn(progress);
 
-        TopicLearningProgressResponse result =
-                learningProgressService.recordActivity(COURSE_ID, TOPIC_ID, STUDENT_ID);
+        TopicLearningProgressResponse result = learningProgressService.recordActivity(COURSE_ID, TOPIC_ID, STUDENT_ID, 30);
 
         assertThat(result.status()).isEqualTo(LearningProgressStatus.COMPLETED);
         assertThat(result.activeSeconds()).isEqualTo(330);

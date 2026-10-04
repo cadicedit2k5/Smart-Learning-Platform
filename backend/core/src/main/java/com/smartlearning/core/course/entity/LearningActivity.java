@@ -14,7 +14,20 @@ import java.util.UUID;
 @Getter
 @Setter
 @Entity
-@Table(name = "learning_activity", schema = "core")
+@Table(
+        name = "learning_activity",
+        schema = "core",
+        indexes = {
+                @Index(
+                        name = "idx_learning_activity_user_course_time",
+                        columnList = "user_id, course_id, occurred_at"
+                ),
+                @Index(
+                        name = "idx_learning_activity_course_type_time",
+                        columnList = "course_id, event_type, occurred_at"
+                )
+        }
+)
 public class LearningActivity {
 
     @Id

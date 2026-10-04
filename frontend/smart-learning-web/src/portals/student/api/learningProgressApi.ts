@@ -29,9 +29,26 @@ export const startTopicActivity = async (courseId: string, topicId: string): Pro
   return response.data.data
 }
 
-export const recordTopicActivity = async (courseId: string, topicId: string): Promise<TopicLearningProgress> => {
+export const recordTopicActivity = async (
+  courseId: string,
+  topicId: string,
+  activeSeconds: number,
+): Promise<TopicLearningProgress> => {
   const response = await httpClient.post<ApiResponse<TopicLearningProgress>>(
     `${learningPath(courseId)}/topics/${topicId}/activity`,
+    { activeSeconds },
+  )
+  return response.data.data
+}
+
+export const endTopicActivity = async (
+  courseId: string,
+  topicId: string,
+  activeSeconds: number,
+): Promise<TopicLearningProgress> => {
+  const response = await httpClient.post<ApiResponse<TopicLearningProgress>>(
+    `${learningPath(courseId)}/topics/${topicId}/activity/end`,
+    { activeSeconds },
   )
   return response.data.data
 }

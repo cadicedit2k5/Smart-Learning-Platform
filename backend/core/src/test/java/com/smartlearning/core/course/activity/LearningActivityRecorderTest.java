@@ -27,6 +27,20 @@ class LearningActivityRecorderTest {
     }
 
     @Test
+    void recordTopicStudied_persistsSessionDuration() {
+        recorder.recordTopicStudied(STUDENT_ID, COURSE_ID, TOPIC_ID, 420);
+
+        ArgumentCaptor<LearningActivity> captor = ArgumentCaptor.forClass(LearningActivity.class);
+        verify(repository).save(captor.capture());
+
+        LearningActivity activity = captor.getValue();
+
+        assertThat(activity.getEventType()).isEqualTo(LearningActivityType.TOPIC_STUDIED);
+        assertThat(activity.getData().get("topicId")).isEqualTo(TOPIC_ID.toString());
+        assertThat(activity.getData().get("activeSeconds")).isEqualTo(420);
+    }
+
+    @Test
     void recordTopicCompleted_persistsExpectedActivity() {
         recorder.recordTopicCompleted(STUDENT_ID, COURSE_ID, TOPIC_ID, 1200);
 

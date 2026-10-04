@@ -5,11 +5,13 @@ import com.smartlearning.common.dto.response.ApiResponse;
 import com.smartlearning.common.dto.response.ApiResponses;
 import com.smartlearning.common.entity.Authorities;
 import com.smartlearning.common.utils.JwtUtils;
+import com.smartlearning.core.course.dto.request.TopicActivityRequest;
 import com.smartlearning.core.course.dto.response.CourseLearningProgressResponse;
 import com.smartlearning.core.course.dto.response.LecturerCourseProgressResponse;
 import com.smartlearning.core.course.dto.response.StudentLearningProgressDetailResponse;
 import com.smartlearning.core.course.dto.response.TopicLearningProgressResponse;
 import com.smartlearning.core.course.service.LearningProgressService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -43,10 +45,34 @@ public class ApiLearningProgressController {
     public ResponseEntity<ApiResponse<TopicLearningProgressResponse>> recordActivity(
             @PathVariable UUID courseId,
             @PathVariable UUID topicId,
+            @Valid @RequestBody TopicActivityRequest request,
             @AuthenticationPrincipal Jwt jwt
     ) {
         return ApiResponses.ok(
-                progressService.recordActivity(courseId, topicId, JwtUtils.getUserId(jwt))
+                progressService.recordActivity(
+                        courseId,
+                        topicId,
+                        JwtUtils.getUserId(jwt),
+                        request.activeSeconds()
+                )
+        );
+    }
+
+    @PostMapping("/topics/{topicId}/activity/end")
+    @PreAuthorize(Authorities.COURSE_READ)
+    public ResponseEntity<ApiResponse<TopicLearningProgressResponse>> endTopicActivity(
+            @PathVariable UUID courseId,
+            @PathVariable UUID topicId,
+            @Valid @RequestBody TopicActivityRequest request,
+            @AuthenticationPrincipal Jwt jwt
+    ) {
+        return ApiResponses.ok(
+                progressService.endTopicActivity(
+                        courseId,
+                        topicId,
+                        JwtUtils.getUserId(jwt),
+                        request.activeSeconds()
+                )
         );
     }
 

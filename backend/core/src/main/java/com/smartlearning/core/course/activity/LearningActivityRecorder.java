@@ -28,6 +28,15 @@ public class LearningActivityRecorder {
         );
     }
 
+    public void recordTopicStudied(UUID userId, UUID courseId, UUID topicId, long activeSeconds) {
+        record(
+                userId,
+                courseId,
+                LearningActivityType.TOPIC_STUDIED,
+                new LearningActivityData.TopicStudiedData(topicId, activeSeconds)
+        );
+    }
+
     public void recordTopicCompleted(UUID userId, UUID courseId, UUID topicId, long activeSeconds) {
         record(
                 userId,

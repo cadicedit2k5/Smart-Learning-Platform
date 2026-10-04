@@ -22,6 +22,7 @@ import { useToastStore } from '@/shared/toast'
 
 import {
   completeTopic,
+  endTopicActivity,
   getCourseProgress,
   recordTopicActivity,
   startTopicActivity,
@@ -35,7 +36,12 @@ import TopicContentViewer from './StudentTopicContentViewer.vue'
 const props = defineProps<{ courseId: string }>()
 
 const ACTIVITY_INTERVAL_MS = 30_000
-const IDLE_LIMIT_MS = 5 * 60_000
+const MAX_ACTIVITY_DELTA_SECONDS = 60
+
+const configuredIdleLimitMs = Number(import.meta.env.VITE_LEARNING_IDLE_LIMIT_MS)
+const IDLE_LIMIT_MS = Number.isFinite(configuredIdleLimitMs) && configuredIdleLimitMs > 0
+  ? configuredIdleLimitMs
+  : 5 * 60_000
 
 const toast = useToastStore()
 const { handleApiError } = useStudentApiError()
@@ -47,14 +53,19 @@ interface ChapterWithTopics extends CourseChapter {
 const chapters = ref<ChapterWithTopics[]>([])
 const loading = ref(true)
 const progress = ref<CourseLearningProgress | null>(null)
-
 const completingTopicId = ref('')
 const selectedTopic = ref<CourseTopic | null>(null)
 const expandedChapters = ref<Set<string>>(new Set())
-const lastInteractionAt = ref(Date.now())
 
 let activityTimer: ReturnType<typeof setInterval> | null = null
-let activityRequest: Promise<void> | null = null
+let activityRequest: Promise<TopicLearningProgress | null> | null = null
+let startRequest: Promise<void> | null = null
+let endingActivity: Promise<void> | null = null
+let activeStudyTopicId: string | null = null
+let lastInteractionAt = Date.now()
+let measuredAt = 0
+let sessionActiveSeconds = 0
+let studySessionEnded = true
 
 const selectedChapter = computed(() => {
   if (!selectedTopic.value) return null
@@ -152,39 +163,164 @@ const updateLocalProgress = (updated: TopicLearningProgress) => {
   progress.value.lastTopicId = updated.topicId
 }
 
-const markInteraction = () => {
-  lastInteractionAt.value = Date.now()
-}
-
-const canTrackActivity = () =>
+const isPageEngaged = () =>
   document.visibilityState === 'visible' &&
   document.hasFocus() &&
-  Date.now() - lastInteractionAt.value <= IDLE_LIMIT_MS
+  Date.now() - lastInteractionAt <= IDLE_LIMIT_MS
 
 const startActivity = async (topicId: string) => {
+  if (!isPageEngaged()) return
+  if (endingActivity) await endingActivity
+  if (activeStudyTopicId === topicId) return
+
+  if (startRequest) await startRequest
+  if (activeStudyTopicId === topicId) return
+
+  startRequest = (async () => {
+    try {
+      updateLocalProgress(await startTopicActivity(props.courseId, topicId))
+
+      activeStudyTopicId = topicId
+      measuredAt = Date.now()
+      sessionActiveSeconds = 0
+      studySessionEnded = false
+    } catch {
+      // Tracking không được làm gián đoạn màn hình học.
+    }
+  })()
+
   try {
-    updateLocalProgress(await startTopicActivity(props.courseId, topicId))
-  } catch {
-    // Tracking không được làm gián đoạn màn hình học.
+    await startRequest
+  } finally {
+    startRequest = null
   }
 }
 
-const recordActivity = (topicId: string) => {
-  if (activityRequest) return activityRequest
+const flushActiveTime = async (topicId: string, endAt = Date.now()) => {
+  if (activeStudyTopicId !== topicId || measuredAt === 0) return
 
-  activityRequest = recordTopicActivity(props.courseId, topicId)
-    .then(updateLocalProgress)
-    .catch(() => {})
-    .finally(() => {
+  if (activityRequest) await activityRequest
+  if (activeStudyTopicId !== topicId || measuredAt === 0) return
+
+  const activeUntil = Math.min(endAt, lastInteractionAt + IDLE_LIMIT_MS)
+
+  while (activeStudyTopicId === topicId) {
+    const elapsedSeconds = Math.floor((activeUntil - measuredAt) / 1000)
+
+    if (elapsedSeconds <= 0) return
+
+    const activeSeconds = Math.min(MAX_ACTIVITY_DELTA_SECONDS, elapsedSeconds)
+    const request = recordTopicActivity(props.courseId, topicId, activeSeconds)
+      .catch(() => null)
+
+    activityRequest = request
+
+    const updated = await request
+
+    if (activityRequest === request) {
       activityRequest = null
-    })
+    }
 
-  return activityRequest
+    if (!updated || activeStudyTopicId !== topicId) return
+
+    updateLocalProgress(updated)
+
+    measuredAt += activeSeconds * 1000
+    sessionActiveSeconds += activeSeconds
+  }
+}
+
+const endActivity = (topicId: string, endedAt = Date.now()) => {
+  if (endingActivity) return endingActivity
+
+  endingActivity = (async () => {
+    if (startRequest) await startRequest
+
+    if (
+      activeStudyTopicId !== topicId ||
+      studySessionEnded
+    ) {
+      return
+    }
+
+    // Đánh dấu ngay session này đã được đóng.
+    // blur/visibilitychange/unmount gọi tiếp sẽ không tạo event lần hai.
+    studySessionEnded = true
+
+    await flushActiveTime(topicId, endedAt)
+
+    if (activeStudyTopicId !== topicId) return
+
+    const studiedSeconds = sessionActiveSeconds
+
+    activeStudyTopicId = null
+    measuredAt = 0
+    sessionActiveSeconds = 0
+
+    if (studiedSeconds <= 0) return
+
+    try {
+      await endTopicActivity(
+        props.courseId,
+        topicId,
+        studiedSeconds,
+      )
+    } catch {
+      // Aggregate đã được lưu qua heartbeat.
+      // History chỉ được ghi best effort.
+    }
+  })().finally(() => {
+    endingActivity = null
+  })
+
+  return endingActivity
+}
+
+const markInteraction = () => {
+  const now = Date.now()
+  const previousInteractionAt = lastInteractionAt
+  const topicId = selectedTopic.value?.id
+
+  lastInteractionAt = now
+
+  if (!topicId || document.visibilityState !== 'visible' || !document.hasFocus()) {
+    return
+  }
+
+  const wasIdle = now - previousInteractionAt > IDLE_LIMIT_MS
+
+  if (wasIdle && activeStudyTopicId === topicId) {
+    const idleEndedAt = previousInteractionAt + IDLE_LIMIT_MS
+
+    void (async () => {
+      await endActivity(topicId, idleEndedAt)
+      await startActivity(topicId)
+    })()
+
+    return
+  }
+
+  if (!activeStudyTopicId) {
+    void startActivity(topicId)
+  }
 }
 
 const trackSelectedTopic = async () => {
-  if (!selectedTopic.value || !canTrackActivity()) return
-  await recordActivity(selectedTopic.value.id)
+  const topicId = selectedTopic.value?.id
+
+  if (!topicId) return
+
+  if (!isPageEngaged()) {
+    await endActivity(topicId)
+    return
+  }
+
+  if (activeStudyTopicId !== topicId) {
+    await startActivity(topicId)
+    return
+  }
+
+  await flushActiveTime(topicId)
 }
 
 const selectTopic = async (chapter: ChapterWithTopics, topic: CourseTopic) => {
@@ -193,12 +329,12 @@ const selectTopic = async (chapter: ChapterWithTopics, topic: CourseTopic) => {
   const previousTopicId = selectedTopic.value?.id
 
   if (previousTopicId) {
-    await recordActivity(previousTopicId)
+    await endActivity(previousTopicId)
   }
 
   expandedChapters.value = new Set([...expandedChapters.value, chapter.id])
   selectedTopic.value = topic
-  markInteraction()
+  lastInteractionAt = Date.now()
 
   await startActivity(topic.id)
 }
@@ -223,7 +359,7 @@ const handleCompleteTopic = async () => {
   completingTopicId.value = topicId
 
   try {
-    await recordActivity(topicId)
+    await endActivity(topicId)
 
     const updated = await completeTopic(props.courseId, topicId)
 
@@ -238,19 +374,53 @@ const handleCompleteTopic = async () => {
 
 const handleVisibilityChange = () => {
   const topicId = selectedTopic.value?.id
+
   if (!topicId) return
 
   if (document.visibilityState === 'hidden') {
-    void recordActivity(topicId)
+    void endActivity(topicId)
     return
   }
 
-  markInteraction()
+  if (document.hasFocus()) {
+    lastInteractionAt = Date.now()
+
+    void (async () => {
+      if (endingActivity) await endingActivity
+      await startActivity(topicId)
+    })()
+  }
+}
+
+const handleFocus = () => {
+  const topicId = selectedTopic.value?.id
+  const now = Date.now()
+  const previousInteractionAt = lastInteractionAt
+
+  lastInteractionAt = now
+
+  if (!topicId) return
 
   void (async () => {
-    if (activityRequest) await activityRequest
+    if (
+      activeStudyTopicId === topicId &&
+      now - previousInteractionAt > IDLE_LIMIT_MS
+    ) {
+      await endActivity(topicId, previousInteractionAt + IDLE_LIMIT_MS)
+    }
+
+    if (endingActivity) await endingActivity
+
     await startActivity(topicId)
   })()
+}
+
+const handleBlur = () => {
+  const topicId = selectedTopic.value?.id
+
+  if (topicId) {
+    void endActivity(topicId)
+  }
 }
 
 const loadContent = async () => {
@@ -291,6 +461,7 @@ const loadContent = async () => {
     if (chapterToOpen && topicToOpen) {
       expandedChapters.value = new Set([chapterToOpen.id])
       selectedTopic.value = topicToOpen
+      lastInteractionAt = Date.now()
 
       await startActivity(topicToOpen.id)
     }
@@ -304,23 +475,39 @@ const loadContent = async () => {
 const interactionEvents = ['pointerdown', 'keydown', 'scroll', 'touchstart'] as const
 
 onMounted(async () => {
-  interactionEvents.forEach(event => window.addEventListener(event, markInteraction, { passive: true }))
-  window.addEventListener('focus', markInteraction)
+  interactionEvents.forEach(event =>
+    window.addEventListener(event, markInteraction, { passive: true }),
+  )
+
+  window.addEventListener('focus', handleFocus)
+  window.addEventListener('blur', handleBlur)
   document.addEventListener('visibilitychange', handleVisibilityChange)
 
   await loadContent()
 
-  activityTimer = setInterval(() => void trackSelectedTopic(), ACTIVITY_INTERVAL_MS)
+  activityTimer = setInterval(
+    () => void trackSelectedTopic(),
+    ACTIVITY_INTERVAL_MS,
+  )
 })
 
 onBeforeUnmount(() => {
-  if (activityTimer) clearInterval(activityTimer)
+  if (activityTimer) {
+    clearInterval(activityTimer)
+  }
 
   const topicId = selectedTopic.value?.id
-  if (topicId) void recordActivity(topicId)
 
-  interactionEvents.forEach(event => window.removeEventListener(event, markInteraction))
-  window.removeEventListener('focus', markInteraction)
+  if (topicId) {
+    void endActivity(topicId)
+  }
+
+  interactionEvents.forEach(event =>
+    window.removeEventListener(event, markInteraction),
+  )
+
+  window.removeEventListener('focus', handleFocus)
+  window.removeEventListener('blur', handleBlur)
   document.removeEventListener('visibilitychange', handleVisibilityChange)
 })
 </script>

@@ -8,6 +8,9 @@ public sealed interface LearningActivityData {
     record TopicStartedData(UUID topicId) implements LearningActivityData {
     }
 
+    record TopicStudiedData(UUID topicId, long activeSeconds) implements LearningActivityData {
+    }
+
     record TopicCompletedData(UUID topicId, long activeSeconds) implements LearningActivityData {
     }
 
