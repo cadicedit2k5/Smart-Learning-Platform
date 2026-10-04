@@ -37,7 +37,7 @@ class LearningActivityRecorderTest {
 
         assertThat(activity.getEventType()).isEqualTo(LearningActivityType.TOPIC_STUDIED);
         assertThat(activity.getData().get("topicId")).isEqualTo(TOPIC_ID.toString());
-        assertThat(activity.getData().get("activeSeconds")).isEqualTo(420);
+        assertThat(activity.getData().get("activeSeconds")).isEqualTo(420L);
     }
 
     @Test
@@ -54,6 +54,6 @@ class LearningActivityRecorderTest {
         assertThat(activity.getEventType()).isEqualTo(LearningActivityType.TOPIC_COMPLETED);
         assertThat(activity.getOccurredAt()).isNotNull();
         assertThat(activity.getData().get("topicId")).isEqualTo(TOPIC_ID.toString());
-        assertThat(activity.getData().get("activeSeconds")).isEqualTo(1200);
+        assertThat(activity.getData().get("activeSeconds")).isEqualTo(1200L);
     }
 }
