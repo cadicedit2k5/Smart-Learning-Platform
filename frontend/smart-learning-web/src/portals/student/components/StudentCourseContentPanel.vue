@@ -32,6 +32,7 @@ import {
 
 import { useStudentApiError } from '../composables/useStudentApiError'
 import TopicContentViewer from './StudentTopicContentViewer.vue'
+import StudentTopicQuiz from './StudentTopicQuiz.vue'
 
 const props = defineProps<{ courseId: string }>()
 
@@ -715,6 +716,12 @@ onBeforeUnmount(() => {
               <template #trailing><ChevronRight :size="17" /></template>
             </BaseButton>
           </footer>
+
+          <StudentTopicQuiz
+            :key="selectedTopic.id"
+            :course-id="courseId"
+            :topic-id="selectedTopic.id"
+          />
         </article>
       </main>
 

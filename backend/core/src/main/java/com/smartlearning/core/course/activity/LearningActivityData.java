@@ -14,6 +14,9 @@ public sealed interface LearningActivityData {
     record TopicCompletedData(UUID topicId, long activeSeconds) implements LearningActivityData {
     }
 
+    record TopicQuizSubmittedData(UUID topicId, UUID assessmentId, UUID attemptId, int score, int maxScore
+    ) implements LearningActivityData {}
+
     record AssignmentSubmittedData(UUID assignmentId, UUID submissionId) implements LearningActivityData {
     }
 

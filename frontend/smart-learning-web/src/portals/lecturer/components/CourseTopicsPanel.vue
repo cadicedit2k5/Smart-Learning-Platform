@@ -20,6 +20,9 @@ import {
 
 import { useLecturerApiError } from '../composables/useLecturerApiError'
 import TopicContentEditor from './TopicContentEditor.vue'
+import LecturerTopicQuizModal from './LecturerTopicQuizModal.vue'
+
+const quizTopic = ref<CourseTopic | null>(null)
 
 const props = defineProps<{
   courseId: string
@@ -348,8 +351,11 @@ onMounted(() => void loadTopics())
             </span>
           </div>
         </div>
-
+        
         <div class="flex shrink-0 items-center gap-1">
+          <BaseButton variant="secondary" @click="quizTopic = topic">
+            Kiểm tra nhanh
+          </BaseButton>
           <BaseButton
             variant="secondary"
             @click="openEdit(topic)"
@@ -522,4 +528,13 @@ onMounted(() => void loadTopics())
       </form>
     </div>
   </Teleport>
+
+  <LecturerTopicQuizModal
+    v-if="quizTopic"
+    :key="quizTopic.id"
+    :course-id="courseId"
+    :topic-id="quizTopic.id"
+    :topic-title="quizTopic.title"
+    @close="quizTopic = null"
+  />
 </template>

@@ -1,7 +1,9 @@
 package com.smartlearning.core.course.repository;
 
 import com.smartlearning.core.course.entity.CourseTopic;
+import jakarta.persistence.LockModeType;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Query;
 
 import java.util.List;
@@ -43,4 +45,12 @@ public interface CourseTopicRepository extends JpaRepository<CourseTopic, UUID> 
             order by topic.chapter.orderIndex asc, topic.orderIndex asc
             """)
     List<CourseTopic> findAllActiveByCourseIdOrderByPosition(UUID courseId);
+
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @Query("""
+        select t from CourseTopic t
+        where t.id = :topicId and t.chapter.course.id = :courseId
+          and t.deletedAt is null and t.chapter.deletedAt is null
+        """)
+    Optional<CourseTopic> findForQuizManagement(UUID courseId, UUID topicId);
 }

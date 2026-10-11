@@ -46,6 +46,18 @@ public class LearningActivityRecorder {
         );
     }
 
+    public void recordTopicQuizSubmitted(
+            UUID userId, UUID courseId, UUID topicId, UUID assessmentId,
+            UUID attemptId, int score, int maxScore
+    ) {
+        record(
+                userId, courseId, LearningActivityType.TOPIC_QUIZ_SUBMITTED,
+                new LearningActivityData.TopicQuizSubmittedData(
+                        topicId, assessmentId, attemptId, score, maxScore
+                )
+        );
+    }
+
     public void recordAssignmentSubmitted(UUID userId, UUID courseId, UUID assignmentId, UUID submissionId) {
         record(
                 userId,
