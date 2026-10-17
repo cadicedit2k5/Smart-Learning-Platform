@@ -44,4 +44,9 @@ public interface AssignmentRepository extends JpaRepository<Assignment, UUID> {
             @Param("closedStatus") AssignmentStatus closedStatus,
             @Param("now") Instant now
     );
+
+    long countByCourseIdAndDeletedAtIsNullAndStatusNot(
+            UUID courseId,
+            AssignmentStatus status
+    );
 }

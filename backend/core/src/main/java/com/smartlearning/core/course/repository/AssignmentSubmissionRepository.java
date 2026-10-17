@@ -1,8 +1,11 @@
 package com.smartlearning.core.course.repository;
 
 import com.smartlearning.core.course.entity.AssignmentSubmission;
+import com.smartlearning.core.course.entity.enums.AssignmentStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -33,4 +36,19 @@ public interface AssignmentSubmissionRepository extends JpaRepository<Assignment
     );
 
     boolean existsByAssignmentId(UUID assignmentId);
+
+    @Query("""
+        select submission
+        from AssignmentSubmission submission
+        join fetch submission.assignment assignment
+        where submission.studentId in :studentIds
+          and assignment.course.id = :courseId
+          and assignment.deletedAt is null
+          and assignment.status <> :excludedStatus
+        """)
+    List<AssignmentSubmission> findCourseSubmissionsForStudents(
+            Collection<UUID> studentIds,
+            UUID courseId,
+            AssignmentStatus excludedStatus
+    );
 }

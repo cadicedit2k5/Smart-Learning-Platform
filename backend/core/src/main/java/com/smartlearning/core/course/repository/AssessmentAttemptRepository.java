@@ -27,4 +27,22 @@ public interface AssessmentAttemptRepository extends JpaRepository<AssessmentAtt
             where a.assessment.id in :assessmentIds
             """)
     List<UUID> findAttemptedAssessmentIds(Collection<UUID> assessmentIds);
+
+    @Query("""
+        select attempt
+        from AssessmentAttempt attempt
+        where attempt.studentId in :studentIds
+          and exists (
+              select quiz.id
+              from TopicQuiz quiz
+              where quiz.id = attempt.assessment.id
+                and quiz.topic.chapter.course.id = :courseId
+                and quiz.topic.deletedAt is null
+                and quiz.topic.chapter.deletedAt is null
+          )
+        """)
+    List<AssessmentAttempt> findCourseAttemptsForStudents(
+            Collection<UUID> studentIds,
+            UUID courseId
+    );
 }
